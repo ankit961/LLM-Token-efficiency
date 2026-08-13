@@ -17,4 +17,5 @@ __version__ = "0.1.0"
 # Every durable object also carries its own schema_version (design C13).
 # 0.2.0: session-scoped ids + session_id columns (idempotent re-ingest, no
 #        cross-session collision), redaction on stored payloads.
-SCHEMA_VERSION = "0.2.0"
+# 0.3.0: CodeSymbol graph (symbols + code_edges tables) — Graph-Lite (C1).
+SCHEMA_VERSION = "0.3.0"

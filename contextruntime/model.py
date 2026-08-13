@@ -29,11 +29,20 @@ KINDS = (
 PROVENANCE = ("user", "source", "test", "tool", "model", "external")
 
 # Edge types of the Context-Object Graph (design §9).
-# DEPENDS_ON is Phase 2; IN_CAPSULE is Phase 4 — defined, not yet populated.
+# IN_CAPSULE is Phase 4 — defined, not yet populated.
 EDGE_TYPES = (
     "RESIDENT_IN", "MATERIALIZED_FROM", "DUPLICATE_OF", "SUPERSEDES",
-    "REDUCES", "CACHES", "BROKE", "IN_CAPSULE", "DEPENDS_ON",
+    "REDUCES", "CACHES", "BROKE", "IN_CAPSULE",
 )
+
+# CodeSymbol graph (Graph-Lite, C1) — repo-scoped.
+SYMBOL_KINDS = ("module", "class", "interface", "function", "method",
+                "type", "constant", "test")
+CODE_EDGE_TYPES = ("CONTAINS", "IMPORTS", "REFERENCES", "CALLS",
+                   "IMPLEMENTS", "TESTED_BY", "DEPENDS_ON")
+# Provenance of a resolved edge — drives per-language bundle-quality (design C3).
+RESOLUTION = ("compiler", "lsp", "scip", "python_ast", "tree_sitter",
+              "regex_heuristic", "derived")
 
 # Measurement quality (design §4.4) — JSONL is load-bearing; others are opt-in.
 MEASUREMENT_QUALITY = ("exact", "reconciled", "estimated")
@@ -123,6 +132,29 @@ class Capsule:
     mode: str = "continuation"          # continuation | review | debug | audit
     checkpoint_ref: Optional[str] = None
     evidence_ref: Optional[str] = None
+    schema_version: str = SCHEMA_VERSION
+
+
+@dataclass
+class CodeSymbol:
+    """A code symbol node in the repo-scoped Graph-Lite (design §8/§9, C1).
+
+    resolution_quality is the structural confidence of the parser that produced it
+    (python_ast ~0.95, tree_sitter ~0.9, regex_heuristic ~0.6), so downstream bundle
+    generation can widen the neighborhood for low-confidence languages (C3).
+    """
+    symbol_id: str
+    repo_id: str
+    language: str
+    kind: str                  # one of SYMBOL_KINDS
+    qualified_name: str
+    path: str
+    start_line: Optional[int]
+    end_line: Optional[int]
+    signature: Optional[str]
+    content_hash: Optional[str]
+    parser: str                # python_ast | tree_sitter | regex_heuristic
+    resolution_quality: float
     schema_version: str = SCHEMA_VERSION
 
 

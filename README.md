@@ -24,15 +24,18 @@ See **[docs/PHASE_0B.md](docs/PHASE_0B.md)**.
 python3 -m contextruntime.cli ingest ~/.claude/projects/*/*.jsonl --db graph.db
 python3 -m contextruntime.cli ledger --db graph.db
 python3 -m contextruntime.cli reduce-scan --db graph.db   # Phase 1: what ContextReduce would save
+python3 -m contextruntime.cli index-code path/to/repo --db graph.db  # Phase 2: CodeSymbol graph
 python3 -m contextruntime.cli doctor        # runtime capability profile (C11)
-python3 -m pytest -q                         # smoke tests (synthetic fixture)
+python3 -m pytest -q                         # tests
 ```
 
 Phases so far (**[STATUS.md](docs/STATUS.md)** — implemented vs. gate-passed):
 **[0b — ContextScope + Residency Graph](docs/PHASE_0B.md)** ·
-**[1 — ContextReduce](docs/PHASE_1.md)** (PostToolUse output reduction; ~53% on
-reducible tool results, Grade C, *observe mode* — not a whole-task number). Phase 2
-(SemanticFS + Graph-Lite) is the first real product gate.
+**[1 — ContextReduce](docs/PHASE_1.md)** (~53% on reducible tool results, Grade C,
+*observe mode* — not a whole-task number) ·
+**[2 — SemanticFS + Graph-Lite](docs/PHASE_2.md)** *(in progress)* — CodeSymbol graph
+via stdlib `ast` (Python) + tree-sitter (JS/TS/…), every edge with confidence +
+resolution provenance. Phase 2's admission experiment is the first real product gate.
 
 ### `contextscope/` — Phase 0 batch profilers (reference)
 

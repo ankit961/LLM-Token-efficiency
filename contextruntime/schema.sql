@@ -71,6 +71,43 @@ CREATE TABLE IF NOT EXISTS sources (
     schema_version TEXT NOT NULL
 );
 
+-- CodeSymbol graph (design v1.2 §8/§9, Graph-Lite C1) — repo-scoped, shared across
+-- sessions. Symbols are nodes; code_edges is the repo-scoped edge catalog, and every
+-- edge carries a confidence + resolution provenance so a dependency bundle never
+-- pretends all languages have equally sound analysis.
+CREATE TABLE IF NOT EXISTS symbols (
+    symbol_id          TEXT PRIMARY KEY,   -- "<repo>::<path>::<qualified_name>"
+    repo_id            TEXT NOT NULL,
+    language           TEXT NOT NULL,
+    kind               TEXT NOT NULL,      -- module/class/interface/function/method/type/constant/test
+    qualified_name     TEXT NOT NULL,
+    path               TEXT NOT NULL,
+    start_line         INTEGER,
+    end_line           INTEGER,
+    signature          TEXT,
+    content_hash       TEXT,
+    parser             TEXT NOT NULL,      -- python_ast | tree_sitter | regex_heuristic
+    resolution_quality REAL NOT NULL,      -- structural confidence of the parser
+    schema_version     TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_symbols_repo ON symbols(repo_id);
+CREATE INDEX IF NOT EXISTS idx_symbols_name ON symbols(qualified_name);
+CREATE INDEX IF NOT EXISTS idx_symbols_lang ON symbols(language);
+
+CREATE TABLE IF NOT EXISTS code_edges (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    repo_id    TEXT NOT NULL,
+    src_id     TEXT NOT NULL,
+    dst_id     TEXT NOT NULL,              -- symbol_id, or "unresolved:<name>"
+    edge_type  TEXT NOT NULL,              -- CONTAINS/IMPORTS/REFERENCES/CALLS/IMPLEMENTS/TESTED_BY/DEPENDS_ON
+    confidence REAL NOT NULL,
+    resolution TEXT NOT NULL,              -- python_ast | tree_sitter | regex_heuristic | derived
+    props      TEXT
+);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_cedges_uniq ON code_edges(src_id, dst_id, edge_type);
+CREATE INDEX IF NOT EXISTS idx_cedges_repo ON code_edges(repo_id);
+CREATE INDEX IF NOT EXISTS idx_cedges_src  ON code_edges(src_id, edge_type);
+
 -- Phase 4 tables — shape frozen now (C13), populated later.
 CREATE TABLE IF NOT EXISTS capsules (
     task_id        TEXT PRIMARY KEY,

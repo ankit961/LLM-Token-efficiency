@@ -14,12 +14,23 @@ dependencies = []                       # core is stdlib-only (sqlite3, json, da
 
 [project.optional-dependencies]
 dev = ["pytest>=7"]
+# Unlocks high-confidence parsing for non-Python languages. Python uses stdlib
+# `ast` and needs none of this; without these, JS/TS fall back to the regex
+# heuristic (lower confidence). Install: pip install -e ".[codegraph]"
+codegraph = [
+  "tree-sitter>=0.21",
+  "tree-sitter-javascript",
+  "tree-sitter-typescript",
+  "tree-sitter-go",
+  "tree-sitter-java",
+  "tree-sitter-rust",
+]
 
 [project.scripts]
 contextruntime = "contextruntime.cli:main"
 
 [tool.setuptools]
-packages = ["contextruntime", "contextruntime.reducers"]
+packages = ["contextruntime", "contextruntime.reducers", "contextruntime.codegraph"]
 
 [tool.setuptools.package-data]
 contextruntime = ["schema.sql"]

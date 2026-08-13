@@ -113,6 +113,16 @@ def cmd_hook(args) -> int:
     return hook_mod.main()
 
 
+def cmd_index_code(args) -> int:
+    """Build the CodeSymbol graph (Graph-Lite) for a repository path."""
+    from .codegraph import builder
+    store = _open(args.db)
+    rep = builder.index_path(store, args.path, repo_id=args.repo)
+    print(builder.format_report(rep))
+    store.close()
+    return 0
+
+
 def cmd_expand(args) -> int:
     """Resolve a result:// handle back to its (redacted) payload (SemanticFS)."""
     from .semanticfs import context_expand
@@ -165,6 +175,12 @@ def main(argv=None) -> int:
     p.add_argument("--db", required=True)
     p.add_argument("handle")
     p.set_defaults(func=cmd_expand)
+
+    p = sub.add_parser("index-code", help="build the CodeSymbol graph (Graph-Lite) for a repo")
+    p.add_argument("path")
+    p.add_argument("--db", required=True)
+    p.add_argument("--repo", help="repo id (default: dir name)")
+    p.set_defaults(func=cmd_index_code)
 
     args = ap.parse_args(argv)
     return args.func(args)

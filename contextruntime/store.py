@@ -14,7 +14,7 @@ from typing import Iterable, Iterator, Optional
 
 from . import SCHEMA_VERSION
 from .model import (
-    CacheIsland, ContextObject, LedgerEvent, Request, Source,
+    CacheIsland, CodeSymbol, ContextObject, LedgerEvent, Request, Source,
 )
 
 _SCHEMA = (Path(__file__).parent / "schema.sql").read_text()
@@ -108,6 +108,49 @@ class GraphStore:
     def blob(self, content_hash: str) -> Optional[sqlite3.Row]:
         return self.conn.execute(
             "SELECT * FROM blobs WHERE content_hash=?", (content_hash,)).fetchone()
+
+    # --- CodeSymbol graph (repo-scoped) --------------------------------------
+
+    def put_symbol(self, s: CodeSymbol) -> None:
+        self.conn.execute(
+            """INSERT OR REPLACE INTO symbols VALUES
+               (:symbol_id,:repo_id,:language,:kind,:qualified_name,:path,:start_line,
+                :end_line,:signature,:content_hash,:parser,:resolution_quality,
+                :schema_version)""",
+            asdict(s),
+        )
+
+    def add_code_edge(self, repo_id: str, src_id: str, dst_id: str, edge_type: str,
+                      confidence: float, resolution: str,
+                      props: Optional[dict] = None) -> None:
+        self.conn.execute(
+            "INSERT OR IGNORE INTO code_edges(repo_id,src_id,dst_id,edge_type,"
+            "confidence,resolution,props) VALUES (?,?,?,?,?,?,?)",
+            (repo_id, src_id, dst_id, edge_type, confidence, resolution,
+             json.dumps(props) if props else None),
+        )
+
+    def delete_repo(self, repo_id: str) -> None:
+        """Idempotent re-index: drop a repo's symbols + code edges first."""
+        self.conn.execute("DELETE FROM code_edges WHERE repo_id=?", (repo_id,))
+        self.conn.execute("DELETE FROM symbols    WHERE repo_id=?", (repo_id,))
+
+    def symbols(self, repo_id: Optional[str] = None) -> Iterator[sqlite3.Row]:
+        if repo_id:
+            yield from self.conn.execute("SELECT * FROM symbols WHERE repo_id=?", (repo_id,))
+        else:
+            yield from self.conn.execute("SELECT * FROM symbols")
+
+    def code_edges(self, edge_type: Optional[str] = None) -> Iterator[sqlite3.Row]:
+        if edge_type:
+            yield from self.conn.execute(
+                "SELECT * FROM code_edges WHERE edge_type=?", (edge_type,))
+        else:
+            yield from self.conn.execute("SELECT * FROM code_edges")
+
+    def has_symbol(self, symbol_id: str) -> bool:
+        return self.conn.execute(
+            "SELECT 1 FROM symbols WHERE symbol_id=? LIMIT 1", (symbol_id,)).fetchone() is not None
 
     def commit(self) -> None:
         self.conn.commit()
