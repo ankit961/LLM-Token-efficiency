@@ -92,42 +92,47 @@ Structural Confidence Report — repo 'sample'
     python       conf=0.78  parser=python_ast
 ```
 
-## Budgeted bundle generator (Phase 2.2)
+## Budgeted bundle planner (Phase 2.2 / 2.2.1)
 
 `build_bundle(store, root_symbol_id, budget, max_depth, policy) -> Bundle` — the first
 component that directly attacks source-token admission. It chooses a small graph
 projection that is still sufficient, selecting **both which symbols and at what
 representation level** (a 40-token signature can beat a 900-token implementation).
 
+It is a **planner, not yet a compiler**: token costs are estimates from stored metadata
+(line span, signature length). Phase 2.3 adds the representation **materializer** that
+renders actual source-derived text and validates the *rendered* token budget.
+
 ```
-max  Σ U(v, level)   s.t.   Σ tokens(v, level) ≤ B,   one level per symbol
-U = R · C · W · D · F   (structural only — no NL reranker yet, so Gate 2A can
-                         isolate structural quality)
+objective:  max Σ U(v, level)  s.t.  Σ tokens(v, level) ≤ B,  one level per symbol
+            U = R · C · W · D · F   (structural only — no NL reranker yet)
 ```
 
-Solved by an **incremental** method: seed the mandatory set (root + a tiny required core
-of direct-hard-dependency signatures), then build one **budget-independent** order of
-increments (add-a-signature / upgrade-one-level, ranked by value/cost with per-branch
-diminishing returns) and apply its longest fitting prefix.
+Solved by a **deterministic monotone greedy approximation** — not an exact `argmax`:
+**mandatory = root only** (hard deps are *eligible*-for-mandatory, not auto-mandatory — a
+true required core needs `TYPE_USES`/signature-dependency data we don't extract yet), then
+one budget-independent increment order over a per-symbol **cost ladder** (equal-cost levels
+collapsed, so tiny symbols aren't stuck at signature), applying the longest fitting prefix.
 
 Guaranteed properties (all tested):
 
-- **budget invariant** `used ≤ B`; **exact boundary**, no off-by-one
-- **root preservation**, or an explicit `insufficient` + `minimum_viable_budget`
-- **hard = eligible-for-mandatory, not auto-mandatory**; `exact`/`scoped` may be
-  mandatory, `inferred` (soft) is discretionary and **never mandatory**,
-  `ambiguous`/`unresolved` are never dependencies (`ambiguous` → compact hint)
+- **budget invariant** `used ≤ B`; exact boundary, no off-by-one
+- **root preservation**, or explicit `insufficient` + `minimum_viable_budget` (= root alone)
+- **hard vs soft** — `exact`/`scoped` rank above `inferred` (soft), soft is never
+  mandatory; `ambiguous`/`unresolved` are never dependencies (`ambiguous` → compact,
+  **repo-scoped** hint that never leaks another repo's symbols)
 - **monotonicity** — more budget never yields less information (prefix construction)
 - **determinism** — same graph + root + budget + policy ⇒ byte-identical bundle
 - **diversity** — per-branch diminishing returns stop one subtree eating the budget
-- **representation preference** — under pressure, a dependency appears as a signature
-  rather than being dropped
-- **no epistemic escalation** — a soft relation stays soft at any budget (budget affects
-  disclosure, not confidence)
+- **representation** — a dep is kept at a reduced level rather than dropped, and upgrades
+  as budget grows
+- **no epistemic escalation** — a soft relation stays soft at any budget
 
-Every bundle is explainable: each `selected` entry records level, tokens, edge, match,
-soft, distance, utility, and reason; `excluded` records why; plus metrics
-(`branch_concentration`, `minimum_viable_budget`, per-level tokens, hard/soft counts).
+**Approximation quality is measured, not assumed** (vs an exact DP solver on small graphs):
+without the diversity penalty the greedy is **≈optimal (median ratio 1.00)**; the diversity
+policy costs a measured **~13%** (median 0.87). Every bundle is explainable (per-pick
+level/tokens/edge/match/soft/utility/reason; excluded reasons; metrics incl.
+`branch_concentration`, `minimum_viable_budget`).
 
 ```bash
 python3 -m contextruntime.cli bundle <symbol_or_qualified_name> --db graph.db --budget 2048

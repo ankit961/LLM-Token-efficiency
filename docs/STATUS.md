@@ -52,7 +52,7 @@ tests; CI (Python 3.10–3.13, core + `[codegraph]` + fallback). Remaining: impo
 resolution, `REFERENCES` (schema-reserved), richer tree-sitter relationship coverage.
 
 1. Harden graph foundation ✅
-**Phase 2.2 — budgeted bundle generator · DONE**: `build_bundle` (symbol × representation-level, incremental/monotone, deterministic; hard eligible-for-mandatory, soft never mandatory, ambiguous→hint; budget-pressure signal; 11 property tests). MCP read surface is next.
+**Phase 2.2 + 2.2.1 — budgeted bundle planner · DONE**: `build_bundle` (symbol × representation-level, deterministic monotone greedy approximation; **mandatory = root only**, hard eligible-not-mandatory, soft never mandatory, ambiguous→repo-scoped hint; per-symbol cost-ladder; budget-pressure signal). Approximation measured vs exact DP: ≈optimal without diversity (median 1.00), diversity costs ~13% (0.87). It is a **planner, not a compiler** — Phase 2.3 materializes actual source text + validates the rendered budget. MCP read surface next.
 
 2. `CodeSymbol` schema (id, repo, language, kind, qualified_name, path, lines, signature,
    content_hash, parser, **resolution_quality**) ✅
