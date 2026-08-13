@@ -142,10 +142,31 @@ def test_concurrent_replay_canonicalizes_to_one_id(tmp_path):
         t.join()
     r = GraphStore(db)
     rows = [x for x in r.semantic_reads() if x["source_event_key"] == "tool_use_42"]
+    assert len(returned) == 6                                    # every concurrent caller succeeded
     assert len(rows) == 1                                        # exactly one persisted row
-    assert len(set(returned.values())) == 1                     # every caller got the SAME id
-    assert rows[0]["event_id"] == next(iter(returned.values())) # and it is the persisted one
+    assert len(set(returned.values())) == 1                     # ...and all agreed on the id
+    assert rows[0]["event_id"] == next(iter(returned.values())) # which is the persisted one
     r.close()
+
+
+# Producer-key completeness (B.1.3): a keyed event without its full key would leave a NULL in the
+# composite tuple and silently bypass dedup — rejected at BOTH the app layer and the DB.
+def test_incomplete_producer_key_is_rejected_by_recorder():
+    s = _store()
+    rr = read_symbol(s, "service.process", budget=1000)
+    with pytest.raises(ValueError):                             # key without source_system
+        record_read(s, rr, session_id="S", source_event_key="k")
+    with pytest.raises(ValueError):                             # key without any stream
+        record_read(s, rr, source_system="claude_mcp", source_event_key="k")
+    s.close()
+
+
+def test_incomplete_producer_key_is_rejected_by_db_check():
+    s = _store()
+    with pytest.raises(sqlite3.IntegrityError):                 # DB CHECK backstops a direct put
+        s.put_semantic_read(SemanticReadEvent(
+            event_id="x", channel="semanticfs", source_event_key="k"))   # no system, no stream
+    s.close()
 
 
 # An accidental event_id collision must FAIL LOUDLY, not be silently swallowed.

@@ -170,7 +170,10 @@ CREATE TABLE IF NOT EXISTS semantic_reads (
     expanded_later           INTEGER,
     expansion_tokens         INTEGER,
     recovery_turns           INTEGER,
-    schema_version           TEXT NOT NULL
+    schema_version           TEXT NOT NULL,
+    -- Producer-key completeness: a keyed (replayable) event MUST carry its full key, else the
+    -- composite unique tuple contains a NULL and NEVER conflicts — silently bypassing dedup.
+    CHECK (source_event_key IS NULL OR (source_system IS NOT NULL AND stream_key IS NOT NULL))
 );
 CREATE INDEX IF NOT EXISTS idx_sreads_session ON semantic_reads(session_id, seq);
 CREATE INDEX IF NOT EXISTS idx_sreads_parent  ON semantic_reads(parent_event_id);
