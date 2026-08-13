@@ -1,0 +1,590 @@
+<title>ContextRuntime — how coding agents burn tokens, and how to stop it</title>
+<style>
+  :root{
+    --ground:#f4f6fa; --panel:#ffffff; --panel-2:#eaeef4; --sunk:#e3e8f0;
+    --fg:#111925; --fg-soft:#39465a; --muted:#697788; --faint:#98a4b4;
+    --line:#d5dce6; --line-soft:#e4e9f1;
+    --accent:#0e8f80; --accent-bright:#12b3a0; --accent-ghost:rgba(14,143,128,.10);
+    --warn:#b3720d; --warn-bright:#d18a1a; --warn-ghost:rgba(179,114,13,.12);
+    --crit:#cf3350; --crit-ghost:rgba(207,51,80,.10);
+    --shadow:0 1px 2px rgba(16,24,40,.04),0 8px 28px -12px rgba(16,24,40,.14);
+    --font-sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --font-mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,"Liberation Mono",monospace;
+    --maxw:1120px; --prose:66ch;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --ground:#080d15; --panel:#111a27; --panel-2:#0d1522; --sunk:#0a111c;
+      --fg:#e6ecf4; --fg-soft:#b4c0d0; --muted:#7e8 da0; --muted:#7f8da0; --faint:#5b6b80;
+      --line:#213043; --line-soft:#1a2637;
+      --accent:#2dd4bf; --accent-bright:#3ee0cb; --accent-ghost:rgba(45,212,191,.12);
+      --warn:#f0a83a; --warn-bright:#f6bb5c; --warn-ghost:rgba(240,168,58,.13);
+      --crit:#f2607a; --crit-ghost:rgba(242,96,122,.13);
+      --shadow:0 1px 2px rgba(0,0,0,.3),0 14px 40px -16px rgba(0,0,0,.6);
+    }
+  }
+  :root[data-theme="light"]{
+    --ground:#f4f6fa; --panel:#ffffff; --panel-2:#eaeef4; --sunk:#e3e8f0;
+    --fg:#111925; --fg-soft:#39465a; --muted:#697788; --faint:#98a4b4;
+    --line:#d5dce6; --line-soft:#e4e9f1;
+    --accent:#0e8f80; --accent-bright:#12b3a0; --accent-ghost:rgba(14,143,128,.10);
+    --warn:#b3720d; --warn-bright:#d18a1a; --warn-ghost:rgba(179,114,13,.12);
+    --crit:#cf3350; --crit-ghost:rgba(207,51,80,.10);
+    --shadow:0 1px 2px rgba(16,24,40,.04),0 8px 28px -12px rgba(16,24,40,.14);
+  }
+  :root[data-theme="dark"]{
+    --ground:#080d15; --panel:#111a27; --panel-2:#0d1522; --sunk:#0a111c;
+    --fg:#e6ecf4; --fg-soft:#b4c0d0; --muted:#7f8da0; --faint:#5b6b80;
+    --line:#213043; --line-soft:#1a2637;
+    --accent:#2dd4bf; --accent-bright:#3ee0cb; --accent-ghost:rgba(45,212,191,.12);
+    --warn:#f0a83a; --warn-bright:#f6bb5c; --warn-ghost:rgba(240,168,58,.13);
+    --crit:#f2607a; --crit-ghost:rgba(242,96,122,.13);
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 14px 40px -16px rgba(0,0,0,.6);
+  }
+
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;background:var(--ground);color:var(--fg);
+    font-family:var(--font-sans);line-height:1.6;
+    font-size:clamp(15px,.4vw + 14px,17px);
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+  }
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 clamp(20px,5vw,56px)}
+  section{padding:clamp(56px,8vw,104px) 0;border-top:1px solid var(--line-soft)}
+  .prose{max-width:var(--prose)}
+  p{color:var(--fg-soft);margin:0 0 1.1em}
+  strong{color:var(--fg);font-weight:640}
+  a{color:var(--accent);text-underline-offset:3px}
+
+  .eyebrow{
+    font-family:var(--font-mono);font-size:12px;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--accent);font-weight:600;
+    display:inline-flex;align-items:center;gap:.6em;margin:0 0 20px;
+  }
+  .eyebrow::before{content:"";width:22px;height:1px;background:var(--accent);opacity:.7}
+  h1,h2,h3{color:var(--fg);text-wrap:balance;line-height:1.08;letter-spacing:-.02em;margin:0}
+  h2{font-size:clamp(1.7rem,3.4vw,2.7rem);font-weight:700;margin:0 0 .5em}
+  h3{font-size:1.06rem;font-weight:660;letter-spacing:-.01em}
+  .lede{font-size:clamp(1.06rem,1.4vw,1.28rem);color:var(--fg-soft);max-width:60ch}
+  .kicker{color:var(--fg);font-weight:600}
+
+  /* ---------- hero ---------- */
+  .hero{border-top:none;padding-top:clamp(64px,10vw,120px);padding-bottom:clamp(40px,6vw,64px)}
+  .hero .mark{
+    font-family:var(--font-mono);font-size:12px;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--muted);display:flex;align-items:center;gap:10px;margin-bottom:34px;
+  }
+  .hero .mark b{color:var(--fg);font-weight:600;letter-spacing:.22em}
+  .hero .dot{width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 4px var(--accent-ghost)}
+  .hero h1{
+    font-size:clamp(2.5rem,7vw,5.1rem);font-weight:760;letter-spacing:-.035em;
+    margin:0 0 .32em;max-width:16ch;
+  }
+  .hero h1 .em{color:var(--accent)}
+  .hero .thesis{font-size:clamp(1.12rem,1.7vw,1.45rem);color:var(--fg-soft);max-width:56ch;line-height:1.5}
+  .hero .thesis b{color:var(--fg);font-weight:640}
+  .tagrow{display:flex;flex-wrap:wrap;gap:8px;margin-top:34px}
+  .tag{
+    font-family:var(--font-mono);font-size:12px;letter-spacing:.02em;color:var(--fg-soft);
+    background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:7px 14px;
+  }
+
+  /* ---------- figures ---------- */
+  figure{margin:36px 0 0}
+  .figframe{
+    background:var(--panel);border:1px solid var(--line);border-radius:16px;
+    padding:clamp(18px,3vw,32px);box-shadow:var(--shadow);overflow-x:auto;
+  }
+  .figframe svg{display:block;width:100%;height:auto;min-width:520px}
+  figcaption{
+    margin-top:14px;font-size:13.5px;color:var(--muted);max-width:74ch;
+    font-family:var(--font-sans);line-height:1.5;
+  }
+  figcaption .mono{font-family:var(--font-mono);color:var(--fg-soft);font-size:12.5px}
+
+  /* diagram element classes (theme-aware) */
+  .d-line{stroke:var(--line);fill:none}
+  .d-edge{stroke:var(--muted);fill:none}
+  .d-fg{stroke:var(--fg);fill:none}
+  .d-panel{fill:var(--panel-2);stroke:var(--line)}
+  .d-sunk{fill:var(--sunk);stroke:none}
+  .d-accent{fill:var(--accent)}
+  .d-accent-s{stroke:var(--accent);fill:none}
+  .d-accent-g{fill:var(--accent-ghost)}
+  .d-warn{fill:var(--warn)}
+  .d-warn-g{fill:var(--warn-ghost)}
+  .d-crit{fill:var(--crit)}
+  .d-crit-g{fill:var(--crit-ghost)}
+  .t{font-family:var(--font-mono);fill:var(--fg);font-size:13px}
+  .t-sm{font-family:var(--font-mono);fill:var(--muted);font-size:11.5px}
+  .t-lg{font-family:var(--font-sans);fill:var(--fg);font-size:15px;font-weight:640}
+  .t-hero{font-family:var(--font-sans);font-weight:700;font-size:22px}
+  .t-acc{fill:var(--accent)} .t-warn{fill:var(--warn)} .t-crit{fill:var(--crit)}
+  .t-mut{fill:var(--muted)}
+
+  /* ---------- stat band ---------- */
+  .stats{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+    gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;
+    overflow:hidden;margin-top:38px;
+  }
+  .stat{background:var(--panel);padding:22px 20px}
+  .stat .n{
+    font-family:var(--font-mono);font-size:clamp(1.7rem,3vw,2.3rem);font-weight:600;
+    color:var(--fg);letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1;
+  }
+  .stat .n.warn{color:var(--warn)} .stat .n.acc{color:var(--accent)}
+  .stat .l{margin-top:9px;font-size:12.5px;color:var(--muted);line-height:1.4}
+  .stat .l b{color:var(--fg-soft);font-weight:600}
+
+  /* ---------- lever cards ---------- */
+  .levers{display:grid;grid-template-columns:1fr;gap:14px;margin-top:34px}
+  @media(min-width:720px){.levers{grid-template-columns:1fr 1fr}}
+  .lever{
+    background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px 22px 20px;
+    display:flex;flex-direction:column;gap:10px;
+  }
+  .lever .lh{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+  .lever h3{font-size:1rem}
+  .lever .badge{
+    font-family:var(--font-mono);font-size:11px;letter-spacing:.02em;padding:4px 9px;border-radius:6px;
+    background:var(--accent-ghost);color:var(--accent);white-space:nowrap;
+  }
+  .lever p{margin:0;font-size:14px;color:var(--fg-soft)}
+  .lever .swap{font-family:var(--font-mono);font-size:13px;color:var(--muted);margin-top:2px}
+  .lever .swap b{color:var(--fg)} .lever .swap .to{color:var(--accent)}
+
+  /* ---------- modes strip ---------- */
+  .modes{display:grid;grid-template-columns:1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden;margin-top:30px}
+  @media(min-width:760px){.modes{grid-template-columns:repeat(3,1fr)}}
+  .mode{background:var(--panel);padding:22px 20px}
+  .mode .mn{font-family:var(--font-mono);font-size:12px;color:var(--muted);letter-spacing:.04em}
+  .mode h3{margin:8px 0 8px;font-size:1.02rem}
+  .mode p{margin:0;font-size:13.5px}
+  .mode .ctrl{margin-top:14px;height:4px;border-radius:3px;background:var(--sunk);overflow:hidden}
+  .mode .ctrl i{display:block;height:100%;background:var(--accent);border-radius:3px}
+
+  .note{
+    margin-top:30px;border-left:3px solid var(--accent);background:var(--accent-ghost);
+    padding:16px 20px;border-radius:0 10px 10px 0;font-size:14.5px;color:var(--fg-soft);
+  }
+  .note b{color:var(--fg)}
+  .note.warn{border-color:var(--warn);background:var(--warn-ghost)}
+
+  footer{border-top:1px solid var(--line-soft);padding:44px 0 72px;color:var(--muted);font-size:13px}
+  footer .fmono{font-family:var(--font-mono);font-size:12px;letter-spacing:.04em}
+  .legend{display:flex;flex-wrap:wrap;gap:16px 22px;margin-top:26px;font-family:var(--font-mono);font-size:12px;color:var(--muted)}
+  .legend span{display:inline-flex;align-items:center;gap:8px}
+  .sw{width:13px;height:13px;border-radius:3px;display:inline-block}
+  .sw.acc{background:var(--accent)} .sw.warn{background:var(--warn)} .sw.crit{background:var(--crit)}
+  .sw.ghost{background:var(--sunk);border:1px solid var(--line)}
+
+  @media (prefers-reduced-motion:reduce){ *{scroll-behavior:auto} }
+  :focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:3px}
+</style>
+
+<header class="hero wrap">
+  <div class="mark"><span class="dot" aria-hidden="true"></span> CONTEXT<b>RUNTIME</b> &nbsp;·&nbsp; SEMANTIC&nbsp;I/O FOR CODING AGENTS</div>
+  <h1>Coding agents pay for the same context <span class="em">again and again.</span></h1>
+  <p class="thesis">Agentic coding is a loop. Every request re-sends the entire conversation, so a token you admit once is re-billed on <b>every</b> later turn. The real unit of cost isn&rsquo;t the token — it&rsquo;s the <b>token-turn</b>. ContextRuntime controls what becomes context, at what resolution, and for how long.</p>
+  <div class="tagrow">
+    <span class="tag">measured: 168 sessions · ~170k requests</span>
+    <span class="tag">96% of context = cache re-reads</span>
+    <span class="tag">82% of cache-writes = prefix rebuilds</span>
+  </div>
+</header>
+
+<!-- ===================== PROBLEM ===================== -->
+<section class="wrap reveal">
+  <div class="prose">
+    <div class="eyebrow">The problem</div>
+    <h2>The loop multiplier</h2>
+    <p>A coding agent doesn&rsquo;t send one message and get one answer. It runs a loop: read a file, run a test, edit, re-run — dozens to hundreds of model requests per task. And on <em>every</em> request the whole conversation so far is sent again as the prompt prefix.</p>
+    <p>So the cost of admitting something into context is not paid once. A 5,000-token file opened at turn 10 of a 60-turn session sits in the prefix for the next 50 requests and is billed on each. That&rsquo;s the mechanism that makes long agent sessions expensive — and it&rsquo;s invisible if you only count the first read.</p>
+  </div>
+
+  <figure class="reveal">
+    <div class="figframe">
+      <svg viewBox="0 0 760 300" role="img" aria-label="One 5,000-token read admitted at one turn is re-read on every subsequent turn, multiplying into tens of thousands of token-turns.">
+        <!-- left: single admission -->
+        <text x="20" y="34" class="t-sm">YOU ADMIT ONCE</text>
+        <rect x="20" y="48" width="150" height="60" rx="8" class="d-accent-g"/>
+        <rect x="20" y="48" width="150" height="60" rx="8" class="d-accent-s"/>
+        <text x="95" y="74" text-anchor="middle" class="t t-acc" style="font-weight:600">read file</text>
+        <text x="95" y="94" text-anchor="middle" class="t-sm">5,000 tok</text>
+
+        <!-- arrow -->
+        <line x1="176" y1="78" x2="238" y2="78" class="d-edge" marker-end="url(#a1)"/>
+        <text x="207" y="66" text-anchor="middle" class="t-sm">stays resident</text>
+
+        <!-- stacked resident copies -->
+        <text x="250" y="34" class="t-sm">BILLED EVERY TURN AFTER</text>
+        <g>
+          <rect x="250" y="48" width="300" height="15" rx="3" class="d-accent" opacity="0.85"/>
+          <rect x="250" y="66" width="300" height="15" rx="3" class="d-accent" opacity="0.30"/>
+          <rect x="250" y="84" width="300" height="15" rx="3" class="d-accent" opacity="0.26"/>
+          <rect x="250" y="102" width="300" height="15" rx="3" class="d-accent" opacity="0.22"/>
+          <rect x="250" y="120" width="300" height="15" rx="3" class="d-accent" opacity="0.19"/>
+          <rect x="250" y="138" width="300" height="15" rx="3" class="d-accent" opacity="0.16"/>
+          <rect x="250" y="156" width="300" height="15" rx="3" class="d-accent" opacity="0.13"/>
+        </g>
+        <text x="250" y="188" class="t-sm">turn 11 · turn 12 · turn 13 · &hellip; · turn 60</text>
+
+        <!-- brace + total -->
+        <path d="M566 48 q10 0 10 10 v42 q0 10 10 10 q-10 0 -10 10 v42 q0 10 -10 10" class="d-edge"/>
+        <text x="596" y="104" class="t-lg">≈ 50 ×</text>
+        <text x="596" y="130" class="t t-acc" style="font-weight:600">250,000</text>
+        <text x="596" y="150" class="t-sm">token-turns</text>
+        <text x="596" y="172" class="t-sm">for one 5k read</text>
+
+        <defs>
+          <marker id="a1" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><polygon points="0 0, 9 4.5, 0 9" fill="var(--muted)"/></marker>
+        </defs>
+      </svg>
+    </div>
+    <figcaption>Each turn re-sends the full prefix. One admission is billed once at full price, then on every later turn — at the cached rate if it&rsquo;s still warm, at full price if the cache broke. <span class="mono">The cost of a piece of context = its size × the turns it stays resident.</span></figcaption>
+  </figure>
+</section>
+
+<!-- ===================== TODAY ===================== -->
+<section class="wrap reveal">
+  <div class="prose">
+    <div class="eyebrow">How agents spend tokens today</div>
+    <h2>Every request ships the whole prefix</h2>
+    <p>Claude Code, Codex and Cursor all assemble the same shape of request: a system prompt, the tool definitions, your rules (<span class="kicker">CLAUDE.md</span> / <span class="kicker">AGENTS.md</span>), the entire conversation so far, every prior tool result, and the one new message. Prompt caching makes re-reading the stable part cheap — an exact-prefix, per-model cache — but <strong>cheap is not small</strong>: cached tokens still occupy the window and still get processed on a break.</p>
+    <p>Native habits make the prefix grow fast: whole-file reads to find one function, raw <span class="kicker">grep</span> dumps, thousands of lines of passing-test output. All of it lands in the prefix and rides along for the rest of the session.</p>
+  </div>
+
+  <figure class="reveal">
+    <div class="figframe">
+      <svg viewBox="0 0 760 300" role="img" aria-label="Anatomy of one request: system prompt, tool definitions, rules, conversation history and tool results form a large cached prefix re-sent every turn; the new message is a thin sliver on top.">
+        <text x="20" y="30" class="t-sm">ONE REQUEST&rsquo;S CONTEXT WINDOW</text>
+
+        <!-- the stacked bar -->
+        <g>
+          <rect x="20" y="46" width="360" height="30" class="d-sunk"/><rect x="20" y="46" width="360" height="30" class="d-line" fill="none"/>
+          <text x="30" y="65" class="t-sm">system prompt</text>
+          <rect x="20" y="78" width="360" height="34" class="d-sunk"/><rect x="20" y="78" width="360" height="34" class="d-line" fill="none"/>
+          <text x="30" y="99" class="t-sm">tool definitions &nbsp;·&nbsp; ~unattributed 39%</text>
+          <rect x="20" y="114" width="360" height="26" class="d-sunk"/><rect x="20" y="114" width="360" height="26" class="d-line" fill="none"/>
+          <text x="30" y="131" class="t-sm">rules · CLAUDE.md</text>
+          <rect x="20" y="142" width="360" height="46" class="d-sunk"/><rect x="20" y="142" width="360" height="46" class="d-line" fill="none"/>
+          <text x="30" y="169" class="t-sm">conversation history</text>
+          <rect x="20" y="190" width="360" height="54" class="d-warn-g"/><rect x="20" y="190" width="360" height="54" class="d-line" fill="none"/>
+          <text x="30" y="213" class="t-sm t-warn">tool results — file reads · logs · test dumps</text>
+          <text x="30" y="230" class="t-sm t-warn" style="opacity:.8">aged results &gt;50 turns ≈ 23% of occupancy</text>
+          <!-- new message sliver -->
+          <rect x="20" y="246" width="360" height="16" class="d-accent"/>
+          <text x="30" y="258" class="t-sm" style="fill:var(--ground)">new message this turn</text>
+        </g>
+
+        <!-- brace: cached prefix -->
+        <path d="M392 46 q10 0 10 10 v78 q0 10 10 10 q-10 0 -10 10 v78 q0 10 -10 10" class="d-edge"/>
+        <text x="422" y="150" class="t-lg">96%</text>
+        <text x="422" y="172" class="t-sm">cache-read prefix</text>
+        <text x="422" y="190" class="t-sm">re-sent every turn</text>
+
+        <path d="M392 246 q6 0 6 5 v3 q0 5 6 5 q-6 0 -6 5 v3 q0 5 -6 5" class="d-edge"/>
+        <text x="422" y="258" class="t-sm t-acc">the only new tokens</text>
+
+        <!-- side note -->
+        <text x="600" y="66" class="t-sm t-mut">Measured share of</text>
+        <text x="600" y="83" class="t-sm t-mut">context occupancy:</text>
+        <rect x="600" y="96" width="140" height="1" class="d-line" stroke="var(--line)"/>
+        <text x="600" y="120" class="t t-acc" style="font-weight:600">72.56B</text>
+        <text x="600" y="137" class="t-sm">cache reads</text>
+        <text x="600" y="164" class="t" style="font-weight:600">1.88B</text>
+        <text x="600" y="181" class="t-sm">cache writes</text>
+        <text x="600" y="208" class="t" style="font-weight:600">238M</text>
+        <text x="600" y="225" class="t-sm">output</text>
+      </svg>
+    </div>
+    <figcaption>The window is dominated by a large, mostly-cached prefix that ships on every request; genuinely new content is a sliver. Reducing what <em>enters</em> that prefix is worth far more than trimming the new sliver.</figcaption>
+  </figure>
+
+  <div class="stats reveal">
+    <div class="stat"><div class="n">96%</div><div class="l">of context occupancy is <b>cache re-reads</b> — the loop multiplier</div></div>
+    <div class="stat"><div class="n">74%</div><div class="l">of all occupancy sits in the <b>top 20 sessions</b> (long-running loops)</div></div>
+    <div class="stat"><div class="n warn">23%</div><div class="l"><b>aged tool results</b> still resident &gt;50 turns after use</div></div>
+    <div class="stat"><div class="n">1.3×</div><div class="l">rewrite amplification — edits are <b>already patches</b>, output isn&rsquo;t the problem</div></div>
+  </div>
+</section>
+
+<!-- ===================== REBUILD ===================== -->
+<section class="wrap reveal">
+  <div class="prose">
+    <div class="eyebrow">Why the bill balloons</div>
+    <h2>The cache keeps breaking — and rebuilding the whole prefix</h2>
+    <p>Prompt caching only helps while the prefix stays warm. The cache is exact-prefix and per-model with a one-hour TTL on subscriptions, so it breaks whenever you step away past the TTL, switch models, hit a compaction, reconnect an MCP server, or upgrade the client. On a break, the <strong>entire</strong> prefix — often hundreds of thousands of tokens — is re-processed and re-cached from scratch.</p>
+    <p>Across the measured corpus, <strong>82% of all cache-write tokens are these rebuilds</strong>, not new content. That&rsquo;s the single largest pool nobody was looking at.</p>
+  </div>
+
+  <figure class="reveal">
+    <div class="figframe">
+      <svg viewBox="0 0 760 320" role="img" aria-label="Warm turns add a small new admission on top of a cheap cached prefix; a TTL expiry or model switch breaks the cache, forcing the whole prefix to be rebuilt on the next turn.">
+        <text x="20" y="28" class="t-sm">TURNS &rarr;</text>
+        <!-- warm turns -->
+        <g>
+          <!-- turn rows: faint prefix + small accent cap -->
+          <rect x="20" y="44" width="300" height="16" class="d-sunk"/><rect x="322" y="44" width="26" height="16" class="d-accent"/>
+          <rect x="20" y="66" width="300" height="16" class="d-sunk"/><rect x="322" y="66" width="20" height="16" class="d-accent"/>
+          <rect x="20" y="88" width="300" height="16" class="d-sunk"/><rect x="322" y="88" width="30" height="16" class="d-accent"/>
+        </g>
+        <text x="368" y="80" class="t-sm">warm: cheap cache-read + small new admission</text>
+
+        <!-- break marker -->
+        <rect x="20" y="120" width="470" height="26" rx="6" class="d-crit-g"/>
+        <rect x="20" y="120" width="470" height="26" rx="6" fill="none" stroke="var(--crit)" stroke-dasharray="4 3"/>
+        <text x="32" y="137" class="t t-crit" style="font-weight:600">CACHE BREAK</text>
+        <text x="150" y="137" class="t-sm t-crit">TTL expiry (&gt;1h idle) · model switch · compaction · MCP reconnect · upgrade</text>
+
+        <!-- rebuild turn -->
+        <rect x="20" y="158" width="470" height="30" rx="4" class="d-crit" opacity="0.85"/>
+        <text x="30" y="177" class="t" style="fill:var(--ground);font-weight:600">REBUILD — entire prefix re-processed &amp; re-cached</text>
+        <text x="510" y="177" class="t-sm t-crit">up to ~1M tokens</text>
+
+        <!-- back to warm -->
+        <rect x="20" y="200" width="300" height="16" class="d-sunk"/><rect x="322" y="200" width="24" height="16" class="d-accent"/>
+        <rect x="20" y="222" width="300" height="16" class="d-sunk"/><rect x="322" y="222" width="22" height="16" class="d-accent"/>
+        <text x="368" y="219" class="t-sm">warm again &hellip; until the next break</text>
+
+        <!-- avoidability bar -->
+        <text x="20" y="266" class="t-sm">WHERE THE 82% REBUILD CHURN GOES &mdash; and what a subscription layer can reach:</text>
+        <g transform="translate(20,276)">
+          <rect x="0" y="0" width="300" height="20" class="d-warn" opacity="0.9"/>
+          <rect x="300" y="0" width="128" height="20" class="d-accent"/>
+          <rect x="428" y="0" width="42" height="20" class="d-sunk"/>
+          <text x="6" y="14" class="t-sm" style="fill:var(--ground)">64% TTL idle — unavoidable</text>
+          <text x="306" y="14" class="t-sm" style="fill:var(--ground)">~24% addressable</text>
+          <text x="435" y="14" class="t-sm t-mut">misc</text>
+        </g>
+      </svg>
+    </div>
+    <figcaption>Warm turns are cheap; the cost concentrates in a few thousand <span class="mono">break</span> events that rebuild the whole prefix. Being honest: ~64% of that churn is unavoidable TTL expiry (you stepped away). The lever isn&rsquo;t preventing breaks — it&rsquo;s making each rebuild <em>smaller</em>.</figcaption>
+  </figure>
+</section>
+
+<!-- ===================== PROPOSAL ===================== -->
+<section class="wrap reveal">
+  <div class="prose">
+    <div class="eyebrow">What we propose</div>
+    <h2>A semantic I/O layer between the agent and everything expensive</h2>
+    <p>ContextRuntime sits at the boundary the tokens actually cross. It reads the repository, runs the tests, and talks to tools at <em>machine</em> cost — then decides what becomes model context and at what resolution. Raw source, logs, and search results stay outside the window until the task proves it needs them.</p>
+    <p>It ships in three modes of increasing control, so it can start on a plain subscription with <strong>no API key</strong> — driving Claude Code&rsquo;s hooks and MCP — and grow into a full gateway for enterprise.</p>
+  </div>
+
+  <figure class="reveal">
+    <div class="figframe">
+      <svg viewBox="0 0 760 330" role="img" aria-label="ContextRuntime sits between the coding agents and the data sources. Machine reads of repo, tests and tools flow into the runtime, which reduces them to semantic, budgeted context before it reaches the agent.">
+        <!-- agents -->
+        <text x="20" y="26" class="t-sm">CODING AGENTS</text>
+        <rect x="20" y="40" width="150" height="34" rx="7" class="d-panel"/><text x="34" y="62" class="t">Claude Code</text>
+        <rect x="20" y="82" width="150" height="34" rx="7" class="d-panel"/><text x="34" y="104" class="t">Codex</text>
+        <rect x="20" y="124" width="150" height="34" rx="7" class="d-panel"/><text x="34" y="146" class="t">Cursor</text>
+
+        <!-- runtime core -->
+        <rect x="250" y="30" width="270" height="200" rx="14" class="d-accent-g"/>
+        <rect x="250" y="30" width="270" height="200" rx="14" class="d-accent-s"/>
+        <text x="266" y="54" class="t t-acc" style="font-weight:700">CONTEXTRUNTIME</text>
+        <g>
+          <rect x="266" y="66" width="114" height="30" rx="6" class="d-panel"/><text x="277" y="85" class="t-sm">ContextScope</text>
+          <rect x="390" y="66" width="114" height="30" rx="6" class="d-panel"/><text x="401" y="85" class="t-sm">CacheScope</text>
+          <rect x="266" y="102" width="114" height="30" rx="6" class="d-panel"/><text x="277" y="121" class="t-sm">ContextReduce</text>
+          <rect x="390" y="102" width="114" height="30" rx="6" class="d-panel"/><text x="401" y="121" class="t-sm">SemanticFS</text>
+          <rect x="266" y="138" width="114" height="30" rx="6" class="d-panel"/><text x="277" y="157" class="t-sm">Policy</text>
+          <rect x="390" y="138" width="114" height="30" rx="6" class="d-panel"/><text x="401" y="157" class="t-sm">Capsule</text>
+        </g>
+        <text x="266" y="192" class="t-sm t-mut">budgets · reducers · admission · manifest</text>
+        <text x="266" y="212" class="t-sm t-mut">token ledger · cache islands · provenance</text>
+
+        <!-- sources -->
+        <text x="600" y="26" class="t-sm">SOURCES</text>
+        <rect x="600" y="40" width="150" height="34" rx="7" class="d-panel"/><text x="614" y="62" class="t">Repo / Git</text>
+        <rect x="600" y="82" width="150" height="34" rx="7" class="d-panel"/><text x="614" y="104" class="t">Tests / Logs</text>
+        <rect x="600" y="124" width="150" height="34" rx="7" class="d-panel"/><text x="614" y="146" class="t">MCP / Tools</text>
+
+        <!-- edges agent<->runtime -->
+        <line x1="170" y1="57" x2="248" y2="90" class="d-edge" marker-end="url(#a2)"/>
+        <line x1="170" y1="99" x2="248" y2="120" class="d-edge" marker-end="url(#a2)"/>
+        <line x1="170" y1="141" x2="248" y2="150" class="d-edge" marker-end="url(#a2)"/>
+        <text x="176" y="176" class="t-sm t-mut">tool calls · reads</text>
+
+        <!-- edges runtime<->sources -->
+        <line x1="522" y1="90" x2="598" y2="57" class="d-edge" marker-end="url(#a2)"/>
+        <line x1="522" y1="120" x2="598" y2="99" class="d-edge" marker-end="url(#a2)"/>
+        <line x1="522" y1="150" x2="598" y2="141" class="d-edge" marker-end="url(#a2)"/>
+        <text x="540" y="176" class="t-sm t-mut">machine reads (free)</text>
+
+        <!-- return: reduced -->
+        <line x1="522" y1="200" x2="180" y2="200" class="d-accent-s" marker-end="url(#a3)" stroke-width="1.5"/>
+        <text x="250" y="222" class="t-sm t-acc">returns: semantic slice + reduced result + handle &mdash; not raw dumps</text>
+
+        <defs>
+          <marker id="a2" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><polygon points="0 0, 9 4.5, 0 9" fill="var(--muted)"/></marker>
+          <marker id="a3" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><polygon points="0 0, 9 4.5, 0 9" fill="var(--accent)"/></marker>
+        </defs>
+      </svg>
+    </div>
+    <figcaption>The runtime intercepts the path from source to model. It can read a 2,000-line file or a 15,000-token test log at machine cost, then hand the agent only the decision-relevant slice plus a handle to the rest.</figcaption>
+  </figure>
+
+  <div class="modes reveal">
+    <div class="mode">
+      <div class="mn">MODE 1</div><h3>Advisory MCP</h3>
+      <p>Semantic tools offered alongside native ones. Fast install; savings depend on the agent choosing them.</p>
+      <div class="ctrl"><i style="width:33%"></i></div>
+    </div>
+    <div class="mode">
+      <div class="mn">MODE 2</div><h3>Enforced adapter</h3>
+      <p>Hooks gate reads and reduce tool output before the model sees it. Admission control on a plain subscription — no API key.</p>
+      <div class="ctrl"><i style="width:66%"></i></div>
+    </div>
+    <div class="mode">
+      <div class="mn">MODE 3</div><h3>Full gateway</h3>
+      <p>Owns request assembly, eviction and lifecycle. Unlocks the pools admission alone can&rsquo;t reach. Enterprise core.</p>
+      <div class="ctrl"><i style="width:100%"></i></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== HOW IT REDUCES ===================== -->
+<section class="wrap reveal">
+  <div class="prose">
+    <div class="eyebrow">How it reduces tokens</div>
+    <h2>Four levers, each shrinking what becomes prefix</h2>
+    <p>None of these compress the model&rsquo;s prompt after the fact. They change what enters the window in the first place — which is what compounds across the loop.</p>
+  </div>
+
+  <figure class="reveal">
+    <div class="figframe">
+      <svg viewBox="0 0 760 300" role="img" aria-label="Three before-and-after reductions: a 15,000-token test log becomes a 420-token failure summary plus a handle; a 2,000-line file read becomes a 60-line relevant slice; a 700,000-token transcript handoff becomes a 2,000-token task capsule.">
+        <text x="20" y="26" class="t-sm">RAW (enters prefix, rides every turn)</text>
+        <text x="470" y="26" class="t-sm t-acc">SEMANTIC / REDUCED (+ handle to the rest)</text>
+
+        <!-- row 1: tool output -->
+        <text x="20" y="60" class="t-lg">Tool output</text>
+        <rect x="20" y="70" width="330" height="30" rx="5" class="d-warn" opacity="0.85"/>
+        <text x="30" y="90" class="t-sm" style="fill:var(--ground)">pytest dump — 15,000 tok</text>
+        <line x1="356" y1="85" x2="464" y2="85" class="d-edge" marker-end="url(#a4)"/>
+        <rect x="470" y="70" width="70" height="30" rx="5" class="d-accent"/>
+        <text x="478" y="90" class="t-sm" style="fill:var(--ground)">420</text>
+        <rect x="548" y="70" width="120" height="30" rx="5" class="d-panel"/><text x="558" y="90" class="t-sm">failures + handle</text>
+
+        <!-- row 2: file read -->
+        <text x="20" y="140" class="t-lg">File read</text>
+        <rect x="20" y="150" width="330" height="30" rx="5" class="d-warn" opacity="0.85"/>
+        <text x="30" y="170" class="t-sm" style="fill:var(--ground)">whole file — 2,000 lines</text>
+        <line x1="356" y1="165" x2="464" y2="165" class="d-edge" marker-end="url(#a4)"/>
+        <rect x="470" y="150" width="86" height="30" rx="5" class="d-accent"/>
+        <text x="478" y="170" class="t-sm" style="fill:var(--ground)">60 lines</text>
+        <rect x="564" y="150" width="104" height="30" rx="5" class="d-panel"/><text x="574" y="170" class="t-sm">symbol slice</text>
+
+        <!-- row 3: handoff -->
+        <text x="20" y="220" class="t-lg">Handoff / new session</text>
+        <rect x="20" y="230" width="330" height="30" rx="5" class="d-warn" opacity="0.85"/>
+        <text x="30" y="250" class="t-sm" style="fill:var(--ground)">full transcript — ~700,000 tok</text>
+        <line x1="356" y1="245" x2="464" y2="245" class="d-edge" marker-end="url(#a4)"/>
+        <rect x="470" y="230" width="64" height="30" rx="5" class="d-accent"/>
+        <text x="478" y="250" class="t-sm" style="fill:var(--ground)">~2k</text>
+        <rect x="542" y="230" width="126" height="30" rx="5" class="d-panel"/><text x="552" y="250" class="t-sm">task capsule</text>
+
+        <text x="20" y="288" class="t-sm t-mut">Sizes illustrative except where measured; aged-result &amp; file-read pools are from the corpus.</text>
+        <defs>
+          <marker id="a4" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><polygon points="0 0, 9 4.5, 0 9" fill="var(--muted)"/></marker>
+        </defs>
+      </svg>
+    </div>
+    <figcaption>The raw payload stays retrievable behind a handle; only the decision-relevant part becomes prefix. Because it never enters the window, it never rides the loop.</figcaption>
+  </figure>
+
+  <div class="levers reveal">
+    <div class="lever">
+      <div class="lh"><h3>ContextReduce</h3><span class="badge">ships first</span></div>
+      <p>PostToolUse hooks replace fat test/log/grep output with a failure summary plus a handle — on a subscription, today.</p>
+      <div class="swap"><b>15k pytest dump</b> <span class="to">&rarr; 420-tok summary</span></div>
+    </div>
+    <div class="lever">
+      <div class="lh"><h3>SemanticFS / Admission</h3><span class="badge">highest ceiling</span></div>
+      <p>Read a symbol or slice instead of a whole file; gate oversized reads. Smaller admissions mean a smaller prefix — the master lever.</p>
+      <div class="swap"><b>2,000-line file</b> <span class="to">&rarr; 60-line slice</span></div>
+    </div>
+    <div class="lever">
+      <div class="lh"><h3>Cache stability</h3><span class="badge">cheap · safe</span></div>
+      <p>Batch automated work inside the TTL (never keep-alive), warn before large-context model switches, track cache islands.</p>
+      <div class="swap"><b>needless rebuild</b> <span class="to">&rarr; avoided</span></div>
+    </div>
+    <div class="lever">
+      <div class="lh"><h3>The capsule</h3><span class="badge">carry state, not transcript</span></div>
+      <p>Resume a task from ~2k of structured state — intent, verified facts, repo refs — instead of dragging the whole transcript into a new session or model.</p>
+      <div class="swap"><b>700k transcript</b> <span class="to">&rarr; 2k capsule</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== MASTER LEVER ===================== -->
+<section class="wrap reveal">
+  <div class="prose">
+    <div class="eyebrow">Why it works</div>
+    <h2>One variable moves both pools: prefix size</h2>
+    <p>The two big costs look separate — the prefix re-read on every warm turn, and the prefix rebuilt on every break — but they share a multiplier. Shrink the prefix and the resident re-reads get cheaper <em>and</em> every unavoidable rebuild gets cheaper, at once. You can&rsquo;t stop someone stepping away for an hour, but you can decide how large the thing is that gets rebuilt when they come back.</p>
+  </div>
+
+  <figure class="reveal">
+    <div class="figframe">
+      <svg viewBox="0 0 760 300" role="img" aria-label="A fat prefix drives expensive per-turn re-reads and expensive rebuilds. A slim prefix, produced by admission control, makes both cheaper. Prefix size is the single variable that changes.">
+        <!-- today -->
+        <text x="20" y="28" class="t-sm">TODAY</text>
+        <rect x="20" y="42" width="150" height="150" rx="8" class="d-warn-g"/>
+        <rect x="20" y="42" width="150" height="150" rx="8" fill="none" stroke="var(--warn)"/>
+        <text x="95" y="115" text-anchor="middle" class="t t-warn" style="font-weight:600">fat prefix</text>
+        <text x="95" y="134" text-anchor="middle" class="t-sm t-warn">~800k resident</text>
+        <line x1="172" y1="90" x2="250" y2="70" class="d-edge" marker-end="url(#a5)"/>
+        <text x="258" y="66" class="t-sm">re-read × every turn</text>
+        <text x="258" y="84" class="t-sm t-warn">72.56B token-turns</text>
+        <line x1="172" y1="150" x2="250" y2="168" class="d-edge" marker-end="url(#a5)"/>
+        <text x="258" y="158" class="t-sm">rebuild on every break</text>
+        <text x="258" y="176" class="t-sm t-warn">expensive</text>
+
+        <!-- divider -->
+        <line x1="470" y1="30" x2="470" y2="205" class="d-line" stroke="var(--line)" stroke-dasharray="3 4"/>
+
+        <!-- with admission -->
+        <text x="500" y="28" class="t-sm t-acc">WITH ADMISSION CONTROL</text>
+        <rect x="500" y="96" width="150" height="62" rx="8" class="d-accent-g"/>
+        <rect x="500" y="96" width="150" height="62" rx="8" class="d-accent-s"/>
+        <text x="575" y="122" text-anchor="middle" class="t t-acc" style="font-weight:600">slim prefix</text>
+        <text x="575" y="140" text-anchor="middle" class="t-sm t-acc">semantic slices only</text>
+        <line x1="652" y1="110" x2="712" y2="96" class="d-edge" marker-end="url(#a6)"/>
+        <text x="500" y="182" class="t-sm t-acc">&darr; cheaper re-reads &nbsp;·&nbsp; &darr; cheaper rebuilds</text>
+
+        <!-- the changed variable -->
+        <rect x="20" y="222" width="720" height="52" rx="10" class="d-sunk"/>
+        <text x="40" y="244" class="t-sm">THE ONE VARIABLE THAT CHANGES</text>
+        <text x="40" y="264" class="t t-acc" style="font-weight:600">prefix size</text>
+        <text x="150" y="264" class="t-sm">&mdash; admission control is the highest-ceiling subscription lever because it moves this, and this moves everything downstream.</text>
+
+        <defs>
+          <marker id="a5" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><polygon points="0 0, 9 4.5, 0 9" fill="var(--muted)"/></marker>
+          <marker id="a6" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><polygon points="0 0, 9 4.5, 0 9" fill="var(--accent)"/></marker>
+        </defs>
+      </svg>
+    </div>
+    <figcaption>Admission control can&rsquo;t evict what&rsquo;s already resident (that needs gateway mode) — but by keeping the prefix small from the start, it makes both the per-turn reads and the unavoidable rebuilds cheaper. That&rsquo;s the whole thesis in one picture.</figcaption>
+  </figure>
+
+  <div class="note">
+    <b>Honest scope.</b> These are design-partner measurements from one corpus, not a market benchmark. The headline savings claims use only provable pools; illustrative examples are marked. The decisive experiments are still ahead: can admission shrink the prefix without hurting task success, and can a 2k capsule replace a 700k transcript. The roadmap gates on those two answers before anything scales.
+  </div>
+</section>
+
+<footer class="wrap">
+  <div class="legend" aria-hidden="false">
+    <span><i class="sw ghost"></i> cached prefix (resident)</span>
+    <span><i class="sw acc"></i> proposed / recovered</span>
+    <span><i class="sw warn"></i> waste / churn</span>
+    <span><i class="sw crit"></i> cache break</span>
+  </div>
+  <p class="fmono" style="margin-top:22px">CONTEXTRUNTIME · semantic I/O, prefix control, portable task state · measured over 168 Claude Code sessions</p>
+</footer>
+

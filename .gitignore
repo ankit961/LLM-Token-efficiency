@@ -1,0 +1,21 @@
+# Generated analysis output — contains real local file paths / project names. NEVER commit.
+reports/
+reports_test/
+**/reports/
+**/reports_test/
+
+# Design-doc PDFs (business strategy) — held out of the public repo by default.
+*.pdf
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+*.swp

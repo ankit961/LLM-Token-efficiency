@@ -1,0 +1,145 @@
+<title>ContextRuntime — Implementation & Session Integration</title>
+<style>
+  :root{
+    --ground:#080d15; --panel:#111a27; --panel-2:#0d1522; --sunk:#0a111c;
+    --fg:#e6ecf4; --fg-soft:#b7c2d2; --muted:#8493a6; --faint:#5b6b80;
+    --line:#213043; --line-soft:#1a2637;
+    --accent:#2dd4bf; --accent-b:#3ee0cb; --accent-ghost:rgba(45,212,191,.11);
+    --warn:#f0a83a; --warn-ghost:rgba(240,168,58,.12);
+    --crit:#f2607a; --crit-ghost:rgba(242,96,122,.12);
+    --font-sans:"Helvetica Neue",Helvetica,Arial,system-ui,sans-serif;
+    --font-mono:"SF Mono",ui-monospace,Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:var(--ground);color:var(--fg);
+    font-family:var(--font-sans);font-size:10.2pt;line-height:1.5;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .page{max-width:760px;margin:0 auto;padding:38px 46px 60px}
+  h1{font-size:23pt;font-weight:700;letter-spacing:-.02em;line-height:1.08;margin:0 0 6px}
+  .sub{color:var(--fg-soft);font-size:11pt;max-width:60ch;margin:0 0 4px}
+  .eyebrow{font-family:var(--font-mono);font-size:8.4pt;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--accent);font-weight:600;margin:0 0 14px}
+  h2{font-size:14.5pt;font-weight:680;letter-spacing:-.01em;margin:26px 0 8px;padding-top:14px;border-top:1px solid var(--line-soft);
+    break-after:avoid}
+  h2 .n{font-family:var(--font-mono);color:var(--accent);font-weight:600;font-size:12pt;margin-right:10px}
+  h3{font-size:10.6pt;font-weight:680;margin:16px 0 5px;color:var(--fg);break-after:avoid}
+  p{margin:0 0 8px;color:var(--fg-soft)}
+  strong{color:var(--fg);font-weight:660}
+  em{color:var(--fg)}
+  ul{margin:4px 0 10px;padding-left:18px;color:var(--fg-soft)}
+  li{margin:0 0 4px}
+  code{font-family:var(--font-mono);font-size:8.6pt;background:var(--panel-2);border:1px solid var(--line);
+    padding:.05em .35em;border-radius:4px;color:var(--fg)}
+  pre{background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:12px 14px;overflow:auto;
+    font-family:var(--font-mono);font-size:8.4pt;line-height:1.5;color:var(--fg-soft);margin:8px 0 12px;break-inside:avoid}
+  pre .c{color:var(--muted)} pre .k{color:var(--accent)} pre .w{color:var(--warn)}
+  .lead{background:var(--accent-ghost);border-left:3px solid var(--accent);padding:12px 16px;border-radius:0 8px 8px 0;
+    margin:14px 0 4px;color:var(--fg-soft);font-size:10pt;break-inside:avoid}
+  .lead b{color:var(--fg)}
+  .warnbox{background:var(--warn-ghost);border-left:3px solid var(--warn);padding:11px 15px;border-radius:0 8px 8px 0;
+    margin:10px 0;color:var(--fg-soft);font-size:9.6pt;break-inside:avoid}
+  .warnbox b{color:var(--fg)}
+  table{border-collapse:collapse;width:100%;margin:8px 0 12px;font-size:8.8pt;break-inside:auto}
+  th,td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+  thead th{background:var(--panel-2);color:var(--fg);font-weight:660;font-size:7.8pt;letter-spacing:.03em;text-transform:uppercase}
+  td.m{font-family:var(--font-mono);font-size:8pt;white-space:nowrap;color:var(--accent)}
+  tr{break-inside:avoid}
+  .tag{display:inline-block;font-family:var(--font-mono);font-size:7.6pt;padding:2px 7px;border-radius:5px;
+    background:var(--accent-ghost);color:var(--accent);margin-right:5px}
+  .tag.w{background:var(--warn-ghost);color:var(--warn)}
+  .tag.c{background:var(--crit-ghost);color:var(--crit)}
+  .foot{margin-top:26px;padding-top:12px;border-top:1px solid var(--line-soft);
+    font-family:var(--font-mono);font-size:7.6pt;color:var(--muted);letter-spacing:.03em}
+  @page{size:A4;margin:14mm 0}
+  @media print{ .page{max-width:none;padding:0 18mm} h2{break-before:auto} }
+</style>
+
+<div class="page">
+  <div class="eyebrow">ContextRuntime · Design Document · Chapter</div>
+  <h1>Implementation &amp; Session Integration</h1>
+  <p class="sub">How the runtime attaches to a Claude Code session, what fires on each tool call, and where the token savings actually come from — grounded in what the client can really do.</p>
+
+  <div class="lead">
+    <b>The load-bearing facts.</b> You install <b>once</b> — a local daemon, an MCP server, and a hook block in <code>settings.json</code>; every subsequent Claude Code session then auto-wires itself with no API key and no manual connection. Per-session <b>state</b> (the context-object graph, manifest, and ledger) is created on session start; the expensive <b>index</b> (repo symbols, content-hash store) is shared across sessions. The graph lives in the runtime — the model only ever sees changed tool-result bodies and MCP results, never the graph. And one honest boundary up front: on a subscription the runtime can shrink <b>accumulated tool-result occupancy</b> and avoid fat reads — it <b>cannot</b> shrink the fixed base prefix (system prompt, tool definitions, <code>CLAUDE.md</code>) or control eviction and TTL. Those require owning request assembly, which is gateway mode.
+  </div>
+
+  <h2><span class="n">1</span>Session attachment</h2>
+  <p>ContextRuntime does not &ldquo;connect to&rdquo; a session in any interactive sense. Installation writes hook entries and an MCP server registration; from then on Claude Code <em>invokes</em> the hooks and opens the MCP connection itself, per session.</p>
+  <table>
+    <thead><tr><th>Shared across all sessions (the daemon)</th><th>Per-session state</th></tr></thead>
+    <tbody>
+      <tr><td>Repo symbol index (tree-sitter / LSP), content-hash blob store (CAS), deferred code graph</td><td>Context-object graph, manifest, token ledger, cache-island estimate, task capsule</td></tr>
+    </tbody>
+  </table>
+  <p><strong>Keying.</strong> The <code>SessionStart</code> hook receives the session id and <code>cwd</code> and provisions per-session state. <span class="tag c">verify</span> MCP tool calls do <strong>not</strong> carry Claude Code&rsquo;s <code>session_id</code>, so the MCP path cannot be keyed from it — the daemon keys MCP calls by <code>cwd</code> plus a short-lived session token the <code>SessionStart</code> hook injects (falling back to <code>cwd</code>+process ancestry). Concurrent sessions on one repo share the index but keep isolated graphs; worktrees and branches key on <code>repo + worktree + commit</code>.</p>
+  <p><strong>Boundaries handled explicitly.</strong> <code>SessionStart</code> fires with <code>source</code> ∈ {startup, <code>resume</code>, <code>fork</code>, <code>compact</code>} — the capsule is seeded on all of the last three, not just compaction. Task-tool subagents run on their own sidechain with their own token usage; the ledger attributes them separately (via <code>agent_id</code>/<code>agent_type</code> on the hook input) so they don&rsquo;t distort main-thread totals.</p>
+
+  <h2><span class="n">2</span>Hook wiring — and the real admission mechanism</h2>
+  <div class="warnbox"><b>Correction from integration review.</b> The intuitive design — &ldquo;<code>PreToolUse</code> redirects an oversized <code>Read</code> into <code>read_symbol</code>&rdquo; — is <b>not a real capability</b>. <code>PreToolUse</code> can only return <code>allow</code> / <code>deny</code> / <code>ask</code> with a reason; it cannot change the tool name, substitute a tool, or (for <code>Read</code>) even inject <code>limit</code>/<code>offset</code>. So admission control is delivered primarily on the <b>output</b> side, not the input side.</div>
+  <p><strong>The reliable lever is <code>PostToolUse</code> output reduction.</strong> The read or command runs; the hook then replaces the body the model sees with a reduced/semantic version plus a handle. This works regardless of model cooperation and leaves no denied-attempt residue in the prefix.</p>
+  <ul>
+    <li><span class="tag c">verify</span> <strong>Version-gated.</strong> Output replacement for <em>built-in</em> tools (<code>Read</code>/<code>Bash</code>/<code>Grep</code>) shipped later than the MCP-output equivalent. The runtime asserts a minimum Claude Code version, detects the capability at <code>SessionStart</code>, and <strong>degrades loudly</strong> (&ldquo;native reduction unavailable — MCP-only mode&rdquo;) rather than silently no-op.</li>
+    <li><strong>Synchronous &amp; schema-perfect.</strong> Replacement only happens on the synchronous decision path, so the reducer sits on the critical path of every fat tool call (budget: CAS write + compress + dedup lookup, not just a socket hop). A malformed replacement produces <em>&ldquo;tool_use ids without tool_result&rdquo;</em> errors that abort the turn — the reducer must preserve the exact structured response shape (<code>Bash</code> → <code>{stdout,stderr,exitCode}</code>, <code>Read</code> → file-content object) and is validated before emit.</li>
+    <li><span class="tag c">verify</span> <strong>Payload may be pre-truncated.</strong> Claude Code truncates very large outputs to a disk-file reference before the hook sees them, so for the fattest results the hook may not receive the full bytes. Content-hashing / dedup is computed over what is actually received, and retention is verified empirically at 50&nbsp;KB / 500&nbsp;KB / 5&nbsp;MB.</li>
+    <li><strong>Retention heuristic.</strong> <code>PostToolUse</code> fires once, at read time; there is no later &ldquo;downgrade&rdquo; hook and no <code>retain_turns</code>. Reducing a file the agent is about to edit forces an under-context re-read next turn — self-inflicting the very rewrite amplification we measured. Rule: <strong>never reduce a <code>Read</code> whose path is a likely edit target</strong>; reduce logs, tests, and large greps aggressively.</li>
+  </ul>
+  <p><strong>What <code>PreToolUse</code> is actually for.</strong> Observation and steering, not redirection. In advisory mode it records large reads/bypasses and attaches a warning; in enforced mode it may <code>deny</code> an oversized read with a reason pointing at <code>read_symbol</code> — used sparingly, because the denied attempt and its reason become resident prefix, and hard-denying a read the agent needs breaks the <code>Edit</code> read-before-edit invariant. For <code>Bash</code> the hook <em>can</em> rewrite <code>command</code> (a genuinely stronger lever than for <code>Read</code>), but rewriting a user&rsquo;s explicit shell command risks breaking legitimate work, so it stays best-effort.</p>
+  <p><span class="tag w">best-effort</span> <strong>The Bash escape hatch narrows; it does not close.</strong> Read/Edit permission rules don&rsquo;t cover Bash, so a shell classifier is the only lever — and it is an unbounded parsing problem. <code>cat/sed/head/tail</code> are easy; <code>awk/perl/jq/xxd/od/python -c 'open(...)'/find -exec cat</code>, pipes, <code>$(...)</code> and heredocs are all readers that will slip through. The honest claim is &ldquo;narrowing of the most common materializers,&rdquo; and the Bypass-Rate metric counts any file-materializing command as a native read.</p>
+  <pre><span class="c"># settings.json (shape)</span>
+"hooks": {
+  "SessionStart":  [{ "command": "crt hook session-start" }],   <span class="c"># provision state, inject session token, seed capsule</span>
+  "PreToolUse":    [{ "matcher": "Read|Grep|Glob|Bash|mcp__crt__*",
+                      "command": "crt hook pre"  }],             <span class="c"># observe / warn / (enforce) deny+steer</span>
+  "PostToolUse":   [{ "matcher": "Read|Grep|Bash",
+                      "command": "crt hook post" }],             <span class="w"># the real lever: reduce output + handle</span>
+  "PreCompact":    [{ "command": "crt hook pre-compact"  }],
+  "Stop":          [{ "command": "crt hook stop" }]              <span class="c"># finalize capsule, flush ledger</span>
+}</pre>
+
+  <h2><span class="n">3</span>MCP tool surface</h2>
+  <p>A small model-facing surface (six to eight tools) hides the language servers, search, and blob store behind it. Semantic reads are where enforced savings become <em>positive</em> rather than merely punitive, because the model gets a usable small slice instead of a denied read.</p>
+  <table>
+    <thead><tr><th>Tool</th><th>Returns</th></tr></thead>
+    <tbody>
+      <tr><td class="m">context_search</td><td>ranked symbol/resource ids + signatures under a token budget</td></tr>
+      <tr><td class="m">read_symbol</td><td>one symbol at a chosen level, <em>plus its <code>DEPENDS_ON</code> bundle</em> (input type, key callee) so the slice is coherent and doesn&rsquo;t trigger an under-context retry</td></tr>
+      <tr><td class="m">read_slice</td><td>a task-relevant AST/control-flow region + line anchors</td></tr>
+      <tr><td class="m">read_resource</td><td>non-code files (docs → TOC/section, JSON/YAML → key tree/subtree, CSV → schema/sample, logs → clusters)</td></tr>
+      <tr><td class="m">find_callers</td><td>compact caller/callee relation list</td></tr>
+      <tr><td class="m">context_tests</td><td>run impacted tests → counts + failing clusters + a raw handle</td></tr>
+    </tbody>
+  </table>
+  <p><strong>Handles &amp; the manifest.</strong> Fat payloads return a <code>result://</code> / <code>context://</code> handle that resolves against the CAS; every delivery is recorded in the manifest so an already-resident object comes back as a reference (dedup) and a changed one as a delta. MCP output can be replaced via the MCP-output hook (which shipped earlier than the built-in one).</p>
+  <div class="warnbox"><b>The envelope is itself prefix tax.</b> Every response carries <code>ids@hash</code>, <code>tokens_estimated</code>, <code>manifest_delta</code>, <code>expandable</code>, <code>raw_handle</code> — and each of those lands in a <code>tool_result</code> that is re-billed every subsequent turn. The envelope is budgeted: default/empty fields are omitted and <code>manifest_delta</code> stays terse. Two more: a <code>Grep</code> token estimate is speculative before the search runs, so oversized search output is bounded by <em>post-hoc</em> reduction, not a pre-emptive deny; and an expired <code>result://</code> handle returns a typed &ldquo;expired — re-materialize&rdquo; signal, never a silent empty that makes the model loop.</div>
+
+  <h2><span class="n">4</span>Daemon &amp; state</h2>
+  <p>One local daemon holds a SQLite store (node/edge adjacency plus a content-addressed blob store for raw payloads behind handles) and the shared repo index, rebuilt incrementally on file-watch at machine cost — zero model tokens. Hooks and the MCP server talk to it over a unix socket with a tight client deadline (see §5).</p>
+  <div class="warnbox"><b>What the ledger can and can&rsquo;t measure.</b> <span class="tag c">verify</span> The load-bearing source is the local JSONL transcript, deduplicated by <code>requestId</code>. OpenTelemetry is <b>opt-in</b> — it only reaches the daemon if the user configures Claude Code&rsquo;s OTLP exporter to point at it. The 5h/7d rate-limit percentages are <b>not</b> programmatically pollable out-of-band; the only supported way to read them is for the daemon to <em>be</em> the <code>statusLine</code> command. Both are labeled &ldquo;requires user config,&rdquo; and neither is assumed present.</p></div>
+  <div class="warnbox"><b>Cache-island state is inference, not reconstruction.</b> <span class="tag c">verify</span> The real cache key is the exact prefix bytes (system prompt + tool schemas + <code>CLAUDE.md</code> + history), which the JSONL does not expose. So <code>cache_creation ≫ cache_read ⇒ rebuild</code> is a heuristic that cannot be cleanly separated from a normal large new turn, and the 1-hour TTL is itself unverified from the client (public docs describe a 5-minute default with an optional 1-hour extension). Every cache-island, <code>BROKE</code>, and TTL figure is therefore an <b>estimate that drives batching/pressure hints</b> — never reported as a measured occupancy number, and the batching window is calibrated per account rather than hardcoded.</div>
+  <p>Response bodies are canonicalized to a stable shape before hashing, so dedup and <code>SUPERSEDES</code> stay stable across the structured (<code>Bash</code>) and file-object (<code>Read</code>) forms.</p>
+
+  <h2><span class="n">5</span>Lifecycle, failure &amp; security</h2>
+  <ul>
+    <li><strong>Crash / restart recovery.</strong> The capsule is built <em>continuously</em> from tool events and git state, so it never depends on a departing model summarizing itself — a crashed or rate-limited session resumes from the last checkpoint.</li>
+    <li><strong>Fail-open, time-bounded.</strong> Every shim carries a ~100–200&nbsp;ms client deadline; a dead <em>or hung</em> daemon, a socket error, or a timeout returns <code>allow</code>/no-op so the agent never freezes. Enforcement that can&rsquo;t reach the daemon degrades to passthrough, loudly, not silently.</li>
+    <li><strong>Provenance &amp; injection boundary.</strong> Every object carries a trust level (user / source / test / tool / model-inference / external). External content is <em>data</em> and is never promoted to instruction — the guard that keeps a poisoned doc or tool result from steering the agent, and that keeps a capsule from shipping one model&rsquo;s hallucination to the next as fact.</li>
+    <li><strong>Secrets &amp; locality.</strong> Secrets are redacted before any content is materialized into context. All transcripts and content stay on the machine; OTel content export remains opt-in. Enterprise adds tenant/workspace separation and an ACL check before any cross-context transfer.</li>
+  </ul>
+
+  <h2><span class="n">6</span>Integration risks &amp; assumptions</h2>
+  <p>Everything a formal review flagged as dependent on Claude Code internals that can change, with the mitigation that keeps the design safe if the assumption breaks.</p>
+  <table>
+    <thead><tr><th>Assumption</th><th>Risk if wrong</th><th>Mitigation</th></tr></thead>
+    <tbody>
+      <tr><td>Built-in-tool output replacement (<code>Read</code>/<code>Bash</code>/<code>Grep</code>) exists</td><td>Native reduction silently no-ops</td><td>Assert min version; detect at <code>SessionStart</code>; degrade loudly to MCP-only</td></tr>
+      <tr><td><code>PostToolUse</code> receives full payload</td><td>Dedup/hash over lossy input for the fattest objects</td><td>Verify empirically per size; hash what is received; keep CAS for what is captured</td></tr>
+      <tr><td>MCP calls can be session-keyed</td><td>Per-session state mis-attributed</td><td>Key by <code>cwd</code> + <code>SessionStart</code>-injected token, not <code>session_id</code></td></tr>
+      <tr><td>Bash reader coverage</td><td>Unrecognized readers materialize files unseen</td><td>Best-effort narrowing; count all materializers as native reads in metrics</td></tr>
+      <tr><td>Cache-island / TTL / <code>BROKE</code></td><td>Over-stated as measured</td><td>Label as JSONL-heuristic <em>estimates</em>; calibrate TTL per account</td></tr>
+      <tr><td>OTel / statusline telemetry</td><td>Assumed passive but needs opt-in config</td><td>JSONL is the sole load-bearing source; others require user config</td></tr>
+      <tr><td>Prefix is shrinkable on subscription</td><td>Over-claims the reachable pool</td><td>Hooks reach tool-result occupancy only; base prefix + eviction are gateway mode</td></tr>
+      <tr><td>Deny won&rsquo;t break editing</td><td>Denying a read breaks <code>Edit</code> read-before-edit</td><td>Never hard-deny a read of a likely edit target; prefer reduction</td></tr>
+    </tbody>
+  </table>
+
+  <div class="foot">CONTEXTRUNTIME · Implementation &amp; Session Integration · install-once, per-session state, runtime-side graph · every capability claim verified against Claude Code&rsquo;s current hook/MCP/permission model; items marked &ldquo;verify&rdquo; must be re-checked at runtime</div>
+</div>

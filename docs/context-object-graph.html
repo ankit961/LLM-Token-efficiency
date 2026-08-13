@@ -1,0 +1,328 @@
+<title>ContextRuntime — the context-object graph (schema)</title>
+<style>
+  :root{
+    --ground:#f4f6fa; --panel:#ffffff; --panel-2:#eaeef4; --sunk:#e3e8f0;
+    --fg:#111925; --fg-soft:#39465a; --muted:#697788; --faint:#98a4b4;
+    --line:#d5dce6; --line-soft:#e4e9f1;
+    --accent:#0e8f80; --accent-bright:#12b3a0; --accent-ghost:rgba(14,143,128,.10);
+    --warn:#b3720d; --warn-ghost:rgba(179,114,13,.12);
+    --crit:#cf3350; --crit-ghost:rgba(207,51,80,.10);
+    --shadow:0 1px 2px rgba(16,24,40,.04),0 8px 28px -12px rgba(16,24,40,.14);
+    --font-sans:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --font-mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,"Liberation Mono",monospace;
+    --maxw:1120px;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --ground:#080d15; --panel:#111a27; --panel-2:#0d1522; --sunk:#0a111c;
+      --fg:#e6ecf4; --fg-soft:#b4c0d0; --muted:#7f8da0; --faint:#5b6b80;
+      --line:#213043; --line-soft:#1a2637;
+      --accent:#2dd4bf; --accent-bright:#3ee0cb; --accent-ghost:rgba(45,212,191,.12);
+      --warn:#f0a83a; --warn-ghost:rgba(240,168,58,.13);
+      --crit:#f2607a; --crit-ghost:rgba(242,96,122,.13);
+      --shadow:0 1px 2px rgba(0,0,0,.3),0 14px 40px -16px rgba(0,0,0,.6);
+    }
+  }
+  :root[data-theme="light"]{
+    --ground:#f4f6fa; --panel:#ffffff; --panel-2:#eaeef4; --sunk:#e3e8f0;
+    --fg:#111925; --fg-soft:#39465a; --muted:#697788; --faint:#98a4b4;
+    --line:#d5dce6; --line-soft:#e4e9f1;
+    --accent:#0e8f80; --accent-bright:#12b3a0; --accent-ghost:rgba(14,143,128,.10);
+    --warn:#b3720d; --warn-ghost:rgba(179,114,13,.12);
+    --crit:#cf3350; --crit-ghost:rgba(207,51,80,.10);
+    --shadow:0 1px 2px rgba(16,24,40,.04),0 8px 28px -12px rgba(16,24,40,.14);
+  }
+  :root[data-theme="dark"]{
+    --ground:#080d15; --panel:#111a27; --panel-2:#0d1522; --sunk:#0a111c;
+    --fg:#e6ecf4; --fg-soft:#b4c0d0; --muted:#7f8da0; --faint:#5b6b80;
+    --line:#213043; --line-soft:#1a2637;
+    --accent:#2dd4bf; --accent-bright:#3ee0cb; --accent-ghost:rgba(45,212,191,.12);
+    --warn:#f0a83a; --warn-ghost:rgba(240,168,58,.13);
+    --crit:#f2607a; --crit-ghost:rgba(242,96,122,.13);
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 14px 40px -16px rgba(0,0,0,.6);
+  }
+
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--ground);color:var(--fg);font-family:var(--font-sans);
+    line-height:1.6;font-size:clamp(15px,.4vw + 14px,16.5px);-webkit-font-smoothing:antialiased}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 clamp(20px,5vw,56px)}
+  header{padding:clamp(48px,8vw,88px) 0 8px}
+  section{padding:clamp(38px,5vw,60px) 0;border-top:1px solid var(--line-soft)}
+  p{color:var(--fg-soft);margin:0 0 1em;max-width:74ch}
+  strong{color:var(--fg);font-weight:640}
+  code{font-family:var(--font-mono);font-size:.86em;background:var(--panel-2);border:1px solid var(--line);
+    padding:.08em .4em;border-radius:5px;color:var(--fg-soft)}
+
+  .eyebrow{font-family:var(--font-mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--accent);font-weight:600;display:inline-flex;align-items:center;gap:.6em;margin:0 0 18px}
+  .eyebrow::before{content:"";width:22px;height:1px;background:var(--accent);opacity:.7}
+  h1{font-size:clamp(2rem,4.6vw,3.2rem);font-weight:740;letter-spacing:-.03em;line-height:1.05;margin:0 0 .35em;max-width:18ch}
+  h2{font-size:clamp(1.35rem,2.6vw,1.9rem);font-weight:700;letter-spacing:-.02em;margin:0 0 .6em;text-wrap:balance}
+  .lede{font-size:clamp(1.05rem,1.5vw,1.24rem);color:var(--fg-soft);max-width:64ch;line-height:1.5}
+  .lede b{color:var(--fg);font-weight:620}
+
+  figure{margin:8px 0 0}
+  .figframe{background:var(--panel);border:1px solid var(--line);border-radius:16px;
+    padding:clamp(16px,2.5vw,28px);box-shadow:var(--shadow);overflow-x:auto}
+  .figframe svg{display:block;width:100%;height:auto;min-width:660px}
+  figcaption{margin-top:14px;font-size:13.5px;color:var(--muted);max-width:78ch;line-height:1.5}
+
+  /* diagram classes */
+  .d-line{stroke:var(--line);fill:none}
+  .d-edge{stroke:var(--muted);fill:none;stroke-width:1.4}
+  .d-accent-s{stroke:var(--accent);fill:none;stroke-width:1.6}
+  .d-crit-s{stroke:var(--crit);fill:none;stroke-width:1.6}
+  .d-warn-s{stroke:var(--warn);fill:none;stroke-width:1.6}
+  .d-node{fill:var(--panel-2);stroke:var(--line);stroke-width:1.2}
+  .d-node-c{fill:var(--accent-ghost);stroke:var(--accent);stroke-width:1.4}
+  .d-defer{fill:none;stroke:var(--faint);stroke-width:1.3;stroke-dasharray:5 4}
+  .t{font-family:var(--font-mono);fill:var(--fg);font-size:13px}
+  .t-b{font-family:var(--font-mono);fill:var(--fg);font-size:13.5px;font-weight:600}
+  .t-sm{font-family:var(--font-mono);fill:var(--muted);font-size:11px}
+  .t-acc{fill:var(--accent)} .t-warn{fill:var(--warn)} .t-crit{fill:var(--crit)} .t-mut{fill:var(--muted)}
+  .t-edge{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.02em}
+
+  /* tables */
+  .tscroll{overflow-x:auto;border:1px solid var(--line);border-radius:14px;margin-top:6px;box-shadow:var(--shadow)}
+  table{border-collapse:collapse;width:100%;min-width:640px;background:var(--panel);font-size:13.5px}
+  th,td{text-align:left;padding:12px 16px;border-bottom:1px solid var(--line-soft);vertical-align:top}
+  thead th{background:var(--panel-2);color:var(--fg);font-weight:640;font-size:12px;letter-spacing:.03em;
+    text-transform:uppercase;position:sticky;top:0}
+  tbody tr:last-child td{border-bottom:none}
+  td.mono,th.mono{font-family:var(--font-mono);font-size:12.5px;white-space:nowrap}
+  td .k{font-family:var(--font-mono);color:var(--accent);font-size:12.5px}
+  td .m{color:var(--fg-soft)} td .num{color:var(--warn);font-family:var(--font-mono);font-size:12px}
+  .arrow{color:var(--muted)}
+
+  .grid{display:grid;grid-template-columns:1fr;gap:12px;margin-top:8px}
+  @media(min-width:720px){.grid{grid-template-columns:1fr 1fr}}
+  .op{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+  .op h3{margin:0 0 6px;font-size:14px;font-family:var(--font-mono);color:var(--fg);font-weight:600}
+  .op p{margin:0;font-size:13px;color:var(--fg-soft)}
+  .op .q{font-family:var(--font-mono);font-size:12px;color:var(--accent);display:block;margin-top:8px}
+
+  .note{margin-top:26px;border-left:3px solid var(--accent);background:var(--accent-ghost);
+    padding:16px 20px;border-radius:0 10px 10px 0;font-size:14.5px;color:var(--fg-soft)}
+  .note b{color:var(--fg)}
+  .legend{display:flex;flex-wrap:wrap;gap:14px 22px;margin-top:20px;font-family:var(--font-mono);font-size:12px;color:var(--muted)}
+  .legend span{display:inline-flex;align-items:center;gap:8px}
+  .ln{width:22px;height:0;border-top-width:2px;border-top-style:solid;display:inline-block}
+  .ln.acc{border-color:var(--accent)} .ln.warn{border-color:var(--warn)} .ln.crit{border-color:var(--crit)}
+  .ln.def{border-color:var(--faint);border-top-style:dashed}
+  footer{border-top:1px solid var(--line-soft);padding:34px 0 64px;color:var(--muted);font-size:12px;font-family:var(--font-mono);letter-spacing:.03em}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:3px}
+</style>
+
+<header class="wrap">
+  <div class="eyebrow">ContextRuntime · core data model</div>
+  <h1>The context-object graph</h1>
+  <p class="lede">Every unit of potential model-visible content is a <b>node</b>. Every <b>edge</b> is a number ContextScope or CacheScope already computes. The graph lives in the runtime — <b>never in the prompt.</b></p>
+</header>
+
+<!-- ===== SCHEMA DIAGRAM ===== -->
+<section class="wrap">
+  <figure>
+    <div class="figframe">
+      <svg viewBox="0 0 880 540" role="img" aria-label="Schema of the context-object graph: a central ContextObject node with self-edges for supersession, dependency, duplication and reduction; edges to Source (materialized from), Request (resident in, producing occupancy), CacheIsland (caches, and broke producing rebuild churn), and Capsule (in capsule by reference). A dashed edge to CodeSymbol marks the deferred code graph.">
+        <defs>
+          <marker id="am" markerWidth="9" markerHeight="9" refX="7.5" refY="4.5" orient="auto"><polygon points="0 0, 9 4.5, 0 9" fill="var(--muted)"/></marker>
+          <marker id="aa" markerWidth="9" markerHeight="9" refX="7.5" refY="4.5" orient="auto"><polygon points="0 0, 9 4.5, 0 9" fill="var(--accent)"/></marker>
+          <marker id="ac" markerWidth="9" markerHeight="9" refX="7.5" refY="4.5" orient="auto"><polygon points="0 0, 9 4.5, 0 9" fill="var(--crit)"/></marker>
+          <marker id="aw" markerWidth="9" markerHeight="9" refX="7.5" refY="4.5" orient="auto"><polygon points="0 0, 9 4.5, 0 9" fill="var(--warn)"/></marker>
+        </defs>
+
+        <!-- SOURCE -->
+        <rect x="40" y="214" width="156" height="70" rx="10" class="d-node"/>
+        <text x="56" y="242" class="t-b">Source</text>
+        <text x="56" y="262" class="t-sm">file@commit#symbol</text>
+        <text x="56" y="276" class="t-sm">tool+args · mcp_uri</text>
+
+        <!-- CODE SYMBOL (deferred) -->
+        <rect x="40" y="372" width="156" height="58" rx="10" class="d-defer"/>
+        <text x="56" y="398" class="t-b t-mut">CodeSymbol</text>
+        <text x="56" y="416" class="t-sm">deferred · code graph</text>
+        <line x1="118" y1="284" x2="118" y2="370" class="d-defer" marker-end="url(#am)"/>
+        <text x="126" y="332" class="t-edge t-mut">DEFINES</text>
+
+        <!-- CONTEXT OBJECT (center) -->
+        <rect x="320" y="196" width="240" height="120" rx="14" class="d-node-c"/>
+        <text x="340" y="224" class="t-b t-acc">ContextObject</text>
+        <text x="340" y="244" class="t-sm">id · content_hash · kind</text>
+        <text x="340" y="260" class="t-sm">token_est{per model}</text>
+        <text x="340" y="276" class="t-sm">provenance · trust · bytes</text>
+        <text x="340" y="298" class="t-sm" style="fill:var(--fg-soft)">slice·tool_result·log·rule·def·msg</text>
+
+        <!-- self-loop: object -> object relations -->
+        <path d="M405 196 C 400 150, 480 150, 475 196" class="d-accent-s" marker-end="url(#aa)"/>
+        <text x="440" y="150" text-anchor="middle" class="t-edge t-acc">object &rarr; object</text>
+        <text x="440" y="136" text-anchor="middle" class="t-sm t-acc">SUPERSEDES · DEPENDS_ON · DUPLICATE_OF · REDUCES</text>
+
+        <!-- REQUEST -->
+        <rect x="672" y="150" width="168" height="72" rx="10" class="d-node"/>
+        <text x="690" y="178" class="t-b">Request / Turn</text>
+        <text x="690" y="198" class="t-sm">model · turn · usage</text>
+        <text x="690" y="213" class="t-sm">in/read/create/out tok</text>
+
+        <!-- CACHE ISLAND -->
+        <rect x="672" y="300" width="168" height="72" rx="10" class="d-node"/>
+        <text x="690" y="328" class="t-b">CacheIsland</text>
+        <text x="690" y="348" class="t-sm">(model, prefix)</text>
+        <text x="690" y="363" class="t-sm">ttl · size · state</text>
+
+        <!-- CAPSULE -->
+        <rect x="320" y="418" width="240" height="66" rx="10" class="d-node"/>
+        <text x="340" y="446" class="t-b">Capsule / Checkpoint</text>
+        <text x="340" y="466" class="t-sm">intent · knowledge · repo refs</text>
+
+        <!-- EDGE: Source -> ContextObject -->
+        <line x1="196" y1="244" x2="318" y2="244" class="d-edge" marker-end="url(#am)"/>
+        <text x="257" y="236" text-anchor="middle" class="t-edge t-mut">MATERIALIZED_FROM</text>
+
+        <!-- EDGE: ContextObject -> Request  (RESIDENT_IN) amber = measures occupancy -->
+        <line x1="560" y1="224" x2="670" y2="186" class="d-warn-s" marker-end="url(#aw)"/>
+        <text x="612" y="200" text-anchor="middle" class="t-edge t-warn">RESIDENT_IN {tier}</text>
+        <text x="618" y="238" text-anchor="middle" class="t-sm t-warn">&rarr; occupancy · token-turns · 96%</text>
+
+        <!-- EDGE: CacheIsland -> ContextObject (CACHES) -->
+        <line x1="672" y1="330" x2="562" y2="290" class="d-edge" marker-end="url(#am)"/>
+        <text x="612" y="322" text-anchor="middle" class="t-edge t-mut">CACHES</text>
+
+        <!-- EDGE: CacheIsland -> Request (BROKE) crit = churn -->
+        <path d="M756 300 L756 224" class="d-crit-s" marker-end="url(#ac)"/>
+        <text x="762" y="266" class="t-edge t-crit">BROKE {cause}</text>
+        <text x="762" y="282" class="t-sm t-crit">&rarr; 82% churn</text>
+
+        <!-- EDGE: ContextObject -> Capsule (IN_CAPSULE) accent -->
+        <line x1="440" y1="316" x2="440" y2="416" class="d-accent-s" marker-end="url(#aa)"/>
+        <text x="448" y="360" class="t-edge t-acc">IN_CAPSULE</text>
+        <text x="448" y="376" class="t-sm t-acc">by reference, not content</text>
+
+        <!-- legend row inside -->
+        <text x="40" y="512" class="t-sm">Edges are typed relations; the runtime walks them to produce every ContextScope / CacheScope number.</text>
+      </svg>
+    </div>
+    <figcaption>One node type carries all model-visible content; the edges are where the meaning is. <span style="color:var(--warn)">Amber / rose</span> edges are the ones the profiler <em>measures</em> (occupancy, rebuild churn); <span style="color:var(--accent)">teal</span> edges are the ones the runtime <em>acts on</em> (dedup, delta, bundles, reduce, capsule); the <span style="color:var(--faint)">dashed</span> edge is the deferred code graph.</figcaption>
+  </figure>
+  <div class="legend">
+    <span><i class="ln warn"></i> measures a pool</span>
+    <span><i class="ln crit"></i> cache break</span>
+    <span><i class="ln acc"></i> enables an operation</span>
+    <span><i class="ln def"></i> deferred (code graph)</span>
+  </div>
+</section>
+
+<!-- ===== NODES ===== -->
+<section class="wrap">
+  <h2>Node types</h2>
+  <div class="tscroll">
+    <table>
+      <thead><tr><th>Node</th><th>Represents</th><th>Key properties</th></tr></thead>
+      <tbody>
+        <tr><td class="mono"><span class="k">ContextObject</span></td><td class="m">one unit of potential model-visible content — the polymorphic core node</td><td class="mono">content_hash · kind · token_est{per&nbsp;model} · provenance · trust_level · byte_size · reducer_applied</td></tr>
+        <tr><td class="mono"><span class="k">Request</span></td><td class="m">one model API call (a turn)</td><td class="mono">request_id · session · turn · model · input/cache_read/cache_create/output · island_id · measurement_quality</td></tr>
+        <tr><td class="mono"><span class="k">CacheIsland</span></td><td class="m">a (model, prefix) cache state — caches are per-model</td><td class="mono">model · established_at · ttl_left · prefix_hash · size_tokens · state{warm,broken}</td></tr>
+        <tr><td class="mono"><span class="k">Source</span></td><td class="m">the underlying artifact an object was materialized from</td><td class="mono">source_ref (file@commit#symbol / tool+args_hash / mcp_uri) · hash</td></tr>
+        <tr><td class="mono"><span class="k">Capsule</span></td><td class="m">a portable task checkpoint — an induced subgraph of high-value nodes</td><td class="mono">task_id · refs[] · layers{intent,knowledge,repo,…}</td></tr>
+        <tr><td class="mono"><span class="k" style="color:var(--faint)">CodeSymbol</span></td><td class="m"><em>deferred</em> — the seam to the code graph, built only when retrieval precision is the measured bottleneck</td><td class="mono" style="color:var(--muted)">symbol_id · qualified_name · kind</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="margin-top:14px"><code>ContextObject.kind</code> ∈ { system_prompt, tool_def, rule, source_slice, symbol, tool_result, test_result, log, search_result, history_summary, user_msg, assistant_msg, capsule_ref }. Content-addressing (<code>content_hash</code>) is what makes duplicates, deltas and stale context computable at all.</p>
+</section>
+
+<!-- ===== EDGES — the money table ===== -->
+<section class="wrap">
+  <h2>Edges — and the number each one produces</h2>
+  <p>This is the point of the whole model: the graph isn&rsquo;t new work, it&rsquo;s the normalized form of what the profilers already compute. Each edge maps to a measured pool or a concrete runtime operation.</p>
+  <div class="tscroll">
+    <table>
+      <thead><tr><th>Edge</th><th class="mono">from&nbsp;&rarr;&nbsp;to</th><th>Meaning</th><th>Produces (measured / operation)</th></tr></thead>
+      <tbody>
+        <tr>
+          <td class="mono"><span class="k" style="color:var(--warn)">RESIDENT_IN</span><br><span style="color:var(--muted);font-size:11px">{tier, turn}</span></td>
+          <td class="mono">ContextObject <span class="arrow">&rarr;</span> Request</td>
+          <td class="m">object was in the window for this request, at this cache tier</td>
+          <td><span class="num">occupancy = Σ token_est</span> · token-turns · <b>96% cache-read</b> · aged results = span &gt; 50 turns</td>
+        </tr>
+        <tr>
+          <td class="mono"><span class="k">MATERIALIZED_FROM</span></td>
+          <td class="mono">ContextObject <span class="arrow">&rarr;</span> Source</td>
+          <td class="m">where it came from; the source hash binds freshness</td>
+          <td class="m">provenance · staleness (source hash changes &rarr; object stale) · read-amplification</td>
+        </tr>
+        <tr>
+          <td class="mono"><span class="k">DUPLICATE_OF</span><br><span style="color:var(--muted);font-size:11px">(shared hash)</span></td>
+          <td class="mono">ContextObject <span class="arrow">&harr;</span> ContextObject</td>
+          <td class="m">byte-identical content about to be delivered again</td>
+          <td><span class="num">Tier-A redundancy 2.4%</span> &rarr; <b>dedup:</b> reference by id, don&rsquo;t resend</td>
+        </tr>
+        <tr>
+          <td class="mono"><span class="k">SUPERSEDES</span></td>
+          <td class="mono">ContextObject <span class="arrow">&rarr;</span> ContextObject</td>
+          <td class="m">a new version replaces an older one (after an edit)</td>
+          <td class="m"><b>delta context</b> (send the diff) · Tier-B stale-superseded churn</td>
+        </tr>
+        <tr>
+          <td class="mono"><span class="k">DEPENDS_ON</span></td>
+          <td class="mono">ContextObject <span class="arrow">&rarr;</span> ContextObject</td>
+          <td class="m">coherent-admission requirement — this slice needs that type / callee</td>
+          <td class="m"><b>admission bundle</b> = transitive closure under budget &rarr; prevents under-context retries</td>
+        </tr>
+        <tr>
+          <td class="mono"><span class="k">REDUCES</span><br><span style="color:var(--muted);font-size:11px">{handle}</span></td>
+          <td class="mono">ContextObject <span class="arrow">&rarr;</span> ContextObject</td>
+          <td class="m">a reduced view + a handle back to the full raw payload</td>
+          <td class="m"><b>ContextReduce</b> · tool-compression ratio · <span class="num">15k &rarr; 420</span></td>
+        </tr>
+        <tr>
+          <td class="mono"><span class="k">CACHES</span></td>
+          <td class="mono">CacheIsland <span class="arrow">&rarr;</span> ContextObject</td>
+          <td class="m">the objects this island&rsquo;s prefix currently holds</td>
+          <td class="m">prefix size · per-island residency</td>
+        </tr>
+        <tr>
+          <td class="mono"><span class="k" style="color:var(--crit)">BROKE</span><br><span style="color:var(--muted);font-size:11px">{cause}</span></td>
+          <td class="mono">CacheIsland <span class="arrow">&rarr;</span> Request</td>
+          <td class="m">the request that rebuilt the prefix, tagged with why</td>
+          <td><span class="num">82% rebuild churn</span> · TTL 64% / midwork 27% / model 2.7%</td>
+        </tr>
+        <tr>
+          <td class="mono"><span class="k">IN_CAPSULE</span><br><span style="color:var(--muted);font-size:11px">(by ref)</span></td>
+          <td class="mono">ContextObject <span class="arrow">&rarr;</span> Capsule</td>
+          <td class="m">high-value node carried as a reference, not copied content</td>
+          <td class="m"><b>carry state, not transcript</b> · <span class="num">700k &rarr; 2k</span></td>
+        </tr>
+        <tr>
+          <td class="mono"><span class="k" style="color:var(--faint)">DEFINES</span><br><span style="color:var(--muted);font-size:11px">deferred</span></td>
+          <td class="mono">Source <span class="arrow">&rarr;</span> CodeSymbol</td>
+          <td class="m">seam to the code graph (calls / imports / references)</td>
+          <td class="m">Phase 8 — only when admission precision is the proven bottleneck</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ===== PROJECTIONS ===== -->
+<section class="wrap">
+  <h2>The runtime&rsquo;s operations are graph queries</h2>
+  <p>Nothing about this graph is exotic. Every ContextRuntime behavior is a traversal or aggregation over it — which is exactly why it&rsquo;s the right data model rather than a bolt-on.</p>
+  <div class="grid">
+    <div class="op"><h3>Occupancy &amp; cost ledger</h3><p>Sum token estimates over resident edges; weight by the cache tier on each edge for the economic view.</p><span class="q">Σ token_est(o) over RESIDENT_IN(o→r)</span></div>
+    <div class="op"><h3>Dedup before admission</h3><p>If an object about to be admitted has a duplicate already resident, deliver a reference instead of the bytes.</p><span class="q">∃ DUPLICATE_OF(o→o′) ∧ resident(o′) ⇒ ref</span></div>
+    <div class="op"><h3>Delta on change</h3><p>When an edited object supersedes a delivered one, ship the diff, not the whole thing.</p><span class="q">SUPERSEDES(o→o′) ∧ delivered(o′) ⇒ diff</span></div>
+    <div class="op"><h3>Admission bundle</h3><p>Pack a target plus its dependency closure under a token budget, so a small slice is never incoherent.</p><span class="q">closure(DEPENDS_ON, target) ≤ budget</span></div>
+    <div class="op"><h3>Eviction (gateway)</h3><p>Drop objects long-resident and outside the current task&rsquo;s dependency frontier.</p><span class="q">span(RESIDENT_IN) &gt; H ∧ ∉ frontier ⇒ evict</span></div>
+    <div class="op"><h3>Capsule</h3><p>The induced subgraph over high-trust, task-relevant nodes — with source references replacing content.</p><span class="q">induce{ trust≥T ∧ relevant } + refs</span></div>
+    <div class="op"><h3>Cache-break cost</h3><p>The size of the island at the moment it broke, attributed by cause.</p><span class="q">CacheIsland.size @ BROKE, group by cause</span></div>
+    <div class="op"><h3>Provenance / injection guard</h3><p>Trust flows on edges; external content can never be promoted from data to instruction.</p><span class="q">trust(EXTERNAL) ⇒ data-only, never instruction</span></div>
+  </div>
+
+  <div class="note">
+    <b>The one invariant.</b> This graph lives in the runtime — SQLite adjacency tables plus a content-hash store — not in the prompt. The model receives a <b>manifest</b>: a flat projection of the object ids and levels it was given, plus the selected slices. Serializing the graph itself into context would <em>add</em> tokens, which is the exact mistake the whole design avoids. The graph reduces tokens by deciding what becomes prefix; it never becomes prefix.
+  </div>
+</section>
+
+<footer class="wrap">
+  CONTEXTRUNTIME · context-object graph · the normalized data model behind ContextScope, CacheScope, admission and the capsule
+</footer>

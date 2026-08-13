@@ -1,0 +1,50 @@
+{
+  "_comment": "Per-MTok USD prices. match = model-id substring, first hit wins. Set verified=true after checking current provider pricing. cache_read is per cache-read token; cache_write_5m/1h per cache-creation token. Unknown models fall back to 'default' and every dollar figure is labeled estimated.",
+  "models": [
+    {
+      "match": "claude-opus-4-5",
+      "input": 5.0, "output": 25.0, "cache_read": 0.5, "cache_write_5m": 6.25, "cache_write_1h": 10.0,
+      "verified": false
+    },
+    {
+      "match": "claude-opus-4",
+      "_note": "opus-4-7 / opus-4-8: assumed Opus-4.5-era pricing, VERIFY",
+      "input": 5.0, "output": 25.0, "cache_read": 0.5, "cache_write_5m": 6.25, "cache_write_1h": 10.0,
+      "verified": false
+    },
+    {
+      "match": "claude-opus-5",
+      "input": 5.0, "output": 25.0, "cache_read": 0.5, "cache_write_5m": 6.25, "cache_write_1h": 10.0,
+      "verified": false
+    },
+    {
+      "match": "claude-fable-5",
+      "input": 5.0, "output": 25.0, "cache_read": 0.5, "cache_write_5m": 6.25, "cache_write_1h": 10.0,
+      "verified": false
+    },
+    {
+      "match": "claude-sonnet-4",
+      "input": 3.0, "output": 15.0, "cache_read": 0.3, "cache_write_5m": 3.75, "cache_write_1h": 6.0,
+      "verified": false
+    },
+    {
+      "match": "claude-sonnet-5",
+      "input": 3.0, "output": 15.0, "cache_read": 0.3, "cache_write_5m": 3.75, "cache_write_1h": 6.0,
+      "verified": false
+    },
+    {
+      "match": "claude-haiku-4",
+      "input": 1.0, "output": 5.0, "cache_read": 0.1, "cache_write_5m": 1.25, "cache_write_1h": 2.0,
+      "verified": false
+    },
+    {
+      "match": "claude-3-5-haiku",
+      "input": 0.8, "output": 4.0, "cache_read": 0.08, "cache_write_5m": 1.0, "cache_write_1h": 1.6,
+      "verified": false
+    }
+  ],
+  "default": {
+    "input": 5.0, "output": 25.0, "cache_read": 0.5, "cache_write_5m": 6.25, "cache_write_1h": 10.0,
+    "verified": false
+  }
+}
