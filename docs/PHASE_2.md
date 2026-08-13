@@ -22,7 +22,9 @@ classification, the MCP read surface, and the A/B/C/D experiment — see
 | `REFERENCES` | 🔒 schema-reserved (not yet emitted) |
 | import-aware resolution (`from x import foo as bar`) | ▶ next resolver iteration |
 | **Budgeted bundle generator** (`build_bundle`, symbol × representation-level) | ✅ (Phase 2.2) |
-| `context_search` · `read_symbol` · `read_slice` · `find_callers` (MCP surface) | ▶ next |
+| **Representation materializer** (L0 id … L4 impl, content-monotone) — planner → compiler | ✅ (Phase 2.3) |
+| **Rendered budget validator** (validates *rendered* tokens ≤ B, not just the estimate; reports PRE) | ✅ (Phase 2.3) |
+| `context_search` · `read_symbol` · `read_slice` · `find_callers` · `context_expand` (read surface) | ✅ (Phase 2.3) |
 | Read classification (exploration vs edit_precondition …) | ▶ next |
 | Empirical precision/recall (Gate-2A ground truth) · A/B/C/D harness | ▶ next |
 
@@ -138,6 +140,56 @@ level/tokens/edge/match/soft/utility/reason; excluded reasons; metrics incl.
 python3 -m contextruntime.cli bundle <symbol_or_qualified_name> --db graph.db --budget 2048
 ```
 
+## SemanticFS read surface (Phase 2.3)
+
+This is where the planner **becomes a context compiler**. The bundle chose *which*
+symbols at *what* level; the materializer renders **actual source-derived text** for that
+selection and a validator enforces the budget against the *rendered* tokens — not the
+planner's metadata estimate.
+
+**Representation materializer** (`render_symbol`) renders a symbol at a level over its
+source lines as **strictly nested sets**, so representations satisfy *content
+monotonicity* by construction:
+
+```
+lines(identity) ⊆ lines(signature) ⊆ lines(skeleton) ⊆ lines(slice) ⊆ lines(implementation) ⊆ file
+  L0 identity        qualified name only (no source)
+  L1 signature       declaration/header line(s)
+  L2 skeleton        header + structural lines (control flow / calls), bodies elided
+  L3 slice           skeleton + a contiguous relevant region
+  L4 implementation  full symbol source
+  L5 file            whole file (escalation only; not materialized here)
+```
+
+Source is captured at index time (each adapter now stores the symbol's segment, **redacted
+and bounded** in the CAS keyed by content hash) and elided lines render as an explicit
+`# … N lines …` marker — readable without inventing content.
+
+**Rendered budget validator** — `read_symbol` plans a budgeted neighborhood, materializes
+it, then shrinks the *least-important* representation until the **rendered** total fits `B`.
+Deps are downgraded first (soft, then ascending utility); the **root is downgradable too**
+(last), so even a tiny budget yields a valid identity-level result rather than overflowing.
+It reports **Planned-vs-Rendered Error (PRE)** = `|rendered − planned| / rendered`, keeping
+the estimate↔reality gap visible rather than hidden.
+
+Verified properties (tests in `tests/test_semanticfs.py`):
+
+- **content monotonicity** — `lines(signature) ⊆ … ⊆ lines(implementation)`, strict at the ends
+- **real source** — `read_symbol` returns actual fixture code (`def process`, a real dep call), not bundle metadata
+- **rendered budget invariant** — `rendered_estimate ≤ B` for B ∈ {60, 120, 300, 1000} (validated, not assumed)
+- **shrink under pressure** — a tight budget downgrades the root to a level no higher than the roomy bundle's, still within budget
+- **handles not dumps** — `context_search` / `find_callers` return `ctx://symbol/<id>` handles; the model pages via `read_symbol` / `context_expand`, never a code dump
+- **progressive expansion** — `ctx://symbol/<id>[@level]` resolves to rendered source; unknown/expired handles are reported, never silently empty
+- **PRE reported** — every adaptive read carries `planned_vs_rendered_error` + `estimator`
+
+```bash
+python3 -m contextruntime.cli read-symbol <symbol> --db graph.db --budget 2048
+python3 -m contextruntime.cli read-symbol <symbol> --db graph.db --resolution signature
+python3 -m contextruntime.cli find-callers <symbol> --db graph.db
+python3 -m contextruntime.cli search <query> --db graph.db
+python3 -m contextruntime.cli expand 'ctx://symbol/<id>@skeleton' --db graph.db
+```
+
 ## Not in Phase 2 (deliberately)
 
 No embeddings, no runtime/co-change/cross-repo graphs, no graph DB. Phase 2's question
@@ -146,6 +198,9 @@ would muddy which lever produced the savings. Add it only if NL search proves a 
 
 ## Next
 
-Budget the `DEPENDS_ON` closure (`argmax utility s.t. tokens ≤ B` — select context, never
-inflate it), the `read_symbol` progressive-resolution surface (L0 id … L5 file), read
-classification, then the A/B/C/D experiment that produces the first whole-task number.
+With the read surface landed (planner → compiler, rendered-budget-validated), what remains
+for the Phase-2 gate is: **read classification** (exploration vs edit_precondition, so the
+runtime knows when a cheap slice is safe vs when the full precondition must be admitted),
+then **Gate 2A** — empirical precision/recall against a per-language ground-truth set
+(~100 relations/lang) to replace assigned confidence priors with measured quality — and
+**Gate 2B**, the A/B/C/D experiment that produces the first whole-task token number.

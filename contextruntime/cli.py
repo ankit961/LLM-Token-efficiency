@@ -141,8 +141,43 @@ def cmd_bundle(args) -> int:
     return 0
 
 
+def cmd_read_symbol(args) -> int:
+    """SemanticFS read_symbol — rendered source-derived context under a budget."""
+    from .semanticfs import read_symbol
+    store = _open(args.db)
+    rr = read_symbol(store, args.symbol, budget=args.budget, resolution=args.resolution,
+                     repo_id=args.repo)
+    if not rr.ok:
+        print(rr.note, file=sys.stderr); store.close(); return 1
+    print(f"# read_symbol {rr.root}  resolution={rr.resolution}")
+    print(f"# budget {rr.budget}")
+    print(f"# graph {rr.graph}   expansion={rr.expansion.get('available')}")
+    print()
+    print(rr.to_text())
+    store.close()
+    return 0
+
+
+def cmd_find_callers(args) -> int:
+    from .semanticfs import find_callers
+    store = _open(args.db)
+    for c in find_callers(store, args.symbol, repo_id=args.repo):
+        print(f"  {c['qualified_name']:40s} {c['path']:24s} {c['match']:10s} {c['handle']}")
+    store.close()
+    return 0
+
+
+def cmd_search(args) -> int:
+    from .semanticfs import context_search
+    store = _open(args.db)
+    for r in context_search(store, args.query, repo_id=args.repo, limit=args.limit):
+        print(f"  {r['qualified_name']:40s} {r['kind']:10s} {r['path']:24s} {r['handle']}")
+    store.close()
+    return 0
+
+
 def cmd_expand(args) -> int:
-    """Resolve a result:// handle back to its (redacted) payload (SemanticFS)."""
+    """Resolve a result:// or ctx://symbol handle back to its payload (SemanticFS)."""
     from .semanticfs import context_expand
     store = _open(args.db)
     exp = context_expand(store, args.handle)
@@ -189,7 +224,25 @@ def main(argv=None) -> int:
     p.add_argument("event", nargs="?", choices=["post"], default="post")
     p.set_defaults(func=cmd_hook)
 
-    p = sub.add_parser("expand", help="resolve a result:// handle to its payload (SemanticFS)")
+    p = sub.add_parser("read-symbol", help="SemanticFS: rendered source-derived context under a budget")
+    p.add_argument("symbol")
+    p.add_argument("--db", required=True)
+    p.add_argument("--budget", type=int, default=2048)
+    p.add_argument("--resolution", default="adaptive",
+                   choices=["adaptive", "identity", "signature", "skeleton", "slice", "implementation"])
+    p.add_argument("--repo")
+    p.set_defaults(func=cmd_read_symbol)
+
+    p = sub.add_parser("find-callers", help="reverse CALLS traversal for a symbol")
+    p.add_argument("symbol"); p.add_argument("--db", required=True); p.add_argument("--repo")
+    p.set_defaults(func=cmd_find_callers)
+
+    p = sub.add_parser("search", help="context_search — symbol references as handles (no code dumps)")
+    p.add_argument("query"); p.add_argument("--db", required=True)
+    p.add_argument("--repo"); p.add_argument("--limit", type=int, default=10)
+    p.set_defaults(func=cmd_search)
+
+    p = sub.add_parser("expand", help="resolve a result:// or ctx://symbol handle (SemanticFS)")
     p.add_argument("--db", required=True)
     p.add_argument("handle")
     p.set_defaults(func=cmd_expand)

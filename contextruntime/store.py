@@ -172,6 +172,27 @@ class GraphStore:
             return self.conn.execute(q, (src_id, *edge_types)).fetchall()
         return self.conn.execute("SELECT * FROM code_edges WHERE src_id=?", (src_id,)).fetchall()
 
+    def code_edges_to(self, dst_id: str, edge_types: Optional[tuple] = None) -> list:
+        if edge_types:
+            q = ("SELECT * FROM code_edges WHERE dst_id=? AND edge_type IN (%s)"
+                 % ",".join("?" * len(edge_types)))
+            return self.conn.execute(q, (dst_id, *edge_types)).fetchall()
+        return self.conn.execute("SELECT * FROM code_edges WHERE dst_id=?", (dst_id,)).fetchall()
+
+    def search_symbols(self, query: str, repo_id: Optional[str] = None, limit: int = 10) -> list:
+        """Cheap structural search — exact qualified-name, short-name, path substring.
+        No embeddings (design: keep Phase-2 clean). Returns symbol rows."""
+        like = f"%{query}%"
+        params = [query, f"%.{query}", like, like]
+        where = "(qualified_name=? OR qualified_name LIKE ? OR qualified_name LIKE ? OR path LIKE ?)"
+        if repo_id:
+            where += " AND repo_id=?"
+            params.append(repo_id)
+        rows = self.conn.execute(
+            f"SELECT * FROM symbols WHERE {where} ORDER BY length(qualified_name) LIMIT ?",
+            (*params, limit)).fetchall()
+        return rows
+
     def commit(self) -> None:
         self.conn.commit()
 

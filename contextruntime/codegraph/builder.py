@@ -14,6 +14,7 @@ from dataclasses import dataclass, field
 
 from .. import SCHEMA_VERSION
 from ..model import CodeSymbol
+from ..redact import redact
 from ..store import GraphStore
 from .registry import available_adapters, get_adapter
 
@@ -118,6 +119,11 @@ def index_path(store: GraphStore, root: str, repo_id: str | None = None) -> Inde
                 end_line=s.end_line, signature=s.signature, content_hash=s.content_hash,
                 parser=adapter.parser, resolution_quality=adapter.resolution_quality,
                 schema_version=SCHEMA_VERSION))
+            # store the symbol's source segment (redacted, bounded) so the SemanticFS
+            # materializer can render real source-derived text at read time.
+            if s.source:
+                store.put_blob(s.content_hash, len(s.source.encode("utf-8", "replace")),
+                               redact(s.source[:8000]))
             sym_by_lang[s.language] += 1
             short = s.qualified_name.rsplit(".", 1)[-1]
             by_qname[s.qualified_name] = s_id

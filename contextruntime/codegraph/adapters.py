@@ -28,6 +28,7 @@ class ParsedSymbol:
     end_line: int
     signature: str
     content_hash: str
+    source: str = ""          # the symbol's source segment (stored redacted, for the materializer)
 
 
 @dataclass
@@ -72,7 +73,8 @@ class PythonAstAdapter(Adapter):
             seg = ast.get_source_segment(source, node) or ""
             sig = f"{node.name}({ast.unparse(node.args)})"
             syms.append(ParsedSymbol(qn, kind, rel_path, "python", node.lineno,
-                        getattr(node, "end_lineno", node.lineno), sig, content_hash(seg)))
+                        getattr(node, "end_lineno", node.lineno), sig, content_hash(seg),
+                        source=seg))
             for c in ast.walk(node):
                 if isinstance(c, ast.Call):
                     name = _callee(c.func)
@@ -97,7 +99,7 @@ class PythonAstAdapter(Adapter):
                 seg = ast.get_source_segment(source, node) or ""
                 syms.append(ParsedSymbol(qn, "class", rel_path, "python", node.lineno,
                             getattr(node, "end_lineno", node.lineno),
-                            f"class {node.name}", content_hash(seg)))
+                            f"class {node.name}", content_hash(seg), source=seg))
                 edges.append(ParsedEdge(module_q, qn, "CONTAINS", 1.0, "python_ast"))
                 for base in node.bases:
                     bn = _callee(base)
@@ -161,7 +163,8 @@ class HeuristicAdapter(Adapter):
             for m in _RE[key].finditer(source):
                 qn = f"{module_q}.{m.group(1)}"
                 syms.append(ParsedSymbol(qn, kind, rel_path, self.language, line_of(m.start()),
-                            line_of(m.start()), m.group(1), content_hash(m.group(0))))
+                            line_of(m.start()), m.group(1), content_hash(m.group(0)),
+                            source=m.group(0)))
                 edges.append(ParsedEdge(module_q, qn, "CONTAINS", 0.7, "regex_heuristic"))
                 if key == "class" and m.lastindex and m.group(2):
                     edges.append(ParsedEdge(qn, m.group(2), "IMPLEMENTS", 0.55, "regex_heuristic"))
@@ -245,7 +248,7 @@ class TreeSitterAdapter(Adapter):
                     qn = f"{container_q}.{nm}"
                     syms.append(ParsedSymbol(qn, "class", rel_path, self.language,
                                 child.start_point[0] + 1, child.end_point[0] + 1, nm,
-                                content_hash(txt(child))))
+                                content_hash(txt(child)), source=txt(child)))
                     edges.append(ParsedEdge(container_q, qn, "CONTAINS", 0.9, "tree_sitter"))
                     sc = (child.child_by_field_name("superclass")
                           or child.child_by_field_name("superclasses"))
@@ -261,7 +264,7 @@ class TreeSitterAdapter(Adapter):
                     qn = f"{container_q}.{nm}"
                     syms.append(ParsedSymbol(qn, kind, rel_path, self.language,
                                 child.start_point[0] + 1, child.end_point[0] + 1, nm,
-                                content_hash(txt(child))))
+                                content_hash(txt(child)), source=txt(child)))
                     edges.append(ParsedEdge(container_q, qn, "CONTAINS", 0.9, "tree_sitter"))
                     walk(child, qn, qn, False)           # inside a function body
                 elif t == "call_expression":
