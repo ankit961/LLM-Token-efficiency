@@ -8,18 +8,28 @@ classification, the MCP read surface, and the A/B/C/D experiment — see
 
 ## What's in this increment
 
+### Implemented today (accurate capability list)
+
 | Piece | Status |
 |---|---|
 | `CodeSymbol` schema + `symbols`/`code_edges` tables (repo-scoped, idempotent re-index) | ✅ |
-| Python adapter via **stdlib `ast`** (exact, zero-dependency, high confidence) | ✅ |
-| **tree-sitter** adapter (JS/TS/Go/Java/Rust when the grammar is installed) | ✅ |
-| Regex **heuristic** fallback (low confidence) | ✅ |
-| Graph-Lite edges `CONTAINS · IMPORTS · CALLS · IMPLEMENTS · TESTED_BY · DEPENDS_ON`, each with **confidence + resolution** | ✅ |
-| Per-language + per-resolution **bundle-quality report** (C3) | ✅ |
+| Python adapter via **stdlib `ast`** — exact structure, calls, imports, inheritance, tests | ✅ high-confidence structural parsing |
+| **tree-sitter** adapter — structure + scope-qualified names + recursive calls + imports (JS/TS/Go/Java/Rust when the grammar is installed) | ✅ structural; relationship coverage language-dependent |
+| Regex **heuristic** fallback — structure only (no CALLS; attribution would be a guess) | ✅ low confidence |
+| **Package-qualified module identity** (`payments/utils.py` ≠ `users/utils.py`) | ✅ (Phase 2.1) |
+| **Scope-aware resolver with explicit ambiguity** — never `candidates[0]` | ✅ (Phase 2.1) |
+| Edges `CONTAINS · IMPORTS · CALLS · IMPLEMENTS · TESTED_BY · DEPENDS_ON`, each with `confidence` + `resolution` + `match_kind` | ✅ |
+| `REFERENCES` | 🔒 schema-reserved (not yet emitted) |
+| import-aware resolution (`from x import foo as bar`) | ▶ next resolver iteration |
 | `context_search` · `read_symbol` · `read_slice` · `find_callers` (MCP surface) | ▶ next |
 | Budgeted `DEPENDS_ON` bundle generator (`argmax utility s.t. tokens ≤ B`) | ▶ next |
 | Read classification (exploration vs edit_precondition …) | ▶ next |
-| A/B/C/D experiment harness | ▶ next |
+| Empirical precision/recall (Gate-2A ground truth) · A/B/C/D harness | ▶ next |
+
+`IMPORTS`/`IMPLEMENTS`/`TESTED_BY` are **adapter-dependent** (full in Python; structural
+in tree-sitter; partial in the heuristic). "tree-sitter parsed the code" means
+high-confidence *structural parsing* — not that the cross-language dependency graph is
+complete or its resolutions verified.
 
 ## The confidence model (design C3)
 
@@ -35,9 +45,29 @@ bundle never pretends all languages have equally sound analysis:
 
 **Structural certainty > call resolution** is the cross-language invariant: containment
 is near-certain; call/reference resolution is where language dynamism bites, so it scores
-lower — and lower still for dynamic languages. Unresolved targets become
-`unresolved:<name>` with their confidence discounted, so the (coming) bundle generator can
-tell solid edges from guesses.
+lower — and lower still for dynamic languages.
+
+**Confidence is an assigned prior, NOT measured quality.** `python conf=0.66` does not mean
+66% of edges are correct; empirical precision/recall come from the Gate-2A ground-truth
+dataset. The report is titled *Structural Confidence Report* to keep that honest.
+
+### Resolution `match_kind` (Phase 2.1 — the safety ladder)
+
+Every resolved edge records how sure the resolution is, so the bundle generator can trust
+some edges and refuse to invent dependencies from others:
+
+| match_kind | meaning | bundle use |
+|---|---|---|
+| `exact` | dst is a full qualified name | narrow bundle |
+| `scoped` | resolved in the src's class/module scope (`self.method`, same-module) | narrow bundle |
+| `inferred` | exactly one repo-wide symbol has that short name | single-candidate guess |
+| `ambiguous` | **multiple candidates — resolver refuses to pick one** (`ambiguous:<name>`, `ambiguity_count`) | do not invent a dependency; may show candidate signatures |
+| `unresolved` | external/dynamic — no repo symbol | no dependency |
+
+`DEPENDS_ON` is derived **only** from `exact`/`scoped`/`inferred` — never `ambiguous` or
+`unresolved`. The critical property (verified by an adversarial fixture): a call to
+`save()` when `payments.repo.save` and `users.repo.save` both exist is marked `ambiguous`,
+not resolved to whichever happened to be indexed first.
 
 ## Run it
 
@@ -50,11 +80,13 @@ pip install -e ".[codegraph]"
 Example (this repo's package + a JS sample):
 
 ```
-symbols : {'javascript': 4, 'python': 7}
-parsers : {'javascript': 'tree_sitter', 'python': 'python_ast'}
-bundle quality by language (mean edge confidence — the C3 signal):
-  javascript   conf=0.90  parser=tree_sitter
-  python       conf=0.78  parser=python_ast
+Structural Confidence Report — repo 'sample'
+  symbols : {'javascript': 4, 'python': 7}
+  parsers : {'javascript': 'tree_sitter', 'python': 'python_ast'}
+  resolution match kinds: exact / scoped / inferred / ambiguous / unresolved
+  structural confidence by language (assigned prior):
+    javascript   conf=0.90  parser=tree_sitter
+    python       conf=0.78  parser=python_ast
 ```
 
 ## Not in Phase 2 (deliberately)

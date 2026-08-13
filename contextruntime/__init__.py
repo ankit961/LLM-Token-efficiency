@@ -18,4 +18,6 @@ __version__ = "0.1.0"
 # 0.2.0: session-scoped ids + session_id columns (idempotent re-ingest, no
 #        cross-session collision), redaction on stored payloads.
 # 0.3.0: CodeSymbol graph (symbols + code_edges tables) — Graph-Lite (C1).
-SCHEMA_VERSION = "0.3.0"
+# 0.4.0: resolver correctness — match_kind + ambiguity_count on code_edges;
+#        UNIQUE(src,dst,type,resolution) so multiple evidence sources coexist.
+SCHEMA_VERSION = "0.4.0"

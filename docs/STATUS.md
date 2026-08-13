@@ -42,9 +42,18 @@ schema-version migrations (currently fails loudly on mismatch).
 
 ## Phase 2 — the plan (focused; not a repo-intelligence platform)
 
-1. Harden graph foundation ✅ (this pass)
+**Phase 2.1 — resolver correctness · DONE** (before any bundle generator): package-qualified
+module identity; scope-aware resolution with an explicit `match_kind`
+(`exact/scoped/inferred/ambiguous/unresolved`) that **never picks `candidates[0]`**;
+`DEPENDS_ON` derived only from dependable matches; tree-sitter scope + recursive calls;
+`UNIQUE(src,dst,type,resolution)` so AST/SCIP/LSP evidence can coexist; report renamed to
+*Structural Confidence Report* (assigned prior ≠ measured quality); adversarial ambiguity
+tests; CI (Python 3.10–3.13, core + `[codegraph]` + fallback). Remaining: import-aware
+resolution, `REFERENCES` (schema-reserved), richer tree-sitter relationship coverage.
+
+1. Harden graph foundation ✅
 2. `CodeSymbol` schema (id, repo, language, kind, qualified_name, path, lines, signature,
-   content_hash, parser, **resolution_quality**)
+   content_hash, parser, **resolution_quality**) ✅
 3. Language adapters (tree-sitter / LSP / SCIP) — typed strong, dynamic best-effort
 4. Graph-Lite edges: `CONTAINS · IMPORTS · REFERENCES · CALLS · IMPLEMENTS · TESTED_BY ·
    DEPENDS_ON`, **each with `confidence` + `resolution` provenance**

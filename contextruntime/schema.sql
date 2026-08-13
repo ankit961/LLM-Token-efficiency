@@ -95,18 +95,22 @@ CREATE INDEX IF NOT EXISTS idx_symbols_name ON symbols(qualified_name);
 CREATE INDEX IF NOT EXISTS idx_symbols_lang ON symbols(language);
 
 CREATE TABLE IF NOT EXISTS code_edges (
-    id         INTEGER PRIMARY KEY AUTOINCREMENT,
-    repo_id    TEXT NOT NULL,
-    src_id     TEXT NOT NULL,
-    dst_id     TEXT NOT NULL,              -- symbol_id, or "unresolved:<name>"
-    edge_type  TEXT NOT NULL,              -- CONTAINS/IMPORTS/REFERENCES/CALLS/IMPLEMENTS/TESTED_BY/DEPENDS_ON
-    confidence REAL NOT NULL,
-    resolution TEXT NOT NULL,              -- python_ast | tree_sitter | regex_heuristic | derived
-    props      TEXT
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    repo_id         TEXT NOT NULL,
+    src_id          TEXT NOT NULL,
+    dst_id          TEXT NOT NULL,         -- symbol_id | "ambiguous:<name>" | "unresolved:<name>"
+    edge_type       TEXT NOT NULL,         -- CONTAINS/IMPORTS/CALLS/IMPLEMENTS/TESTED_BY/DEPENDS_ON (REFERENCES reserved)
+    confidence      REAL NOT NULL,
+    resolution      TEXT NOT NULL,         -- python_ast | tree_sitter | regex_heuristic | derived
+    match_kind      TEXT NOT NULL DEFAULT 'na',  -- exact|scoped|inferred|ambiguous|unresolved|structural
+    ambiguity_count INTEGER NOT NULL DEFAULT 0,
+    props           TEXT
 );
-CREATE UNIQUE INDEX IF NOT EXISTS idx_cedges_uniq ON code_edges(src_id, dst_id, edge_type);
-CREATE INDEX IF NOT EXISTS idx_cedges_repo ON code_edges(repo_id);
-CREATE INDEX IF NOT EXISTS idx_cedges_src  ON code_edges(src_id, edge_type);
+-- UNIQUE includes resolution so AST/SCIP/LSP evidence for the same pair can coexist.
+CREATE UNIQUE INDEX IF NOT EXISTS idx_cedges_uniq ON code_edges(src_id, dst_id, edge_type, resolution);
+CREATE INDEX IF NOT EXISTS idx_cedges_repo  ON code_edges(repo_id);
+CREATE INDEX IF NOT EXISTS idx_cedges_src   ON code_edges(src_id, edge_type);
+CREATE INDEX IF NOT EXISTS idx_cedges_match ON code_edges(match_kind);
 
 -- Phase 4 tables — shape frozen now (C13), populated later.
 CREATE TABLE IF NOT EXISTS capsules (

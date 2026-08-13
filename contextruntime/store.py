@@ -121,13 +121,14 @@ class GraphStore:
         )
 
     def add_code_edge(self, repo_id: str, src_id: str, dst_id: str, edge_type: str,
-                      confidence: float, resolution: str,
-                      props: Optional[dict] = None) -> None:
+                      confidence: float, resolution: str, match_kind: str = "na",
+                      ambiguity_count: int = 0, props: Optional[dict] = None) -> None:
         self.conn.execute(
             "INSERT OR IGNORE INTO code_edges(repo_id,src_id,dst_id,edge_type,"
-            "confidence,resolution,props) VALUES (?,?,?,?,?,?,?)",
+            "confidence,resolution,match_kind,ambiguity_count,props) "
+            "VALUES (?,?,?,?,?,?,?,?,?)",
             (repo_id, src_id, dst_id, edge_type, confidence, resolution,
-             json.dumps(props) if props else None),
+             match_kind, ambiguity_count, json.dumps(props) if props else None),
         )
 
     def delete_repo(self, repo_id: str) -> None:

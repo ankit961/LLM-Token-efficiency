@@ -4,8 +4,12 @@ from gateway import StripeGateway
 
 class PaymentService(Base):
     def process(self, req):
-        key = self.repo.find_by_key(req.id)
-        return StripeGateway.charge(key)
+        self.validate(req)                      # sibling method -> SCOPED
+        key = self.repo.find_by_key(req.id)     # not defined here -> UNRESOLVED
+        return StripeGateway.charge(key)        # not defined here -> UNRESOLVED
+
+    def validate(self, req):
+        return req.amount > 0
 
 
 class RetryManager:

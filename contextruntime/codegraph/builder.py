@@ -1,9 +1,10 @@
 """Index a repository into the CodeSymbol graph.
 
-Two passes: (1) parse every file into symbols + raw edges; (2) resolve each edge's
-target name to a symbol_id where possible. Unresolved targets become
-``unresolved:<name>`` and their confidence is discounted — so a dependency bundle
-knows which edges are solid and which are guesses (design C3).
+Two passes: (1) parse every file into symbols + raw edges under a package-qualified
+module name; (2) resolve each edge's target with an explicit precedence and an
+AMBIGUITY state — never pick candidates[0]. A dependency bundle can then trust
+`exact`/`scoped` edges, treat `inferred` as a single-candidate guess, and refuse to
+invent a dependency from `ambiguous`/`unresolved` (design C1/C3, Phase 2.1).
 """
 from __future__ import annotations
 
@@ -18,8 +19,22 @@ from .registry import available_adapters, get_adapter
 
 SKIP_DIRS = {".git", "node_modules", ".venv", "venv", "__pycache__", "dist",
              "build", ".next", "target", ".pytest_cache"}
+SOURCE_ROOTS = {"src"}                 # stripped from module paths (heuristic)
 MAX_FILE_BYTES = 1_500_000
-UNRESOLVED_DISCOUNT = 0.7          # multiply confidence when target is unresolved
+UNRESOLVED_DISCOUNT = 0.7
+AMBIGUOUS_DISCOUNT = 0.45
+# match_kinds that are trustworthy enough to derive a DEPENDS_ON edge from:
+DEPENDABLE = {"exact", "scoped", "inferred"}
+
+
+def module_qname(rel_path: str, source_roots=SOURCE_ROOTS) -> str:
+    """Package-qualified module name so payments/utils.py != users/utils.py."""
+    parts = rel_path.replace("\\", "/").split("/")
+    while len(parts) > 1 and parts[0] in source_roots:
+        parts = parts[1:]
+    stem = parts[-1].rsplit(".", 1)[0]
+    parts = parts[:-1] if stem == "__init__" else parts[:-1] + [stem]
+    return ".".join(parts) if parts else stem
 
 
 @dataclass
@@ -30,14 +45,14 @@ class IndexReport:
     parser_by_language: dict = field(default_factory=dict)
     edges_by_type: dict = field(default_factory=dict)
     edges: int = 0
-    resolved_edges: int = 0
-    # per-language mean confidence + resolved-call rate (the C3 quality signal)
-    quality_by_language: dict = field(default_factory=dict)
+    match_by_kind: dict = field(default_factory=dict)
     resolution_by_source: dict = field(default_factory=dict)
+    structural_confidence_by_language: dict = field(default_factory=dict)
 
     @property
     def resolved_rate(self) -> float:
-        return self.resolved_edges / self.edges if self.edges else 0.0
+        good = sum(self.match_by_kind.get(k, 0) for k in ("exact", "scoped", "inferred", "structural"))
+        return good / self.edges if self.edges else 0.0
 
 
 def _iter_files(root: str):
@@ -50,15 +65,22 @@ def _iter_files(root: str):
 def index_path(store: GraphStore, root: str, repo_id: str | None = None) -> IndexReport:
     root = os.path.abspath(root)
     repo_id = repo_id or os.path.basename(root.rstrip("/")) or "repo"
-    store.delete_repo(repo_id)                       # idempotent re-index
+    store.delete_repo(repo_id)
 
     rep = IndexReport(repo_id=repo_id)
     sym_by_lang: Counter = Counter()
-    parser_by_lang: dict = {}
-    # pass 1: parse -> symbols + raw edges
-    parsed_edges = []                                # (rel, src_qname, dst_name, type, conf, res)
-    name_index: dict[str, list[str]] = defaultdict(list)   # short/qualified name -> [symbol_id]
-    conf_acc: dict[str, list] = defaultdict(list)          # language -> [confidence...]
+    conf_acc: dict = defaultdict(list)
+
+    # symbol tables for resolution
+    by_qname: dict[str, str] = {}                 # qualified_name -> symbol_id
+    by_short: dict[str, list] = defaultdict(list)  # short name -> [symbol_id]
+    module_members: dict[str, dict] = defaultdict(dict)   # module_q -> {short: symbol_id}
+    class_members: dict[str, dict] = defaultdict(dict)    # class_q  -> {short: symbol_id}
+    info_by_id: dict[str, tuple] = {}             # symbol_id -> (qname, kind, module_q)
+    raw_edges: list = []                          # (src_id, src_module, src_class, dst, type, conf, res, lang)
+
+    def sid(path, qn):
+        return f"{repo_id}::{path}::{qn}"
 
     for fpath in _iter_files(root):
         adapter = get_adapter(fpath)
@@ -71,80 +93,106 @@ def index_path(store: GraphStore, root: str, repo_id: str | None = None) -> Inde
         except OSError:
             continue
         rel = os.path.relpath(fpath, root)
-        syms, edges = adapter.parse(rel, source)
+        mod_q = module_qname(rel)
+        syms, edges = adapter.parse(rel, source, mod_q)
         if not syms:
             continue
         rep.files += 1
-        parser_by_lang[adapter.language] = adapter.parser
+        rep.parser_by_language[adapter.language] = adapter.parser
         for s in syms:
-            sid = f"{repo_id}::{s.path}::{s.qualified_name}"
+            s_id = sid(rel, s.qualified_name)
             store.put_symbol(CodeSymbol(
-                symbol_id=sid, repo_id=repo_id, language=s.language, kind=s.kind,
-                qualified_name=s.qualified_name, path=s.path, start_line=s.start_line,
+                symbol_id=s_id, repo_id=repo_id, language=s.language, kind=s.kind,
+                qualified_name=s.qualified_name, path=rel, start_line=s.start_line,
                 end_line=s.end_line, signature=s.signature, content_hash=s.content_hash,
                 parser=adapter.parser, resolution_quality=adapter.resolution_quality,
                 schema_version=SCHEMA_VERSION))
             sym_by_lang[s.language] += 1
-            name_index[s.qualified_name].append(sid)
-            name_index[s.qualified_name.rsplit(".", 1)[-1]].append(sid)  # short name
+            short = s.qualified_name.rsplit(".", 1)[-1]
+            by_qname[s.qualified_name] = s_id
+            by_short[short].append(s_id)
+            info_by_id[s_id] = (s.qualified_name, s.kind, mod_q)
+            if s.kind in ("function", "class", "method", "test"):
+                parent = s.qualified_name.rsplit(".", 1)[0]
+                (class_members[parent] if s.kind in ("method", "test")
+                 else module_members[mod_q])[short] = s_id
         for e in edges:
-            src_id = (f"{repo_id}::{rel}::{e.src_qname}" if e.src_qname else
-                      f"{repo_id}::{rel}::{_module(rel)}")
-            parsed_edges.append((repo_id, src_id, e.dst_name, e.edge_type,
-                                 e.confidence, e.resolution, adapter.language))
+            src_id = sid(rel, e.src_qname) if e.src_qname else sid(rel, mod_q)
+            src_class = e.src_qname.rsplit(".", 1)[0] if e.src_qname.count(".") >= 1 else None
+            raw_edges.append((src_id, mod_q, src_class, e.dst_name, e.edge_type,
+                              e.confidence, e.resolution, adapter.language))
 
-    # pass 2: resolve targets to symbol_ids
-    res_by_source: Counter = Counter()
-    edge_type_ct: Counter = Counter()
-    for repo, src_id, dst_name, etype, conf, res, lang in parsed_edges:
-        candidates = name_index.get(dst_name) or name_index.get(dst_name.rsplit(".", 1)[-1])
-        if candidates:
-            dst_id, resolved = candidates[0], True
-        else:
-            dst_id, resolved = f"unresolved:{dst_name}", False
-            conf = round(conf * UNRESOLVED_DISCOUNT, 3)
-        store.add_code_edge(repo, src_id, dst_id, etype, conf, res)
+    # pass 2 — resolve with precedence + ambiguity
+    match_ct: Counter = Counter()
+    etype_ct: Counter = Counter()
+    res_ct: Counter = Counter()
+    for src_id, src_mod, src_class, dst_name, etype, conf, res, lang in raw_edges:
+        dst_id, match, ambig, c = _resolve(
+            dst_name, src_mod, src_class, by_qname, by_short, module_members, class_members, conf)
+        store.add_code_edge(repo_id, src_id, dst_id, etype, c, res,
+                            match_kind=match, ambiguity_count=ambig)
         rep.edges += 1
-        rep.resolved_edges += int(resolved)
-        edge_type_ct[etype] += 1
-        res_by_source[res] += 1
-        conf_acc[lang].append(conf)
-        # derived DEPENDS_ON for resolved CALLS/IMPLEMENTS/IMPORTS (bundle input, item 5)
-        if resolved and etype in ("CALLS", "IMPLEMENTS", "IMPORTS"):
-            store.add_code_edge(repo, src_id, dst_id, "DEPENDS_ON", conf, "derived")
-            edge_type_ct["DEPENDS_ON"] += 1
+        match_ct[match] += 1
+        etype_ct[etype] += 1
+        res_ct[res] += 1
+        conf_acc[lang].append(c)
+        if match in DEPENDABLE and etype in ("CALLS", "IMPLEMENTS", "IMPORTS"):
+            store.add_code_edge(repo_id, src_id, dst_id, "DEPENDS_ON", c, "derived",
+                                match_kind=match, ambiguity_count=ambig)
+            etype_ct["DEPENDS_ON"] += 1
     store.commit()
 
     rep.symbols_by_language = dict(sym_by_lang)
-    rep.parser_by_language = parser_by_lang
-    rep.edges_by_type = dict(edge_type_ct)
-    rep.resolution_by_source = dict(res_by_source)
-    rep.quality_by_language = {
+    rep.edges_by_type = dict(etype_ct)
+    rep.match_by_kind = dict(match_ct)
+    rep.resolution_by_source = dict(res_ct)
+    rep.structural_confidence_by_language = {
         lang: {"mean_confidence": round(sum(cs) / len(cs), 3), "edges": len(cs)}
         for lang, cs in conf_acc.items()}
     return rep
 
 
-def _module(rel: str) -> str:
-    return rel.rsplit("/", 1)[-1].rsplit(".", 1)[0]
+def _resolve(dst_name, src_mod, src_class, by_qname, by_short,
+             module_members, class_members, base_conf):
+    """Return (dst_id, match_kind, ambiguity_count, confidence)."""
+    # 1. exact qualified match
+    if dst_name in by_qname:
+        return by_qname[dst_name], "exact", 0, base_conf
+    short = dst_name.rsplit(".", 1)[-1]
+    # 2. same class scope (self.method / sibling)
+    if src_class and short in class_members.get(src_class, {}):
+        return class_members[src_class][short], "scoped", 0, base_conf
+    # 3. same module scope
+    if short in module_members.get(src_mod, {}):
+        return module_members[src_mod][short], "scoped", 0, base_conf
+    # 4. repo-wide short name
+    cands = by_short.get(short, [])
+    if len(cands) == 1:
+        return cands[0], "inferred", 1, round(base_conf * 0.9, 3)
+    if len(cands) > 1:
+        # DO NOT choose one — record ambiguity, do not derive a dependency
+        return f"ambiguous:{short}", "ambiguous", len(cands), round(base_conf * AMBIGUOUS_DISCOUNT, 3)
+    # 5. unresolved (external import, dynamic dispatch, etc.)
+    return f"unresolved:{short}", "unresolved", 0, round(base_conf * UNRESOLVED_DISCOUNT, 3)
 
 
 def format_report(rep: IndexReport) -> str:
-    lines = [f"CodeSymbol graph — repo '{rep.repo_id}'",
-             f"  files parsed : {rep.files:,}",
-             f"  symbols      : {sum(rep.symbols_by_language.values()):,} "
-             f"{dict(rep.symbols_by_language)}",
-             f"  parsers      : {rep.parser_by_language}",
-             f"  edges        : {rep.edges:,}  ({100*rep.resolved_rate:.0f}% resolved)  "
-             f"{dict(rep.edges_by_type)}",
-             "",
-             "  bundle quality by language (mean edge confidence — the C3 signal):"]
-    for lang, q in sorted(rep.quality_by_language.items()):
+    lines = [
+        f"Structural Confidence Report — repo '{rep.repo_id}'",
+        "  (confidence is the runtime's ASSIGNED prior, NOT measured precision/recall;",
+        "   empirical quality comes from the Gate-2A ground-truth dataset.)",
+        f"  files parsed : {rep.files:,}",
+        f"  symbols      : {sum(rep.symbols_by_language.values()):,} {dict(rep.symbols_by_language)}",
+        f"  parsers      : {rep.parser_by_language}",
+        f"  edges        : {rep.edges:,}  ({100*rep.resolved_rate:.0f}% dependable)  {dict(rep.edges_by_type)}",
+        "",
+        "  resolution match kinds:",
+    ]
+    for k, n in sorted(rep.match_by_kind.items(), key=lambda kv: -kv[1]):
+        lines.append(f"    {k:12s} {n:,}")
+    lines += ["", "  structural confidence by language (assigned prior):"]
+    for lang, q in sorted(rep.structural_confidence_by_language.items()):
         lines.append(f"    {lang:12s} conf={q['mean_confidence']:.2f}  edges={q['edges']:,}  "
                      f"parser={rep.parser_by_language.get(lang, '?')}")
-    lines += ["", "  by resolution source:"]
-    for src, n in sorted(rep.resolution_by_source.items(), key=lambda kv: -kv[1]):
-        lines.append(f"    {src:16s} {n:,}")
-    all_langs = available_adapters()
-    lines += ["", f"  adapters available: {all_langs}"]
+    lines += ["", f"  adapters available: {available_adapters()}"]
     return "\n".join(lines)
