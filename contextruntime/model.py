@@ -206,7 +206,8 @@ class SemanticReadEvent:
     event_id: str                          # fresh per materialization (a UUID); accidental collision fails loudly
     channel: str                           # native_read | bash_materialization | semanticfs | expansion
     seq: Optional[int] = None              # DB-ASSIGNED (AUTOINCREMENT); leave None on insert
-    source_event_key: Optional[str] = None  # optional producer identity for INTENTIONAL replay idempotence
+    source_system: Optional[str] = None    # producer ID domain (claude_mcp | transcript | hook)
+    source_event_key: Optional[str] = None  # producer identity for INTENTIONAL replay idempotence, per (system, stream)
     session_id: Optional[str] = None
     stream_key: Optional[str] = None       # (session_id, agent_id) sub-stream
     request_id: Optional[str] = None
