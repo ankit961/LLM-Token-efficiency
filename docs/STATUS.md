@@ -110,9 +110,11 @@ The producer key is also **namespaced + session-scoped**: `UNIQUE(source_system,
 with a `source_system` domain (`claude_mcp`/`transcript`/`hook`), so the same `tool_use_id` in two sessions is
 two events, and different producer domains that reuse an id format don't collide. Mirror test: N concurrent
 deliveries of one producer event → exactly one row, every caller returns the same canonical id. **Producer-key
-completeness (schema 0.9.0):** a keyed event must carry its whole key — an incomplete key would leave a NULL in
-the composite tuple and silently bypass dedup — enforced at BOTH the recorder (fail-fast `ValueError`) and the
-DB (a `CHECK (source_event_key IS NULL OR (source_system IS NOT NULL AND stream_key IS NOT NULL))`).
+completeness (schema 0.10.0):** a keyed event must carry its whole key with every part NON-EMPTY — a NULL leaves
+the composite tuple non-conflicting, and an empty string would dedup unrelated malformed deliveries — enforced
+identically at BOTH layers: the recorder's `_require_complete_key` (fail-fast `ValueError`) and a durable DB
+`CHECK` that requires `length(trim(...)) > 0` on `source_event_key`/`source_system`/`stream_key`, so a direct
+write can't bypass the recorder's domain.
 
 > **Benchmark-store immutability (Gate 2 rule).** The store is deliberately rebuild-only: no migrations,
 > so a DB stamped with an older `schema_version` fails loudly on open (C13). That is fine while the
