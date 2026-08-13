@@ -196,17 +196,29 @@ class GraphStore:
 
     # --- SemanticReadEvent telemetry (Phase 2.4) -----------------------------
 
-    def next_read_seq(self) -> int:
-        """Monotonic per-store sequence — stable ordering without a wall-clock."""
-        return self.conn.execute(
-            "SELECT COALESCE(MAX(seq), 0) + 1 AS n FROM semantic_reads").fetchone()["n"]
-
     def put_semantic_read(self, e: SemanticReadEvent) -> None:
+        # `seq` is DB-ASSIGNED (AUTOINCREMENT): inserting NULL lets SQLite allocate it
+        # atomically, so two MCP processes sharing the store can't collide on ordering.
+        # `event_id` is UNIQUE, so a re-emit is idempotent (INSERT OR IGNORE, not REPLACE —
+        # REPLACE would delete+reinsert and churn the seq).
         d = asdict(e)
         cols = ",".join(d.keys())
         ph = ",".join(f":{k}" for k in d.keys())
         self.conn.execute(
-            f"INSERT OR REPLACE INTO semantic_reads ({cols}) VALUES ({ph})", d)
+            f"INSERT OR IGNORE INTO semantic_reads ({cols}) VALUES ({ph})", d)
+
+    def update_transport_tokens(self, event_id: str, transport_content_tokens: int) -> None:
+        """Record the FULL transport response size (semantic payload + transport meta block)
+        and derive the transport-layer overhead. Called by the transport once it has built
+        the actual response the model will see."""
+        row = self.semantic_read(event_id)
+        if row is None:
+            return
+        payload = row["semantic_payload_tokens"] or 0
+        overhead = max(0, transport_content_tokens - payload)
+        self.conn.execute(
+            "UPDATE semantic_reads SET transport_content_tokens=?, transport_overhead_tokens=? "
+            "WHERE event_id=?", (transport_content_tokens, overhead, event_id))
 
     def semantic_read(self, event_id: str) -> Optional[sqlite3.Row]:
         return self.conn.execute(
@@ -225,10 +237,13 @@ class GraphStore:
         return self.conn.execute(q + " ORDER BY seq", params).fetchall()
 
     def context_expansion_debt(self, event_id: str) -> int:
-        """CED for a read = tokens of the expansions it caused (its child expansion rows)."""
+        """CED for a read = FULL transport tokens of the expansions it caused (the model
+        receives the transport meta too), falling back to the semantic payload for a channel
+        that emitted no transport measurement (e.g. an attributed native read)."""
         return int(self.conn.execute(
-            "SELECT COALESCE(SUM(serialized_tokens), 0) AS t FROM semantic_reads "
-            "WHERE parent_event_id=? AND channel='expansion'", (event_id,)).fetchone()["t"])
+            "SELECT COALESCE(SUM(COALESCE(transport_content_tokens, semantic_payload_tokens)), 0) AS t "
+            "FROM semantic_reads WHERE parent_event_id=? AND channel='expansion'",
+            (event_id,)).fetchone()["t"])
 
     def commit(self) -> None:
         self.conn.commit()

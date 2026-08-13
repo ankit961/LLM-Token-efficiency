@@ -29,10 +29,14 @@ def test_read_emits_durable_event():
     assert row["channel"] == "semanticfs"
     assert row["session_id"] == "sess1" and row["request_id"] == "req1"
     assert row["symbol_id"] == rr.root
-    assert row["serialized_tokens"] == rr.budget["serialized_tokens"]
+    assert row["semantic_payload_tokens"] == rr.budget["serialized_tokens"]
     assert row["source_body_tokens"] == rr.budget["source_body_tokens"]
     assert row["protocol_overhead"] == rr.budget["protocol_overhead_ratio"]
     assert row["budget_requested"] == 1000
+    # no transport wrapper on a direct record_read -> transport == payload, zero overhead
+    assert row["transport_content_tokens"] == row["semantic_payload_tokens"]
+    assert row["transport_overhead_tokens"] == 0
+    assert row["seq"] is not None and row["seq"] >= 1             # DB-assigned (AUTOINCREMENT)
     assert row["allowed"] == 1 and row["denied"] == 0            # observe-only
     assert row["observed_class"] is None                          # 2.4-C fills this
     assert row["path"].endswith("service.py")                     # provenance carried
@@ -51,9 +55,11 @@ def test_expansion_links_to_parent_and_sums_ced():
     assert row["parent_event_id"] == parent
     assert row["channel"] == "expansion"
     assert row["to_level"] == "implementation" and row["from_level"] == "identity"
-    # CED for the parent read = the tokens of the expansion it caused
+    # CED = FULL transport tokens of the expansion; a direct record_expansion has no transport
+    # wrapper, so transport == est(exp.text) == semantic payload here.
     assert s.context_expansion_debt(parent) == est_tokens(exp.text)
-    assert s.context_expansion_debt(parent) == row["serialized_tokens"]
+    assert s.context_expansion_debt(parent) == row["transport_content_tokens"]
+    assert row["semantic_payload_tokens"] == est_tokens(exp.text)
     s.close()
 
 
@@ -62,6 +68,18 @@ def test_not_found_expansion_records_nothing():
     exp = context_expand(s, "ctx://symbol/nope")
     assert record_expansion(s, exp, parent_event_id="ev_x") is None
     assert s.semantic_reads() == []
+    s.close()
+
+
+# issue 1: a materialization is logged even without a parent (attribution is optional).
+def test_parentless_expansion_still_records():
+    s = _store()
+    rr = read_symbol(s, "service.process", budget=1000)
+    exp = context_expand(s, f"ctx://symbol/{rr.root}@implementation")
+    eid = record_expansion(s, exp, session_id="s", request_id="q")   # NO parent_event_id
+    row = s.semantic_read(eid)
+    assert row is not None and row["channel"] == "expansion"
+    assert row["parent_event_id"] is None                            # unattributed but still logged
     s.close()
 
 

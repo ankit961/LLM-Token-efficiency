@@ -34,15 +34,19 @@ def record_read(store: GraphStore, rr, *, session_id: Optional[str] = None,
                 nudged: bool = False, bypass_channel: Optional[str] = None) -> str:
     """Record a read (SemanticFS, or an attributed native/Bash materialization) from its
     ReadResult. Returns the event_id — thread it into `record_expansion` as
-    `parent_event_id` so Context Expansion Debt links back to the read that caused it."""
-    seq = store.next_read_seq()
+    `parent_event_id` so Context Expansion Debt links back to the read that caused it.
+
+    `seq` is left None: SQLite assigns it (AUTOINCREMENT). `transport_content_tokens`
+    defaults to the semantic payload (no transport wrapper); a transport calls
+    `store.update_transport_tokens` afterwards with the real full-response size."""
     b = rr.budget or {}
     root = rr.sections[0] if rr.sections else None
     prov = root.get("provenance", {}) if root else {}
     levels = ",".join(s["level"] for s in rr.sections) if rr.sections else None
-    eid = _event_id(session_id, request_id, channel, rr.root, seq)
+    payload = b.get("serialized_tokens")
+    eid = _event_id(session_id, request_id, channel, rr.root)
     ev = SemanticReadEvent(
-        event_id=eid, seq=seq, channel=channel, session_id=session_id,
+        event_id=eid, channel=channel, session_id=session_id,
         stream_key=stream_key or session_id, request_id=request_id, ts=ts,
         repo_id=repo_id, path=prov.get("path"), symbol_id=rr.root,
         content_hash=prov.get("content_hash"),
@@ -51,32 +55,34 @@ def record_read(store: GraphStore, rr, *, session_id: Optional[str] = None,
         bypass_channel=bypass_channel,
         representation=levels,
         materialization_quality=(root.get("materialization_quality") if root else None),
-        serialized_tokens=b.get("serialized_tokens"),
+        semantic_payload_tokens=payload,
         source_body_tokens=b.get("source_body_tokens"),
         protocol_overhead=b.get("protocol_overhead_ratio"),
+        transport_content_tokens=payload, transport_overhead_tokens=0,
         budget_requested=b.get("requested"))
     store.put_semantic_read(ev)
     return eid
 
 
-def record_expansion(store: GraphStore, exp, *, parent_event_id: str,
+def record_expansion(store: GraphStore, exp, *, parent_event_id: Optional[str] = None,
                      session_id: Optional[str] = None, request_id: Optional[str] = None,
                      stream_key: Optional[str] = None, ts: Optional[str] = None,
                      from_level: Optional[str] = None, reason: Optional[str] = None,
                      repo_id: Optional[str] = None) -> Optional[str]:
-    """Record an explicit expansion, LINKED to the read that caused it. Its serialized
-    tokens are exactly the Context Expansion Debt this expansion adds to that read.
-    Returns None for a not-found expansion (nothing was materialized)."""
+    """Record an explicit expansion. `parent_event_id` is OPTIONAL — a materialization is
+    logged whether or not it is attributed to a prior read (an unattributed expansion still
+    consumed context). When a parent IS given, this expansion's transport tokens count toward
+    that read's Context Expansion Debt. Returns None only when nothing was materialized."""
     if not exp.found:
         return None
-    seq = store.next_read_seq()
     tokens = est_tokens(exp.text)
-    eid = _event_id(session_id, request_id, "expansion", exp.symbol_id, parent_event_id, seq)
+    eid = _event_id(session_id, request_id, "expansion", exp.symbol_id, parent_event_id)
     ev = SemanticReadEvent(
-        event_id=eid, seq=seq, channel="expansion", session_id=session_id,
+        event_id=eid, channel="expansion", session_id=session_id,
         stream_key=stream_key or session_id, request_id=request_id, ts=ts,
         repo_id=repo_id, symbol_id=exp.symbol_id,
-        serialized_tokens=tokens, source_body_tokens=tokens, protocol_overhead=0.0,
+        semantic_payload_tokens=tokens, source_body_tokens=tokens, protocol_overhead=0.0,
+        transport_content_tokens=tokens, transport_overhead_tokens=0,
         parent_event_id=parent_event_id, from_level=from_level, to_level=exp.level,
         reason=reason)
     store.put_semantic_read(ev)

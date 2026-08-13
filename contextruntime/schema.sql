@@ -118,50 +118,54 @@ CREATE INDEX IF NOT EXISTS idx_cedges_match ON code_edges(match_kind);
 -- nullable now (observe-only) and filled retrospectively in 2.4-C. Expansion rows carry
 -- parent_event_id so Context Expansion Debt sums directly (no post-hoc reconstruction).
 CREATE TABLE IF NOT EXISTS semantic_reads (
-    event_id                TEXT PRIMARY KEY,
-    session_id              TEXT,
-    stream_key              TEXT,             -- (session_id, agent_id) sub-stream
-    request_id              TEXT,
-    ts                      TEXT,             -- caller-supplied ISO timestamp (no wall-clock here)
-    seq                     INTEGER NOT NULL, -- monotonic per store, for stable ordering
-    channel                 TEXT NOT NULL,    -- native_read | bash_materialization | semanticfs | expansion
+    -- SQLite-ASSIGNED monotonic order: safe when multiple MCP processes share the store
+    -- (SELECT MAX(seq)+1 could hand two writers the same number before either commits).
+    seq                      INTEGER PRIMARY KEY AUTOINCREMENT,
+    event_id                 TEXT NOT NULL UNIQUE,
+    session_id               TEXT,
+    stream_key               TEXT,             -- (session_id, agent_id) sub-stream
+    request_id               TEXT,
+    ts                       TEXT,             -- caller-supplied ISO timestamp (no wall-clock here)
+    channel                  TEXT NOT NULL,    -- native_read | bash_materialization | semanticfs | expansion
     -- target
-    repo_id                 TEXT,
-    path                    TEXT,
-    symbol_id               TEXT,
-    content_hash            TEXT,
-    range_start             INTEGER,
-    range_end               INTEGER,
+    repo_id                  TEXT,
+    path                     TEXT,
+    symbol_id                TEXT,
+    content_hash             TEXT,
+    range_start              INTEGER,
+    range_end                INTEGER,
     -- classification (2.4-C/D; nullable now)
-    predicted_class         TEXT,
-    predicted_confidence    REAL,
-    observed_class          TEXT,
-    classification_source   TEXT,             -- client_tracker_confirmed | temporal_causal | heuristic
-    evidence_grade          TEXT,
+    predicted_class          TEXT,
+    predicted_confidence     REAL,
+    observed_class           TEXT,
+    classification_source    TEXT,             -- client_tracker_confirmed | temporal_causal | heuristic
+    evidence_grade           TEXT,
     -- admission (observe-only now: allowed=1)
-    allowed                 INTEGER NOT NULL DEFAULT 1,
-    denied                  INTEGER NOT NULL DEFAULT 0,
-    nudged                  INTEGER NOT NULL DEFAULT 0,
-    bypass_channel          TEXT,
-    -- context
-    representation          TEXT,
-    materialization_quality TEXT,
-    serialized_tokens       INTEGER,
-    source_body_tokens      INTEGER,
-    protocol_overhead       REAL,
-    budget_requested        INTEGER,
+    allowed                  INTEGER NOT NULL DEFAULT 1,
+    denied                   INTEGER NOT NULL DEFAULT 0,
+    nudged                   INTEGER NOT NULL DEFAULT 0,
+    bypass_channel           TEXT,
+    -- context: two overhead layers are tracked distinctly.
+    representation           TEXT,
+    materialization_quality  TEXT,
+    semantic_payload_tokens  INTEGER,          -- SemanticFS serialized payload (source + semantic headers/handles)
+    source_body_tokens       INTEGER,          -- pure source body
+    protocol_overhead        REAL,             -- semantic-layer overhead ratio ((payload-body)/payload)
+    transport_content_tokens INTEGER,          -- FULL model-visible tokens the transport returned (payload + meta block)
+    transport_overhead_tokens INTEGER,         -- transport_content - semantic_payload (the transport meta cost)
+    budget_requested         INTEGER,
     -- expansion linkage (Context Expansion Debt)
-    parent_event_id         TEXT,
-    from_level              TEXT,
-    to_level                TEXT,
-    reason                  TEXT,
+    parent_event_id          TEXT,
+    from_level               TEXT,
+    to_level                 TEXT,
+    reason                   TEXT,
     -- outcome (2.4-C retrospective; nullable now)
-    later_edited            INTEGER,
-    turns_to_edit           INTEGER,
-    expanded_later          INTEGER,
-    expansion_tokens        INTEGER,
-    recovery_turns          INTEGER,
-    schema_version          TEXT NOT NULL
+    later_edited             INTEGER,
+    turns_to_edit            INTEGER,
+    expanded_later           INTEGER,
+    expansion_tokens         INTEGER,
+    recovery_turns           INTEGER,
+    schema_version           TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_sreads_session ON semantic_reads(session_id, seq);
 CREATE INDEX IF NOT EXISTS idx_sreads_parent  ON semantic_reads(parent_event_id);

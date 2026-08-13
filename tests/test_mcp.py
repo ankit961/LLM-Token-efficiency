@@ -72,8 +72,56 @@ def test_expand_links_ced_through_transport():
     child = _meta_expand(exp)
     row = srv.store.semantic_read(child)
     assert row["channel"] == "expansion" and row["parent_event_id"] == parent
-    # CED for the read = tokens of the expansion it caused
-    assert srv.store.context_expansion_debt(parent) == row["serialized_tokens"] > 0
+    # CED = FULL transport tokens of the expansion (payload + meta block), not just source
+    ced = srv.store.context_expansion_debt(parent)
+    assert ced == row["transport_content_tokens"] > 0
+    assert row["transport_content_tokens"] > row["semantic_payload_tokens"]      # meta counted
+    assert row["transport_overhead_tokens"] == row["transport_content_tokens"] - row["semantic_payload_tokens"]
+    srv.store.close()
+
+
+def test_transport_overhead_counted_on_read():
+    # issue 2: the model-visible response includes the meta block, so transport > semantic payload
+    srv = _server()
+    resp = _call(srv, "read_symbol", {"symbol": "service.process", "budget": 1000})
+    row = srv.store.semantic_read(_meta(resp)["event_id"])
+    assert row["transport_content_tokens"] > row["semantic_payload_tokens"]
+    assert row["transport_overhead_tokens"] == row["transport_content_tokens"] - row["semantic_payload_tokens"]
+    srv.store.close()
+
+
+def test_parentless_expansion_records_via_transport():
+    # issue 1: expanding without parent_event_id still logs the materialization
+    srv = _server()
+    read = _call(srv, "read_symbol", {"symbol": "service.process", "budget": 1000}, mid=1)
+    sid = srv.store.semantic_read(_meta(read)["event_id"])["symbol_id"]
+    exp = _call(srv, "context_expand", {"handle": f"ctx://symbol/{sid}@implementation"}, mid=2)
+    row = srv.store.semantic_read(_meta_expand(exp))
+    assert row is not None and row["channel"] == "expansion" and row["parent_event_id"] is None
+    srv.store.close()
+
+
+def test_version_negotiation_is_truthful():
+    # issue 4: echo the client version only if supported; otherwise answer with one we support
+    srv = _server()
+    r1 = srv.handle({"jsonrpc": "2.0", "id": 1, "method": "initialize",
+                     "params": {"protocolVersion": "9999-01-01"}})
+    assert r1["result"]["protocolVersion"] == "2024-11-05"           # not echoed
+    assert r1["result"]["serverInfo"]["protocolMode"] == "legacy-2024-11-05"
+    r2 = srv.handle({"jsonrpc": "2.0", "id": 2, "method": "initialize",
+                     "params": {"protocolVersion": "2024-11-05"}})
+    assert r2["result"]["protocolVersion"] == "2024-11-05"           # supported -> echoed
+    srv.store.close()
+
+
+def test_seq_is_db_assigned_and_unique():
+    # issue 3: ordering comes from a SQLite-assigned AUTOINCREMENT, not SELECT MAX(seq)+1
+    srv = _server()
+    _call(srv, "read_symbol", {"symbol": "service.process"}, mid=1)
+    _call(srv, "read_symbol", {"symbol": "service.run_db"}, mid=2)
+    seqs = [r["seq"] for r in srv.store.semantic_reads()]
+    assert all(isinstance(x, int) for x in seqs)
+    assert seqs == sorted(seqs) and len(set(seqs)) == len(seqs)      # monotonic + unique
     srv.store.close()
 
 
