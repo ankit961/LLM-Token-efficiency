@@ -15,13 +15,16 @@ gets to claim a gate once a measured trial clears it.
 | Phase 2.2 / 2.2.1 — budgeted bundle planner | ✅ implemented |
 | Phase 2.3 — SemanticFS materializer + read surface (library/CLI) | ✅ implemented |
 | Phase 2.3.1 — measurement & admission hygiene | ✅ implemented |
-| Phase 2.4 — read classification + admission telemetry (**thin MCP transport folded in**) | ▶ next |
+| Phase 2.4-A/B — API contract + `SemanticReadEvent` telemetry + **MCP stdio transport** (observe-only) | ✅ implemented |
+| Phase 2.4-C — retrospective read classification (Read/Bash/SemanticFS channels) | ▶ next |
 | Gate 2A — retrieval viability (ground-truth precision/recall) | ◐ after 2.4 |
 | Gate 2B — admission experiment (A/B/C/D) | ★ first product gate |
 
-> **Transport note.** Phase 2.3 shipped the SemanticFS read surface as a **library + CLI**;
-> there is **no MCP server yet** (`cr-mcp`/stdio transport). It is folded into Phase 2.4 so the
-> MCP calls emit the read telemetry defined there — building the transport once, instrumented.
+> **Transport note.** The SemanticFS read surface is now exposed over a **hand-rolled MCP stdio
+> transport** (`contextruntime mcp --db …`, no third-party dependency), and every materializing
+> call (`read_symbol`/`read_slice`/`context_expand`) emits a durable `SemanticReadEvent` — the
+> transport is instrumented from the start. It is **observe-only**: nothing is denied, and the
+> classification/outcome columns stay null until the 2.4-C labeller fills them.
 
 **What the ~53% number is and isn't.** `reduce-scan` reports *~53% reduction on
 reducible tool results, Grade C, observe mode.* It excludes source reads, history, the
@@ -67,7 +70,14 @@ resolution, `REFERENCES` (schema-reserved), richer tree-sitter relationship cove
 
 **Phase 2.3.1 — measurement & admission hygiene · DONE** (found + fixed via three adversarial verification passes): the budget is the **serialized** model-visible payload (not just source bodies), **PRE** isolates estimator error from deliberate shrink, `safety_margin` is actually applied, bare handles resolve to signatures (explicit `@implementation` to escalate; unknown `@levels` can't leak a body), and `materialization_quality` never passes a bounded/heuristic body off as complete. Python call-scoping reached tree-sitter parity (nested + control-flow-hidden defs, own-scope call attribution). **Honest finding:** verbose handles dominate small budgets — Phase 2.4 measures `ProtocolOverheadRatio` before deciding whether handle compaction (candidate 2.4.1/2.3.2) is worth it.
 
-**Phase 2.4 — read classification + admission telemetry · NEXT** (observe-only first, no enforcement): durable `SemanticReadEvent` (identity/channel/target/classification/admission/context/outcome); retrospective **observed** labels (a native read that is the latest eligible edit-precondition for a same-path edit within a causal window — *not* every read before an edit) with an `evidence_grade`/`classification_source` (client-tracker-confirmed / temporal-causal / heuristic); real-time **predicted** labels kept separate so classifier precision/recall is measurable, never assumed; classify **materialization across channels** (native `Read`, Bash `cat/sed/git show/…`, SemanticFS, expansion) reporting exploration-bypass by **events and by tokens**; expansion **parent linkage** so CED is summed directly; `ProtocolOverheadRatio` measured at working budgets; **thin MCP stdio transport** instrumented to emit these events. Enforcement (deny+nudge, high-confidence exploration only) waits for confusion matrices — the dangerous error is P(predicted exploration | actually edit-prerequisite).
+**Phase 2.4-A/B — read-surface contract + telemetry + MCP transport · DONE** (observe-only): progressive `@next`
+expansion handles (not a jump to the full body); `@file` rejected until real whole-file materialization exists;
+`ProtocolOverheadRatio` measured per read; durable `semantic_reads` (schema 0.5.0) with `record_read`/`record_expansion`
+kept separate from the pure read functions and **expansion→parent linkage so CED sums directly**; a hand-rolled MCP
+stdio transport (`contextruntime mcp`) that emits an event on every materializing call, committed per call for durability.
+Nothing is denied; classification/outcome columns are null.
+
+**Phase 2.4-C — read classification · NEXT** (observe-only first, no enforcement): durable `SemanticReadEvent` (identity/channel/target/classification/admission/context/outcome); retrospective **observed** labels (a native read that is the latest eligible edit-precondition for a same-path edit within a causal window — *not* every read before an edit) with an `evidence_grade`/`classification_source` (client-tracker-confirmed / temporal-causal / heuristic); real-time **predicted** labels kept separate so classifier precision/recall is measurable, never assumed; classify **materialization across channels** (native `Read`, Bash `cat/sed/git show/…`, SemanticFS, expansion) reporting exploration-bypass by **events and by tokens**; expansion **parent linkage** so CED is summed directly; `ProtocolOverheadRatio` measured at working budgets; **thin MCP stdio transport** instrumented to emit these events. Enforcement (deny+nudge, high-confidence exploration only) waits for confusion matrices — the dangerous error is P(predicted exploration | actually edit-prerequisite).
 
 2. `CodeSymbol` schema (id, repo, language, kind, qualified_name, path, lines, signature,
    content_hash, parser, **resolution_quality**) ✅

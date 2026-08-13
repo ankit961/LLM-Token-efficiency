@@ -180,6 +180,17 @@ def cmd_search(args) -> int:
     return 0
 
 
+def cmd_mcp(args) -> int:
+    """Serve the SemanticFS read surface over MCP stdio (observe-only telemetry)."""
+    from .mcp import main as mcp_main
+    argv = ["--db", args.db]
+    if args.repo:
+        argv += ["--repo", args.repo]
+    if args.session:
+        argv += ["--session", args.session]
+    return mcp_main(argv)
+
+
 def cmd_expand(args) -> int:
     """Resolve a result:// or ctx://symbol handle back to its payload (SemanticFS)."""
     from .semanticfs import context_expand
@@ -250,6 +261,12 @@ def main(argv=None) -> int:
     p.add_argument("--db", required=True)
     p.add_argument("handle")
     p.set_defaults(func=cmd_expand)
+
+    p = sub.add_parser("mcp", help="serve the SemanticFS read surface over MCP stdio (observe-only)")
+    p.add_argument("--db", required=True, help="sqlite store (telemetry persisted here)")
+    p.add_argument("--repo", help="default repo_id for reads")
+    p.add_argument("--session", help="session id (default: generated)")
+    p.set_defaults(func=cmd_mcp)
 
     p = sub.add_parser("index-code", help="build the CodeSymbol graph (Graph-Lite) for a repo")
     p.add_argument("path")
