@@ -121,7 +121,10 @@ CREATE TABLE IF NOT EXISTS semantic_reads (
     -- SQLite-ASSIGNED monotonic order: safe when multiple MCP processes share the store
     -- (SELECT MAX(seq)+1 could hand two writers the same number before either commits).
     seq                      INTEGER PRIMARY KEY AUTOINCREMENT,
-    event_id                 TEXT NOT NULL UNIQUE,
+    event_id                 TEXT NOT NULL UNIQUE,  -- fresh per materialization (a UUID); accidental collision FAILS loudly
+    source_event_key         TEXT,             -- optional stable producer identity (tool_use_id / transcript uuid / hook id);
+                                               -- INTENTIONAL replay dedups on this, so a duplicate DELIVERY is idempotent
+                                               -- while a duplicate EVENT is two distinct rows.
     session_id               TEXT,
     stream_key               TEXT,             -- (session_id, agent_id) sub-stream
     request_id               TEXT,
@@ -171,6 +174,9 @@ CREATE INDEX IF NOT EXISTS idx_sreads_session ON semantic_reads(session_id, seq)
 CREATE INDEX IF NOT EXISTS idx_sreads_parent  ON semantic_reads(parent_event_id);
 CREATE INDEX IF NOT EXISTS idx_sreads_channel ON semantic_reads(channel);
 CREATE INDEX IF NOT EXISTS idx_sreads_symbol  ON semantic_reads(symbol_id);
+-- UNIQUE on the producer key gives INTENTIONAL replay idempotence; SQLite treats multiple
+-- NULLs as distinct, so the many live events without a producer key don't collide here.
+CREATE UNIQUE INDEX IF NOT EXISTS idx_sreads_srckey ON semantic_reads(source_event_key);
 
 -- Phase 4 tables — shape frozen now (C13), populated later.
 CREATE TABLE IF NOT EXISTS capsules (
