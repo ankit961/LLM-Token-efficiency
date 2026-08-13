@@ -31,6 +31,17 @@ def _new_event_id() -> str:
     return "ev_" + uuid.uuid4().hex
 
 
+def _require_complete_key(source_system, effective_stream, source_event_key) -> None:
+    """A keyed (replayable) event MUST carry its whole producer key. An incomplete key leaves a
+    NULL in the composite unique tuple, which never conflicts under SQLite semantics — so the
+    event would silently bypass dedup. Fail fast (the DB CHECK is the backstop)."""
+    if source_event_key is not None:
+        if not source_system:
+            raise ValueError("source_event_key requires source_system (the producer namespace)")
+        if not effective_stream:
+            raise ValueError("source_event_key requires a stream (stream_key or session_id)")
+
+
 def record_read(store: GraphStore, rr, *, session_id: Optional[str] = None,
                 request_id: Optional[str] = None, channel: str = "semanticfs",
                 stream_key: Optional[str] = None, ts: Optional[str] = None,
@@ -48,6 +59,8 @@ def record_read(store: GraphStore, rr, *, session_id: Optional[str] = None,
     replay dedups and the store returns the ALREADY-persisted id — concurrency-safe, so a
     caller never gets back a UUID that lost the insert race. `seq` is DB-assigned; a transport
     later corrects `transport_content_tokens` via `store.update_transport_tokens`."""
+    effective_stream = stream_key or session_id
+    _require_complete_key(source_system, effective_stream, source_event_key)
     b = rr.budget or {}
     root = rr.sections[0] if rr.sections else None
     prov = root.get("provenance", {}) if root else {}
@@ -57,7 +70,7 @@ def record_read(store: GraphStore, rr, *, session_id: Optional[str] = None,
     ev = SemanticReadEvent(
         event_id=eid, channel=channel, source_system=source_system,
         source_event_key=source_event_key, session_id=session_id,
-        stream_key=stream_key or session_id, request_id=request_id, ts=ts,
+        stream_key=effective_stream, request_id=request_id, ts=ts,
         repo_id=repo_id, path=prov.get("path"), symbol_id=rr.root,
         content_hash=prov.get("content_hash"),
         predicted_class=predicted_class, predicted_confidence=predicted_confidence,
@@ -87,12 +100,14 @@ def record_expansion(store: GraphStore, exp, *, parent_event_id: Optional[str] =
     Returns None only when nothing was materialized."""
     if not exp.found:
         return None
+    effective_stream = stream_key or session_id
+    _require_complete_key(source_system, effective_stream, source_event_key)
     tokens = est_tokens(exp.text)
     eid = _new_event_id()
     ev = SemanticReadEvent(
         event_id=eid, channel="expansion", source_system=source_system,
         source_event_key=source_event_key, session_id=session_id,
-        stream_key=stream_key or session_id, request_id=request_id, ts=ts,
+        stream_key=effective_stream, request_id=request_id, ts=ts,
         repo_id=repo_id, symbol_id=exp.symbol_id,
         semantic_payload_tokens=tokens, source_body_tokens=tokens, protocol_overhead=0.0,
         transport_content_tokens=tokens, transport_overhead_tokens=0,
