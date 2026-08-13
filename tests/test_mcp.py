@@ -90,6 +90,25 @@ def test_transport_overhead_counted_on_read():
     srv.store.close()
 
 
+def test_token_accounting_identity_is_three_layered():
+    # The decomposition the accounting must support, in TOKEN units:
+    #   transport_content = semantic_payload + transport_overhead
+    #   semantic_payload  = source_body      + semantic_protocol   (protocol = the derivable middle)
+    # so inefficiency is attributable to the bundle, SemanticFS handles, or MCP framing.
+    srv = _server()
+    resp = _call(srv, "read_symbol", {"symbol": "service.process", "budget": 1000})
+    row = srv.store.semantic_read(_meta(resp)["event_id"])
+    body = row["source_body_tokens"]
+    payload = row["semantic_payload_tokens"]
+    transport = row["transport_content_tokens"]
+    assert transport == payload + row["transport_overhead_tokens"]      # transport layer
+    semantic_protocol = payload - body
+    assert semantic_protocol >= 0
+    assert row["protocol_overhead"] == round(semantic_protocol / payload, 4)    # ratio ↔ tokens (4dp)
+    assert body < payload < transport                                  # all three layers non-degenerate
+    srv.store.close()
+
+
 def test_parentless_expansion_records_via_transport():
     # issue 1: expanding without parent_event_id still logs the materialization
     srv = _server()

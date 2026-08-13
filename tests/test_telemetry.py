@@ -3,10 +3,12 @@
 A read emits a durable event; an expansion links to the read that caused it so Context
 Expansion Debt sums directly. Classification/outcome columns stay null until 2.4-C.
 """
+import threading
 from pathlib import Path
 
 from contextruntime.codegraph import builder
 from contextruntime.ingest import est_tokens
+from contextruntime.model import SemanticReadEvent
 from contextruntime.semanticfs import context_expand, read_symbol
 from contextruntime.store import GraphStore
 from contextruntime.telemetry import record_expansion, record_read
@@ -81,6 +83,53 @@ def test_parentless_expansion_still_records():
     assert row is not None and row["channel"] == "expansion"
     assert row["parent_event_id"] is None                            # unattributed but still logged
     s.close()
+
+
+# The CED distinction that matters: a parentless expansion is logged but attributes to NO read;
+# a parented one contributes EXACTLY its transport_content_tokens to that read.
+def test_parentless_expansion_excluded_from_ced():
+    s = _store()
+    rr = read_symbol(s, "service.process", budget=1000)
+    parent = record_read(s, rr, session_id="s", request_id="r1")
+    orphan = context_expand(s, f"ctx://symbol/{rr.root}@implementation")
+    record_expansion(s, orphan, session_id="s", request_id="r2")     # no parent → not this read's debt
+    assert s.context_expansion_debt(parent) == 0
+    child_exp = context_expand(s, f"ctx://symbol/{rr.root}@implementation")
+    child = record_expansion(s, child_exp, parent_event_id=parent, session_id="s", request_id="r3")
+    assert s.context_expansion_debt(parent) == s.semantic_read(child)["transport_content_tokens"] > 0
+    s.close()
+
+
+# The measurement identity (2.4-B.1): CED linkage is by event_id, and seq is a DB-assigned,
+# concurrency-safe ORDER surrogate that never appears in linkage. Even with two connections
+# interleaving writes to the same file (and threads racing), seqs stay unique + ordered and no
+# event is lost — which SELECT MAX(seq)+1 could not guarantee.
+def test_seq_is_concurrency_safe(tmp_path):
+    db = str(tmp_path / "cc.db")
+    GraphStore(db).close()                                           # initialise schema
+    n_threads, per = 4, 25
+
+    def worker(w):
+        c = GraphStore(db)
+        for i in range(per):
+            c.put_semantic_read(SemanticReadEvent(event_id=f"w{w}-{i}", channel="semanticfs",
+                                                  session_id="s", request_id=f"w{w}-{i}"))
+            c.commit()
+        c.close()
+
+    threads = [threading.Thread(target=worker, args=(w,)) for w in range(n_threads)]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
+    r = GraphStore(db)
+    rows = r.semantic_reads()
+    total = n_threads * per
+    assert len(rows) == total                                       # no lost / overwritten event
+    assert len({x["seq"] for x in rows}) == total                   # every seq unique (AUTOINCREMENT)
+    assert [x["seq"] for x in rows] == sorted(x["seq"] for x in rows)  # strict DB ordering
+    assert len({x["event_id"] for x in rows}) == total              # all event_ids preserved
+    r.close()
 
 
 def test_seq_is_monotonic_and_events_ordered():

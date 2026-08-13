@@ -25,6 +25,9 @@ class GraphStore:
     def __init__(self, path: str | Path = ":memory:"):
         self.conn = sqlite3.connect(str(path))
         self.conn.row_factory = sqlite3.Row
+        # Multiple MCP processes may share one on-disk store; wait for a write lock instead of
+        # failing immediately (complements the AUTOINCREMENT seq — concurrency safety, C13).
+        self.conn.execute("PRAGMA busy_timeout=5000")
         self.conn.executescript(_SCHEMA)
         self._check_schema_version()
 
