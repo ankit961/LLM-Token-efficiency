@@ -3,8 +3,11 @@
 A read emits a durable event; an expansion links to the read that caused it so Context
 Expansion Debt sums directly. Classification/outcome columns stay null until 2.4-C.
 """
+import sqlite3
 import threading
 from pathlib import Path
+
+import pytest
 
 from contextruntime.codegraph import builder
 from contextruntime.ingest import est_tokens
@@ -70,6 +73,42 @@ def test_not_found_expansion_records_nothing():
     exp = context_expand(s, "ctx://symbol/nope")
     assert record_expansion(s, exp, parent_event_id="ev_x") is None
     assert s.semantic_reads() == []
+    s.close()
+
+
+# 2.4-B.1 (the collapse bug): two REAL materializations sharing session/request/channel/symbol
+# must be two distinct rows — not silently merged. A content-hashed event_id would fail this.
+def test_repeated_materialization_is_two_distinct_events():
+    s = _store()
+    rr = read_symbol(s, "service.process", budget=1000)
+    e1 = record_read(s, rr, session_id="S", request_id="R", channel="semanticfs")
+    e2 = record_read(s, rr, session_id="S", request_id="R", channel="semanticfs")   # identical fields
+    assert e1 != e2
+    rows = s.semantic_reads()
+    assert len(rows) == 2
+    assert len({r["event_id"] for r in rows}) == 2
+    assert len({r["seq"] for r in rows}) == 2
+    s.close()
+
+
+# Idempotence is INTENTIONAL: a replay carrying the same producer key dedups to one row and
+# returns the canonical event_id — a duplicate DELIVERY, not a duplicate EVENT.
+def test_source_event_key_makes_replay_idempotent():
+    s = _store()
+    rr = read_symbol(s, "service.process", budget=1000)
+    e1 = record_read(s, rr, session_id="S", request_id="R", source_event_key="tool_use_1")
+    e2 = record_read(s, rr, session_id="S", request_id="R", source_event_key="tool_use_1")   # replay
+    assert e2 == e1                                              # canonical id, not a new one
+    assert len(s.semantic_reads()) == 1
+    s.close()
+
+
+# An accidental event_id collision must FAIL LOUDLY, not be silently swallowed.
+def test_duplicate_event_id_fails_loudly():
+    s = _store()
+    s.put_semantic_read(SemanticReadEvent(event_id="dup", channel="semanticfs"))
+    with pytest.raises(sqlite3.IntegrityError):
+        s.put_semantic_read(SemanticReadEvent(event_id="dup", channel="semanticfs"))
     s.close()
 
 

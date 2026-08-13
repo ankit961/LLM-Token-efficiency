@@ -202,13 +202,20 @@ class GraphStore:
     def put_semantic_read(self, e: SemanticReadEvent) -> None:
         # `seq` is DB-ASSIGNED (AUTOINCREMENT): inserting NULL lets SQLite allocate it
         # atomically, so two MCP processes sharing the store can't collide on ordering.
-        # `event_id` is UNIQUE, so a re-emit is idempotent (INSERT OR IGNORE, not REPLACE —
-        # REPLACE would delete+reinsert and churn the seq).
+        # Idempotence is INTENTIONAL only: a duplicate `source_event_key` (replay of the same
+        # producer event) is silently dropped; a duplicate `event_id` is an ACCIDENT and must
+        # fail loudly rather than silently destroy a distinct measurement — so we scope the
+        # conflict clause to source_event_key and let an event_id collision raise.
         d = asdict(e)
         cols = ",".join(d.keys())
         ph = ",".join(f":{k}" for k in d.keys())
         self.conn.execute(
-            f"INSERT OR IGNORE INTO semantic_reads ({cols}) VALUES ({ph})", d)
+            f"INSERT INTO semantic_reads ({cols}) VALUES ({ph}) "
+            "ON CONFLICT(source_event_key) DO NOTHING", d)
+
+    def semantic_read_by_source_key(self, source_event_key: str) -> Optional[sqlite3.Row]:
+        return self.conn.execute(
+            "SELECT * FROM semantic_reads WHERE source_event_key=?", (source_event_key,)).fetchone()
 
     def update_transport_tokens(self, event_id: str, transport_content_tokens: int) -> None:
         """Record the FULL transport response size (semantic payload + transport meta block)

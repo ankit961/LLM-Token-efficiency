@@ -203,9 +203,10 @@ class SemanticReadEvent:
     `allowed=1` and the classification/outcome fields stay null until 2.4-C/D fill them.
     Expansion rows carry `parent_event_id` so Context Expansion Debt sums directly.
     """
-    event_id: str
+    event_id: str                          # fresh per materialization (a UUID); accidental collision fails loudly
     channel: str                           # native_read | bash_materialization | semanticfs | expansion
     seq: Optional[int] = None              # DB-ASSIGNED (AUTOINCREMENT); leave None on insert
+    source_event_key: Optional[str] = None  # optional producer identity for INTENTIONAL replay idempotence
     session_id: Optional[str] = None
     stream_key: Optional[str] = None       # (session_id, agent_id) sub-stream
     request_id: Optional[str] = None
