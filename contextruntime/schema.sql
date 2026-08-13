@@ -171,9 +171,14 @@ CREATE TABLE IF NOT EXISTS semantic_reads (
     expansion_tokens         INTEGER,
     recovery_turns           INTEGER,
     schema_version           TEXT NOT NULL,
-    -- Producer-key completeness: a keyed (replayable) event MUST carry its full key, else the
-    -- composite unique tuple contains a NULL and NEVER conflicts — silently bypassing dedup.
-    CHECK (source_event_key IS NULL OR (source_system IS NOT NULL AND stream_key IS NOT NULL))
+    -- Producer-key completeness: a keyed (replayable) event MUST carry its full, NON-EMPTY key,
+    -- else the composite unique tuple never conflicts (a NULL is distinct; an empty string dedups
+    -- unrelated malformed deliveries) — silently corrupting replay dedup. Same domain as the
+    -- recorder's _require_complete_key guard, so a direct write can't bypass it.
+    CHECK (source_event_key IS NULL OR (
+        length(trim(source_event_key)) > 0
+        AND source_system IS NOT NULL AND length(trim(source_system)) > 0
+        AND stream_key   IS NOT NULL AND length(trim(stream_key))   > 0))
 );
 CREATE INDEX IF NOT EXISTS idx_sreads_session ON semantic_reads(session_id, seq);
 CREATE INDEX IF NOT EXISTS idx_sreads_parent  ON semantic_reads(parent_event_id);

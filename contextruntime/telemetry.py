@@ -32,14 +32,17 @@ def _new_event_id() -> str:
 
 
 def _require_complete_key(source_system, effective_stream, source_event_key) -> None:
-    """A keyed (replayable) event MUST carry its whole producer key. An incomplete key leaves a
-    NULL in the composite unique tuple, which never conflicts under SQLite semantics — so the
-    event would silently bypass dedup. Fail fast (the DB CHECK is the backstop)."""
-    if source_event_key is not None:
-        if not source_system:
-            raise ValueError("source_event_key requires source_system (the producer namespace)")
-        if not effective_stream:
-            raise ValueError("source_event_key requires a stream (stream_key or session_id)")
+    """A keyed (replayable) event MUST carry its whole producer key, each part NON-EMPTY. A NULL
+    leaves the composite unique tuple non-conflicting; an empty string dedups unrelated malformed
+    deliveries — either way replay dedup is corrupted. Same domain as the DB CHECK backstop."""
+    if source_event_key is None:
+        return
+    if not source_event_key.strip():
+        raise ValueError("source_event_key must be non-empty when provided")
+    if not (source_system and source_system.strip()):
+        raise ValueError("source_event_key requires a non-empty source_system (producer namespace)")
+    if not (effective_stream and effective_stream.strip()):
+        raise ValueError("source_event_key requires a non-empty stream (stream_key or session_id)")
 
 
 def record_read(store: GraphStore, rr, *, session_id: Optional[str] = None,

@@ -169,6 +169,23 @@ def test_incomplete_producer_key_is_rejected_by_db_check():
     s.close()
 
 
+# App guard and DB CHECK must express the SAME domain — empty/whitespace parts are as invalid as
+# NULL (an empty key would dedup unrelated malformed deliveries; empty system/stream bypass scope).
+def test_empty_producer_key_parts_rejected_at_both_layers():
+    s = _store()
+    rr = read_symbol(s, "service.process", budget=1000)
+    with pytest.raises(ValueError):                            # recorder: empty key string
+        record_read(s, rr, session_id="S", source_system="claude_mcp", source_event_key="")
+    with pytest.raises(sqlite3.IntegrityError):               # DB: empty source_system
+        s.put_semantic_read(SemanticReadEvent(event_id="a", channel="semanticfs",
+                                              source_system="", stream_key="s", source_event_key="k"))
+    with pytest.raises(sqlite3.IntegrityError):               # DB: empty stream_key
+        s.put_semantic_read(SemanticReadEvent(event_id="b", channel="semanticfs",
+                                              source_system="claude_mcp", stream_key="",
+                                              source_event_key="k"))
+    s.close()
+
+
 # An accidental event_id collision must FAIL LOUDLY, not be silently swallowed.
 def test_duplicate_event_id_fails_loudly():
     s = _store()
