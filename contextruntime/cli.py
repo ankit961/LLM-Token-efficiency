@@ -149,9 +149,13 @@ def cmd_read_symbol(args) -> int:
                      repo_id=args.repo)
     if not rr.ok:
         print(rr.note, file=sys.stderr); store.close(); return 1
+    b = rr.budget
     print(f"# read_symbol {rr.root}  resolution={rr.resolution}")
-    print(f"# budget {rr.budget}")
-    print(f"# graph {rr.graph}   expansion={rr.expansion.get('available')}")
+    print(f"# budget serialized={b['serialized_tokens']}/{b['requested']} "
+          f"body={b['source_body_tokens']} overhead={b['protocol_overhead_ratio']:.0%} "
+          f"PRE={b['planned_vs_rendered_error']} shrink={b['shrink_ratio']}"
+          + ("  [budget_insufficient]" if b['budget_insufficient'] else ""))
+    print(f"# graph {rr.graph}   expand→next: {rr.expansion.get('next')}")
     print()
     print(rr.to_text())
     store.close()

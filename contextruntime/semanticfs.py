@@ -49,15 +49,22 @@ def context_expand(store: GraphStore, handle: str) -> Expansion:
       ctx://symbol/<symbol_id>[@level]       -> rendered symbol
     """
     if handle.startswith("ctx://symbol/"):
-        from .codegraph.render import LEVELS, render_symbol
+        from .codegraph.render import render_symbol
         rest = handle[len("ctx://symbol/"):]
-        # A level suffix is recognized ONLY when the part after the LAST '@' is a KNOWN
-        # level. This (a) keeps symbol_ids that themselves contain '@' intact (npm scoped
-        # paths like @core/..., annotations), and (b) stops any '@<junk>' or bare-with-'@'
-        # handle from silently escalating to a whole-body dump. A bare handle → SIGNATURE;
-        # the body requires an explicit, valid @<level> such as @implementation.
         head, sep, tail = rest.rpartition("@")
-        if sep and tail in LEVELS:
+        # @file names WHOLE-FILE materialization, which does not exist yet — a stored symbol
+        # segment is not a file. Reject it explicitly instead of passing a symbol body off as
+        # a full-file representation (the L5 contract is unimplemented).
+        if sep and tail == "file":
+            return Expansion(handle, False,
+                             note="@file unsupported: whole-file materialization not implemented; "
+                                  "use read_slice or a native file read")
+        # A level suffix is honored ONLY when it is a known escalation level (identity..
+        # implementation). This (a) keeps symbol_ids that themselves contain '@' intact (npm
+        # scoped paths like @core/..., annotations), and (b) stops any '@<junk>' or bare-with-
+        # '@' handle from silently escalating to a whole-body dump. Bare handle → SIGNATURE;
+        # the body requires an explicit, valid @<level> such as @implementation.
+        if sep and tail in DOWNGRADE:                  # DOWNGRADE == the identity..implementation ladder
             sid, lvl, explicit = head, tail, True
         else:
             sid, lvl, explicit = rest, "signature", False
@@ -223,6 +230,7 @@ def read_symbol(store: GraphStore, symbol: str, budget: int = 2048,
             dropped += 1
 
     serialized_after = _serialized()
+    final_body = _body_tokens()              # source-body tokens of the FINAL response
     sections = _sections()
 
     # ---- measurement (2.3.1): PRE is planner-estimate error ALONE; shrink reported apart ----
@@ -230,22 +238,31 @@ def read_symbol(store: GraphStore, symbol: str, budget: int = 2048,
         planned = materialized_before
     pre = abs(planned - materialized_before) / materialized_before if materialized_before else 0.0
     shrink_ratio = (1 - serialized_after / serialized_before) if serialized_before else 0.0
+    # Protocol overhead (2.4): the share of the model-visible payload that is NOT source body —
+    # headers, ctx:// handles, annotations, the ambiguity block. Measured, so the handle-
+    # compaction decision (candidate 2.4.1) is evidence-driven, not guessed.
+    protocol_overhead = round((serialized_after - final_body) / serialized_after, 4) if serialized_after else 0.0
     root_final = rendered.get(row["symbol_id"])
     root_downgraded = bool(root_final and root_final.level != level0.get(row["symbol_id"]))
     insufficient = serialized_after > B
 
+    # Progressive expansion: the default model-facing hint is the NEXT level up, not the full
+    # body (jumping straight to @implementation is what runs up Context Expansion Debt).
+    next_handles = [s["expansion"]["next"] for s in sections if s["expansion"]["next"]]
     rr = ReadResult(root=row["symbol_id"], resolution=resolution, sections=sections,
                     graph=graph, ambiguity_hints=hints,
                     note=("budget insufficient even at identity level" if insufficient else ""),
-                    expansion={"available": True,
-                               "handles": [s["handle"] + "@implementation" for s in sections]})
+                    expansion={"available": True, "hint": "next", "next": next_handles,
+                               "full": [s["expansion"]["full"] for s in sections]})
     rr.budget = {
         "requested": B,
         "target": ceiling,
         "planned_estimate": planned,
         "materialized_tokens": materialized_before,        # source bodies, pre-shrink
+        "source_body_tokens": final_body,                  # source bodies, final response
         "serialized_before_shrink": serialized_before,
         "serialized_tokens": serialized_after,             # THE enforced model-visible number
+        "protocol_overhead_ratio": protocol_overhead,      # (serialized - body) / serialized
         "estimator": ESTIMATOR,
         "safety_margin": margin,
         "planned_vs_rendered_error": round(pre, 4),        # estimator error only
@@ -268,10 +285,23 @@ class _FakeSel:
     soft: bool
 
 
+def _expansion(handle_base: str, current_level: str) -> dict:
+    """Progressive navigation for a section: the NEXT level up (the default hint) and the FULL
+    body (explicit escalation). @file is never offered — whole-file materialization isn't real
+    yet. `next` is None once already at implementation."""
+    ladder = DOWNGRADE                       # ("identity","signature","skeleton","slice","implementation")
+    idx = ladder.index(current_level) if current_level in ladder else len(ladder) - 1
+    nxt = ladder[idx + 1] if idx + 1 < len(ladder) else None
+    return {"current": current_level,
+            "next": f"{handle_base}@{nxt}" if nxt else None,
+            "full": f"{handle_base}@implementation"}
+
+
 def _section(r, sel=None) -> dict:
     d = {"symbol_id": r.symbol_id, "qualified_name": r.qualified_name, "level": r.level,
          "text": r.text, "tokens": r.tokens, "provenance": r.provenance, "handle": r.handle,
-         "materialization_quality": getattr(r, "materialization_quality", "unknown")}
+         "materialization_quality": getattr(r, "materialization_quality", "unknown"),
+         "expansion": _expansion(r.handle, r.level)}
     if sel is not None:
         d.update({"edge": getattr(sel, "edge", None), "match": getattr(sel, "match", None),
                   "soft": getattr(sel, "soft", False)})

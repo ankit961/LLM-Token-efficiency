@@ -84,6 +84,54 @@ def test_read_slice_budget_enforced():
     s.close()
 
 
+# Progressive expansion (2.4): the default hint is the NEXT level up, not the full body.
+def test_progressive_expansion_next_not_full():
+    from contextruntime.semanticfs import DOWNGRADE
+    s = _store()
+    rr = read_symbol(s, "service.process", budget=1000)
+    assert rr.expansion["hint"] == "next"
+    for sec in rr.sections:
+        exp = sec["expansion"]
+        assert exp["current"] == sec["level"]
+        assert exp["full"].endswith("@implementation")
+        idx = DOWNGRADE.index(sec["level"])
+        if idx + 1 < len(DOWNGRADE):
+            assert exp["next"].endswith("@" + DOWNGRADE[idx + 1])   # one step, not a jump to full
+            assert not exp["next"].endswith("@implementation") or DOWNGRADE[idx + 1] == "implementation"
+        else:
+            assert exp["next"] is None                              # already at implementation
+    # the read's default advertised handles are the NEXT ones, never @file
+    assert all("@file" not in h for h in rr.expansion["next"])
+    s.close()
+
+
+# @file escalation is rejected until whole-file materialization actually exists (2.4 API fix).
+def test_file_level_is_rejected():
+    s = _store()
+    sid = _sid(s, "service.run_db")
+    exp = context_expand(s, f"ctx://symbol/{sid}@file")
+    assert not exp.found and "unsupported" in exp.note and "file" in exp.note
+    # a valid @implementation still works (only @file is gated)
+    ok = context_expand(s, f"ctx://symbol/{sid}@implementation")
+    assert ok.found
+    s.close()
+
+
+# Protocol overhead is MEASURED (2.4) so handle compaction is an evidence call, not a guess.
+def test_protocol_overhead_measured():
+    s = _store()
+    small = read_symbol(s, "service.process", budget=120)
+    large = read_symbol(s, "service.process", budget=2048)
+    for rr in (small, large):
+        b = rr.budget
+        assert 0.0 <= b["protocol_overhead_ratio"] <= 1.0
+        expect = round((b["serialized_tokens"] - b["source_body_tokens"]) / b["serialized_tokens"], 4)
+        assert abs(b["protocol_overhead_ratio"] - expect) < 1e-9
+    # the honest finding: verbose handles dominate a tiny budget more than a roomy one
+    assert small.budget["protocol_overhead_ratio"] >= large.budget["protocol_overhead_ratio"]
+    s.close()
+
+
 # Below the irreducible per-section header floor the read is FLAGGED, not silently over budget.
 def test_budget_below_header_floor_is_flagged():
     s = _store()
