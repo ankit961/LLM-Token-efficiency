@@ -75,43 +75,105 @@ class PythonAstAdapter(Adapter):
             syms.append(ParsedSymbol(qn, kind, rel_path, "python", node.lineno,
                         getattr(node, "end_lineno", node.lineno), sig, content_hash(seg),
                         source=seg))
-            for c in ast.walk(node):
-                if isinstance(c, ast.Call):
-                    name = _callee(c.func)
-                    if name:
-                        edges.append(ParsedEdge(qn, name, "CALLS", 0.75, "python_ast"))
+            # Calls in THIS function's own lexical scope only — a call inside a nested
+            # def belongs to that def, not to this one (parity with the tree-sitter walk).
+            for c in _own_scope_calls(node):
+                name = _callee(c.func)
+                if name:
+                    edges.append(ParsedEdge(qn, name, "CALLS", 0.75, "python_ast"))
+            # Nested definitions become their own scope-correct symbols.
+            _emit_nested(node, qn)
 
+        def emit_class(node, qn):
+            seg = ast.get_source_segment(source, node) or ""
+            syms.append(ParsedSymbol(qn, "class", rel_path, "python", node.lineno,
+                        getattr(node, "end_lineno", node.lineno),
+                        f"class {node.name}", content_hash(seg), source=seg))
+            for base in node.bases:
+                bn = _callee(base)
+                if bn:
+                    edges.append(ParsedEdge(qn, bn, "IMPLEMENTS", 0.85, "python_ast"))
+            # descend through class-body control flow — a method under `if TYPE_CHECKING:`
+            # or `try:` is still a method.
+            for m in _nested_defs(node):
+                if isinstance(m, ast.ClassDef):
+                    cqn = f"{qn}.{m.name}"
+                    emit_class(m, cqn)
+                    edges.append(ParsedEdge(qn, cqn, "CONTAINS", 1.0, "python_ast"))
+                else:                                    # (Async)FunctionDef
+                    mqn = f"{qn}.{m.name}"
+                    kind = "test" if m.name.startswith("test_") else "method"
+                    add_callable(m, mqn, kind)
+                    edges.append(ParsedEdge(qn, mqn, "CONTAINS", 1.0, "python_ast"))
+
+        def _emit_nested(scope_node, parent_qn):
+            for child in _nested_defs(scope_node):
+                if isinstance(child, ast.ClassDef):
+                    cqn = f"{parent_qn}.{child.name}"
+                    emit_class(child, cqn)
+                    edges.append(ParsedEdge(parent_qn, cqn, "CONTAINS", 1.0, "python_ast"))
+                else:                                    # (Async)FunctionDef
+                    cqn = f"{parent_qn}.{child.name}"
+                    add_callable(child, cqn, "function")
+                    edges.append(ParsedEdge(parent_qn, cqn, "CONTAINS", 1.0, "python_ast"))
+
+        # Imports: module-level (top of tree.body), as before.
         for node in tree.body:
             if isinstance(node, (ast.Import, ast.ImportFrom)):
                 mod = getattr(node, "module", None)
                 for a in node.names:
                     tgt = f"{mod}.{a.name}" if mod else a.name
                     edges.append(ParsedEdge(module_q, tgt, "IMPORTS", 0.95, "python_ast"))
-            elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+        # Definitions: descend through module-level control flow so a def/class inside a
+        # `try:`/`if:` block is emitted (not just direct children of the module body).
+        for node in _nested_defs(tree):
+            if isinstance(node, ast.ClassDef):
+                qn = f"{module_q}.{node.name}"
+                emit_class(node, qn)
+                edges.append(ParsedEdge(module_q, qn, "CONTAINS", 1.0, "python_ast"))
+            else:                                        # (Async)FunctionDef
                 qn = f"{module_q}.{node.name}"
                 kind = "test" if (is_test_file or node.name.startswith("test_")) else "function"
                 add_callable(node, qn, kind)
                 edges.append(ParsedEdge(module_q, qn, "CONTAINS", 1.0, "python_ast"))
                 if kind == "test":
                     _link_test(node.name, edges, qn)
-            elif isinstance(node, ast.ClassDef):
-                qn = f"{module_q}.{node.name}"
-                seg = ast.get_source_segment(source, node) or ""
-                syms.append(ParsedSymbol(qn, "class", rel_path, "python", node.lineno,
-                            getattr(node, "end_lineno", node.lineno),
-                            f"class {node.name}", content_hash(seg), source=seg))
-                edges.append(ParsedEdge(module_q, qn, "CONTAINS", 1.0, "python_ast"))
-                for base in node.bases:
-                    bn = _callee(base)
-                    if bn:
-                        edges.append(ParsedEdge(qn, bn, "IMPLEMENTS", 0.85, "python_ast"))
-                for m in node.body:
-                    if isinstance(m, (ast.FunctionDef, ast.AsyncFunctionDef)):
-                        mqn = f"{qn}.{m.name}"
-                        kind = "test" if m.name.startswith("test_") else "method"
-                        add_callable(m, mqn, kind)
-                        edges.append(ParsedEdge(qn, mqn, "CONTAINS", 1.0, "python_ast"))
         return syms, edges
+
+
+def _by_pos(nodes: list) -> list:
+    """Deterministic source order — same symbols/edges regardless of traversal order."""
+    return sorted(nodes, key=lambda n: (getattr(n, "lineno", 0), getattr(n, "col_offset", 0)))
+
+
+def _own_scope_calls(scope_node) -> list:
+    """Call nodes lexically inside `scope_node` but NOT inside a nested def/class
+    (those have their own scope). Descends through control-flow and call arguments, so
+    ``f(g())`` yields both f and g, but ``def inner(): h()`` inside does not yield h."""
+    out, stack = [], list(ast.iter_child_nodes(scope_node))
+    while stack:
+        n = stack.pop()
+        if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            continue                                     # separate scope — skip its subtree
+        if isinstance(n, ast.Call):
+            out.append(n)
+        stack.extend(ast.iter_child_nodes(n))
+    return _by_pos(out)
+
+
+def _nested_defs(scope_node) -> list:
+    """Top-most def/class definitions nested anywhere inside `scope_node` (including
+    within if/for/with/try blocks), without descending into a def/class once found.
+    Used at module, class-body, and function scope so a definition hidden inside a
+    control-flow block is never dropped."""
+    out, stack = [], list(ast.iter_child_nodes(scope_node))
+    while stack:
+        n = stack.pop()
+        if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            out.append(n)                                # yield; do not descend into it
+        else:
+            stack.extend(ast.iter_child_nodes(n))
+    return _by_pos(out)
 
 
 def _callee(func) -> str:

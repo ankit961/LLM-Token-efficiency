@@ -149,6 +149,58 @@ def test_nested_function_calls_are_scoped_correctly():
     assert ("mod.outer", "charge") not in calls          # NOT misattributed to outer
 
 
+def test_python_nested_function_calls_are_scoped_correctly():
+    # Same invariant as tree-sitter, now enforced for the Python ast adapter: a call
+    # inside a nested function belongs to that function, and the nested function is
+    # emitted as its own symbol instead of vanishing into its parent.
+    src = (
+        "def outer():\n"
+        "    def inner():\n"
+        "        charge()\n"        # belongs to inner, not outer
+        "    if True:\n"
+        "        def branchy():\n"  # nested inside control flow — still emitted
+        "            log()\n"
+        "    inner()\n"             # belongs to outer
+    )
+    syms, edges = PythonAstAdapter().parse("mod.py", src, "mod")
+    names = {s.qualified_name for s in syms}
+    assert "mod.outer.inner" in names                     # nested fn is its own symbol
+    assert "mod.outer.branchy" in names                   # even nested under `if`
+    calls = {(e.src_qname, e.dst_name) for e in edges if e.edge_type == "CALLS"}
+    assert ("mod.outer.inner", "charge") in calls         # charge belongs to inner
+    assert ("mod.outer.branchy", "log") in calls          # log belongs to branchy
+    assert ("mod.outer", "inner") in calls                # inner() belongs to outer
+    assert ("mod.outer", "charge") not in calls           # NOT misattributed to outer
+    assert ("mod.outer", "log") not in calls              # NOT misattributed to outer
+
+
+def test_python_defs_under_control_flow_are_emitted_at_all_scopes():
+    # Definitions hidden inside module-level and class-body control flow must still be
+    # emitted with correctly-scoped calls — not just those nested inside a function.
+    src = (
+        "import sys\n"
+        "try:\n"
+        "    def load():\n"
+        "        _fast()\n"
+        "except ImportError:\n"
+        "    def load2():\n"
+        "        _slow()\n"
+        "class Plugin:\n"
+        "    if sys.version_info:\n"
+        "        def run(self):\n"
+        "            go()\n"
+    )
+    syms, edges = PythonAstAdapter().parse("m.py", src, "m")
+    names = {s.qualified_name for s in syms}
+    assert {"m.load", "m.load2", "m.Plugin", "m.Plugin.run"} <= names   # none dropped
+    calls = {(e.src_qname, e.dst_name) for e in edges if e.edge_type == "CALLS"}
+    assert ("m.load", "_fast") in calls
+    assert ("m.load2", "_slow") in calls
+    assert ("m.Plugin.run", "go") in calls
+    contains = {(e.src_qname, e.dst_name) for e in edges if e.edge_type == "CONTAINS"}
+    assert ("m.Plugin", "m.Plugin.run") in contains                    # method under class-body `if`
+
+
 def test_index_report_and_confidence_invariant():
     s, rep = _index(SAMPLE, "sample")
     assert rep.files == 2
