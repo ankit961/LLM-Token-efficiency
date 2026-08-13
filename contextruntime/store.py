@@ -153,6 +153,25 @@ class GraphStore:
         return self.conn.execute(
             "SELECT 1 FROM symbols WHERE symbol_id=? LIMIT 1", (symbol_id,)).fetchone() is not None
 
+    def symbol_row(self, symbol_id: str) -> Optional[sqlite3.Row]:
+        return self.conn.execute(
+            "SELECT * FROM symbols WHERE symbol_id=?", (symbol_id,)).fetchone()
+
+    def find_symbol(self, qualified_name: str, repo_id: Optional[str] = None) -> Optional[sqlite3.Row]:
+        if repo_id:
+            return self.conn.execute(
+                "SELECT * FROM symbols WHERE qualified_name=? AND repo_id=? LIMIT 1",
+                (qualified_name, repo_id)).fetchone()
+        return self.conn.execute(
+            "SELECT * FROM symbols WHERE qualified_name=? LIMIT 1", (qualified_name,)).fetchone()
+
+    def code_edges_from(self, src_id: str, edge_types: Optional[tuple] = None) -> list:
+        if edge_types:
+            q = ("SELECT * FROM code_edges WHERE src_id=? AND edge_type IN (%s)"
+                 % ",".join("?" * len(edge_types)))
+            return self.conn.execute(q, (src_id, *edge_types)).fetchall()
+        return self.conn.execute("SELECT * FROM code_edges WHERE src_id=?", (src_id,)).fetchall()
+
     def commit(self) -> None:
         self.conn.commit()
 

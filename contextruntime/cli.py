@@ -123,6 +123,24 @@ def cmd_index_code(args) -> int:
     return 0
 
 
+def cmd_bundle(args) -> int:
+    """Build a budgeted dependency bundle for a root symbol (Phase 2.2)."""
+    from .codegraph import bundle as bundle_mod
+    store = _open(args.db)
+    root = args.root
+    if not store.has_symbol(root):
+        row = store.find_symbol(root, repo_id=args.repo)
+        if row is None:
+            print(f"root symbol not found: {root}", file=sys.stderr)
+            store.close()
+            return 1
+        root = row["symbol_id"]
+    b = bundle_mod.build_bundle(store, root, budget=args.budget, max_depth=args.max_depth)
+    print(bundle_mod.format_bundle(b))
+    store.close()
+    return 0
+
+
 def cmd_expand(args) -> int:
     """Resolve a result:// handle back to its (redacted) payload (SemanticFS)."""
     from .semanticfs import context_expand
@@ -181,6 +199,14 @@ def main(argv=None) -> int:
     p.add_argument("--db", required=True)
     p.add_argument("--repo", help="repo id (default: dir name)")
     p.set_defaults(func=cmd_index_code)
+
+    p = sub.add_parser("bundle", help="build a budgeted dependency bundle for a root symbol")
+    p.add_argument("root", help="symbol_id or qualified_name")
+    p.add_argument("--db", required=True)
+    p.add_argument("--budget", type=int, default=2048)
+    p.add_argument("--max-depth", type=int, default=2)
+    p.add_argument("--repo")
+    p.set_defaults(func=cmd_bundle)
 
     args = ap.parse_args(argv)
     return args.func(args)

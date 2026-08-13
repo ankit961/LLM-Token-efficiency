@@ -52,6 +52,8 @@ tests; CI (Python 3.10–3.13, core + `[codegraph]` + fallback). Remaining: impo
 resolution, `REFERENCES` (schema-reserved), richer tree-sitter relationship coverage.
 
 1. Harden graph foundation ✅
+**Phase 2.2 — budgeted bundle generator · DONE**: `build_bundle` (symbol × representation-level, incremental/monotone, deterministic; hard eligible-for-mandatory, soft never mandatory, ambiguous→hint; budget-pressure signal; 11 property tests). MCP read surface is next.
+
 2. `CodeSymbol` schema (id, repo, language, kind, qualified_name, path, lines, signature,
    content_hash, parser, **resolution_quality**) ✅
 3. Language adapters (tree-sitter / LSP / SCIP) — typed strong, dynamic best-effort

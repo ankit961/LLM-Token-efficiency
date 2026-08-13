@@ -21,8 +21,8 @@ classification, the MCP read surface, and the A/B/C/D experiment — see
 | Edges `CONTAINS · IMPORTS · CALLS · IMPLEMENTS · TESTED_BY · DEPENDS_ON`, each with `confidence` + `resolution` + `match_kind` | ✅ |
 | `REFERENCES` | 🔒 schema-reserved (not yet emitted) |
 | import-aware resolution (`from x import foo as bar`) | ▶ next resolver iteration |
+| **Budgeted bundle generator** (`build_bundle`, symbol × representation-level) | ✅ (Phase 2.2) |
 | `context_search` · `read_symbol` · `read_slice` · `find_callers` (MCP surface) | ▶ next |
-| Budgeted `DEPENDS_ON` bundle generator (`argmax utility s.t. tokens ≤ B`) | ▶ next |
 | Read classification (exploration vs edit_precondition …) | ▶ next |
 | Empirical precision/recall (Gate-2A ground truth) · A/B/C/D harness | ▶ next |
 
@@ -90,6 +90,47 @@ Structural Confidence Report — repo 'sample'
   structural confidence by language (assigned prior):
     javascript   conf=0.90  parser=tree_sitter
     python       conf=0.78  parser=python_ast
+```
+
+## Budgeted bundle generator (Phase 2.2)
+
+`build_bundle(store, root_symbol_id, budget, max_depth, policy) -> Bundle` — the first
+component that directly attacks source-token admission. It chooses a small graph
+projection that is still sufficient, selecting **both which symbols and at what
+representation level** (a 40-token signature can beat a 900-token implementation).
+
+```
+max  Σ U(v, level)   s.t.   Σ tokens(v, level) ≤ B,   one level per symbol
+U = R · C · W · D · F   (structural only — no NL reranker yet, so Gate 2A can
+                         isolate structural quality)
+```
+
+Solved by an **incremental** method: seed the mandatory set (root + a tiny required core
+of direct-hard-dependency signatures), then build one **budget-independent** order of
+increments (add-a-signature / upgrade-one-level, ranked by value/cost with per-branch
+diminishing returns) and apply its longest fitting prefix.
+
+Guaranteed properties (all tested):
+
+- **budget invariant** `used ≤ B`; **exact boundary**, no off-by-one
+- **root preservation**, or an explicit `insufficient` + `minimum_viable_budget`
+- **hard = eligible-for-mandatory, not auto-mandatory**; `exact`/`scoped` may be
+  mandatory, `inferred` (soft) is discretionary and **never mandatory**,
+  `ambiguous`/`unresolved` are never dependencies (`ambiguous` → compact hint)
+- **monotonicity** — more budget never yields less information (prefix construction)
+- **determinism** — same graph + root + budget + policy ⇒ byte-identical bundle
+- **diversity** — per-branch diminishing returns stop one subtree eating the budget
+- **representation preference** — under pressure, a dependency appears as a signature
+  rather than being dropped
+- **no epistemic escalation** — a soft relation stays soft at any budget (budget affects
+  disclosure, not confidence)
+
+Every bundle is explainable: each `selected` entry records level, tokens, edge, match,
+soft, distance, utility, and reason; `excluded` records why; plus metrics
+(`branch_concentration`, `minimum_viable_budget`, per-level tokens, hard/soft counts).
+
+```bash
+python3 -m contextruntime.cli bundle <symbol_or_qualified_name> --db graph.db --budget 2048
 ```
 
 ## Not in Phase 2 (deliberately)
