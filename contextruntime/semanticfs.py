@@ -33,6 +33,8 @@ class Expansion:
     byte_size: int = 0
     text: str = ""
     note: str = ""
+    symbol_id: Optional[str] = None        # set for ctx://symbol handles (telemetry / CED linkage)
+    level: Optional[str] = None            # the level actually rendered
 
 
 def _blob_hash(handle: str) -> Optional[str]:
@@ -78,7 +80,7 @@ def context_expand(store: GraphStore, handle: str) -> Expansion:
         if r.materialization_quality not in ("complete_ast", "complete_tree_sitter"):
             note += f"; materialization={r.materialization_quality}"
         return Expansion(handle, True, kind=row["kind"], byte_size=len(r.text),
-                         text=r.text, note=note)
+                         text=r.text, note=note, symbol_id=row["symbol_id"], level=r.level)
     h = _blob_hash(handle)
     if h is None:
         return Expansion(handle, False, note="unrecognized handle scheme")

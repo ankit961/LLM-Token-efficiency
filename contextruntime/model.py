@@ -194,3 +194,56 @@ class CapabilityProfile:
     admission_mode: str = "unknown"        # ENFORCED | BEST_EFFORT | ADVISORY
     evidence_grade: str = "C"              # A | B | C
     schema_version: str = SCHEMA_VERSION
+
+
+@dataclass
+class SemanticReadEvent:
+    """One model-visible materialization (design v1.2, Phase 2.4) — a SemanticFS read, a
+    native/Bash read the classifier attributes, or an explicit expansion. Observe-only:
+    `allowed=1` and the classification/outcome fields stay null until 2.4-C/D fill them.
+    Expansion rows carry `parent_event_id` so Context Expansion Debt sums directly.
+    """
+    event_id: str
+    seq: int
+    channel: str                           # native_read | bash_materialization | semanticfs | expansion
+    session_id: Optional[str] = None
+    stream_key: Optional[str] = None       # (session_id, agent_id) sub-stream
+    request_id: Optional[str] = None
+    ts: Optional[str] = None               # caller-supplied ISO timestamp (no wall-clock here)
+    # target
+    repo_id: Optional[str] = None
+    path: Optional[str] = None
+    symbol_id: Optional[str] = None
+    content_hash: Optional[str] = None
+    range_start: Optional[int] = None
+    range_end: Optional[int] = None
+    # classification (2.4-C/D)
+    predicted_class: Optional[str] = None
+    predicted_confidence: Optional[float] = None
+    observed_class: Optional[str] = None
+    classification_source: Optional[str] = None   # client_tracker_confirmed | temporal_causal | heuristic
+    evidence_grade: Optional[str] = None
+    # admission (observe-only now)
+    allowed: int = 1
+    denied: int = 0
+    nudged: int = 0
+    bypass_channel: Optional[str] = None
+    # context
+    representation: Optional[str] = None
+    materialization_quality: Optional[str] = None
+    serialized_tokens: Optional[int] = None
+    source_body_tokens: Optional[int] = None
+    protocol_overhead: Optional[float] = None
+    budget_requested: Optional[int] = None
+    # expansion linkage (Context Expansion Debt)
+    parent_event_id: Optional[str] = None
+    from_level: Optional[str] = None
+    to_level: Optional[str] = None
+    reason: Optional[str] = None
+    # outcome (2.4-C retrospective)
+    later_edited: Optional[int] = None
+    turns_to_edit: Optional[int] = None
+    expanded_later: Optional[int] = None
+    expansion_tokens: Optional[int] = None
+    recovery_turns: Optional[int] = None
+    schema_version: str = SCHEMA_VERSION

@@ -14,7 +14,8 @@ from typing import Iterable, Iterator, Optional
 
 from . import SCHEMA_VERSION
 from .model import (
-    CacheIsland, CodeSymbol, ContextObject, LedgerEvent, Request, Source,
+    CacheIsland, CodeSymbol, ContextObject, LedgerEvent, Request,
+    SemanticReadEvent, Source,
 )
 
 _SCHEMA = (Path(__file__).parent / "schema.sql").read_text()
@@ -192,6 +193,42 @@ class GraphStore:
             f"SELECT * FROM symbols WHERE {where} ORDER BY length(qualified_name) LIMIT ?",
             (*params, limit)).fetchall()
         return rows
+
+    # --- SemanticReadEvent telemetry (Phase 2.4) -----------------------------
+
+    def next_read_seq(self) -> int:
+        """Monotonic per-store sequence — stable ordering without a wall-clock."""
+        return self.conn.execute(
+            "SELECT COALESCE(MAX(seq), 0) + 1 AS n FROM semantic_reads").fetchone()["n"]
+
+    def put_semantic_read(self, e: SemanticReadEvent) -> None:
+        d = asdict(e)
+        cols = ",".join(d.keys())
+        ph = ",".join(f":{k}" for k in d.keys())
+        self.conn.execute(
+            f"INSERT OR REPLACE INTO semantic_reads ({cols}) VALUES ({ph})", d)
+
+    def semantic_read(self, event_id: str) -> Optional[sqlite3.Row]:
+        return self.conn.execute(
+            "SELECT * FROM semantic_reads WHERE event_id=?", (event_id,)).fetchone()
+
+    def semantic_reads(self, session_id: Optional[str] = None,
+                       channel: Optional[str] = None) -> list:
+        where, params = [], []
+        if session_id:
+            where.append("session_id=?"); params.append(session_id)
+        if channel:
+            where.append("channel=?"); params.append(channel)
+        q = "SELECT * FROM semantic_reads"
+        if where:
+            q += " WHERE " + " AND ".join(where)
+        return self.conn.execute(q + " ORDER BY seq", params).fetchall()
+
+    def context_expansion_debt(self, event_id: str) -> int:
+        """CED for a read = tokens of the expansions it caused (its child expansion rows)."""
+        return int(self.conn.execute(
+            "SELECT COALESCE(SUM(serialized_tokens), 0) AS t FROM semantic_reads "
+            "WHERE parent_event_id=? AND channel='expansion'", (event_id,)).fetchone()["t"])
 
     def commit(self) -> None:
         self.conn.commit()

@@ -112,6 +112,62 @@ CREATE INDEX IF NOT EXISTS idx_cedges_repo  ON code_edges(repo_id);
 CREATE INDEX IF NOT EXISTS idx_cedges_src   ON code_edges(src_id, edge_type);
 CREATE INDEX IF NOT EXISTS idx_cedges_match ON code_edges(match_kind);
 
+-- SemanticReadEvent (design v1.2, Phase 2.4) — durable per-read admission telemetry.
+-- One row per model-visible materialization (SemanticFS read, a native/Bash read the
+-- classifier attributes, or an explicit expansion). classification/outcome columns are
+-- nullable now (observe-only) and filled retrospectively in 2.4-C. Expansion rows carry
+-- parent_event_id so Context Expansion Debt sums directly (no post-hoc reconstruction).
+CREATE TABLE IF NOT EXISTS semantic_reads (
+    event_id                TEXT PRIMARY KEY,
+    session_id              TEXT,
+    stream_key              TEXT,             -- (session_id, agent_id) sub-stream
+    request_id              TEXT,
+    ts                      TEXT,             -- caller-supplied ISO timestamp (no wall-clock here)
+    seq                     INTEGER NOT NULL, -- monotonic per store, for stable ordering
+    channel                 TEXT NOT NULL,    -- native_read | bash_materialization | semanticfs | expansion
+    -- target
+    repo_id                 TEXT,
+    path                    TEXT,
+    symbol_id               TEXT,
+    content_hash            TEXT,
+    range_start             INTEGER,
+    range_end               INTEGER,
+    -- classification (2.4-C/D; nullable now)
+    predicted_class         TEXT,
+    predicted_confidence    REAL,
+    observed_class          TEXT,
+    classification_source   TEXT,             -- client_tracker_confirmed | temporal_causal | heuristic
+    evidence_grade          TEXT,
+    -- admission (observe-only now: allowed=1)
+    allowed                 INTEGER NOT NULL DEFAULT 1,
+    denied                  INTEGER NOT NULL DEFAULT 0,
+    nudged                  INTEGER NOT NULL DEFAULT 0,
+    bypass_channel          TEXT,
+    -- context
+    representation          TEXT,
+    materialization_quality TEXT,
+    serialized_tokens       INTEGER,
+    source_body_tokens      INTEGER,
+    protocol_overhead       REAL,
+    budget_requested        INTEGER,
+    -- expansion linkage (Context Expansion Debt)
+    parent_event_id         TEXT,
+    from_level              TEXT,
+    to_level                TEXT,
+    reason                  TEXT,
+    -- outcome (2.4-C retrospective; nullable now)
+    later_edited            INTEGER,
+    turns_to_edit           INTEGER,
+    expanded_later          INTEGER,
+    expansion_tokens        INTEGER,
+    recovery_turns          INTEGER,
+    schema_version          TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_sreads_session ON semantic_reads(session_id, seq);
+CREATE INDEX IF NOT EXISTS idx_sreads_parent  ON semantic_reads(parent_event_id);
+CREATE INDEX IF NOT EXISTS idx_sreads_channel ON semantic_reads(channel);
+CREATE INDEX IF NOT EXISTS idx_sreads_symbol  ON semantic_reads(symbol_id);
+
 -- Phase 4 tables — shape frozen now (C13), populated later.
 CREATE TABLE IF NOT EXISTS capsules (
     task_id        TEXT PRIMARY KEY,
