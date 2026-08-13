@@ -24,6 +24,7 @@ is MECHANICALLY observable — not implemented yet, so the denominator is never 
 """
 from __future__ import annotations
 
+from collections import defaultdict
 from dataclasses import dataclass
 from typing import Callable, Optional
 
@@ -68,37 +69,36 @@ def classify_reads(events, *, window: int = 50,
     labels: dict = {e["event_id"]: Label(EXPLORATION, TEMPORAL_CAUSAL, "B")
                     for e in evs if _is_read(e)}
 
-    # PRECONDITION pass: for each edit, the latest eligible preceding read of the same path.
-    for i, E in enumerate(evs):
-        if not _is_edit(E):
-            continue
-        s, p = E.get("stream_key"), E.get("path")
-        prior = evs[:i]
-        # previous mutation of p in this stream = exclusive lower bound for eligibility
-        prev_mut = max((F["seq"] for F in prior
-                        if _is_edit(F) and F.get("stream_key") == s and F.get("path") == p),
-                       default=None)
-        best = None
-        for R in prior:
-            if not _is_read(R) or R.get("stream_key") != s or R.get("path") != p:
+    # Group by (stream, path) so cross-stream/path never interact; walk each read to the FIRST
+    # edit of its path after it (its mutation boundary — a read is eligible for at most that edit).
+    reads_by, edits_by = defaultdict(list), defaultdict(list)
+    for e in evs:
+        key = (e.get("stream_key"), e.get("path"))
+        if _is_read(e):
+            reads_by[key].append(e)
+        elif _is_edit(e):
+            edits_by[key].append(e)
+
+    candidates: dict = defaultdict(list)         # edit_event_id -> [(read, grade)]
+    for key, reads in reads_by.items():
+        edits = edits_by.get(key, [])
+        for R in reads:
+            E = next((e for e in edits if e["seq"] > R["seq"]), None)   # first edit of p after R
+            if E is None or E["seq"] - R["seq"] > window:               # no eligible edit in window
                 continue
-            if prev_mut is not None and R["seq"] <= prev_mut:      # must be after the last mutation
-                continue
-            if E["seq"] - R["seq"] > window:                      # within the causal window
-                continue
-            if best is None or R["seq"] > best["seq"]:            # LATEST eligible, not every prior read
-                best = R
-        if best is None:
-            continue
-        rv, ev = best.get("content_version"), E.get("content_version")
-        if rv is not None and ev is not None and rv != ev:
-            # the read was about p but its version no longer applied at the edit — stale, not a
-            # precondition and NOT silently exploration.
-            labels[best["event_id"]] = Label(UNKNOWN, TEMPORAL_CAUSAL, "C")
-            continue
-        grade = "B" if (rv is not None and ev is not None) else "C"   # unconfirmed version -> weaker
-        labels[best["event_id"]] = Label(EDIT_PRECONDITION, TEMPORAL_CAUSAL, grade,
-                                         edit_event_id=E["event_id"])
+            rv, ev = R.get("content_version"), E.get("content_version")
+            if rv is not None and ev is not None and rv != ev:
+                # ANY read (not just the latest) whose version no longer applied at the edit is
+                # stale — it was about p, so it is UNKNOWN, never silently exploration.
+                labels[R["event_id"]] = Label(UNKNOWN, TEMPORAL_CAUSAL, "C")
+            else:
+                grade = "B" if (rv is not None and ev is not None) else "C"
+                candidates[E["event_id"]].append((R, grade))
+    # The LATEST applicable candidate is the precondition; earlier applicable reads stay
+    # exploration. Deterministic tiebreak on (seq, event_id) -> order-independent under seq ties.
+    for eid, cands in candidates.items():
+        R, grade = max(cands, key=lambda rc: (rc[0]["seq"], rc[0]["event_id"]))
+        labels[R["event_id"]] = Label(EDIT_PRECONDITION, TEMPORAL_CAUSAL, grade, edit_event_id=eid)
 
     # SECONDARY pass over reads still EXPLORATION: verification (re-read after an edit of the same
     # path) or config_required (heuristic on the path).
@@ -125,7 +125,7 @@ def exploration_bypass(events, labels, *, native_channels=NATIVE_CHANNELS) -> di
     expl = [by_id[eid] for eid, lab in labels.items()
             if lab.observed_class == EXPLORATION and eid in by_id]
     if not expl:
-        return {"events": None, "tokens": None, "n_exploration": 0}
+        return {"events": None, "tokens": None, "n_exploration": 0, "n_native": 0}
 
     def toks(e) -> int:
         return e.get("transport_content_tokens") or e.get("semantic_payload_tokens") or 0
