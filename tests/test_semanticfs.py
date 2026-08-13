@@ -4,8 +4,11 @@ context_search (handles not dumps), context_expand (progressive), PRE metric.
 """
 from pathlib import Path
 
+from contextruntime import SCHEMA_VERSION
 from contextruntime.codegraph import builder
 from contextruntime.codegraph.render import render_symbol
+from contextruntime.ingest import est_tokens
+from contextruntime.model import CodeSymbol, content_hash
 from contextruntime.semanticfs import (context_expand, context_search, find_callers,
                                        read_slice, read_symbol)
 from contextruntime.store import GraphStore
@@ -50,12 +53,44 @@ def test_read_symbol_returns_real_source():
     s.close()
 
 
-# rendered budget invariant (not merely the planner estimate)
+# SERIALIZED budget invariant — the model-visible payload (headers + handles +
+# annotations + bodies), not merely the source bodies (2.3.1 P0).
 def test_rendered_budget_respected():
     s = _store()
     for B in (60, 120, 300, 1000):
         rr = read_symbol(s, "service.process", budget=B)
-        assert rr.budget["rendered_estimate"] <= B     # RENDERED tokens, validated
+        assert rr.budget["serialized_tokens"] <= B          # the reported number
+        assert est_tokens(rr.to_text()) <= B                # the ACTUAL serialized text
+    s.close()
+
+
+# fixed-resolution reads are budget-enforced too (2.3.1 P0) — no bypass.
+def test_fixed_resolution_budget_enforced():
+    s = _store()
+    # ask for full implementation but starve the budget: it must downgrade to fit.
+    rr = read_symbol(s, "service.process", budget=40, resolution="implementation")
+    assert est_tokens(rr.to_text()) <= 40
+    assert rr.budget["serialized_tokens"] <= 40
+    from contextruntime.semanticfs import DOWNGRADE
+    assert DOWNGRADE.index(rr.sections[0]["level"]) < DOWNGRADE.index("implementation")
+    s.close()
+
+
+# read_slice honors its budget as a hard ceiling (2.3.1 P0).
+def test_read_slice_budget_enforced():
+    s = _store()
+    rr = read_slice(s, "service.run_db", budget=512)
+    assert est_tokens(rr.to_text()) <= 512
+    s.close()
+
+
+# Below the irreducible per-section header floor the read is FLAGGED, not silently over budget.
+def test_budget_below_header_floor_is_flagged():
+    s = _store()
+    rr = read_symbol(s, "service.process", budget=5, resolution="implementation")
+    assert rr.budget["budget_insufficient"] is True
+    assert "insufficient" in rr.note
+    assert rr.sections[0]["level"] == "identity"            # minimal form, never a full body
     s.close()
 
 
@@ -64,19 +99,46 @@ def test_shrink_downgrades_and_fits():
     s = _store()
     big = read_symbol(s, "service.process", budget=1000)
     tight = read_symbol(s, "service.process", budget=90)
-    assert tight.budget["rendered_estimate"] <= 90
+    assert tight.budget["serialized_tokens"] <= 90
+    assert est_tokens(tight.to_text()) <= 90
     # the root is represented at a level no higher than in the roomy bundle
     from contextruntime.semanticfs import DOWNGRADE
     assert DOWNGRADE.index(tight.sections[0]["level"]) <= DOWNGRADE.index(big.sections[0]["level"])
     s.close()
 
 
-# planned-vs-rendered error is reported
-def test_pre_metric_present():
+# PRE measures ESTIMATOR error alone; deliberate shrinking is reported separately (2.3.1 P0).
+def test_pre_isolated_from_shrink():
     s = _store()
-    rr = read_symbol(s, "service.process", budget=500)
-    assert "planned_vs_rendered_error" in rr.budget
-    assert rr.budget["estimator"] == "chars4-v1"
+    rr = read_symbol(s, "service.process", budget=1000)         # roomy: little/no shrink
+    b = rr.budget
+    assert b["estimator"] == "chars4-v1"
+    # PRE is |planned − materialized_before| / materialized_before, both PRE-shrink
+    expect = abs(b["planned_estimate"] - b["materialized_tokens"]) / max(1, b["materialized_tokens"])
+    assert abs(b["planned_vs_rendered_error"] - round(expect, 4)) < 1e-9
+    # shrink accounting exists and is distinct from PRE
+    for k in ("shrink_ratio", "sections_downgraded", "sections_dropped", "root_downgraded",
+              "serialized_before_shrink", "serialized_tokens", "target"):
+        assert k in b
+    s.close()
+
+
+# fixed-resolution has no planner, so PRE is 0 (not 1.0) — no estimator was involved.
+def test_pre_zero_for_fixed_resolution():
+    s = _store()
+    rr = read_symbol(s, "service.run_db", budget=512, resolution="slice")
+    assert rr.budget["planned_vs_rendered_error"] == 0.0
+    s.close()
+
+
+# the advertised safety margin is actually applied to planning/materialization (2.3.1 P1).
+def test_safety_margin_applied():
+    s = _store()
+    B = 400
+    rr = read_symbol(s, "service.process", budget=B, safety_margin=0.10)
+    assert rr.budget["safety_margin"] == 0.10
+    assert rr.budget["target"] == int(B * 0.9)              # floor(B(1−m)), actually used
+    assert rr.budget["serialized_tokens"] <= B             # B stays the absolute ceiling
     s.close()
 
 
@@ -100,15 +162,32 @@ def test_context_search_returns_handles_not_code():
     s.close()
 
 
-# progressive expansion: a ctx://symbol handle resolves to rendered source
-def test_context_expand_symbol_handle():
+# progressive expansion + bare-handle policy: a BARE ctx://symbol handle expands to a
+# bounded SIGNATURE, never a full body; escalation to @implementation must be explicit
+# (2.3.1 P1 — closes the search→handle→full-dump policy bypass).
+def test_context_expand_bare_handle_is_signature():
     s = _store()
     sid = _sid(s, "service.run_db")
-    exp = context_expand(s, f"ctx://symbol/{sid}")
-    assert exp.found and "def run_db" in exp.text
-    # level-qualified handle
+    bare = context_expand(s, f"ctx://symbol/{sid}")
+    assert bare.found and "def run_db" in bare.text        # signature header still shown
+    assert "signature" in bare.note                        # policy surfaced to the model
+    full = context_expand(s, f"ctx://symbol/{sid}@implementation")
+    assert full.found and len(full.text) >= len(bare.text)  # escalation is explicit + larger
+    # an explicit @signature equals the bare default (same bounded view)
     sig = context_expand(s, f"ctx://symbol/{sid}@signature")
-    assert sig.found and len(sig.text) <= len(exp.text)
+    assert sig.found and len(sig.text) == len(bare.text)
+    # an UNKNOWN @level is NEVER an escalation. Since a symbol_id may itself contain '@',
+    # an unrecognized suffix is treated as part of the id → resolves to nothing here, and in
+    # no case to the full body. (The security-relevant property: junk ≠ implementation dump.)
+    junk = context_expand(s, f"ctx://symbol/{sid}@qwerty")
+    assert not junk.found
+    assert junk.text != full.text
+    # a '@' that is part of the symbol_id must not be parsed as a level suffix
+    s2 = GraphStore(":memory:")
+    _put(s2, "pkg::@scope/m.ts::foo", "tree_sitter", 1, 3, "function foo() {\n  a();\n}")
+    at = context_expand(s2, "ctx://symbol/pkg::@scope/m.ts::foo")   # bare; '@scope' is in the id
+    assert at.found and "signature" in at.note                     # resolved + bounded, not a dump
+    s2.close()
     # unknown handle never silently empty
     bad = context_expand(s, "ctx://symbol/nope")
     assert not bad.found
@@ -119,4 +198,130 @@ def test_read_slice():
     s = _store()
     rr = read_slice(s, "service.run_db", budget=512)
     assert rr.ok and rr.sections[0]["level"] == "slice"
+    s.close()
+
+
+# ---- materialization honesty (2.3.1 P1): never call a bounded/partial body "implementation"
+
+def _put(s, sid, parser, start, end, sample, original_bytes=None, kind="function"):
+    ch = content_hash(sample + sid)
+    s.put_symbol(CodeSymbol(symbol_id=sid, repo_id="t", language="python", kind=kind,
+                            qualified_name=sid, path="m.py", start_line=start, end_line=end,
+                            signature="f()", content_hash=ch, parser=parser,
+                            resolution_quality=0.9, schema_version=SCHEMA_VERSION))
+    ob = original_bytes if original_bytes is not None else len(sample.encode())
+    s.put_blob(ch, ob, sample)
+    return s.symbol_row(sid)
+
+
+def test_truncated_source_is_flagged_not_passed_as_full():
+    s = GraphStore(":memory:")
+    # large symbol (byte_size > cap) that declares 40 lines but only 2 were stored -> truncated
+    row = _put(s, "big", "python_ast", 1, 40, "def big():\n    a()", original_bytes=12000)
+    r = render_symbol(s, row, "implementation")
+    assert r.materialization_quality == "truncated"
+    assert "truncated" in r.text                            # explicit marker, not a silent prefix
+    assert r.provenance["source"]["complete"] is False
+    assert r.provenance["source"]["span_lines"] == 40 and r.provenance["source"]["stored_lines"] == 2
+    s.close()
+
+
+# A COMPLETE small function whose multi-line secret redaction collapses (PEM → one token) must
+# NOT be false-flagged as truncated (the final re-verification's usability finding).
+def test_redaction_line_collapse_is_not_false_truncation():
+    from contextruntime.redact import redact
+    pem = ("-----BEGIN PRIVATE KEY-----\n" + "MIIB\n" * 3 + "-----END PRIVATE KEY-----")
+    raw = f'def load_key():\n    K = """{pem}"""\n    return K'
+    sample = redact(raw)                                    # collapses the PEM to fewer lines
+    assert len(sample.splitlines()) < len(raw.splitlines()) # precondition: redaction dropped lines
+    s = GraphStore(":memory:")
+    ch = content_hash(raw)
+    s.put_symbol(CodeSymbol(symbol_id="k", repo_id="t", language="python", kind="function",
+                            qualified_name="k", path="m.py", start_line=1,
+                            end_line=len(raw.splitlines()), signature="load_key()",
+                            content_hash=ch, parser="python_ast", resolution_quality=0.95,
+                            schema_version=SCHEMA_VERSION))
+    s.put_blob(ch, len(raw.encode()), sample)               # full_stored: raw is well under the cap
+    r = render_symbol(s, s.symbol_row("k"), "implementation")
+    assert r.materialization_quality == "complete_ast"      # whole segment stored -> complete
+    assert "truncated" not in r.text                        # no misleading marker
+    s.close()
+
+
+# CAS char-cap truncation must be caught even when the declared span is unknown (P1 hole).
+def test_cap_hit_truncation_flagged_without_span():
+    s = GraphStore(":memory:")
+    row = _put(s, "capped", "python_ast", 1, None, "x = 1\n" * 1600, original_bytes=50000)
+    assert len("x = 1\n" * 1600) >= 8000                    # sample hit the 8000-char cap
+    r = render_symbol(s, row, "implementation")
+    assert r.materialization_quality == "truncated"
+    assert "truncated" in r.text
+    s.close()
+
+
+# A large original in the ambiguous byte zone (long-line truncation vs multibyte) must NOT be
+# reported verified-complete — even when line count matches the span (the P1 re-refutation).
+def test_unverifiable_extent_is_not_called_complete():
+    s = GraphStore(":memory:")
+    # byte_size in (CAP, CAP*4]: can't prove the whole raw source was stored -> unverified
+    row = _put(s, "murky", "python_ast", 1, 2, "def murky():\n    s = 'x'", original_bytes=20000)
+    r = render_symbol(s, row, "implementation")
+    assert r.materialization_quality == "unverified"        # not "complete_ast"
+    assert r.provenance["source"]["complete"] is False
+    assert "unverified" in r.text                            # honest in-band marker
+    s.close()
+
+
+# The full raw source being provably stored (byte_size ≤ cap) is complete even if end_line is unknown.
+def test_small_source_with_unknown_span_is_complete():
+    s = GraphStore(":memory:")
+    row = _put(s, "tiny", "python_ast", 10, None, "def tiny():\n    return 1")
+    r = render_symbol(s, row, "implementation")
+    assert r.materialization_quality == "complete_ast"      # whole source stored -> complete
+    assert r.provenance["source"]["complete"] is True
+    s.close()
+
+
+# End-to-end through the REAL builder blob formula: a long secret-bearing line that redaction
+# shrinks below the char cap must still be flagged (the skeptic's exact failing case).
+def test_redaction_shrunk_truncation_flagged_end_to_end():
+    from contextruntime.codegraph.adapters import PythonAstAdapter
+    from contextruntime.model import content_hash as _ch
+    from contextruntime.redact import redact
+    s = GraphStore(":memory:")
+    # a 2-line function whose 2nd line is a huge secret-bearing string (raw >> 8000 chars)
+    src = 'def f():\n    s = "ghp_' + "A" * 40 + '" + "' + "x" * 20000 + '"\n'
+    syms, _edges = PythonAstAdapter().parse("m.py", src, "m")
+    fsym = next(x for x in syms if x.qualified_name == "m.f")
+    # reproduce exactly what builder.index_path stores
+    s.put_symbol(CodeSymbol(symbol_id="m::m.py::m.f", repo_id="m", language="python",
+                            kind="function", qualified_name="m.f", path="m.py",
+                            start_line=fsym.start_line, end_line=fsym.end_line,
+                            signature=fsym.signature, content_hash=fsym.content_hash,
+                            parser="python_ast", resolution_quality=0.95,
+                            schema_version=SCHEMA_VERSION))
+    s.put_blob(fsym.content_hash, len(fsym.source.encode()), redact(fsym.source[:8000]))
+    r = render_symbol(s, s.symbol_row("m::m.py::m.f"), "implementation")
+    assert r.materialization_quality != "complete_ast"      # NOT passed off as complete
+    assert r.provenance["source"]["complete"] is False
+    s.close()
+
+
+def test_heuristic_declaration_only_is_flagged():
+    s = GraphStore(":memory:")
+    row = _put(s, "decl", "regex_heuristic", 5, 5, "function decl() {")
+    r = render_symbol(s, row, "implementation")
+    assert r.materialization_quality == "declaration_only_heuristic"
+    assert "declaration only" in r.text                     # model is told the body is absent
+    assert r.provenance["source"]["complete"] is False
+    s.close()
+
+
+def test_complete_ast_makes_no_truncation_claim():
+    s = GraphStore(":memory:")
+    row = _put(s, "small", "python_ast", 1, 2, "def small():\n    return 1")
+    r = render_symbol(s, row, "implementation")
+    assert r.materialization_quality == "complete_ast"
+    assert "truncated" not in r.text and "declaration only" not in r.text
+    assert r.provenance["source"]["complete"] is True
     s.close()

@@ -25,6 +25,8 @@ classification, the MCP read surface, and the A/B/C/D experiment — see
 | **Representation materializer** (L0 id … L4 impl, content-monotone) — planner → compiler | ✅ (Phase 2.3) |
 | **Rendered budget validator** (validates *rendered* tokens ≤ B, not just the estimate; reports PRE) | ✅ (Phase 2.3) |
 | `context_search` · `read_symbol` · `read_slice` · `find_callers` · `context_expand` (read surface) | ✅ (Phase 2.3) |
+| **Serialized-budget enforcement + PRE hygiene + `safety_margin` + materialization-quality honesty** | ✅ (Phase 2.3.1) |
+| **Python call-scoping parity** (nested-function calls attributed correctly, like tree-sitter) | ✅ (Phase 2.3.1) |
 | Read classification (exploration vs edit_precondition …) | ▶ next |
 | Empirical precision/recall (Gate-2A ground truth) · A/B/C/D harness | ▶ next |
 
@@ -189,6 +191,52 @@ python3 -m contextruntime.cli find-callers <symbol> --db graph.db
 python3 -m contextruntime.cli search <query> --db graph.db
 python3 -m contextruntime.cli expand 'ctx://symbol/<id>@skeleton' --db graph.db
 ```
+
+### Measurement & admission hygiene (Phase 2.3.1)
+
+A correctness pass so the Gate-2 numbers mean what they say. No architecture change.
+
+- **The budget is the *serialized* budget.** The validator now counts the full model-visible
+  payload — section headers, `ctx://` handles, `match/soft` + `⟪materialization⟫` annotations,
+  and the ambiguity block — not just source bodies. The invariant is
+  `tokens(serialized response) ≤ B`, and `to_text()` and the validator share one `_serialize`
+  so they can't drift. Every path (adaptive, fixed-resolution, no-deps) is enforced; a starved
+  budget downgrades even a fixed-resolution read rather than overflowing.
+- **PRE measures estimator error alone.** `planned_vs_rendered_error` is now
+  `|planned − materialized|/materialized` with *both* taken **before** shrinking, so it no longer
+  conflates a wrong planner estimate with deliberate downgrades. The shrink is reported separately
+  (`shrink_ratio`, `sections_downgraded`, `sections_dropped`, `root_downgraded`), and a no-planner
+  read reports PRE = 0, not 1.
+- **`safety_margin` is real.** Planning/materialization aim for `target = ⌊B(1−m)⌋` (reserving
+  envelope headroom for the MCP/tool wrapper); `B` stays the absolute ceiling.
+- **Bare handles don't leak bodies.** `context_expand("ctx://symbol/<id>")` expands to a bounded
+  **signature**; the full body requires an explicit `@implementation`. The suffix is parsed with
+  `rpartition("@")` and honored **only if it is a known level** — so a symbol_id that itself contains
+  `@` (npm scoped paths, annotations) stays intact and no `@<junk>` can escalate. `render_symbol`
+  also coerces any unknown level to `signature` (defense in depth). Closes the
+  search → handle → whole-file-dump policy bypass.
+- **No bounded prefix is called "implementation".** `render_symbol` reports
+  `materialization_quality` ∈ {`complete_ast`, `complete_tree_sitter`, `declaration_only_heuristic`,
+  `truncated`, `unverified`} (mirrored in `provenance.source.complete`). Completeness is asserted
+  **only from the truthful full-size signal** — `byte_size` (raw source bytes, ≥ char count), *not*
+  the redacted sample length, since redaction can shrink a truncated prefix below the char cap and
+  mask it. `byte_size ≤ CAP` ⇒ the whole source was stored (complete); `> CAP×4` ⇒ definitely
+  truncated (even a single huge line); in between ⇒ `unverified`. A line-count shortfall vs the
+  declared span is an additional signal, and implementation/file levels carry an explicit in-text marker.
+- **Python call scoping matches tree-sitter.** The `ast` adapter no longer attributes a nested
+  function's calls to its enclosing function (the old `ast.walk` bug), and definitions are emitted at
+  **every** scope — module, class body, and function — descending through `if`/`for`/`with`/`try`,
+  so a def/class hidden in a control-flow block is never dropped. Non-nested code produces identical
+  symbols+edges (no regression); traversal is source-ordered for determinism. Feeds Gate-2A ground truth.
+
+Each of the three items above was **found by an adversarial verification pass** (independent skeptics
+running snippets against the code) after the first cut shipped a plausible-but-incomplete version, then
+fixed and re-verified — the same find → verify → fix loop the runtime is meant to support.
+
+**Honest finding surfaced by the accounting:** once handles are counted, the current verbose handle
+form (`ctx://symbol/<repo>::<path>::<qname>`) dominates small budgets — at `B≈120` the response is
+almost all headers, forcing every section to identity. Handle compaction (short per-response ids +
+a legend) is a candidate follow-up (2.3.2) now that the cost is visible rather than hidden.
 
 ## Not in Phase 2 (deliberately)
 
