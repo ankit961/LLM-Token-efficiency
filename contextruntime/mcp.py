@@ -23,12 +23,19 @@ from datetime import datetime, timezone
 from typing import Optional
 
 from . import __version__
+from .ingest import est_tokens
 from .semanticfs import (context_expand, context_search, find_callers, read_slice,
                          read_symbol)
 from .store import GraphStore
 from .telemetry import record_expansion, record_read
 
+# LEGACY MCP compatibility: this implements the 2024-11-05 stdio lifecycle (initialize +
+# tools/*). Newer MCP revisions dropped that handshake; we advertise ONLY what we support and
+# echo the client's requested version only when it is in this set, otherwise our own. Stamped
+# as a mode so the doctor/evidence layer can flag it until tested against real clients.
 PROTOCOL_VERSION = "2024-11-05"
+SUPPORTED_VERSIONS = ("2024-11-05",)
+PROTOCOL_MODE = "legacy-2024-11-05"
 
 TOOLS = [
     {"name": "read_symbol",
@@ -101,10 +108,18 @@ class SemanticFSServer:
         method = msg.get("method")
         params = msg.get("params") or {}
         if method == "initialize":
+            # Echo the client's version only when we actually support it; otherwise answer
+            # with a version we DO support (do not claim to speak a version we don't).
+            requested = params.get("protocolVersion")
+            version = requested if requested in SUPPORTED_VERSIONS else PROTOCOL_VERSION
             return self._ok(mid, {
-                "protocolVersion": params.get("protocolVersion", PROTOCOL_VERSION),
+                "protocolVersion": version,
                 "capabilities": {"tools": {}},
-                "serverInfo": {"name": "contextruntime-semanticfs", "version": __version__}})
+                "serverInfo": {"name": "contextruntime-semanticfs", "version": __version__,
+                               "protocolMode": PROTOCOL_MODE},
+                "instructions": ("Legacy MCP compatibility mode (2024-11-05). Pass "
+                                 "parent_event_id to context_expand so Context Expansion Debt "
+                                 "is attributed to the read that caused the expansion.")})
         if method == "ping":
             return self._ok(mid, {})
         if method == "tools/list":
@@ -144,16 +159,14 @@ class SemanticFSServer:
                 return self._tool_error(rr.note)
             eid = record_read(self.store, rr, session_id=self.session_id, request_id=rid,
                               repo_id=repo, ts=self._clock())
-            self.store.commit()                  # durable per materialization (survives process exit)
-            return self._read_payload(rr, eid)
+            return self._finish_read(rr, eid)
         if name == "read_slice":
             rr = read_slice(self.store, args["symbol"], budget=args.get("budget", 512), repo_id=repo)
             if not rr.ok:
                 return self._tool_error(rr.note)
             eid = record_read(self.store, rr, session_id=self.session_id, request_id=rid,
                               repo_id=repo, ts=self._clock())
-            self.store.commit()
-            return self._read_payload(rr, eid)
+            return self._finish_read(rr, eid)
         if name == "find_callers":
             callers = find_callers(self.store, args["symbol"], limit=args.get("limit", 20), repo_id=repo)
             return {"content": [_text(json.dumps({"callers": callers}, indent=2))], "isError": False}
@@ -162,19 +175,35 @@ class SemanticFSServer:
             return {"content": [_text(json.dumps({"results": hits}, indent=2))], "isError": False}
         if name == "context_expand":
             exp = context_expand(self.store, args["handle"])
-            eid = None
-            parent = args.get("parent_event_id")
-            if parent:                           # link the expansion to the read that caused it (CED)
-                eid = record_expansion(self.store, exp, parent_event_id=parent,
-                                       session_id=self.session_id, request_id=rid,
-                                       from_level=args.get("from_level"), ts=self._clock())
-                self.store.commit()
+            # Record EVERY materialization — parent_event_id is optional (for attribution),
+            # not a prerequisite for logging. record_expansion returns None only if nothing
+            # was materialized (not found).
+            eid = record_expansion(self.store, exp, parent_event_id=args.get("parent_event_id"),
+                                   session_id=self.session_id, request_id=rid,
+                                   from_level=args.get("from_level"), ts=self._clock())
             if not exp.found:
                 return self._tool_error(exp.note)
             meta = {"event_id": eid, "level": exp.level, "kind": exp.kind, "note": exp.note}
-            return {"content": [_text(exp.text), _text("meta: " + json.dumps(meta))],
-                    "isError": False}
+            payload = {"content": [_text(exp.text), _text("meta: " + json.dumps(meta))],
+                       "isError": False}
+            self._account_transport(eid, payload)
+            return payload
         return self._tool_error(f"unknown tool: {name}")
+
+    def _finish_read(self, rr, event_id: str) -> dict:
+        payload = self._read_payload(rr, event_id)
+        self._account_transport(event_id, payload)
+        return payload
+
+    def _account_transport(self, event_id, payload: dict) -> None:
+        """Measure the FULL model-visible response (semantic payload + the transport `meta:`
+        block) against the event, then commit — so serialized/overhead/CED reflect what the
+        tool actually returns, not just the SemanticFS text."""
+        if not event_id:
+            return
+        tct = sum(est_tokens(c["text"]) for c in payload.get("content", []) if c.get("type") == "text")
+        self.store.update_transport_tokens(event_id, tct)
+        self.store.commit()                      # durable per materialization (survives process exit)
 
     def _read_payload(self, rr, event_id: str) -> dict:
         b = rr.budget

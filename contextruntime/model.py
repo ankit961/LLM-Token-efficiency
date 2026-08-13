@@ -204,8 +204,8 @@ class SemanticReadEvent:
     Expansion rows carry `parent_event_id` so Context Expansion Debt sums directly.
     """
     event_id: str
-    seq: int
     channel: str                           # native_read | bash_materialization | semanticfs | expansion
+    seq: Optional[int] = None              # DB-ASSIGNED (AUTOINCREMENT); leave None on insert
     session_id: Optional[str] = None
     stream_key: Optional[str] = None       # (session_id, agent_id) sub-stream
     request_id: Optional[str] = None
@@ -228,12 +228,14 @@ class SemanticReadEvent:
     denied: int = 0
     nudged: int = 0
     bypass_channel: Optional[str] = None
-    # context
+    # context — two overhead layers tracked distinctly (semantic vs transport)
     representation: Optional[str] = None
     materialization_quality: Optional[str] = None
-    serialized_tokens: Optional[int] = None
-    source_body_tokens: Optional[int] = None
-    protocol_overhead: Optional[float] = None
+    semantic_payload_tokens: Optional[int] = None    # SemanticFS serialized payload
+    source_body_tokens: Optional[int] = None         # pure source body
+    protocol_overhead: Optional[float] = None        # semantic-layer overhead ratio
+    transport_content_tokens: Optional[int] = None   # full transport response (payload + meta)
+    transport_overhead_tokens: Optional[int] = None  # transport_content - semantic_payload
     budget_requested: Optional[int] = None
     # expansion linkage (Context Expansion Debt)
     parent_event_id: Optional[str] = None

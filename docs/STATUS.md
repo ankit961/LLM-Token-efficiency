@@ -16,6 +16,7 @@ gets to claim a gate once a measured trial clears it.
 | Phase 2.3 — SemanticFS materializer + read surface (library/CLI) | ✅ implemented |
 | Phase 2.3.1 — measurement & admission hygiene | ✅ implemented |
 | Phase 2.4-A/B — API contract + `SemanticReadEvent` telemetry + **MCP stdio transport** (observe-only) | ✅ implemented |
+| Phase 2.4-B.1 — transport measurement correctness (see below) | ✅ implemented |
 | Phase 2.4-C — retrospective read classification (Read/Bash/SemanticFS channels) | ▶ next |
 | Gate 2A — retrieval viability (ground-truth precision/recall) | ◐ after 2.4 |
 | Gate 2B — admission experiment (A/B/C/D) | ★ first product gate |
@@ -76,6 +77,20 @@ expansion handles (not a jump to the full body); `@file` rejected until real who
 kept separate from the pure read functions and **expansion→parent linkage so CED sums directly**; a hand-rolled MCP
 stdio transport (`contextruntime mcp`) that emits an event on every materializing call, committed per call for durability.
 Nothing is denied; classification/outcome columns are null.
+
+**Phase 2.4-B.1 — transport measurement correctness · DONE** (so 2.4-C consumes trustworthy numbers):
+(1) **every materialization is logged** — `context_expand` records even without a `parent_event_id`
+(attribution is optional, not a prerequisite); (2) **the MCP `meta:` block is in the ledger** —
+`transport_content_tokens`/`transport_overhead_tokens` capture the full model-visible response
+(semantic payload + transport meta), distinct from the semantic-layer `protocol_overhead`, and CED
+sums full transport tokens (a read's meta block cost ~70 tok on 369, an expansion's ~31 on 79);
+(3) **concurrency-safe ordering** — `seq` is a SQLite `AUTOINCREMENT` (not `SELECT MAX(seq)+1`, which
+two processes could read identically); (4) **truthful MCP negotiation** — the server echoes the client's
+protocol version only if supported, else answers with one it supports, and stamps `protocolMode =
+legacy-2024-11-05` (the newer MCP spec dropped the initialize handshake; this is compat mode until tested
+against real clients). Schema 0.6.0. `event_id` stays in the model-visible `meta` for now so the model can
+link an expansion to its parent — not hidden into MCP `_meta` until a target client's metadata propagation
+is verified (else compaction would break CED attribution).
 
 **Phase 2.4-C — read classification · NEXT** (observe-only first, no enforcement): durable `SemanticReadEvent` (identity/channel/target/classification/admission/context/outcome); retrospective **observed** labels (a native read that is the latest eligible edit-precondition for a same-path edit within a causal window — *not* every read before an edit) with an `evidence_grade`/`classification_source` (client-tracker-confirmed / temporal-causal / heuristic); real-time **predicted** labels kept separate so classifier precision/recall is measurable, never assumed; classify **materialization across channels** (native `Read`, Bash `cat/sed/git show/…`, SemanticFS, expansion) reporting exploration-bypass by **events and by tokens**; expansion **parent linkage** so CED is summed directly; `ProtocolOverheadRatio` measured at working budgets; **thin MCP stdio transport** instrumented to emit these events. Enforcement (deny+nudge, high-confidence exploration only) waits for confusion matrices — the dangerous error is P(predicted exploration | actually edit-prerequisite).
 
