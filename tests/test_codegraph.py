@@ -4,7 +4,10 @@ Exact graph assertions (symbol ids, match_kind, confidence), package-qualified
 module identity, scope-aware resolution, and an adversarial ambiguity fixture that
 must NOT be resolved to an arbitrary module.
 """
+import json
 from pathlib import Path
+
+import pytest
 
 from contextruntime.codegraph import builder
 from contextruntime.codegraph.adapters import HeuristicAdapter, PythonAstAdapter
@@ -90,6 +93,60 @@ def test_depends_on_only_from_dependable_matches():
              s.conn.execute("SELECT match_kind FROM code_edges WHERE edge_type='DEPENDS_ON'")}
     assert kinds <= {"exact", "scoped", "inferred"}     # never ambiguous/unresolved
     s.close()
+
+
+def test_inferred_dependency_is_soft_not_hard():
+    """`inferred` = single-candidate guess -> DEPENDS_ON marked soft (never mandatory);
+    `exact`/`scoped` are hard (no soft flag)."""
+    s, _ = _index(AMBIG, "ambig")
+    rows = list(s.conn.execute(
+        "SELECT dst_id, match_kind, props FROM code_edges WHERE edge_type='DEPENDS_ON'"))
+    by_kind = {r["match_kind"]: r for r in rows}
+    # log_event is uniquely named across the repo -> inferred + soft
+    inf = next(r for r in rows if r["match_kind"] == "inferred")
+    assert inf["dst_id"].endswith("shared.logging.log_event")
+    assert json.loads(inf["props"]).get("soft") is True
+    # no ambiguous/unresolved ever becomes a dependency
+    assert "ambiguous" not in by_kind and "unresolved" not in by_kind
+    s.close()
+
+
+# --- tree-sitter grammar activation (fix #2) ---------------------------------
+
+@pytest.mark.parametrize("lang,grammar", [
+    ("javascript", "tree_sitter_javascript"),
+    ("typescript", "tree_sitter_typescript"),
+    ("go", "tree_sitter_go"),
+    ("java", "tree_sitter_java"),
+    ("rust", "tree_sitter_rust"),
+])
+def test_grammar_activates_when_installed(lang, grammar):
+    """If the grammar is installed, the registry MUST select tree-sitter — not
+    silently degrade to the regex heuristic (this is what caught TypeScript)."""
+    pytest.importorskip(grammar)
+    from contextruntime.codegraph.adapters import TreeSitterAdapter, TreeSitterUnavailable
+    try:
+        a = TreeSitterAdapter(lang)
+    except TreeSitterUnavailable as e:
+        pytest.fail(f"{grammar} installed but tree-sitter did not activate: {e}")
+    assert a.parser == "tree_sitter"
+
+
+# --- nested-definition call scoping (fix #3) ---------------------------------
+
+def test_nested_function_calls_are_scoped_correctly():
+    pytest.importorskip("tree_sitter_javascript")
+    from contextruntime.codegraph.adapters import TreeSitterAdapter, TreeSitterUnavailable
+    try:
+        adapter = TreeSitterAdapter("javascript")
+    except TreeSitterUnavailable:
+        pytest.skip("tree-sitter javascript unavailable")
+    src = (Path(__file__).parent / "fixtures" / "nested_js" / "mod.js").read_text()
+    _syms, edges = adapter.parse("mod.js", src, "mod")
+    calls = {(e.src_qname, e.dst_name) for e in edges if e.edge_type == "CALLS"}
+    assert ("mod.outer.inner", "charge") in calls        # charge belongs to inner
+    assert ("mod.outer", "inner") in calls               # inner() belongs to outer
+    assert ("mod.outer", "charge") not in calls          # NOT misattributed to outer
 
 
 def test_index_report_and_confidence_invariant():

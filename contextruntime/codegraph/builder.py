@@ -23,8 +23,14 @@ SOURCE_ROOTS = {"src"}                 # stripped from module paths (heuristic)
 MAX_FILE_BYTES = 1_500_000
 UNRESOLVED_DISCOUNT = 0.7
 AMBIGUOUS_DISCOUNT = 0.45
-# match_kinds that are trustworthy enough to derive a DEPENDS_ON edge from:
-DEPENDABLE = {"exact", "scoped", "inferred"}
+# HARD: the call is actually resolved (a bundle may put these in the MANDATORY set).
+# SOFT: `inferred` means "exactly one repo symbol has this short name" — a single-
+#   candidate GUESS (the receiver could be external/injected), so it is derived as a
+#   DEPENDS_ON but marked soft; the bundle generator must never make it mandatory.
+# ambiguous/unresolved: no DEPENDS_ON at all.
+HARD = {"exact", "scoped"}
+SOFT = {"inferred"}
+DEPENDABLE = HARD | SOFT
 
 
 def module_qname(rel_path: str, source_roots=SOURCE_ROOTS) -> str:
@@ -50,8 +56,13 @@ class IndexReport:
     structural_confidence_by_language: dict = field(default_factory=dict)
 
     @property
-    def resolved_rate(self) -> float:
-        good = sum(self.match_by_kind.get(k, 0) for k in ("exact", "scoped", "inferred", "structural"))
+    def hard_rate(self) -> float:
+        good = sum(self.match_by_kind.get(k, 0) for k in HARD)
+        return good / self.edges if self.edges else 0.0
+
+    @property
+    def soft_rate(self) -> float:
+        good = sum(self.match_by_kind.get(k, 0) for k in SOFT)
         return good / self.edges if self.edges else 0.0
 
 
@@ -137,8 +148,10 @@ def index_path(store: GraphStore, root: str, repo_id: str | None = None) -> Inde
         res_ct[res] += 1
         conf_acc[lang].append(c)
         if match in DEPENDABLE and etype in ("CALLS", "IMPLEMENTS", "IMPORTS"):
+            # inferred is a soft candidate, not a hard dependency (never mandatory)
+            props = {"soft": True} if match in SOFT else None
             store.add_code_edge(repo_id, src_id, dst_id, "DEPENDS_ON", c, "derived",
-                                match_kind=match, ambiguity_count=ambig)
+                                match_kind=match, ambiguity_count=ambig, props=props)
             etype_ct["DEPENDS_ON"] += 1
     store.commit()
 
@@ -184,9 +197,10 @@ def format_report(rep: IndexReport) -> str:
         f"  files parsed : {rep.files:,}",
         f"  symbols      : {sum(rep.symbols_by_language.values()):,} {dict(rep.symbols_by_language)}",
         f"  parsers      : {rep.parser_by_language}",
-        f"  edges        : {rep.edges:,}  ({100*rep.resolved_rate:.0f}% dependable)  {dict(rep.edges_by_type)}",
+        f"  edges        : {rep.edges:,}  "
+        f"({100*rep.hard_rate:.0f}% hard, {100*rep.soft_rate:.0f}% soft)  {dict(rep.edges_by_type)}",
         "",
-        "  resolution match kinds:",
+        "  resolution match kinds (hard=exact/scoped · soft=inferred · none=ambiguous/unresolved):",
     ]
     for k, n in sorted(rep.match_by_kind.items(), key=lambda kv: -kv[1]):
         lines.append(f"    {k:12s} {n:,}")

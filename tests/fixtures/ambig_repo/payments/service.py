@@ -1,2 +1,3 @@
 def process(x):
-    return save(x)          # ambiguous: save() exists in payments.repo AND users.repo
+    log_event(x)        # unique short name across repo -> inferred (SOFT)
+    return save(x)      # two candidates -> ambiguous (NO dependency)

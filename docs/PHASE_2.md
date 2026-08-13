@@ -58,16 +58,19 @@ some edges and refuse to invent dependencies from others:
 
 | match_kind | meaning | bundle use |
 |---|---|---|
-| `exact` | dst is a full qualified name | narrow bundle |
-| `scoped` | resolved in the src's class/module scope (`self.method`, same-module) | narrow bundle |
-| `inferred` | exactly one repo-wide symbol has that short name | single-candidate guess |
-| `ambiguous` | **multiple candidates — resolver refuses to pick one** (`ambiguous:<name>`, `ambiguity_count`) | do not invent a dependency; may show candidate signatures |
+| `exact` | dst is a full qualified name | **HARD** — may be mandatory |
+| `scoped` | resolved in the src's class/module scope (`self.method`, same-module) | **HARD** — may be mandatory |
+| `inferred` | exactly one repo-wide symbol has that short name | **SOFT** — a single-candidate guess (`props.soft=true`); never mandatory |
+| `ambiguous` | **multiple candidates — resolver refuses to pick one** (`ambiguous:<name>`, `ambiguity_count`) | no dependency; may show candidate signatures |
 | `unresolved` | external/dynamic — no repo symbol | no dependency |
 
-`DEPENDS_ON` is derived **only** from `exact`/`scoped`/`inferred` — never `ambiguous` or
-`unresolved`. The critical property (verified by an adversarial fixture): a call to
-`save()` when `payments.repo.save` and `users.repo.save` both exist is marked `ambiguous`,
-not resolved to whichever happened to be indexed first.
+`DEPENDS_ON` is derived only from `exact`/`scoped` (**hard**) and `inferred` (**soft**),
+never from `ambiguous`/`unresolved`. `inferred` is a *guess* — the receiver may be
+external (`callback.save()` where exactly one `save` exists locally) — so its `DEPENDS_ON`
+carries `props.soft=true`, and the bundle generator must never put a soft dependency in its
+mandatory set. Two verified properties: (1) `save()` with two candidates is `ambiguous`,
+not resolved to whichever was indexed first; (2) a uniquely-named cross-module call is
+`inferred`+soft, not silently promoted to a hard dependency.
 
 ## Run it
 

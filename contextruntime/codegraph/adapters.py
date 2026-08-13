@@ -195,8 +195,18 @@ class TreeSitterAdapter(Adapter):
             import tree_sitter  # noqa: F401
             mod = __import__(self._GRAMMAR[language])
             from tree_sitter import Language, Parser
-            self._lang = Language(mod.language())
+            # Grammar accessor varies: most expose language(); tree-sitter-typescript
+            # exposes language_typescript()/language_tsx(). Try both so TS activates
+            # instead of silently falling back to the regex heuristic.
+            lang_fn = (getattr(mod, "language", None)
+                       or getattr(mod, f"language_{language}", None)
+                       or getattr(mod, "language_typescript", None))
+            if lang_fn is None:
+                raise TreeSitterUnavailable(f"{self._GRAMMAR[language]}: no language() accessor")
+            self._lang = Language(lang_fn())
             self._parser = Parser(self._lang)
+        except TreeSitterUnavailable:
+            raise
         except Exception as e:  # noqa: BLE001
             raise TreeSitterUnavailable(str(e))
 
@@ -214,58 +224,54 @@ class TreeSitterAdapter(Adapter):
             n = node.child_by_field_name("name")
             return txt(n) if n else None
 
-        def emit_calls(node, func_q):
-            # recurse the WHOLE subtree of a definition for calls (not just direct children)
-            for c in _descendants(node):
-                if c.type == "call_expression":
-                    fn = c.child_by_field_name("function")
-                    if fn:
-                        edges.append(ParsedEdge(func_q, txt(fn).split(".")[-1],
-                                                "CALLS", 0.7, "tree_sitter"))
-
-        def walk(node, type_scope, container_q):
+        # Single scope-tracking walk (fix: nested definitions get their own scope, so a
+        # call inside inner() is attributed to inner, not to the enclosing outer()).
+        #   container_q      naming prefix (nearest enclosing def)
+        #   func_q           call-attribution scope (nearest enclosing FUNCTION, or None)
+        #   encl_is_class    is the nearest enclosing definition a class? (method vs function)
+        def walk(node, container_q, func_q, encl_is_class):
             for child in node.children:
-                if child.type == "import_statement":
+                t = child.type
+                if t == "import_statement":
                     s = child.child_by_field_name("source")
                     if s:
                         edges.append(ParsedEdge(module_q, txt(s).strip("'\""),
                                                 "IMPORTS", 0.85, "tree_sitter"))
-                    walk(child, type_scope, container_q)
-                elif child.type in self._CLASS:
+                    walk(child, container_q, func_q, encl_is_class)
+                elif t in self._CLASS:
                     nm = name_of(child)
                     if not nm:
-                        walk(child, type_scope, container_q); continue
+                        walk(child, container_q, func_q, encl_is_class); continue
                     qn = f"{container_q}.{nm}"
                     syms.append(ParsedSymbol(qn, "class", rel_path, self.language,
                                 child.start_point[0] + 1, child.end_point[0] + 1, nm,
                                 content_hash(txt(child))))
                     edges.append(ParsedEdge(container_q, qn, "CONTAINS", 0.9, "tree_sitter"))
-                    sc = child.child_by_field_name("superclass") or child.child_by_field_name("superclasses")
+                    sc = (child.child_by_field_name("superclass")
+                          or child.child_by_field_name("superclasses"))
                     if sc:
                         edges.append(ParsedEdge(qn, txt(sc).split()[-1].split(".")[-1],
                                                 "IMPLEMENTS", 0.7, "tree_sitter"))
-                    walk(child, qn, qn)                 # class becomes the container scope
-                elif child.type in self._FUNC:
+                    walk(child, qn, None, True)          # inside a class body
+                elif t in self._FUNC:
                     nm = name_of(child)
                     if not nm:
-                        walk(child, type_scope, container_q); continue
-                    kind = "method" if type_scope else "function"
+                        walk(child, container_q, func_q, encl_is_class); continue
+                    kind = "method" if encl_is_class else "function"
                     qn = f"{container_q}.{nm}"
                     syms.append(ParsedSymbol(qn, kind, rel_path, self.language,
                                 child.start_point[0] + 1, child.end_point[0] + 1, nm,
                                 content_hash(txt(child))))
                     edges.append(ParsedEdge(container_q, qn, "CONTAINS", 0.9, "tree_sitter"))
-                    emit_calls(child, qn)               # attribute nested calls to this func
+                    walk(child, qn, qn, False)           # inside a function body
+                elif t == "call_expression":
+                    fn = child.child_by_field_name("function")
+                    if fn:
+                        edges.append(ParsedEdge(func_q or module_q,
+                                     txt(fn).split(".")[-1], "CALLS", 0.7, "tree_sitter"))
+                    walk(child, container_q, func_q, encl_is_class)   # args may hold calls
                 else:
-                    walk(child, type_scope, container_q)
+                    walk(child, container_q, func_q, encl_is_class)
 
-        walk(tree.root_node, None, module_q)
+        walk(tree.root_node, module_q, None, False)
         return syms, edges
-
-
-def _descendants(node):
-    stack = list(node.children)
-    while stack:
-        n = stack.pop()
-        yield n
-        stack.extend(n.children)
