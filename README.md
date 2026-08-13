@@ -23,9 +23,14 @@ See **[docs/PHASE_0B.md](docs/PHASE_0B.md)**.
 ```bash
 python3 -m contextruntime.cli ingest ~/.claude/projects/*/*.jsonl --db graph.db
 python3 -m contextruntime.cli ledger --db graph.db
+python3 -m contextruntime.cli reduce-scan --db graph.db   # Phase 1: what ContextReduce would save
 python3 -m contextruntime.cli doctor        # runtime capability profile (C11)
 python3 -m pytest -q                         # smoke tests (synthetic fixture)
 ```
+
+Phases so far: **[0b — ContextScope + Residency Graph](docs/PHASE_0B.md)** ·
+**[1 — ContextReduce](docs/PHASE_1.md)** (PostToolUse output reduction; ~53% on
+reducible tool results in observe mode).
 
 ### `contextscope/` — Phase 0 batch profilers (reference)
 

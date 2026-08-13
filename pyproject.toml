@@ -19,7 +19,7 @@ dev = ["pytest>=7"]
 contextruntime = "contextruntime.cli:main"
 
 [tool.setuptools]
-packages = ["contextruntime"]
+packages = ["contextruntime", "contextruntime.reducers"]
 
 [tool.setuptools.package-data]
 contextruntime = ["schema.sql"]

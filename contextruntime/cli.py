@@ -88,10 +88,29 @@ def cmd_graph(args) -> int:
     store = _open(args.db)
     for tbl in ("objects", "requests", "islands", "sources", "capsules"):
         print(f"  {tbl:10s} {store.count(tbl):,}")
-    for et in ("RESIDENT_IN", "MATERIALIZED_FROM", "DUPLICATE_OF", "BROKE"):
+    for et in ("RESIDENT_IN", "MATERIALIZED_FROM", "DUPLICATE_OF", "BROKE", "REDUCES"):
         print(f"  edge {et:18s} {store.edge_count(et):,}")
     store.close()
     return 0
+
+
+def cmd_reduce_scan(args) -> int:
+    """Experiment-B: measure what ContextReduce would save over an ingested graph."""
+    from .reducers import planner
+    if not args.db or not os.path.exists(args.db):
+        print("reduce-scan needs an ingested --db (run `ingest --db ...` first)", file=sys.stderr)
+        return 1
+    store = _open(args.db)
+    rep = planner.scan_graph(store, write_edges=not args.dry_run)
+    print(planner.format_report(rep, evidence_grade=doctor_mod.probe().evidence_grade))
+    store.close()
+    return 0
+
+
+def cmd_hook(args) -> int:
+    """PostToolUse hook entry (reads a hook event on stdin). Fail-open."""
+    from .reducers import hook as hook_mod
+    return hook_mod.main()
 
 
 def main(argv=None) -> int:
@@ -117,6 +136,15 @@ def main(argv=None) -> int:
     p = sub.add_parser("graph", help="node/edge counts")
     p.add_argument("--db", required=True)
     p.set_defaults(func=cmd_graph)
+
+    p = sub.add_parser("reduce-scan", help="measure ContextReduce savings (Experiment B, observe mode)")
+    p.add_argument("--db", required=True)
+    p.add_argument("--dry-run", action="store_true", help="do not write REDUCES edges")
+    p.set_defaults(func=cmd_reduce_scan)
+
+    p = sub.add_parser("hook", help="PostToolUse hook entry (reads a hook event on stdin)")
+    p.add_argument("event", nargs="?", choices=["post"], default="post")
+    p.set_defaults(func=cmd_hook)
 
     args = ap.parse_args(argv)
     return args.func(args)

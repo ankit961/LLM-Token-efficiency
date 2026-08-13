@@ -12,6 +12,7 @@ NOT consumed here.
 from __future__ import annotations
 
 import json
+import re
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
@@ -21,6 +22,11 @@ from .model import Request, content_hash
 
 CHARS_PER_TOKEN = 4.0
 IMAGE_TOKENS = 1100
+
+# A Bash result whose command is a test runner is a test_result (routes to the
+# failure-preserving reducer), not a generic log.
+_TEST_CMD = re.compile(r"\b(pytest|jest|vitest|go test|cargo test|"
+                       r"npm (run )?test|rspec|phpunit|tox)\b")
 
 
 def est_tokens(text: str) -> int:
@@ -158,7 +164,10 @@ def load_session(path: str | Path) -> tuple[list[Request], list[ContentEvent], l
                         if name == "Read" and binput.get("file_path"):
                             src = str(binput["file_path"])
                         elif name == "Bash" and binput.get("command"):
-                            src = "bash:" + str(binput["command"])[:80]
+                            cmd = str(binput["command"])
+                            src = "bash:" + cmd[:80]
+                            if _TEST_CMD.search(cmd):
+                                kind = "test_result"
                         events.append(ContentEvent(cur_turn(), kind, text, prov,
                                       source_ref=src, tool_name=name))
                     elif isinstance(b, dict) and b.get("type") == "text":

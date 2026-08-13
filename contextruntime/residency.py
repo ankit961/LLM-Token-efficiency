@@ -80,7 +80,10 @@ def build(store: GraphStore, requests: list[Request], events: list[ContentEvent]
             byte_size=nbytes, provenance=ev.provenance, trust_level=trust,
             first_seen_turn=ev.entry_turn, last_seen_turn=exit_turn,
             source_ref=ev.source_ref, schema_version=SCHEMA_VERSION))
-        store.put_blob(h, nbytes, ev.text[:200])       # CAS: bytes deduped by hash
+        # CAS holds the raw payload behind the handle (design §9), bounded to keep
+        # the local store finite. Reducers/handle-resolution read this; it is local
+        # and gitignored, never committed.
+        store.put_blob(h, nbytes, ev.text[:8000])
         # RESIDENT_IN: object -> session, span = [entry, exit] within its segment
         store.add_edge(cid, session_id, "RESIDENT_IN",
                        {"entry_turn": ev.entry_turn, "exit_turn": exit_turn, "tier": "mixed"})
