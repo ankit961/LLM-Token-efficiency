@@ -19,3 +19,8 @@ venv/
 .idea/
 .vscode/
 *.swp
+
+# local databases / caches
+*.db
+*.sqlite
+.pytest_cache/

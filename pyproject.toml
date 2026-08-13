@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "contextruntime"
+version = "0.1.0"
+description = "Semantic I/O + context-control runtime for AI coding agents — Phase 0b: ContextScope + the Context Residency Graph."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "UNLICENSED" }
+authors = [{ name = "ankit961" }]
+dependencies = []                       # core is stdlib-only (sqlite3, json, dataclasses)
+
+[project.optional-dependencies]
+dev = ["pytest>=7"]
+
+[project.scripts]
+contextruntime = "contextruntime.cli:main"
+
+[tool.setuptools]
+packages = ["contextruntime"]
+
+[tool.setuptools.package-data]
+contextruntime = ["schema.sql"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

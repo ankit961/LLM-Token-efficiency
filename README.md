@@ -12,11 +12,26 @@ resolution, and for how long.
 > **Master lever:** prefix size. Shrinking it makes both the per-turn cache re-reads
 > *and* the unavoidable cache rebuilds cheaper at once.
 
-## What's here (Phase 0 / 0b — the profilers)
+## What's here
 
-Local, read-only analyzers over Claude Code's own transcripts
-(`~/.claude/projects/**/*.jsonl`). They emit **aggregates only** — no prompt, source,
-or tool-output content leaves the machine.
+### `contextruntime/` — Phase 0b package (ContextScope + the Context Residency Graph)
+
+The committed foundation: transcripts are ingested into a content-addressed
+**residency graph** in SQLite, and the ledgers are computed as **graph queries**.
+See **[docs/PHASE_0B.md](docs/PHASE_0B.md)**.
+
+```bash
+python3 -m contextruntime.cli ingest ~/.claude/projects/*/*.jsonl --db graph.db
+python3 -m contextruntime.cli ledger --db graph.db
+python3 -m contextruntime.cli doctor        # runtime capability profile (C11)
+python3 -m pytest -q                         # smoke tests (synthetic fixture)
+```
+
+### `contextscope/` — Phase 0 batch profilers (reference)
+
+The original one-shot analyzers the package is refactored from. Local, read-only over
+Claude Code's own transcripts (`~/.claude/projects/**/*.jsonl`); they emit **aggregates
+only** — no prompt, source, or tool-output content leaves the machine.
 
 | Tool | What it measures |
 |---|---|
