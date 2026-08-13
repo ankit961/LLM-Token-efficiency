@@ -40,12 +40,19 @@ transcript altogether.
 
 - **0 — Instrumentation · DONE.** ContextScope + CacheScope + ModelSwitch.
   Gate passed with a twist: waste is real but RELOCATED to cache/prefix/eviction.
-- **0b — Live capture.** OTel + hooks. Decompose the 39% unattributed; find the
-  cause of the 415M mid-work churn; capture rate-limit % deltas. *Gate:* enough
-  live attribution to act.
-- **1 — ContextReduce.** PostToolUse output reduction (pytest/jest/logs/grep/git).
-  Cheapest safe win, ships on subscription today. *Gate (Exp B):* reduced vs raw
-  preserves task success at material savings.
+- **0b-A — Historical graph + ledgers · IMPLEMENTED.** Historical JSONL →
+  residency graph (SQLite) → occupancy + economic ledgers. This is what the
+  `contextruntime/` package does today.
+- **0b-B — Live attribution · PENDING.** OTel + live hook capture to decompose the
+  39% unattributed, find the mid-work-churn cause, and capture rate-limit % deltas.
+  `doctor` is a **structured stub**, not a live capability probe yet. *Gate:* enough
+  live attribution to act. **Not yet done.**
+- **1-A — Reducer engine · IMPLEMENTED.** PostToolUse output reduction
+  (tests/logs/grep/git), retention heuristic, `REDUCES` edges, handle resolution.
+  Invariant tests pass; observe-mode measures ~53% on reducible tool results.
+- **1-B — Causal task validation · PENDING.** The real Exp-B gate — *reduced vs raw
+  preserves task success at material savings* — needs a same-task A/B agent trial.
+  **Folds into the Phase-2 experiment.** Do not treat Phase 1 as gate-passed.
 - **2 — Admission / prefix-size control (highest ceiling).** SemanticFS for ALL
   resources; PreToolUse graduated read gating; shell-parsing Bash policy.
   *Gate (Exp A, 3-arm: native/available/enforced):* the arm-2→arm-3 gap is the

@@ -1,5 +1,10 @@
 # Phase 1 — ContextReduce
 
+> **Status: implementation complete; validation gate pending.** The reducer engine,
+> retention, handles, and invariant tests are done. The real Exp-B gate — *reduced vs
+> raw preserves task success at material savings* — needs a same-task agent trial and
+> **folds into the Phase-2 A/B/C/D experiment** (arm B). Phase 1 is not "gate-passed."
+
 PostToolUse output reduction — the cheapest safe win (design v1.2 §7). Replace a fat
 tool result the model sees with a decision-relevant summary plus a handle to the full
 raw payload, **without proxying the model request**. Ships on a plain subscription.

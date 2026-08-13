@@ -61,9 +61,10 @@ def scan_graph(store: GraphStore, write_edges: bool = True) -> ReductionReport:
         b = rep.by_reducer.setdefault(red.reducer, {"raw": 0, "reduced": 0, "n": 0})
         b["raw"] += o["token_est"]; b["reduced"] += est_reduced; b["n"] += 1
         if write_edges:
-            store.add_edge(f"reduced:{o['content_id']}", o["content_id"], "REDUCES",
+            store.add_edge(f"{o['content_id']}::reduced", o["content_id"], "REDUCES",
                            {"handle": red.handle, "reducer": red.reducer,
-                            "raw_tokens": o["token_est"], "reduced_tokens": est_reduced})
+                            "raw_tokens": o["token_est"], "reduced_tokens": est_reduced},
+                           session_id=o["session_id"])
             store.conn.execute(
                 "UPDATE objects SET reducer_applied=1 WHERE content_id=?", (o["content_id"],))
     if write_edges:

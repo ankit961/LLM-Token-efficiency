@@ -19,7 +19,8 @@ CREATE TABLE IF NOT EXISTS blobs (
 );
 
 CREATE TABLE IF NOT EXISTS objects (
-    content_id      TEXT PRIMARY KEY,
+    content_id      TEXT PRIMARY KEY,     -- session-scoped: "<session>::obj:<hash>#<idx>"
+    session_id      TEXT NOT NULL,
     content_hash    TEXT NOT NULL,
     kind            TEXT NOT NULL,
     token_est       INTEGER NOT NULL,
@@ -32,8 +33,9 @@ CREATE TABLE IF NOT EXISTS objects (
     reducer_applied INTEGER NOT NULL DEFAULT 0,
     schema_version  TEXT NOT NULL
 );
-CREATE INDEX IF NOT EXISTS idx_objects_hash ON objects(content_hash);
-CREATE INDEX IF NOT EXISTS idx_objects_kind ON objects(kind);
+CREATE INDEX IF NOT EXISTS idx_objects_hash    ON objects(content_hash);
+CREATE INDEX IF NOT EXISTS idx_objects_kind    ON objects(kind);
+CREATE INDEX IF NOT EXISTS idx_objects_session ON objects(session_id);
 
 CREATE TABLE IF NOT EXISTS requests (
     request_id          TEXT PRIMARY KEY,
@@ -52,7 +54,8 @@ CREATE TABLE IF NOT EXISTS requests (
 CREATE INDEX IF NOT EXISTS idx_requests_session ON requests(session_id, turn);
 
 CREATE TABLE IF NOT EXISTS islands (
-    island_id                    TEXT PRIMARY KEY,
+    island_id                    TEXT PRIMARY KEY,     -- "<session>::isl<n>"
+    session_id                   TEXT NOT NULL,
     model                        TEXT NOT NULL,
     established_turn             INTEGER NOT NULL,
     size_tokens                  INTEGER NOT NULL,
@@ -84,13 +87,18 @@ CREATE TABLE IF NOT EXISTS evidence_nodes (
 
 -- The single authoritative edge catalog (design §9). props is JSON, e.g.
 -- RESIDENT_IN {entry_turn, exit_turn, tier}; BROKE {cause}; REDUCES {handle}.
+-- session_id enables O(1) delete-by-session for idempotent re-ingest.
+-- The UNIQUE index makes edge writes idempotent (re-ingest cannot duplicate).
 CREATE TABLE IF NOT EXISTS edges (
     id        INTEGER PRIMARY KEY AUTOINCREMENT,
+    session_id TEXT,
     src_id    TEXT NOT NULL,
     dst_id    TEXT NOT NULL,
     edge_type TEXT NOT NULL,
     props     TEXT                        -- JSON
 );
-CREATE INDEX IF NOT EXISTS idx_edges_src  ON edges(src_id, edge_type);
-CREATE INDEX IF NOT EXISTS idx_edges_dst  ON edges(dst_id, edge_type);
-CREATE INDEX IF NOT EXISTS idx_edges_type ON edges(edge_type);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_edges_uniq ON edges(src_id, dst_id, edge_type);
+CREATE INDEX IF NOT EXISTS idx_edges_src     ON edges(src_id, edge_type);
+CREATE INDEX IF NOT EXISTS idx_edges_dst     ON edges(dst_id, edge_type);
+CREATE INDEX IF NOT EXISTS idx_edges_type    ON edges(edge_type);
+CREATE INDEX IF NOT EXISTS idx_edges_session ON edges(session_id);

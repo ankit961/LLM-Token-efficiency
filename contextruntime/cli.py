@@ -113,6 +113,21 @@ def cmd_hook(args) -> int:
     return hook_mod.main()
 
 
+def cmd_expand(args) -> int:
+    """Resolve a result:// handle back to its (redacted) payload (SemanticFS)."""
+    from .semanticfs import context_expand
+    store = _open(args.db)
+    exp = context_expand(store, args.handle)
+    if not exp.found:
+        print(f"{args.handle}: {exp.note}", file=sys.stderr)
+        store.close()
+        return 1
+    print(f"# {args.handle}  kind={exp.kind}  bytes={exp.byte_size}  ({exp.note})")
+    print(exp.text)
+    store.close()
+    return 0
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(prog="contextruntime",
                                  description=f"ContextRuntime Phase 0b (v{__version__})")
@@ -145,6 +160,11 @@ def main(argv=None) -> int:
     p = sub.add_parser("hook", help="PostToolUse hook entry (reads a hook event on stdin)")
     p.add_argument("event", nargs="?", choices=["post"], default="post")
     p.set_defaults(func=cmd_hook)
+
+    p = sub.add_parser("expand", help="resolve a result:// handle to its payload (SemanticFS)")
+    p.add_argument("--db", required=True)
+    p.add_argument("handle")
+    p.set_defaults(func=cmd_expand)
 
     args = ap.parse_args(argv)
     return args.func(args)

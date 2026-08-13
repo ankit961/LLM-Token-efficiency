@@ -15,4 +15,6 @@ __version__ = "0.1.0"
 
 # Bump when the on-disk durable schema changes in a backward-incompatible way.
 # Every durable object also carries its own schema_version (design C13).
-SCHEMA_VERSION = "0.1.0"
+# 0.2.0: session-scoped ids + session_id columns (idempotent re-ingest, no
+#        cross-session collision), redaction on stored payloads.
+SCHEMA_VERSION = "0.2.0"

@@ -48,8 +48,13 @@ def content_hash(text: str) -> str:
 
 @dataclass
 class ContextObject:
-    """One unit of potential model-visible content — the polymorphic core node."""
-    content_id: str            # == content_hash for now (content-addressed)
+    """One unit of potential model-visible content — the polymorphic core node.
+
+    content_id is session-scoped ("<session>::obj:<hash>#<idx>") so identical
+    content in different sessions never collides.
+    """
+    content_id: str
+    session_id: str
     content_hash: str
     kind: str                  # one of KINDS
     token_est: int
@@ -93,6 +98,7 @@ class CacheIsland:
     (design §2.3, §6): the real cache key is prefix bytes the JSONL does not expose.
     """
     island_id: str
+    session_id: str
     model: str
     established_turn: int
     size_tokens: int

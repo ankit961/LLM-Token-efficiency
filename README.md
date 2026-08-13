@@ -28,9 +28,11 @@ python3 -m contextruntime.cli doctor        # runtime capability profile (C11)
 python3 -m pytest -q                         # smoke tests (synthetic fixture)
 ```
 
-Phases so far: **[0b — ContextScope + Residency Graph](docs/PHASE_0B.md)** ·
+Phases so far (**[STATUS.md](docs/STATUS.md)** — implemented vs. gate-passed):
+**[0b — ContextScope + Residency Graph](docs/PHASE_0B.md)** ·
 **[1 — ContextReduce](docs/PHASE_1.md)** (PostToolUse output reduction; ~53% on
-reducible tool results in observe mode).
+reducible tool results, Grade C, *observe mode* — not a whole-task number). Phase 2
+(SemanticFS + Graph-Lite) is the first real product gate.
 
 ### `contextscope/` — Phase 0 batch profilers (reference)
 

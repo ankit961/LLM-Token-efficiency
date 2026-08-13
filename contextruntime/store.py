@@ -48,8 +48,8 @@ class GraphStore:
     def put_object(self, o: ContextObject) -> None:
         self.conn.execute(
             """INSERT INTO objects VALUES
-               (:content_id,:content_hash,:kind,:token_est,:byte_size,:provenance,
-                :trust_level,:first_seen_turn,:last_seen_turn,:source_ref,
+               (:content_id,:session_id,:content_hash,:kind,:token_est,:byte_size,
+                :provenance,:trust_level,:first_seen_turn,:last_seen_turn,:source_ref,
                 :reducer_applied,:schema_version)
                ON CONFLICT(content_id) DO UPDATE SET
                  last_seen_turn=max(last_seen_turn, excluded.last_seen_turn),
@@ -69,7 +69,7 @@ class GraphStore:
     def put_island(self, i: CacheIsland) -> None:
         self.conn.execute(
             """INSERT OR REPLACE INTO islands VALUES
-               (:island_id,:model,:established_turn,:size_tokens,:state,
+               (:island_id,:session_id,:model,:established_turn,:size_tokens,:state,
                 :effective_window_estimate_min,:schema_version)""",
             asdict(i),
         )
@@ -81,16 +81,33 @@ class GraphStore:
         )
 
     def put_blob(self, content_hash: str, byte_size: int, sample: Optional[str]) -> None:
+        # sample is expected to be redaction-scrubbed by the caller (residency).
         self.conn.execute(
             "INSERT OR IGNORE INTO blobs VALUES (?,?,?)",
             (content_hash, byte_size, sample),
         )
 
-    def add_edge(self, src_id: str, dst_id: str, edge_type: str, props: Optional[dict] = None) -> None:
+    def add_edge(self, src_id: str, dst_id: str, edge_type: str,
+                 props: Optional[dict] = None, session_id: Optional[str] = None) -> None:
+        # Idempotent: re-ingesting the same transcript cannot duplicate an edge
+        # (UNIQUE(src_id,dst_id,edge_type)).
         self.conn.execute(
-            "INSERT INTO edges(src_id,dst_id,edge_type,props) VALUES (?,?,?,?)",
-            (src_id, dst_id, edge_type, json.dumps(props) if props else None),
+            "INSERT OR IGNORE INTO edges(session_id,src_id,dst_id,edge_type,props) "
+            "VALUES (?,?,?,?,?)",
+            (session_id, src_id, dst_id, edge_type, json.dumps(props) if props else None),
         )
+
+    def delete_session(self, session_id: str) -> None:
+        """Remove all state for a session so re-ingest is idempotent."""
+        c = self.conn
+        c.execute("DELETE FROM edges    WHERE session_id=?", (session_id,))
+        c.execute("DELETE FROM objects  WHERE session_id=?", (session_id,))
+        c.execute("DELETE FROM requests WHERE session_id=?", (session_id,))
+        c.execute("DELETE FROM islands  WHERE session_id=?", (session_id,))
+
+    def blob(self, content_hash: str) -> Optional[sqlite3.Row]:
+        return self.conn.execute(
+            "SELECT * FROM blobs WHERE content_hash=?", (content_hash,)).fetchone()
 
     def commit(self) -> None:
         self.conn.commit()

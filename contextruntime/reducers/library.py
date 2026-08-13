@@ -7,6 +7,7 @@ from __future__ import annotations
 import re
 
 from .base import ReducedOutput, make_handle, tokens
+from ..redact import redact
 
 GREP_KEEP = 20
 LOG_TAIL = 15
@@ -20,12 +21,13 @@ _LOGLVL = re.compile(r"\b(ERROR|CRITICAL|FATAL|WARN|Exception|Traceback|panic)\b
 
 
 def _wrap(reducer, raw, kept, preserved, note=""):
-    handle = make_handle(raw)
+    handle = make_handle(raw)                       # handle addresses the raw payload
+    ok = all(any(p in k for k in kept) for p in preserved)   # check BEFORE redaction
+    kept = [redact(k) for k in kept]                # never emit a secret in the summary
     reduced_text = "\n".join(kept + [f"[+ full output: {handle}]"])
-    ok = all(any(p in k for k in kept) for p in preserved)
     return ReducedOutput(reducer=reducer, reduced_text=reduced_text, handle=handle,
                          raw_tokens=tokens(raw), reduced_tokens=tokens(reduced_text),
-                         invariants_ok=ok, preserved=preserved, note=note)
+                         invariants_ok=ok, preserved=[redact(p) for p in preserved], note=note)
 
 
 def reduce_tests(raw: str, args: dict) -> ReducedOutput:
