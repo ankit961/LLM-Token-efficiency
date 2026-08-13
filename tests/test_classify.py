@@ -47,6 +47,25 @@ def test_stale_read_is_unknown_not_exploration():
     assert labels["r"].evidence_grade == "C"
 
 
+# An EARLIER stale read (not just the latest eligible) must be UNKNOWN, not silently exploration —
+# it was about the edited path but its version no longer applied (adversarial-found honesty bug).
+def test_earlier_stale_read_is_unknown_not_exploration():
+    labels = classify_reads([_r("r1", 1, "a.py", cv="v1"),    # stale: read old version
+                             _r("r2", 2, "a.py", cv="v2"),    # fresh: the actual precondition
+                             _e("e", 3, "a.py", cv="v2")])
+    assert labels["r1"].observed_class == UNKNOWN             # NOT exploration
+    assert labels["r2"].observed_class == EDIT_PRECONDITION
+
+
+# Attribution is order-independent even under identical seq values (deterministic tiebreak).
+def test_tiebreak_is_deterministic_under_equal_seq():
+    fwd = classify_reads([_r("ra", 2, "a.py"), _r("rb", 2, "a.py"), _e("e", 3, "a.py")])
+    rev = classify_reads([_r("rb", 2, "a.py"), _r("ra", 2, "a.py"), _e("e", 3, "a.py")])
+    winner = [eid for eid, lab in fwd.items() if lab.observed_class == EDIT_PRECONDITION]
+    assert winner == [eid for eid, lab in rev.items() if lab.observed_class == EDIT_PRECONDITION]
+    assert len(winner) == 1                                    # exactly one precondition
+
+
 def test_applicable_version_is_grade_b_missing_is_grade_c():
     good = classify_reads([_r("r", 1, "a.py", cv="v1"), _e("e", 3, "a.py", cv="v1")])
     assert good["r"].observed_class == EDIT_PRECONDITION and good["r"].evidence_grade == "B"
