@@ -96,11 +96,56 @@ def test_repeated_materialization_is_two_distinct_events():
 def test_source_event_key_makes_replay_idempotent():
     s = _store()
     rr = read_symbol(s, "service.process", budget=1000)
-    e1 = record_read(s, rr, session_id="S", request_id="R", source_event_key="tool_use_1")
-    e2 = record_read(s, rr, session_id="S", request_id="R", source_event_key="tool_use_1")   # replay
+    e1 = record_read(s, rr, session_id="S", source_system="claude_mcp", source_event_key="tool_use_1")
+    e2 = record_read(s, rr, session_id="S", source_system="claude_mcp", source_event_key="tool_use_1")  # replay
     assert e2 == e1                                              # canonical id, not a new one
     assert len(s.semantic_reads()) == 1
     s.close()
+
+
+# The producer key is NAMESPACED + SESSION-SCOPED: the same tool_use_id in two sessions is two
+# events (the pre-B.1.2 global-unique key would have wrongly collapsed them).
+def test_source_event_key_is_session_scoped():
+    s = _store()
+    rr = read_symbol(s, "service.process", budget=1000)
+    a = record_read(s, rr, session_id="A", source_system="claude_mcp", source_event_key="tool_use_1")
+    b = record_read(s, rr, session_id="B", source_system="claude_mcp", source_event_key="tool_use_1")
+    assert a != b
+    assert len(s.semantic_reads()) == 2
+    s.close()
+
+
+# The mirror of the 100-distinct-events concurrency test: N concurrent DELIVERIES of ONE producer
+# event → exactly one row, and every caller gets the SAME canonical id (never an unpersisted UUID).
+def test_concurrent_replay_canonicalizes_to_one_id(tmp_path):
+    db = str(tmp_path / "replay.db")
+    init = GraphStore(db)
+    builder.index_path(init, str(REPO), "bundle")
+    init.commit()
+    init.close()
+    returned, lock = {}, threading.Lock()
+
+    def worker(w):
+        c = GraphStore(db)
+        rr = read_symbol(c, "service.process", budget=1000)
+        eid = record_read(c, rr, session_id="S", source_system="claude_mcp",
+                          source_event_key="tool_use_42")
+        c.commit()
+        c.close()
+        with lock:
+            returned[w] = eid
+
+    threads = [threading.Thread(target=worker, args=(w,)) for w in range(6)]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join()
+    r = GraphStore(db)
+    rows = [x for x in r.semantic_reads() if x["source_event_key"] == "tool_use_42"]
+    assert len(rows) == 1                                        # exactly one persisted row
+    assert len(set(returned.values())) == 1                     # every caller got the SAME id
+    assert rows[0]["event_id"] == next(iter(returned.values())) # and it is the persisted one
+    r.close()
 
 
 # An accidental event_id collision must FAIL LOUDLY, not be silently swallowed.

@@ -16,7 +16,7 @@ gets to claim a gate once a measured trial clears it.
 | Phase 2.3 — SemanticFS materializer + read surface (library/CLI) | ✅ implemented |
 | Phase 2.3.1 — measurement & admission hygiene | ✅ implemented |
 | Phase 2.4-A/B — API contract + `SemanticReadEvent` telemetry + **MCP stdio transport** (observe-only) | ✅ implemented |
-| Phase 2.4-B.1 / B.1.1 — transport measurement + event-identity correctness (see below) | ✅ implemented |
+| Phase 2.4-B.1 / .1.1 / .1.1a — transport measurement + event-identity + replay-race correctness | ✅ implemented |
 | Phase 2.4-C — retrospective read classification (Read/Bash/SemanticFS channels) | ▶ next |
 | Gate 2A — retrieval viability (ground-truth precision/recall) | ◐ after 2.4 |
 | Gate 2B — admission experiment (A/B/C/D) | ★ first product gate |
@@ -100,6 +100,16 @@ population-counts. Idempotence is now INTENTIONAL only: an optional `source_even
 transcript uuid / hook id) dedups a duplicate *delivery*, while an accidental `event_id` collision FAILS
 LOUDLY (the insert scopes its conflict clause to `source_event_key`; an `event_id` collision raises).
 `seq` remains the DB-assigned order surrogate — allocation order, not gapless — and never appears in linkage.
+
+**Phase 2.4-B.1.1a — replay canonicalization race + producer-key scoping · DONE** (schema 0.8.0): the B.1.1
+replay path did a check-then-insert lookup, so two concurrent deliveries of one producer event could each
+return their own fresh UUID — one of which lost the insert race and was never persisted, later orphaning a
+`parent_event_id`. `put_semantic_read` now returns the **canonical persisted** id atomically (insert scoped to
+the producer-key conflict, then read back the winning row), so every concurrent caller gets the same stored id.
+The producer key is also **namespaced + session-scoped**: `UNIQUE(source_system, stream_key, source_event_key)`
+with a `source_system` domain (`claude_mcp`/`transcript`/`hook`), so the same `tool_use_id` in two sessions is
+two events, and different producer domains that reuse an id format don't collide. Mirror test: N concurrent
+deliveries of one producer event → exactly one row, every caller returns the same canonical id.
 
 > **Benchmark-store immutability (Gate 2 rule).** The store is deliberately rebuild-only: no migrations,
 > so a DB stamped with an older `schema_version` fails loudly on open (C13). That is fine while the

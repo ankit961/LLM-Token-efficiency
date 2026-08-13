@@ -20,4 +20,4 @@ __version__ = "0.1.0"
 # 0.3.0: CodeSymbol graph (symbols + code_edges tables) — Graph-Lite (C1).
 # 0.4.0: resolver correctness — match_kind + ambiguity_count on code_edges;
 #        UNIQUE(src,dst,type,resolution) so multiple evidence sources coexist.
-SCHEMA_VERSION = "0.7.0"
+SCHEMA_VERSION = "0.8.0"

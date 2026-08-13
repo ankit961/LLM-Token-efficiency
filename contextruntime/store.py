@@ -199,23 +199,30 @@ class GraphStore:
 
     # --- SemanticReadEvent telemetry (Phase 2.4) -----------------------------
 
-    def put_semantic_read(self, e: SemanticReadEvent) -> None:
-        # `seq` is DB-ASSIGNED (AUTOINCREMENT): inserting NULL lets SQLite allocate it
-        # atomically, so two MCP processes sharing the store can't collide on ordering.
-        # Idempotence is INTENTIONAL only: a duplicate `source_event_key` (replay of the same
-        # producer event) is silently dropped; a duplicate `event_id` is an ACCIDENT and must
-        # fail loudly rather than silently destroy a distinct measurement — so we scope the
-        # conflict clause to source_event_key and let an event_id collision raise.
+    def put_semantic_read(self, e: SemanticReadEvent) -> str:
+        # Returns the CANONICAL persisted event_id — the id actually in the store — computed
+        # ATOMICALLY, so concurrent replays of one producer event never return a UUID that lost
+        # the insert race and was never persisted (which would orphan a later parent_event_id).
+        #
+        # `seq` is DB-ASSIGNED (AUTOINCREMENT): inserting NULL lets SQLite allocate it, so two
+        # MCP processes can't collide on ordering. Idempotence is INTENTIONAL only: a duplicate
+        # producer key (source_system, stream_key, source_event_key) is dropped; a duplicate
+        # `event_id` is an ACCIDENT and must fail loudly — so we scope the conflict clause to the
+        # producer-key index and let an event_id collision raise.
         d = asdict(e)
         cols = ",".join(d.keys())
         ph = ",".join(f":{k}" for k in d.keys())
         self.conn.execute(
             f"INSERT INTO semantic_reads ({cols}) VALUES ({ph}) "
-            "ON CONFLICT(source_event_key) DO NOTHING", d)
-
-    def semantic_read_by_source_key(self, source_event_key: str) -> Optional[sqlite3.Row]:
-        return self.conn.execute(
-            "SELECT * FROM semantic_reads WHERE source_event_key=?", (source_event_key,)).fetchone()
+            "ON CONFLICT(source_system, stream_key, source_event_key) DO NOTHING", d)
+        if e.source_event_key is None:
+            return e.event_id                    # unkeyed: this UUID is the only identity
+        # Keyed: read back whichever row won the producer key — this insert's, or a prior one's.
+        row = self.conn.execute(
+            "SELECT event_id FROM semantic_reads "
+            "WHERE source_system=? AND stream_key=? AND source_event_key=?",
+            (e.source_system, e.stream_key, e.source_event_key)).fetchone()
+        return row["event_id"] if row else e.event_id
 
     def update_transport_tokens(self, event_id: str, transport_content_tokens: int) -> None:
         """Record the FULL transport response size (semantic payload + transport meta block)
