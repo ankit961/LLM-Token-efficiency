@@ -116,6 +116,23 @@ def test_no_grade_a_yet_and_edits_not_labelled():
     assert all(lab.evidence_grade in ("B", "C") for lab in labels.values())   # no A signal exists
 
 
+# A read-time race (pre-hash != post-hash captured live by hooks) -> UNKNOWN, not a candidate.
+def test_read_time_race_is_unknown():
+    r = {"event_id": "r", "seq": 1, "kind": "read", "stream_key": "s", "path": "a.py",
+         "version_status": "raced"}
+    labels = classify_reads([r, _e("e", 3, "a.py")])
+    assert labels["r"].observed_class == UNKNOWN
+    assert labels["r"].reason == "read_version_race" and labels["r"].evidence_grade == "B"
+
+
+# A read and its candidate edit in the SAME parallel batch have no established order -> UNKNOWN.
+def test_parallel_batch_read_edit_is_unknown():
+    r = {"event_id": "r", "seq": 1, "kind": "read", "stream_key": "s", "path": "a.py", "batch_id": "b1"}
+    e = {"event_id": "e", "seq": 2, "kind": "edit", "stream_key": "s", "path": "a.py", "batch_id": "b1"}
+    labels = classify_reads([r, e])
+    assert labels["r"].observed_class == UNKNOWN and labels["r"].reason == "parallel_order_ambiguous"
+
+
 def test_exploration_bypass_events_and_tokens():
     events = [_r("n", 1, "a.py", channel="bash_materialization", tokens=10),
               _r("s", 2, "b.py", channel="semanticfs", tokens=200)]
