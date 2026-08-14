@@ -1,0 +1,17 @@
+{
+  "//": "Stream-closure manifest for `contextruntime label-report --manifest this.json`.",
+  "//why": "The HookJournal records no SessionEnd, so `no_future_mutation -> EXPLORATION` is only",
+  "//why2": "FINAL once a stream is actually closed. In an OPEN stream such a read is right-censored",
+  "//why3": "(a not-yet-observed future edit could still reclassify it) and is excluded from the",
+  "//why4": "headline exploration denominator. Closure is asserted HERE, out-of-band, not in the journal.",
+  "//auto": "A /clear that starts a newer lineage epoch auto-closes the prior epoch WITHOUT a manifest.",
+  "//controlled": "A controlled `claude -p` task has a known end: mark its stream closed so its labels count.",
+  "streams": [
+    {
+      "stream_key": "1ac3b280-0a20-448d-9955-27c9806f7dc0:main:0",
+      "closed": true,
+      "closure_reason": "controlled_run_completed",
+      "closed_at_seq": 87
+    }
+  ]
+}
