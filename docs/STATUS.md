@@ -48,6 +48,22 @@ gets to claim a gate once a measured trial clears it.
 > client, not synthetic shapes. No contract change was warranted. Next: observed-label reports and
 > window sensitivity.
 
+> **Slice 3A — observed-label VALIDITY report (stacked branch `phase-2.4c-reports`, not the frozen
+> slice).** `contextruntime label-report --db <journal>` emits an aggregate-only (no raw paths)
+> evidence artifact: provenance (report/hook schema, classifier SHA, journal hash, estimator, primary
+> window) → capture integrity first (delivery success, pre_capture_rate, bash_unknown_share, pending,
+> hash/mutation-state counts, token-attribution coverage) → primary labels at **W=16** → tokens
+> (event-share on the full set, token-share on the ATTRIBUTED subset, coverage printed; NULL is never
+> zero cost) → causal-distance percentiles for EDIT_PRECONDITION → window sensitivity {8,16,32,∞} with
+> precondition stability and transition matrices → **right-censoring**. This is label validity ONLY,
+> not a bypass rate: a HookJournal has no SemanticFS events in its denominator, so a bypass number over
+> it would tend to 100% by construction — that is Slice 3B, after the SemanticFS↔HookJournal join.
+> **Censoring:** `no_future_mutation → EXPLORATION` is final only once a stream is closed (via a
+> closure manifest, or a `/clear` that started a newer epoch); in an open stream it is provisional and
+> excluded — but only *provisional exploration* reads leave the exploration denominator, never
+> provisional verification/config, so `after_pct ≤ before_pct` by construction. W=16 stays the
+> preregistered primary; {8,32,∞} are sensitivity, never tuned to maximize exploration.
+
 **What the ~53% number is and isn't.** `reduce-scan` reports *~53% reduction on
 reducible tool results, Grade C, observe mode.* It excludes source reads, history, the
 fixed base prefix, tool schemas, ordinary conversation, and retries — and there is no

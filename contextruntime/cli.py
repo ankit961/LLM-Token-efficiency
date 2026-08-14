@@ -11,12 +11,14 @@ from __future__ import annotations
 
 import argparse
 import glob
+import json
 import os
 import sys
 
 from . import __version__
 from . import crhook as crhook_mod
 from . import doctor as doctor_mod
+from . import labelreport as labelreport_mod
 from . import ledger as ledger_mod
 from .residency import ingest_file
 from .store import GraphStore
@@ -119,6 +121,38 @@ def cmd_cr_hook(args) -> int:
     Observe-only, fail-open, always exits 0 -- distinct from the Phase-1 `hook` reducer."""
     from .crhook import run
     return run(sys.stdin.read(), args.db)
+
+
+def cmd_label_report(args) -> int:
+    """Slice 3A: observed-label validity report over a HookJournal (observe-only, aggregate-only)."""
+    import subprocess
+    from . import labelreport
+    if not args.db or not os.path.exists(args.db):
+        print("label-report needs a HookJournal --db (capture one with `cr-hook` first)", file=sys.stderr)
+        return 1
+    manifest = None
+    if args.manifest:
+        with open(args.manifest) as fh:
+            manifest = json.load(fh)
+    windows = labelreport.DEFAULT_WINDOWS
+    if args.windows:
+        windows = tuple(labelreport.INF_WINDOW if w.strip().lower() in ("inf", "infinity")
+                        else int(w) for w in args.windows.split(","))
+    sha = None
+    try:
+        sha = subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True, text=True,
+                             cwd=os.path.dirname(os.path.abspath(__file__))).stdout.strip() or None
+    except Exception:  # noqa: BLE001 -- provenance is best-effort
+        sha = None
+    rep = labelreport.build_report(args.db, manifest=manifest, windows=windows,
+                                   primary=args.primary, classifier_sha=sha,
+                                   client_version=args.client_version)
+    print(labelreport.format_text(rep))
+    if args.json:
+        with open(args.json, "w") as fh:
+            fh.write(labelreport.report_json(rep))
+        print(f"\n[wrote JSON evidence artifact: {args.json}]", file=sys.stderr)
+    return 0
 
 
 def cmd_index_code(args) -> int:
@@ -281,6 +315,17 @@ def main(argv=None) -> int:
     p.add_argument("--repo", help="default repo_id for reads")
     p.add_argument("--session", help="session id (default: generated)")
     p.set_defaults(func=cmd_mcp)
+
+    p = sub.add_parser("label-report",
+                       help="Slice 3A: observed-label validity report over a HookJournal (observe-only)")
+    p.add_argument("--db", required=True, help="HookJournal sqlite path (from cr-hook)")
+    p.add_argument("--manifest", help="JSON closure manifest: {\"streams\":[{stream_key,closed,closure_reason,closed_at_seq}]}")
+    p.add_argument("--json", help="also write the JSON evidence artifact to this path")
+    p.add_argument("--windows", help="comma list, e.g. 8,16,32,inf (default 8,16,32,inf)")
+    p.add_argument("--primary", type=int, default=labelreport_mod.PRIMARY_WINDOW,
+                   help="preregistered primary window (default 16)")
+    p.add_argument("--client-version", help="Claude Code client version stamp, if known")
+    p.set_defaults(func=cmd_label_report)
 
     p = sub.add_parser("index-code", help="build the CodeSymbol graph (Graph-Lite) for a repo")
     p.add_argument("path")
