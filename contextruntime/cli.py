@@ -15,6 +15,7 @@ import os
 import sys
 
 from . import __version__
+from . import crhook as crhook_mod
 from . import doctor as doctor_mod
 from . import ledger as ledger_mod
 from .residency import ingest_file
@@ -111,6 +112,13 @@ def cmd_hook(args) -> int:
     """PostToolUse hook entry (reads a hook event on stdin). Fail-open."""
     from .reducers import hook as hook_mod
     return hook_mod.main()
+
+
+def cmd_cr_hook(args) -> int:
+    """Observation-layer hook entry (Phase 2.4-C): feed one hook delivery into a HookJournal.
+    Observe-only, fail-open, always exits 0 -- distinct from the Phase-1 `hook` reducer."""
+    from .crhook import run
+    return run(sys.stdin.read(), args.db)
 
 
 def cmd_index_code(args) -> int:
@@ -238,6 +246,12 @@ def main(argv=None) -> int:
     p = sub.add_parser("hook", help="PostToolUse hook entry (reads a hook event on stdin)")
     p.add_argument("event", nargs="?", choices=["post"], default="post")
     p.set_defaults(func=cmd_hook)
+
+    p = sub.add_parser("cr-hook",
+                       help="observation-layer hook: record one hook delivery into a HookJournal (fail-open)")
+    p.add_argument("--db", default=os.environ.get("CR_HOOK_DB", crhook_mod.DEFAULT_JOURNAL),
+                   help="journal sqlite path (default: $CR_HOOK_DB or ~/.claude/contextruntime/hookjournal.db)")
+    p.set_defaults(func=cmd_cr_hook)
 
     p = sub.add_parser("read-symbol", help="SemanticFS: rendered source-derived context under a budget")
     p.add_argument("symbol")
