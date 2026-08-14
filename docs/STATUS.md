@@ -17,7 +17,7 @@ gets to claim a gate once a measured trial clears it.
 | Phase 2.3.1 — measurement & admission hygiene | ✅ implemented |
 | Phase 2.4-A/B — API contract + `SemanticReadEvent` telemetry + **MCP stdio transport** (observe-only) | ✅ implemented |
 | Phase 2.4-B.1 / .1.1 / .1.1a — transport measurement + event-identity + replay-race correctness | ✅ implemented |
-| Phase 2.4-C — retrospective read classification (Read/Bash/SemanticFS channels) | ▶ next |
+| Phase 2.4-C — retrospective labeller + **HookJournal** live capture (hook_schema **0.3.0**, contract **frozen**) | ✅ implemented |
 | Gate 2A — retrieval viability (ground-truth precision/recall) | ◐ after 2.4 |
 | Gate 2B — admission experiment (A/B/C/D) | ★ first product gate |
 
@@ -26,6 +26,15 @@ gets to claim a gate once a measured trial clears it.
 > call (`read_symbol`/`read_slice`/`context_expand`) emits a durable `SemanticReadEvent` — the
 > transport is instrumented from the start. It is **observe-only**: nothing is denied, and the
 > classification/outcome columns stay null until the 2.4-C labeller fills them.
+
+> **HookJournal freeze.** The prospective observation layer (`hookjournal.py`, `normalize.py`)
+> and its labeller contract (`classify.py`) are **frozen at hook_schema 0.3.0** after slice 2.1.2.
+> It is a **separate** SQLite store from the frozen B.1 GraphStore, metadata-only, fail-open (a
+> journal error never blocks a tool call), and replayable (capture is decoupled from
+> normalization, so windows can change without recapturing). Fixed through three adversarial
+> review passes (2.1 real-payload contract, 2.1.1 evidence-integrity, 2.1.2 observed-vs-claimed
+> boundary). The next slices consume this contract without changing it: the `cr-hook` stdin CLI +
+> `settings.json` wiring + a live smoke run, then observed-label reports and window sensitivity.
 
 **What the ~53% number is and isn't.** `reduce-scan` reports *~53% reduction on
 reducible tool results, Grade C, observe mode.* It excludes source reads, history, the
