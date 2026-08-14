@@ -201,6 +201,50 @@ def test_python_defs_under_control_flow_are_emitted_at_all_scopes():
     assert ("m.Plugin", "m.Plugin.run") in contains                    # method under class-body `if`
 
 
+def test_python_definition_time_calls_are_not_attributed_to_the_function():
+    # A function's CALLS must be the calls it *runs* (its body) — never the calls that
+    # execute at DEFINITION time in the enclosing scope: decorator expressions, argument
+    # default values, and parameter/return annotations. Only `work` / `helper` / `arg`
+    # (all in the body) belong to f; register, factory, make_default, Annot, Ret do not.
+    src = (
+        "@register(factory())\n"          # decorator + call nested in its args
+        "def f(x=make_default(), y: Annot() = None) -> Ret():\n"  # default + param/return annotations
+        "    work()\n"                     # real body call
+        "    helper(arg())\n"              # body call with a nested-arg call (both belong to f)
+        "\n"
+        "class C:\n"
+        "    @deco(side_effect())\n"       # method decorators are definition-time too
+        "    def m(self, z=cfg()) -> Meta():\n"
+        "        compute()\n"
+    )
+    _syms, edges = PythonAstAdapter().parse("mod.py", src, "mod")
+    calls = {(e.src_qname, e.dst_name) for e in edges if e.edge_type == "CALLS"}
+    # body calls ARE attributed (arg-descent into f(g()) still works)
+    assert ("mod.f", "work") in calls
+    assert ("mod.f", "helper") in calls
+    assert ("mod.f", "arg") in calls
+    assert ("mod.C.m", "compute") in calls
+    # definition-time calls are NOT attributed to the function they define
+    for dst in ("register", "factory", "make_default", "Annot", "Ret"):
+        assert ("mod.f", dst) not in calls, f"definition-time call {dst} wrongly attributed to f"
+    for dst in ("deco", "side_effect", "cfg", "Meta"):
+        assert ("mod.C.m", dst) not in calls, f"definition-time call {dst} wrongly attributed to C.m"
+    # and f's calls are EXACTLY its three body calls — no leakage from the def header
+    assert {d for s, d in calls if s == "mod.f"} == {"work", "helper", "arg"}
+
+
+def test_python_call_in_both_default_and_body_is_still_attributed():
+    # Dropping definition-time calls must key on POSITION (def header vs body), not on the
+    # callee name: a name used both as a default value and in the body is still f's call.
+    src = (
+        "def f(cache=build()):\n"   # `build` here is definition-time -> not f's
+        "    build()\n"             # `build` here is a real body call -> IS f's
+    )
+    _syms, edges = PythonAstAdapter().parse("mod.py", src, "mod")
+    calls = {(e.src_qname, e.dst_name) for e in edges if e.edge_type == "CALLS"}
+    assert ("mod.f", "build") in calls   # present because the body calls it
+
+
 def test_index_report_and_confidence_invariant():
     s, rep = _index(SAMPLE, "sample")
     assert rep.files == 2
