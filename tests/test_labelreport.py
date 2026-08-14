@@ -9,9 +9,12 @@ from contextruntime.classify import EDIT_PRECONDITION, EXPLORATION, UNKNOWN, VER
 from contextruntime.hookjournal import HookJournal
 from contextruntime.labelreport import INF_WINDOW, build_report, stream_closure
 
+_SENTINEL = object()
+
 
 def _ev(j, *, eid, kind, step, stream, path, cv=None, mut=None, vstat="stable",
-        tok=None, tok_attr=None, channel=None, tool="Read"):
+        tok=None, tok_attr=None, tstatus=_SENTINEL, channel=None, tool="Read"):
+    tstat = ("text" if tok_attr == "attributed" else None) if tstatus is _SENTINEL else tstatus
     j.put_tool_event({
         "event_id": eid, "session_id": "s", "agent_id": None, "stream_key": stream,
         "prompt_id": None, "cwd": None, "step": step, "batch_id": None, "batch_size": None,
@@ -21,7 +24,7 @@ def _ev(j, *, eid, kind, step, stream, path, cv=None, mut=None, vstat="stable",
         "path_absolute": path, "path_normalized": path, "repo_relative": None, "repo_id": None,
         "pre_version": None, "post_version": None, "content_version": cv, "version_status": vstat,
         "response_hash": None, "model_visible_chars": None, "model_visible_tokens": tok,
-        "token_status": "text" if tok_attr == "attributed" else None, "token_attribution": tok_attr,
+        "token_status": tstat, "token_attribution": tok_attr,
         "token_estimator_id": "chars4-v1", "success": 1, "outcome": "success",
         "wall_time_ns": None, "schema_version": "0.3.0"})
 
@@ -33,6 +36,13 @@ def _mk(tmp_path, name, fn):
     j.commit()
     j.close()
     return db
+
+
+def _rows(db):
+    import sqlite3
+    c = sqlite3.connect(db)
+    c.row_factory = sqlite3.Row
+    return [dict(r) for r in c.execute("SELECT * FROM tool_events ORDER BY seq")]
 
 
 # CENSORING: an OPEN stream's exploration is provisional and drops out of the headline; a CLOSED
@@ -93,14 +103,13 @@ def test_clear_epoch_auto_closes_prior_lineage(tmp_path):
         _ev(j, eid="e0", kind="read", step=0, stream="s:main:0", path="/a.py")   # prior epoch
         _ev(j, eid="e1", kind="read", step=0, stream="s:main:1", path="/b.py")   # newer epoch exists
     db = _mk(tmp_path, "clr.db", build)
-    rep = build_report(db)                                            # NO manifest
-    closure = rep["censoring"]["closure_by_stream"]
+    closure = stream_closure(_rows(db))                              # raw keys via the helper (report pseudonymizes)
     assert closure["s:main:0"]["closed"] is True
     assert closure["s:main:0"]["closure_reason"] == "superseded_clear_epoch"
     assert closure["s:main:1"]["closed"] is False                    # newest epoch stays open
-    # the prior-epoch exploration is FINAL, so not provisional
-    assert rep["labels_primary"]["provisional_reads"] >= 0
-    assert rep["censoring"]["provisional_exploration_reads_excluded"] == 1   # only the open (newer) one
+    rep = build_report(db)                                            # NO manifest
+    # the prior-epoch exploration is FINAL; only the open (newer) epoch's exploration is provisional
+    assert rep["censoring"]["provisional_exploration_reads_excluded"] == 1
 
 
 # WINDOW SENSITIVITY: a future edit at distance 12 is out-of-window at 8 (UNKNOWN) but a precondition
@@ -148,10 +157,11 @@ def test_token_attribution_coverage_excludes_ambiguous(tmp_path):
     db = _mk(tmp_path, "tok.db", build)
     rep = build_report(db, manifest={"streams": [{"stream_key": "s:main:0", "closed": True}]})
     tk = rep["tokens"]
-    assert tk["attribution_coverage"] == 50.0 and tk["reads_unattributed"] == 1
-    assert tk["attributed_tokens_total"] == 100                      # the ambiguous NULL is not zero-summed
+    assert tk["attribution_coverage"] == 50.0 and tk["fully_measured_reads"] == 1
+    assert tk["fully_measured_tokens_total"] == 100                  # the ambiguous NULL is not zero-summed
     assert tk["event_share"][EXPLORATION] == 100.0                   # both reads are exploration by events
-    assert tk["token_share_attributed"][EXPLORATION] == 100.0        # but token-share is over attributed only
+    assert tk["token_share_fully_measured"][EXPLORATION] == 100.0    # but token-share is over fully-measured only
+    assert tk["measurement_breakdown"]["ambiguous_multipath"] == 1
     assert rep["capture_integrity"]["reads_missing_or_ambiguous_token_weight"] == 1
 
 
@@ -224,14 +234,16 @@ def test_prior_unverified_mutation_read_is_provisional_when_open(tmp_path):
 def test_multimodal_null_token_read_is_not_counted_as_attributed(tmp_path):
     def build(j):
         _ev(j, eid="txt", kind="read", step=0, stream="s:main:0", path="/a.py", tok=100, tok_attr="attributed")
-        # image read: upstream stamps attributed but NULL weight (measure returns multimodal/None)
-        _ev(j, eid="img", kind="read", step=1, stream="s:main:0", path="/b.png", tok=None, tok_attr="attributed")
+        # image read: upstream stamps attributed but NULL weight, token_status='multimodal'
+        _ev(j, eid="img", kind="read", step=1, stream="s:main:0", path="/b.png",
+            tok=None, tok_attr="attributed", tstatus="multimodal")
     db = _mk(tmp_path, "mm.db", build)
     rep = build_report(db, manifest={"streams": [{"stream_key": "s:main:0", "closed": True}]})
     tk = rep["tokens"]
-    assert tk["reads_attributed"] == 1 and tk["reads_unattributed"] == 1     # img NOT counted attributed
+    assert tk["fully_measured_reads"] == 1                                   # img NOT fully measured
     assert tk["attribution_coverage"] == 50.0                                # never >100
-    assert tk["attributed_tokens_total"] == 100                              # img's NULL not summed as 0
+    assert tk["fully_measured_tokens_total"] == 100                          # img's NULL not summed as 0
+    assert tk["measurement_breakdown"]["multimodal_unmeasured"] == 1
     assert rep["capture_integrity"]["reads_missing_or_ambiguous_token_weight"] == 1   # self-check sees img
 
 
@@ -255,8 +267,8 @@ def test_failed_attributed_read_does_not_break_coverage(tmp_path):
     db = _mk(tmp_path, "fail.db", build)
     rep = build_report(db, manifest={"streams": [{"stream_key": "s:main:0", "closed": True}]})
     tk = rep["tokens"]
-    assert tk["attribution_coverage"] == 100.0 and tk["reads_unattributed"] == 0   # only the 1 classified read
-    assert tk["attributed_tokens_total"] == 40                                     # failed read's 999 excluded
+    assert tk["attribution_coverage"] == 100.0 and tk["fully_measured_reads"] == 1  # only the 1 classified read
+    assert tk["fully_measured_tokens_total"] == 40                                  # failed read's 999 excluded
 
 
 # AUDIT FIX (closure lineage robustness): a plugin-scoped agent id containing ':' must not confuse
@@ -278,11 +290,10 @@ def test_closure_lineage_uses_identity_columns_not_key_split(tmp_path):
                 "token_estimator_id": "chars4-v1", "success": 1, "outcome": "success",
                 "wall_time_ns": None, "schema_version": "0.3.0"})
     db = _mk(tmp_path, "lin.db", build)
-    rep = build_report(db)
-    closure = rep["censoring"]["closure_by_stream"]
-    assert closure["S:plug:rev:0"]["closed"] is True             # prior epoch auto-closed
+    closure = stream_closure(_rows(db))                         # raw keys via the helper
+    assert closure["S:plug:rev:0"]["closed"] is True            # prior epoch auto-closed
     assert closure["S:plug:rev:0"]["closure_reason"] == "superseded_clear_epoch"
-    assert closure["S:plug:rev:1"]["closed"] is False            # newest epoch stays open
+    assert closure["S:plug:rev:1"]["closed"] is False           # newest epoch stays open
 
 
 def test_inf_window_present_and_unbounded(tmp_path):
@@ -290,7 +301,114 @@ def test_inf_window_present_and_unbounded(tmp_path):
         _ev(j, eid="r", kind="read", step=0, stream="s:main:0", path="/z.py")
         _ev(j, eid="e", kind="edit", step=500, stream="s:main:0", path="/z.py", mut="verified_change")
     db = _mk(tmp_path, "inf.db", build)
-    rep = build_report(db, manifest={"streams": [{"stream_key": "s:main:0", "closed": True}]}, windows=(16, INF_WINDOW))
+    rep = build_report(db, manifest={"streams": [{"stream_key": "s:main:0", "closed": True}]},
+                       canonical=False, windows=(16, INF_WINDOW), primary=16)
     # distance 500 is outside 16 (UNKNOWN) but inside inf (precondition)
     assert rep["window_sensitivity"]["class_counts_by_window"]["16"][UNKNOWN] == 1
     assert rep["window_sensitivity"]["class_counts_by_window"]["inf"][EDIT_PRECONDITION] == 1
+    assert rep["provenance"]["canonical_report"] is False        # experimental windows stamp non-canonical
+
+
+# 3A.1 (canonical locking): the default run is canonical + fixed; experimental windows are stamped;
+# a primary outside the window set is rejected rather than KeyError-ing.
+def test_canonical_window_locking(tmp_path):
+    def build(j):
+        _ev(j, eid="r", kind="read", step=0, stream="s:main:0", path="/a.py")
+    db = _mk(tmp_path, "canon.db", build)
+    rep = build_report(db)
+    assert rep["provenance"]["canonical_report"] is True
+    assert rep["provenance"]["windows"] == ["8", "16", "32", "inf"] and rep["provenance"]["primary_window"] == 16
+    # the stability note reflects the ACTUAL windows, not a hardcoded set
+    assert rep["window_sensitivity"]["stability_precondition_note"] == "|P8 ∩ P16 ∩ P32 ∩ Pinf| / |P16|"
+    # experimental custom set is honored but stamped non-canonical, with its own note
+    exp = build_report(db, canonical=False, windows=(16, 64), primary=16)
+    assert exp["provenance"]["canonical_report"] is False
+    assert exp["window_sensitivity"]["stability_precondition_note"] == "|P16 ∩ P64| / |P16|"
+    # a primary not among the windows is a hard error, not a silent KeyError
+    import pytest
+    with pytest.raises(ValueError):
+        build_report(db, canonical=False, windows=(8, 32), primary=16)
+
+
+# 3A.1 (token censoring): the exploration TOKEN share is right-censored too -- an open-stream
+# provisional exploration read's tokens leave num+denom for after, giving floor <= after <= before.
+def test_exploration_token_censoring_interval(tmp_path):
+    def build(j):
+        # closed stream: 1 exploration read worth 40 tokens (final)
+        _ev(j, eid="cf", kind="read", step=0, stream="closed:main:0", path="/a.py",
+            tok=40, tok_attr="attributed")
+        # open stream: 1 exploration read worth 300 tokens (provisional) + 1 precondition-ish anchor
+        _ev(j, eid="op", kind="read", step=0, stream="open:main:0", path="/b.py",
+            tok=300, tok_attr="attributed")
+        _ev(j, eid="anchor_r", kind="read", step=1, stream="open:main:0", path="/c.py",
+            tok=20, tok_attr="attributed")
+        _ev(j, eid="anchor_e", kind="edit", step=2, stream="open:main:0", path="/c.py", mut="verified_change")
+    db = _mk(tmp_path, "tcen.db", build)
+    rep = build_report(db, manifest={"streams": [{"stream_key": "closed:main:0", "closed": True}]})
+    et = rep["censoring"]["exploration_tokens"]
+    # fully-measured exploration tokens: final=40 (closed), provisional=300 (open). total fully=360.
+    # before=(40+300)/360=94.44; after=40/(360-300)=66.67; floor=40/360=11.11.
+    assert et["floor_pct"] <= et["after_pct"] <= et["before_pct"]
+    assert et["before_pct"] == round(100 * 340 / 360, 2)
+    assert et["after_pct"] == round(100 * 40 / 60, 2)
+    assert et["floor_pct"] == round(100 * 40 / 360, 2)
+    assert et["exploration_tokens_provisional"] == 300 and et["exploration_tokens_final"] == 40
+
+
+# 3A.1 (partial multimodal honesty): a text+image read carries only text tokens; it stays OUT of the
+# fully-measured denominator but its partial estimate is reported, never silently full-counted.
+def test_partial_multimodal_kept_out_of_denominator(tmp_path):
+    def build(j):
+        _ev(j, eid="full", kind="read", step=0, stream="s:main:0", path="/a.py", tok=80, tok_attr="attributed")
+        _ev(j, eid="part", kind="read", step=1, stream="s:main:0", path="/b.py",
+            tok=50, tok_attr="attributed", tstatus="text_partial_multimodal")
+    db = _mk(tmp_path, "pmm.db", build)
+    rep = build_report(db, manifest={"streams": [{"stream_key": "s:main:0", "closed": True}]})
+    tk = rep["tokens"]
+    assert tk["measurement_breakdown"]["fully_attributed_text"] == 1
+    assert tk["measurement_breakdown"]["partial_multimodal"] == 1
+    assert tk["fully_measured_tokens_total"] == 80                # partial 50 NOT in the denominator
+    assert tk["partial_multimodal_text_tokens"] == 50            # but reported separately
+    assert tk["fully_measured_reads"] == 1
+
+
+# 3A.1 (privacy): the shared artifact carries NO raw stream_key -- only stream_NNN pseudonyms.
+def test_shared_artifact_pseudonymizes_stream_ids(tmp_path):
+    import json as _json
+    import re
+    def build(j):
+        _ev(j, eid="r", kind="read", step=0, stream="1ac3b280-0a20-448d-9955-27c9806f7dc0:main:0", path="/a.py")
+    db = _mk(tmp_path, "priv.db", build)
+    rep = build_report(db)
+    keys = list(rep["censoring"]["closure_by_stream"])
+    assert keys and all(re.fullmatch(r"stream_\d{3,}", k) for k in keys)
+    assert all(re.fullmatch(r"stream_\d{3,}", k) for k in rep["provenance"]["closure_manifest"])
+    assert "1ac3b280" not in _json.dumps(rep)                    # the raw session id never appears
+    assert "_stream_key_map" not in rep                          # not emitted by default
+    # the raw map is available only on explicit opt-in (for a LOCAL file)
+    rep2 = build_report(db, include_stream_map=True)
+    assert any("1ac3b280" in raw for raw in rep2["_stream_key_map"].values())
+
+
+# 3A.1 (validity gate): a precondition that relied on SEQ fallback (no agent step) fails canonical
+# validity rather than silently entering the W=16 evidence set.
+def test_seq_fallback_precondition_fails_canonical_validity(tmp_path):
+    def build(j):
+        # no step on either event -> classifier falls back to seq distance for the precondition
+        _ev(j, eid="r", kind="read", step=None, stream="s:main:0", path="/a.py")
+        _ev(j, eid="e", kind="edit", step=None, stream="s:main:0", path="/a.py", mut="verified_change")
+    db = _mk(tmp_path, "seqf.db", build)
+    rep = build_report(db, manifest={"streams": [{"stream_key": "s:main:0", "closed": True}]})
+    va = rep["validity"]
+    assert va["seq_fallback_preconditions"] >= 1
+    assert va["canonical_validity"] is False                     # step integrity gate tripped
+    assert va["missing_step_reads"] == 1 and va["missing_step_mutations"] == 1
+
+
+def test_all_canonical_when_steps_present(tmp_path):
+    def build(j):
+        _ev(j, eid="r", kind="read", step=0, stream="s:main:0", path="/a.py")
+        _ev(j, eid="e", kind="edit", step=1, stream="s:main:0", path="/a.py", mut="verified_change")
+    db = _mk(tmp_path, "okval.db", build)
+    va = build_report(db, manifest={"streams": [{"stream_key": "s:main:0", "closed": True}]})["validity"]
+    assert va["canonical_validity"] is True and va["seq_fallback_preconditions"] == 0

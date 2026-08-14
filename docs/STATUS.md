@@ -64,6 +64,20 @@ gets to claim a gate once a measured trial clears it.
 > provisional verification/config, so `after_pct ≤ before_pct` by construction. W=16 stays the
 > preregistered primary; {8,32,∞} are sensitivity, never tuned to maximize exploration.
 
+> **Slice 3A.1 — report-honesty pass (reporter-only, still stacked).** Five repairs after review:
+> (1) canonical mode LOCKS primary=16/windows={8,16,32,∞}; experimentation needs `--experimental-windows`
+> and is stamped `canonical_report=false`; primary∉windows is a hard error; the stability note reflects
+> the actual window set. (2) The exploration **token** share is right-censored too (floor ≤ after ≤
+> before over fully-measured tokens), plus a complete-case estimate; exploration is reported as an
+> INTERVAL, not a point, until every stream closes. (3) `text_partial_multimodal` (text tokens only,
+> image unmeasured) is kept OUT of the canonical token denominator with a full measurement breakdown.
+> (4) Stream identifiers are **pseudonymized** (`stream_001…`) in the shared artifact so no
+> session/agent lineage leaks — the privacy claim is now true, not approximate; the raw map is a
+> local-only opt-in. (5) Agent-step integrity is a validity gate: any primary EDIT_PRECONDITION that
+> fell back to `seq` sets `canonical_validity=false`. Corpus protocol preregistered in
+> `docs/corpus-protocol.md` BEFORE any collection — predefined task mixture, failures retained, one
+> client version per journal, tasks never chosen by their exploration rate.
+
 **What the ~53% number is and isn't.** `reduce-scan` reports *~53% reduction on
 reducible tool results, Grade C, observe mode.* It excludes source reads, history, the
 fixed base prefix, tool schemas, ordinary conversation, and retries — and there is no
