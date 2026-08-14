@@ -147,10 +147,18 @@ def _by_pos(nodes: list) -> list:
 
 
 def _own_scope_calls(scope_node) -> list:
-    """Call nodes lexically inside `scope_node` but NOT inside a nested def/class
-    (those have their own scope). Descends through control-flow and call arguments, so
-    ``f(g())`` yields both f and g, but ``def inner(): h()`` inside does not yield h."""
-    out, stack = [], list(ast.iter_child_nodes(scope_node))
+    """Call nodes the function actually *runs* — lexically inside its BODY, but NOT
+    inside a nested def/class (those have their own scope). Descends through control-flow
+    and call arguments, so ``f(g())`` yields both f and g, but ``def inner(): h()`` inside
+    does not yield h.
+
+    Seeds from ``scope_node.body`` only — deliberately NOT from ``ast.iter_child_nodes``,
+    which for a FunctionDef also yields the decorator_list, argument default expressions,
+    and parameter/return annotation nodes. Those execute at DEFINITION time in the
+    *enclosing* scope (or not at all, under ``from __future__ import annotations``), so
+    their calls are not calls this function makes and must not be attributed to it. E.g.
+    for ``@reg(factory())`` / ``def f(x=default()) -> Ret(): work()`` only ``work`` is f's."""
+    out, stack = [], list(getattr(scope_node, "body", []))
     while stack:
         n = stack.pop()
         if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
