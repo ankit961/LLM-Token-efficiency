@@ -133,5 +133,7 @@ def to_events(rows) -> list:
             ev["channel"] = r["channel"]
             ev["version_status"] = r["version_status"]
             ev["transport_content_tokens"] = r["model_visible_tokens"]
+        else:
+            ev["mutation_status"] = r["mutation_status"]     # verified_change | unverified
         out.append(ev)
     return out
