@@ -1,0 +1,33 @@
+{
+  "//": "ContextRuntime HookJournal observation layer -- copy the `hooks` block into your Claude Code",
+  "//settings": "settings.json (~/.claude/settings.json for all projects, or .claude/settings.json in a repo).",
+  "//install": "pip install -e /path/to/LLM-Token-efficiency, then the `contextruntime` console script is on PATH.",
+  "//db": "Override the journal location with the CR_HOOK_DB env var or --db; default ~/.claude/contextruntime/hookjournal.db.",
+  "//observe-only": "cr-hook is fail-open and always exits 0 -- it can never block or fail a tool call.",
+  "//synchronous": "Intentionally NOT async: an async PreToolUse would hash the file AFTER the edit runs (time-travel).",
+  "//events": "Event names verified against code.claude.com/docs/en/hooks.md (Aug 2026). One command handles all events;",
+  "//dispatch": "cr-hook dispatches on the payload's hook_event_name and silently ignores events it doesn't use.",
+  "hooks": {
+    "SessionStart": [
+      { "hooks": [ { "type": "command", "command": "contextruntime cr-hook" } ] }
+    ],
+    "SubagentStart": [
+      { "matcher": "", "hooks": [ { "type": "command", "command": "contextruntime cr-hook" } ] }
+    ],
+    "UserPromptSubmit": [
+      { "hooks": [ { "type": "command", "command": "contextruntime cr-hook" } ] }
+    ],
+    "PreToolUse": [
+      { "matcher": "", "hooks": [ { "type": "command", "command": "contextruntime cr-hook" } ] }
+    ],
+    "PostToolUse": [
+      { "matcher": "", "hooks": [ { "type": "command", "command": "contextruntime cr-hook" } ] }
+    ],
+    "PostToolUseFailure": [
+      { "matcher": "", "hooks": [ { "type": "command", "command": "contextruntime cr-hook" } ] }
+    ],
+    "PostToolBatch": [
+      { "hooks": [ { "type": "command", "command": "contextruntime cr-hook" } ] }
+    ]
+  }
+}
