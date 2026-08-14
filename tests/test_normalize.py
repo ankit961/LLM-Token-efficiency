@@ -29,7 +29,8 @@ def test_redirection_tee_sed_inplace_are_mutations():
 
 
 def test_cp_mv_rm():
-    assert _ke(bash_effects("cp a.py b.py")) == [("read", "a.py"), ("edit", "b.py")]
+    # cp's source bytes are NOT shown to the model, so cp is a destination mutation only (no read)
+    assert _ke(bash_effects("cp a.py b.py")) == [("edit", "b.py")]
     assert _ke(bash_effects("mv a.py b.py")) == [("edit", "a.py"), ("edit", "b.py")]
     assert _ke(bash_effects("rm a.py")) == [("edit", "a.py")]
 
