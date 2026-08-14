@@ -15,9 +15,15 @@ labels in OPEN streams as PROVISIONAL and exclude them from the headline explora
 reporting the distribution both before and after that exclusion. Closure is supplied out-of-band (a
 manifest, or a /clear that started a newer lineage epoch) because the journal records no SessionEnd.
 
-The report is AGGREGATE-ONLY (counts, distributions, percentiles, matrices) -- no raw paths -- so it
-is privacy-clean by construction. W=16 is the preregistered primary window; {8,32,inf} are reported
-as sensitivity, never tuned to maximize exploration.
+The report is AGGREGATE-ONLY (counts, distributions, percentiles, matrices) -- no raw paths, and
+stream identifiers are PSEUDONYMIZED (stream_001..) so no session/agent lineage leaks into the shared
+artifact (the raw map is emitted only under include_stream_map, for a local/debug file). W=16 is the
+preregistered primary window and the CANONICAL default LOCKS primary=16 / windows={8,16,32,inf};
+experimentation must pass canonical=False (stamped canonical_report=false) so a tuned window set can
+never masquerade as the preregistration. Exploration is reported as a censoring INTERVAL
+(floor <= after <= before) for BOTH events and fully-measured tokens, plus a complete-case (closed
+streams only) estimate -- never a single point until every stream closes. Agent-step integrity is a
+validity gate: a seq fallback in any primary precondition sets canonical_validity=false.
 """
 from __future__ import annotations
 
@@ -164,9 +170,22 @@ def _distribution(labels_by_read) -> dict:
     }
 
 
-def build_report(db_path: str, *, manifest: Optional[dict] = None, windows=DEFAULT_WINDOWS,
-                 primary: int = PRIMARY_WINDOW, classifier_sha: Optional[str] = None,
-                 client_version: Optional[str] = None) -> dict:
+def build_report(db_path: str, *, manifest: Optional[dict] = None, windows=None,
+                 primary: Optional[int] = None, canonical: bool = True,
+                 classifier_sha: Optional[str] = None, client_version: Optional[str] = None,
+                 include_stream_map: bool = False) -> dict:
+    # CANONICAL mode (the default) LOCKS the preregistration: primary=16, windows={8,16,32,inf}. Any
+    # experimentation must pass canonical=False with explicit windows/primary, which stamps
+    # canonical_report=false so a tuned window set can never masquerade as the preregistered result.
+    if canonical:
+        windows, primary = DEFAULT_WINDOWS, PRIMARY_WINDOW
+    else:
+        windows = tuple(windows) if windows else DEFAULT_WINDOWS
+        primary = PRIMARY_WINDOW if primary is None else primary
+    if primary not in windows:
+        raise ValueError(f"primary window {_win_key(primary)} is not in the window set "
+                         f"{[_win_key(w) for w in windows]}; the primary MUST be one of the windows")
+
     import sqlite3
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
@@ -180,6 +199,15 @@ def build_report(db_path: str, *, manifest: Optional[dict] = None, windows=DEFAU
     # classify once per window; keep the full Label (reason/source/grade/evidence) per read
     labels_by_w = {w: classify_reads(events, window=w, distance_key="step") for w in windows}
     primary_labels = labels_by_w[primary]
+
+    def is_fully_observed(eid) -> bool:
+        """A read in a CLOSED stream, within its observed region -- a complete case (no censoring)."""
+        row = row_by_id[eid]
+        cl = closure.get(row["stream_key"], {})
+        if not cl.get("closed"):
+            return False
+        ca = cl.get("closed_at_seq")
+        return ca is None or row["seq"] <= ca
 
     def is_provisional(eid) -> bool:
         lab = primary_labels.get(eid)
@@ -195,21 +223,36 @@ def build_report(db_path: str, *, manifest: Optional[dict] = None, windows=DEFAU
         closed_at = cl.get("closed_at_seq")
         return closed_at is not None and row["seq"] > closed_at
 
+    # ---- privacy: pseudonymize stream identifiers in the SHAREABLE artifact ----
+    # A raw stream_key embeds session/agent lineage (an identifier), so it must not appear in the
+    # shared evidence. Deterministic pseudonyms (stream_001..) ordered by first-seen seq; the raw
+    # mapping is emitted ONLY when include_stream_map is set (a local/debug artifact).
+    min_seq = {}
+    for r in rows:
+        sk = r["stream_key"]
+        if sk:
+            min_seq[sk] = min(min_seq.get(sk, r["seq"]), r["seq"])
+    order = sorted(closure.keys(), key=lambda sk: (min_seq.get(sk, 0), sk))
+    pseudo = {sk: f"stream_{i + 1:03d}" for i, sk in enumerate(order)}
+    closure_pub = {pseudo[sk]: v for sk, v in closure.items()}
+
     # ---- provenance ------------------------------------------------------
     meta = {r["key"]: r["value"] for r in conn.execute("SELECT key, value FROM meta")}
     est_ids = {r["token_estimator_id"] for r in rows if r["token_estimator_id"]}
     with open(db_path, "rb") as fh:
         journal_sha = "sha256:" + hashlib.sha256(fh.read()).hexdigest()
+    wk_list = [_win_key(w) for w in windows]
     provenance = {
         "report_schema_version": REPORT_SCHEMA_VERSION,
         "hook_schema_version": meta.get("hook_schema_version"),
+        "canonical_report": canonical,                          # false => experimental windows, do not quote
         "classifier_sha": classifier_sha,
         "journal_sha256": journal_sha,
-        "client_version": client_version,                       # unknown unless stamped
+        "client_version": client_version,                       # single stamp -- one DB must be one client
         "token_estimator_id": sorted(est_ids)[0] if len(est_ids) == 1 else sorted(est_ids),
         "primary_window": primary,
-        "windows": [_win_key(w) for w in windows],
-        "closure_manifest": closure,
+        "windows": wk_list,
+        "closure_manifest": closure_pub,                        # pseudonymized
         "reads_classified": len(read_events),
         "edits": sum(1 for e in events if e["kind"] == "edit"),
         "streams": len({r["stream_key"] for r in rows if r["stream_key"]}),
@@ -229,35 +272,54 @@ def build_report(db_path: str, *, manifest: Optional[dict] = None, windows=DEFAU
         "provisional_reads": sum(1 for eid in primary_labels if is_provisional(eid)),
     }
 
-    # ---- tokens: event-share on the full CLASSIFIED set, token-share on the cleanly-ATTRIBUTED
-    # subset. "Attributed" for token accounting requires ALL THREE: the read is classified (in
-    # primary_labels), token_attribution=='attributed', AND a non-NULL numeric weight. A single-path
-    # MULTIMODAL read (image/PDF) is stamped attributed with NULL tokens upstream -- it must NOT be
-    # counted as covered nor `or 0`-collapsed to zero cost (those are the largest reads). Ranging over
-    # classified reads only also keeps a failed-but-attributed read from pushing coverage over 100%.
+    # ---- tokens: measurement-honest accounting -------------------------
+    # A read is FULLY MEASURED only when token_attribution=='attributed' AND a non-NULL weight AND
+    # token_status=='text' (a full text response). 'text_partial_multimodal' carries ONLY the text
+    # component's tokens -- the image contribution is unmeasured -- so it stays OUT of the canonical
+    # denominator (reported separately, never silently full-counted). 'multimodal'/'unsupported' carry
+    # no usable weight; 'ambiguous_multipath' can't be attributed to one path. NULL is never zero cost.
+    def _tok_cat(eid) -> str:
+        r = row_by_id[eid]
+        attr, tok, st = r["token_attribution"], r["model_visible_tokens"], r["token_status"]
+        if attr == "ambiguous_multipath":
+            return "ambiguous_multipath"
+        if attr == "attributed" and tok is not None and st == "text":
+            return "fully_attributed_text"
+        if st == "text_partial_multimodal":
+            return "partial_multimodal"
+        if st == "multimodal":
+            return "multimodal_unmeasured"
+        if st == "unsupported":
+            return "unsupported"
+        return "unmeasured_other"
+
+    def _tok(eid) -> int:
+        return row_by_id[eid]["model_visible_tokens"] or 0
+
+    cat_of = {eid: _tok_cat(eid) for eid in primary_labels}
+    breakdown = Counter(cat_of.values())
+    fully_ids = {eid for eid, c in cat_of.items() if c == "fully_attributed_text"}
+    partial_ids = {eid for eid, c in cat_of.items() if c == "partial_multimodal"}
     total_reads = len(primary_labels)
-    attributed_ids = {eid for eid in primary_labels
-                      if row_by_id[eid]["token_attribution"] == "attributed"
-                      and row_by_id[eid]["model_visible_tokens"] is not None}
-    event_share, token_share = defaultdict(int), defaultdict(int)
-    attributed_tokens_total = 0
-    for eid, lab in primary_labels.items():
-        event_share[lab.observed_class] += 1
-        if eid in attributed_ids:
-            tok = row_by_id[eid]["model_visible_tokens"]           # guaranteed non-NULL by the filter
-            token_share[lab.observed_class] += tok
-            attributed_tokens_total += tok
+    event_share = Counter(lab.observed_class for lab in primary_labels.values())
+    token_share = Counter()
+    for eid in fully_ids:
+        token_share[primary_labels[eid].observed_class] += _tok(eid)
+    t_all_fully = sum(token_share.values())
     tokens = {
-        "note": ("ESTIMATED attributed model-visible tokens (%s); a read counts as attributed ONLY "
-                 "with a non-NULL numeric weight -- multimodal/ambiguous reads are EXCLUDED from "
-                 "token-share and from coverage, never counted as zero cost" % provenance["token_estimator_id"]),
-        "attribution_coverage": _pct(len(attributed_ids), total_reads),
-        "reads_attributed": len(attributed_ids),
-        "reads_unattributed": total_reads - len(attributed_ids),
-        "attributed_tokens_total": attributed_tokens_total,
+        "note": ("Fully-measured tokens require attributed AND non-NULL AND token_status=='text'. "
+                 "text_partial_multimodal (text tokens only, image unmeasured) is kept OUT of the "
+                 "denominator but reported; multimodal/ambiguous/unsupported carry no usable weight; "
+                 "NULL is never zero cost. estimator=%s" % provenance["token_estimator_id"]),
+        "measurement_breakdown": {k: breakdown.get(k, 0) for k in
+                                  ("fully_attributed_text", "partial_multimodal", "multimodal_unmeasured",
+                                   "ambiguous_multipath", "unsupported", "unmeasured_other")},
+        "fully_measured_reads": len(fully_ids),
+        "attribution_coverage": _pct(len(fully_ids), total_reads),
+        "fully_measured_tokens_total": t_all_fully,
+        "partial_multimodal_text_tokens": sum(_tok(eid) for eid in partial_ids),   # OUT of the denom
         "event_share": {c: _pct(event_share.get(c, 0), total_reads) for c in _ALL_CLASSES},
-        "token_share_attributed": {c: _pct(token_share.get(c, 0), attributed_tokens_total)
-                                   for c in _ALL_CLASSES},
+        "token_share_fully_measured": {c: _pct(token_share.get(c, 0), t_all_fully) for c in _ALL_CLASSES},
     }
 
     # ---- causal-distance evidence for EDIT_PRECONDITION at W=primary -----
@@ -284,6 +346,26 @@ def build_report(db_path: str, *, manifest: Optional[dict] = None, windows=DEFAU
         "p95": _percentile(dists, 95), "max": (dists[-1] if dists else None),
         "histogram": dict(Counter(_bucket(d) for d in dists)),
         "seq_fallback_count": seq_fallback,
+    }
+
+    # ---- agent-step integrity as a VALIDITY GATE ------------------------
+    # `step` is the causal unit; `seq` is only deterministic ordering. The live hook path normally
+    # supplies step, so any seq fallback in a PRIMARY precondition means the canonical W=16 evidence
+    # rested on a non-causal distance -- flag the run non-canonical-valid rather than let it pass
+    # silently. (Missing steps may still appear diagnostically; they just can't be canonical.)
+    missing_step_reads = sum(1 for e in events if e["kind"] == "read" and e.get("step") is None)
+    missing_step_mut = sum(1 for e in events if e["kind"] == "edit" and e.get("step") is None)
+    canonical_valid = canonical and seq_fallback == 0
+    validity = {
+        "canonical_report": canonical,                          # window config is the locked set
+        "canonical_validity": canonical_valid,                  # AND no primary precondition used seq
+        "missing_step_reads": missing_step_reads,
+        "missing_step_mutations": missing_step_mut,
+        "seq_fallback_preconditions": seq_fallback,
+        "notes": ([] if canonical_valid else
+                  ([] if canonical else ["experimental window set -- canonical_report=false"])
+                  + ([f"{seq_fallback} primary EDIT_PRECONDITION(s) used seq fallback, not agent-step"]
+                     if seq_fallback else [])),
     }
 
     # ---- window sensitivity + stability ---------------------------------
@@ -316,7 +398,9 @@ def build_report(db_path: str, *, manifest: Optional[dict] = None, windows=DEFAU
         "labels_invariant_all_windows": invariant,
         "invariant_fraction": _pct(invariant, len(all_read_ids)),
         "stability_precondition": (round(len(p_intersect) / len(p_primary), 4) if p_primary else None),
-        "stability_precondition_note": "|P8 ∩ P16 ∩ P32 ∩ Pinf| / |P16|",
+        # note reflects the ACTUAL window set, not a hardcoded one -- no preregistration loophole
+        "stability_precondition_note": ("|" + " ∩ ".join(f"P{k}" for k in wk_list)
+                                        + f"| / |P{_win_key(primary)}|"),
         "transition_matrices_vs_primary": transitions,
     }
 
@@ -337,36 +421,73 @@ def build_report(db_path: str, *, manifest: Optional[dict] = None, windows=DEFAU
             if not (is_provisional(eid) and lab.observed_class == EXPLORATION)}
     before, after = _distribution(primary_labels), _distribution(kept)
     streams_closed = sum(1 for s in closure.values() if s["closed"])
+
+    # complete-case (unbiased within fully-observed streams): drop OPEN streams entirely.
+    cc_reads = [eid for eid in primary_labels if is_fully_observed(eid)]
+    cc_expl = sum(1 for eid in cc_reads if primary_labels[eid].observed_class == EXPLORATION)
+    all_streams_closed = (streams_closed == len(closure) and len(closure) > 0)
+
+    # TOKEN-side censoring, mirroring the event side but over FULLY-MEASURED tokens only (repair: the
+    # token result must be right-censored too, else an open stream overstates exploration TOKEN share
+    # even after its event headline is censored).
+    t_expl_prov = sum(_tok(eid) for eid in fully_ids
+                      if primary_labels[eid].observed_class == EXPLORATION and is_provisional(eid))
+    t_expl_final = sum(_tok(eid) for eid in fully_ids
+                       if primary_labels[eid].observed_class == EXPLORATION and not is_provisional(eid))
+    t_cc_ids = [eid for eid in fully_ids if is_fully_observed(eid)]
+    t_cc_all = sum(_tok(eid) for eid in t_cc_ids)
+    t_cc_expl = sum(_tok(eid) for eid in t_cc_ids if primary_labels[eid].observed_class == EXPLORATION)
+
     censoring = {
+        "principal_result": "censoring_interval",
+        "principal_result_note": ("Until EVERY stream is closed, the exploration share is an INTERVAL "
+                                  "[floor, before], not a point. after is the provisional-exploration-"
+                                  "excluded reading; complete_case is the fully-closed-streams-only "
+                                  "estimate. When all streams close, floor=after=before=complete_case."),
+        "all_streams_closed": all_streams_closed,
         "streams_closed": streams_closed,
         "streams_open": len(closure) - streams_closed,
         "provisional_reads_total": prov_total,
         "provisional_by_class": {c: prov_by_class.get(c, 0) for c in _ALL_CLASSES if prov_by_class.get(c)},
         "provisional_exploration_reads_excluded": prov_expl,
-        "headline_exploration": {
-            "before_pct": _pct(expl_all, total_p),                # provisional exploration counted (upper)
-            "after_pct": _pct(final_expl, total_p - prov_expl),   # provisional exploration set aside
-            "floor_pct": _pct(final_expl, total_p),               # provisional exploration = non-exploration
+        "exploration_events": {
+            "before_pct": _pct(expl_all, total_p),
+            "after_pct": _pct(final_expl, total_p - prov_expl),
+            "floor_pct": _pct(final_expl, total_p),
+            "complete_case_pct": _pct(cc_expl, len(cc_reads)),
+            "complete_case_reads": len(cc_reads),
             "final_exploration_reads": final_expl,
             "provisional_exploration_reads": prov_expl,
             "denominator_before": total_p,
             "denominator_after": total_p - prov_expl,
-            "note": ("Three honest readings of the same evidence: floor_pct <= after_pct <= before_pct. "
-                     "before counts provisional (open-stream) exploration AS exploration (upper bound); "
-                     "after sets it aside (num+denom); floor treats it as definitely-not-exploration. "
-                     "Only provisional EXPLORATION moves -- provisional verification/config stay in every "
-                     "denominator, else dropping them would inflate exploration."),
+        },
+        "exploration_tokens": {
+            "before_pct": _pct(t_expl_final + t_expl_prov, t_all_fully),
+            "after_pct": _pct(t_expl_final, t_all_fully - t_expl_prov),
+            "floor_pct": _pct(t_expl_final, t_all_fully),
+            "complete_case_pct": _pct(t_cc_expl, t_cc_all),
+            "exploration_tokens_final": t_expl_final,
+            "exploration_tokens_provisional": t_expl_prov,
+            "fully_measured_tokens_total": t_all_fully,
+            "note": "over FULLY-MEASURED tokens only; floor <= after <= before by construction.",
         },
         "labels_before": before,
         "labels_after": after,                                       # provisional exploration removed only
+        # back-compat scalars (event side); interval fields above are the principal result
+        "headline_exploration": {
+            "before_pct": _pct(expl_all, total_p), "after_pct": _pct(final_expl, total_p - prov_expl),
+            "floor_pct": _pct(final_expl, total_p), "final_exploration_reads": final_expl,
+            "provisional_exploration_reads": prov_expl, "denominator_before": total_p,
+            "denominator_after": total_p - prov_expl},
         "headline_exploration_pct_before": _pct(expl_all, total_p),
         "headline_exploration_pct_after": _pct(final_expl, total_p - prov_expl),
-        "closure_by_stream": closure,
+        "closure_by_stream": closure_pub,                            # pseudonymized (privacy)
     }
 
     conn.close()
-    return {
+    out = {
         "provenance": provenance,
+        "validity": validity,
         "capture_integrity": integrity,
         "labels_primary": labels_primary,
         "tokens": tokens,
@@ -374,6 +495,9 @@ def build_report(db_path: str, *, manifest: Optional[dict] = None, windows=DEFAU
         "window_sensitivity": sensitivity,
         "censoring": censoring,
     }
+    if include_stream_map:                                           # local/debug only, never shared
+        out["_stream_key_map"] = {v: k for k, v in pseudo.items()}
+    return out
 
 
 def _fmt_row(label, counts, percent):
@@ -390,12 +514,18 @@ def format_text(rep: dict) -> str:
     A("=" * 78)
     A("  OBSERVED-LABEL VALIDITY REPORT (Slice 3A) -- observe-only, aggregate-only")
     A("=" * 78)
-    A("[1] PROVENANCE")
+    va = rep["validity"]
+    A("[1] PROVENANCE + VALIDITY")
     A(f"    report_schema={p['report_schema_version']}  hook_schema={p['hook_schema_version']}  "
       f"estimator={p['token_estimator_id']}")
     A(f"    classifier_sha={p['classifier_sha']}  client={p['client_version']}")
     A(f"    journal={p['journal_sha256'][:23]}...  primary_window={p['primary_window']}  "
       f"windows={p['windows']}")
+    A(f"    canonical_report={p['canonical_report']}  canonical_validity={va['canonical_validity']}  "
+      f"seq_fallback_preconditions={va['seq_fallback_preconditions']}  "
+      f"missing_step(reads={va['missing_step_reads']},muts={va['missing_step_mutations']})")
+    if va["notes"]:
+        A(f"    validity_notes={va['notes']}")
     A(f"    reads_classified={p['reads_classified']}  edits={p['edits']}  streams={p['streams']}")
     A("")
     A("[2] CAPTURE INTEGRITY (does the evidence deserve trust?)")
@@ -417,12 +547,13 @@ def format_text(rep: dict) -> str:
     A(f"    provisional_reads(open-stream, absence-derived)={lp['provisional_reads']}")
     A("")
     tk = rep["tokens"]
-    A("[4] TOKENS (estimated attributed model-visible; NULL != zero cost)")
-    A(f"    attribution_coverage={tk['attribution_coverage']}% "
-      f"(attributed={tk['reads_attributed']}/unattributed={tk['reads_unattributed']}) "
-      f"attributed_tokens={tk['attributed_tokens_total']}")
+    A("[4] TOKENS (fully-measured = attributed + non-NULL + text; NULL != zero cost)")
+    A(f"    measurement_breakdown={tk['measurement_breakdown']}")
+    A(f"    fully_measured_coverage={tk['attribution_coverage']}% "
+      f"(reads={tk['fully_measured_reads']}) fully_measured_tokens={tk['fully_measured_tokens_total']}  "
+      f"partial_multimodal_text_tokens={tk['partial_multimodal_text_tokens']} (OUT of denom)")
     A(f"    event_share%={ {k: v for k, v in tk['event_share'].items() if v} }")
-    A(f"    token_share_attributed%={ {k: v for k, v in tk['token_share_attributed'].items() if v} }")
+    A(f"    token_share_fully_measured%={ {k: v for k, v in tk['token_share_fully_measured'].items() if v} }")
     A("")
     cd = rep["causal_distance_precondition"]
     A(f"[5] CAUSAL DISTANCE for EDIT_PRECONDITION @ W={cd['window']} (agent steps; n={cd['n']})")
@@ -431,7 +562,8 @@ def format_text(rep: dict) -> str:
     A(f"    histogram={cd['histogram']}")
     A("")
     ws = rep["window_sensitivity"]
-    A("[6] WINDOW SENSITIVITY {8,16,32,inf} (W=16 preregistered; others sensitivity only)")
+    A(f"[6] WINDOW SENSITIVITY {{{','.join(p['windows'])}}} "
+      f"(W={p['primary_window']} primary{'' if p['canonical_report'] else ', EXPERIMENTAL'}; others sensitivity)")
     for wk, cc in ws["class_counts_by_window"].items():
         star = " *primary" if wk == str(rep["provenance"]["primary_window"]) else ""
         A(f"    W={wk:<3} {cc}{star}")
@@ -441,14 +573,17 @@ def format_text(rep: dict) -> str:
     A(f"    transitions_vs_primary={ws['transition_matrices_vs_primary']}")
     A("")
     cn = rep["censoring"]
-    he = cn["headline_exploration"]
-    A("[7] RIGHT-CENSORING (the last place a correct classifier can still overstate exploration)")
+    ee, et = cn["exploration_events"], cn["exploration_tokens"]
+    A("[7] RIGHT-CENSORING -- exploration is an INTERVAL until all streams close "
+      f"(all_closed={cn['all_streams_closed']})")
     A(f"    streams: closed={cn['streams_closed']} open={cn['streams_open']}  "
       f"provisional_total={cn['provisional_reads_total']} by_class={cn['provisional_by_class']}")
-    A(f"    headline exploration%: FLOOR={he['floor_pct']} <= AFTER={he['after_pct']} "
-      f"({he['final_exploration_reads']}/{he['denominator_after']}) <= BEFORE={he['before_pct']} "
-      f"({cn['labels_before']['counts'][EXPLORATION]}/{he['denominator_before']})")
-    A("    [only provisional EXPLORATION moves between these; verification/config stay in every denom]")
+    A(f"    exploration EVENTS%: FLOOR={ee['floor_pct']} <= AFTER={ee['after_pct']} <= "
+      f"BEFORE={ee['before_pct']}   complete_case={ee['complete_case_pct']} (n={ee['complete_case_reads']})")
+    A(f"    exploration TOKENS%: FLOOR={et['floor_pct']} <= AFTER={et['after_pct']} <= "
+      f"BEFORE={et['before_pct']}   complete_case={et['complete_case_pct']} "
+      f"(fully_measured_tok={et['fully_measured_tokens_total']})")
+    A("    [only provisional EXPLORATION moves between floor/after/before; verification/config stay]")
     A(_fmt_row("labels BEFORE", cn["labels_before"]["counts"], cn["labels_before"]["percent"]))
     A(_fmt_row("labels AFTER ", cn["labels_after"]["counts"], cn["labels_after"]["percent"]))
     A("=" * 78)

@@ -124,7 +124,8 @@ def cmd_cr_hook(args) -> int:
 
 
 def cmd_label_report(args) -> int:
-    """Slice 3A: observed-label validity report over a HookJournal (observe-only, aggregate-only)."""
+    """Slice 3A: observed-label validity report over a HookJournal (observe-only, aggregate-only).
+    Canonical by default (primary=16, windows={8,16,32,inf}); experimentation is explicit + stamped."""
     import subprocess
     from . import labelreport
     if not args.db or not os.path.exists(args.db):
@@ -134,19 +135,30 @@ def cmd_label_report(args) -> int:
     if args.manifest:
         with open(args.manifest) as fh:
             manifest = json.load(fh)
-    windows = labelreport.DEFAULT_WINDOWS
-    if args.windows:
+    canonical = not args.experimental_windows
+    windows, primary = None, None
+    if args.experimental_windows:
         windows = tuple(labelreport.INF_WINDOW if w.strip().lower() in ("inf", "infinity")
-                        else int(w) for w in args.windows.split(","))
+                        else int(w) for w in args.experimental_windows.split(","))
+        primary = args.experimental_primary
     sha = None
     try:
         sha = subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True, text=True,
                              cwd=os.path.dirname(os.path.abspath(__file__))).stdout.strip() or None
     except Exception:  # noqa: BLE001 -- provenance is best-effort
         sha = None
-    rep = labelreport.build_report(args.db, manifest=manifest, windows=windows,
-                                   primary=args.primary, classifier_sha=sha,
-                                   client_version=args.client_version)
+    try:
+        rep = labelreport.build_report(args.db, manifest=manifest, canonical=canonical, windows=windows,
+                                       primary=primary, classifier_sha=sha,
+                                       client_version=args.client_version,
+                                       include_stream_map=bool(args.stream_map))
+    except ValueError as e:
+        print(f"label-report: {e}", file=sys.stderr)
+        return 1
+    if args.stream_map:                                       # raw map -> a LOCAL file, out of the artifact
+        with open(args.stream_map, "w") as fh:
+            json.dump(rep.pop("_stream_key_map", {}), fh, indent=2)
+        print(f"[wrote raw stream-key map -- LOCAL ONLY, do not share: {args.stream_map}]", file=sys.stderr)
     print(labelreport.format_text(rep))
     if args.json:
         with open(args.json, "w") as fh:
@@ -317,14 +329,16 @@ def main(argv=None) -> int:
     p.set_defaults(func=cmd_mcp)
 
     p = sub.add_parser("label-report",
-                       help="Slice 3A: observed-label validity report over a HookJournal (observe-only)")
+                       help="Slice 3A: observed-label validity report over a HookJournal (canonical, observe-only)")
     p.add_argument("--db", required=True, help="HookJournal sqlite path (from cr-hook)")
     p.add_argument("--manifest", help="JSON closure manifest: {\"streams\":[{stream_key,closed,closure_reason,closed_at_seq}]}")
     p.add_argument("--json", help="also write the JSON evidence artifact to this path")
-    p.add_argument("--windows", help="comma list, e.g. 8,16,32,inf (default 8,16,32,inf)")
-    p.add_argument("--primary", type=int, default=labelreport_mod.PRIMARY_WINDOW,
-                   help="preregistered primary window (default 16)")
-    p.add_argument("--client-version", help="Claude Code client version stamp, if known")
+    p.add_argument("--experimental-windows",
+                   help="NON-canonical: comma list e.g. 8,16,32,inf,64 (stamps canonical_report=false)")
+    p.add_argument("--experimental-primary", type=int, default=labelreport_mod.PRIMARY_WINDOW,
+                   help="primary window when --experimental-windows is set (default 16; must be in the set)")
+    p.add_argument("--stream-map", help="write the raw pseudonym->stream_key map to this LOCAL file (not shared)")
+    p.add_argument("--client-version", help="Claude Code client version stamp (one DB must be one client)")
     p.set_defaults(func=cmd_label_report)
 
     p = sub.add_parser("index-code", help="build the CodeSymbol graph (Graph-Lite) for a repo")
