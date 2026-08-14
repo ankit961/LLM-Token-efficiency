@@ -99,12 +99,26 @@ def classify_reads(events, *, window: int = DEFAULT_WINDOW, distance_key: str = 
     for key, reads in reads_by.items():
         edits = edits_by.get(key, [])            # sorted by seq (evs is sorted)
         for R in reads:
+            # A read-time RACE (pre-hash != post-hash) means we don't know which state the model
+            # actually consumed -> UNKNOWN, not a grade-C precondition candidate.
+            if R.get("version_status") == "raced":
+                labels[R["event_id"]] = Label(UNKNOWN, CONTENT_VERSION_CONFLICT, "B",
+                                              reason="read_version_race")
+                continue
             future = [e for e in edits if e["seq"] > R["seq"]]
             if not future:
                 labels[R["event_id"]] = Label(EXPLORATION, TEMPORAL_CAUSAL, "B",
                                               reason="no_future_mutation")
                 continue
             E = future[0]                        # first edit of p after R = its mutation boundary
+            # A read and its candidate edit in the SAME parallel batch have no established causal
+            # order (seq is just serialization) -> UNKNOWN, never a manufactured Read->Edit.
+            if R.get("batch_id") is not None and R.get("batch_id") == E.get("batch_id"):
+                labels[R["event_id"]] = Label(UNKNOWN, TEMPORAL_CAUSAL, "C",
+                                              reason="parallel_order_ambiguous",
+                                              evidence={"target_mutation_id": E["event_id"],
+                                                        "batch_id": R.get("batch_id")})
+                continue
             dist, metric = _distance(R, E, distance_key)
             rv, ev = R.get("content_version"), E.get("content_version")   # ev = edit's PRE-version
             evi = {"target_mutation_id": E["event_id"], "read_content_version": rv,
