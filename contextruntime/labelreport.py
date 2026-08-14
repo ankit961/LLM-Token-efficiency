@@ -23,7 +23,13 @@ experimentation must pass canonical=False (stamped canonical_report=false) so a 
 never masquerade as the preregistration. Exploration is reported as a censoring INTERVAL
 (floor <= after <= before) for BOTH events and fully-measured tokens, plus a complete-case (closed
 streams only) estimate -- never a single point until every stream closes. Agent-step integrity is a
-validity gate: a seq fallback in any primary precondition sets canonical_validity=false.
+validity gate: any missing agent step (read or mutation) or seq fallback sets canonical_validity=false.
+
+The experimental UNIT is ONE controlled task run == ONE HookJournal DB (streams/agents/epochs within
+it are NESTED observations, not independent units). capture_stats and capture_errors are journal-
+global and carry no stream key, so per-stream admission is not decidable -- admission is a whole-run
+gate (`admission.canonical_admissible`), with a separate `token_share_eligible` gate for token headlines
+and a `bash_coverage_clean` flag for the strict coverage subset. See docs/corpus-protocol.md.
 """
 from __future__ import annotations
 
@@ -36,10 +42,15 @@ from .classify import (CONFIG_REQUIRED, EDIT_PRECONDITION, EXPLORATION, UNKNOWN,
                        classify_reads)
 from .normalize import to_events
 
-REPORT_SCHEMA_VERSION = "label-report-0.1.0"
+REPORT_SCHEMA_VERSION = "label-report-0.2.0"   # 0.2.0: run-unit, strict admission, provenance rename
 PRIMARY_WINDOW = 16
 INF_WINDOW = 10 ** 12                       # effectively unbounded; distances never exceed it
 DEFAULT_WINDOWS = (8, 16, 32, INF_WINDOW)
+HOOK_SCHEMA_EXPECTED = "0.3.0"
+
+# closure_reason is an ENUM, not free text: arbitrary strings could smuggle identifiers back into an
+# artifact that claims aggregate-only privacy.
+_CLOSURE_REASONS = frozenset({"controlled_run_completed", "superseded_clear_epoch", "timeout", "aborted"})
 
 # Labels whose truth depends on the ABSENCE of a future edit of the path -- the only ones an
 # as-yet-unobserved future edit could flip. In an OPEN stream these are provisional (right-censored).
@@ -112,7 +123,12 @@ def stream_closure(rows, manifest: Optional[dict] = None) -> dict:
         if sk in by_key:
             m = by_key[sk]
             closed = bool(m.get("closed", False))
-            reason = m.get("closure_reason") or ("manifest_marked_closed" if closed else None)
+            reason = m.get("closure_reason")
+            if closed and reason is None:
+                reason = "controlled_run_completed"              # the common controlled-run default
+            if reason is not None and reason not in _CLOSURE_REASONS:
+                raise ValueError(f"closure_reason {reason!r} is not one of {sorted(_CLOSURE_REASONS)}; "
+                                 "free text is rejected (it could reintroduce identifiers)")
             if m.get("closed_at_seq") is not None:
                 closed_at = m["closed_at_seq"]
         elif base_of[sk] is not None and ep is not None and ep < max_epoch.get(base_of[sk], -1):
@@ -172,7 +188,7 @@ def _distribution(labels_by_read) -> dict:
 
 def build_report(db_path: str, *, manifest: Optional[dict] = None, windows=None,
                  primary: Optional[int] = None, canonical: bool = True,
-                 classifier_sha: Optional[str] = None, client_version: Optional[str] = None,
+                 runtime_commit_sha: Optional[str] = None, client_version: Optional[str] = None,
                  include_stream_map: bool = False) -> dict:
     # CANONICAL mode (the default) LOCKS the preregistration: primary=16, windows={8,16,32,inf}. Any
     # experimentation must pass canonical=False with explicit windows/primary, which stamps
@@ -241,12 +257,16 @@ def build_report(db_path: str, *, manifest: Optional[dict] = None, windows=None,
     est_ids = {r["token_estimator_id"] for r in rows if r["token_estimator_id"]}
     with open(db_path, "rb") as fh:
         journal_sha = "sha256:" + hashlib.sha256(fh.read()).hexdigest()
+    import contextruntime.classify as _clsmod                    # identity of the classifier SOURCE,
+    with open(_clsmod.__file__, "rb") as fh:                     # independent of the repo commit
+        classifier_blob_sha = "sha256:" + hashlib.sha256(fh.read()).hexdigest()
     wk_list = [_win_key(w) for w in windows]
     provenance = {
         "report_schema_version": REPORT_SCHEMA_VERSION,
         "hook_schema_version": meta.get("hook_schema_version"),
         "canonical_report": canonical,                          # false => experimental windows, do not quote
-        "classifier_sha": classifier_sha,
+        "runtime_commit_sha": runtime_commit_sha,               # repo/runtime snapshot (was classifier_sha)
+        "classifier_blob_sha": classifier_blob_sha,             # sha256 of classify.py source
         "journal_sha256": journal_sha,
         "client_version": client_version,                       # single stamp -- one DB must be one client
         "token_estimator_id": sorted(est_ids)[0] if len(est_ids) == 1 else sorted(est_ids),
@@ -355,17 +375,44 @@ def build_report(db_path: str, *, manifest: Optional[dict] = None, windows=None,
     # silently. (Missing steps may still appear diagnostically; they just can't be canonical.)
     missing_step_reads = sum(1 for e in events if e["kind"] == "read" and e.get("step") is None)
     missing_step_mut = sum(1 for e in events if e["kind"] == "edit" and e.get("step") is None)
-    canonical_valid = canonical and seq_fallback == 0
+    # A missing step can flip an outside_causal_window/UNKNOWN decision even without ever producing a
+    # precondition, so canonical validity requires ALL of them zero, not just the precondition path.
+    steps_clean = (missing_step_reads == 0 and missing_step_mut == 0 and seq_fallback == 0)
+    canonical_valid = canonical and steps_clean
     validity = {
         "canonical_report": canonical,                          # window config is the locked set
-        "canonical_validity": canonical_valid,                  # AND no primary precondition used seq
+        "canonical_validity": canonical_valid,                  # AND every agent step present, no seq fallback
         "missing_step_reads": missing_step_reads,
         "missing_step_mutations": missing_step_mut,
         "seq_fallback_preconditions": seq_fallback,
         "notes": ([] if canonical_valid else
                   ([] if canonical else ["experimental window set -- canonical_report=false"])
-                  + ([f"{seq_fallback} primary EDIT_PRECONDITION(s) used seq fallback, not agent-step"]
+                  + ([f"{missing_step_reads} read(s)/{missing_step_mut} mutation(s) missing agent step"]
+                     if (missing_step_reads or missing_step_mut) else [])
+                  + ([f"{seq_fallback} primary EDIT_PRECONDITION(s) used seq fallback"]
                      if seq_fallback else [])),
+    }
+
+    # ---- ADMISSION GATE (exact, mechanical -- the corpus harness applies these booleans) ----
+    checks = {
+        "pre_equals_batch": integrity["pre_tool_calls_seen"] == integrity["batch_tool_calls_resolved"],
+        "zero_errors": integrity["errors"] == 0,
+        "zero_pending": integrity["pending_tools"] == 0,
+        "hook_schema_expected": provenance["hook_schema_version"] == HOOK_SCHEMA_EXPECTED,
+        "canonical_report": canonical,
+        "canonical_validity": canonical_valid,
+        "provenance_complete": (client_version is not None and runtime_commit_sha is not None),
+    }
+    admission = {
+        "checks": checks,
+        "canonical_admissible": all(checks.values()),           # gates EVENT-label analysis
+        "bash_coverage_clean": integrity["unknown_bash_calls"] == 0,   # strict subset; retain+count if false
+        "token_share_eligible": (len(primary_labels) > 0
+                                 and len(fully_ids) == len(primary_labels)),   # separate token headline gate
+        "note": ("canonical_admissible gates EVENT-label analysis; token_share_eligible SEPARATELY "
+                 "gates the token-share headline (needs 100% fully-measured text reads); "
+                 "bash_coverage_clean marks the strict coverage subset -- retain+count runs that fail "
+                 "it, stratified by task category, never delete."),
     }
 
     # ---- window sensitivity + stability ---------------------------------
@@ -422,7 +469,8 @@ def build_report(db_path: str, *, manifest: Optional[dict] = None, windows=None,
     before, after = _distribution(primary_labels), _distribution(kept)
     streams_closed = sum(1 for s in closure.values() if s["closed"])
 
-    # complete-case (unbiased within fully-observed streams): drop OPEN streams entirely.
+    # complete-case (DESCRIPTIVE, over fully-observed streams only -- NOT an unbiased population
+    # estimate; open streams are dropped, which is itself a selection): closed reads within closure.
     cc_reads = [eid for eid in primary_labels if is_fully_observed(eid)]
     cc_expl = sum(1 for eid in cc_reads if primary_labels[eid].observed_class == EXPLORATION)
     all_streams_closed = (streams_closed == len(closure) and len(closure) > 0)
@@ -439,11 +487,12 @@ def build_report(db_path: str, *, manifest: Optional[dict] = None, windows=None,
     t_cc_expl = sum(_tok(eid) for eid in t_cc_ids if primary_labels[eid].observed_class == EXPLORATION)
 
     censoring = {
-        "principal_result": "censoring_interval",
-        "principal_result_note": ("Until EVERY stream is closed, the exploration share is an INTERVAL "
-                                  "[floor, before], not a point. after is the provisional-exploration-"
-                                  "excluded reading; complete_case is the fully-closed-streams-only "
-                                  "estimate. When all streams close, floor=after=before=complete_case."),
+        "principal_result": "censoring_bounds",                 # identification bounds, NOT a sampling CI
+        "principal_result_note": ("Until EVERY stream is closed, the exploration share is a BOUND "
+                                  "[floor, before], not a point (and NOT a sampling confidence interval). "
+                                  "after is the provisional-exploration-excluded reading; complete_case "
+                                  "is a DESCRIPTIVE fully-closed-streams-only figure. When all streams "
+                                  "close, floor=after=before=complete_case."),
         "all_streams_closed": all_streams_closed,
         "streams_closed": streams_closed,
         "streams_open": len(closure) - streams_closed,
@@ -488,6 +537,7 @@ def build_report(db_path: str, *, manifest: Optional[dict] = None, windows=None,
     out = {
         "provenance": provenance,
         "validity": validity,
+        "admission": admission,
         "capture_integrity": integrity,
         "labels_primary": labels_primary,
         "tokens": tokens,
@@ -514,11 +564,12 @@ def format_text(rep: dict) -> str:
     A("=" * 78)
     A("  OBSERVED-LABEL VALIDITY REPORT (Slice 3A) -- observe-only, aggregate-only")
     A("=" * 78)
-    va = rep["validity"]
-    A("[1] PROVENANCE + VALIDITY")
+    va, ad = rep["validity"], rep["admission"]
+    A("[1] PROVENANCE + VALIDITY + ADMISSION")
     A(f"    report_schema={p['report_schema_version']}  hook_schema={p['hook_schema_version']}  "
       f"estimator={p['token_estimator_id']}")
-    A(f"    classifier_sha={p['classifier_sha']}  client={p['client_version']}")
+    A(f"    runtime_commit={p['runtime_commit_sha']}  classifier_blob={p['classifier_blob_sha'][:19]}...  "
+      f"client={p['client_version']}")
     A(f"    journal={p['journal_sha256'][:23]}...  primary_window={p['primary_window']}  "
       f"windows={p['windows']}")
     A(f"    canonical_report={p['canonical_report']}  canonical_validity={va['canonical_validity']}  "
@@ -526,6 +577,9 @@ def format_text(rep: dict) -> str:
       f"missing_step(reads={va['missing_step_reads']},muts={va['missing_step_mutations']})")
     if va["notes"]:
         A(f"    validity_notes={va['notes']}")
+    A(f"    ADMISSION canonical_admissible={ad['canonical_admissible']}  "
+      f"token_share_eligible={ad['token_share_eligible']}  bash_coverage_clean={ad['bash_coverage_clean']}")
+    A(f"    checks={ {k: v for k, v in ad['checks'].items()} }")
     A(f"    reads_classified={p['reads_classified']}  edits={p['edits']}  streams={p['streams']}")
     A("")
     A("[2] CAPTURE INTEGRITY (does the evidence deserve trust?)")
