@@ -33,8 +33,20 @@ gets to claim a gate once a measured trial clears it.
 > journal error never blocks a tool call), and replayable (capture is decoupled from
 > normalization, so windows can change without recapturing). Fixed through three adversarial
 > review passes (2.1 real-payload contract, 2.1.1 evidence-integrity, 2.1.2 observed-vs-claimed
-> boundary). The next slices consume this contract without changing it: the `cr-hook` stdin CLI +
-> `settings.json` wiring + a live smoke run, then observed-label reports and window sensitivity.
+> boundary). The `cr-hook` stdin CLI consumes this contract without changing it.
+
+> **Live smoke — contract validated against real bytes.** A headless `claude -p` run (Claude Code
+> 2.1.229) with a raw stdin tap captured genuine hook payloads, resolving the two questions the docs
+> left open, both in favor of the freeze: PostToolBatch `tool_response` is a **string** (not a
+> `{"type":"text",...}` dict), and for a Read it is **line-number-prefixed** — i.e. it *is* the
+> model-visible text, so `model_visible_tokens` is genuinely model-visible and the structured
+> PostToolUse dict is correctly not the token source. The same run drove the real cr-hook journal
+> end-to-end: one file read two ways (native line-numbered 25 tok vs Bash raw 21 tok) joined to one
+> `content_version`; and read→Edit→re-read produced EDIT_PRECONDITION + `verified_change` +
+> VERIFICATION. The real payloads are sanitized into `tests/fixtures/` and replayed as regression
+> guards (`tests/test_real_payloads.py`) — the project's rule that fixtures must come from the real
+> client, not synthetic shapes. No contract change was warranted. Next: observed-label reports and
+> window sensitivity.
 
 **What the ~53% number is and isn't.** `reduce-scan` reports *~53% reduction on
 reducible tool results, Grade C, observe mode.* It excludes source reads, history, the

@@ -1,0 +1,230 @@
+[
+  {
+    "cwd": "/repo",
+    "hook_event_name": "SessionStart",
+    "session_id": "sess-real",
+    "source": "startup",
+    "transcript_path": "/repo/.transcript.jsonl"
+  },
+  {
+    "cwd": "/repo",
+    "hook_event_name": "UserPromptSubmit",
+    "permission_mode": "bypassPermissions",
+    "prompt": "Use the Read tool to read notes.py. Then use the Edit tool to replace the word hello with hi in notes.py. Then use the Read tool to read notes.py again to confirm. Then reply with just DONE.",
+    "prompt_id": "prompt-real",
+    "session_id": "sess-real",
+    "transcript_path": "/repo/.transcript.jsonl"
+  },
+  {
+    "cwd": "/repo",
+    "effort": {
+      "level": "high"
+    },
+    "hook_event_name": "PreToolUse",
+    "permission_mode": "bypassPermissions",
+    "prompt_id": "prompt-real",
+    "session_id": "sess-real",
+    "tool_input": {
+      "file_path": "/repo/notes.py"
+    },
+    "tool_name": "Read",
+    "tool_use_id": "toolu_01KpC4Ysom9cAzB947h3WFyG",
+    "transcript_path": "/repo/.transcript.jsonl"
+  },
+  {
+    "cwd": "/repo",
+    "duration_ms": 1,
+    "effort": {
+      "level": "high"
+    },
+    "hook_event_name": "PostToolUse",
+    "permission_mode": "bypassPermissions",
+    "prompt_id": "prompt-real",
+    "session_id": "sess-real",
+    "tool_input": {
+      "file_path": "/repo/notes.py"
+    },
+    "tool_name": "Read",
+    "tool_response": {
+      "file": {
+        "content": "def greet(name):\n    return f\"hello {name}\"\n",
+        "filePath": "/repo/notes.py",
+        "numLines": 3,
+        "startLine": 1,
+        "totalLines": 3
+      },
+      "type": "text"
+    },
+    "tool_use_id": "toolu_01KpC4Ysom9cAzB947h3WFyG",
+    "transcript_path": "/repo/.transcript.jsonl"
+  },
+  {
+    "cwd": "/repo",
+    "effort": {
+      "level": "high"
+    },
+    "hook_event_name": "PostToolBatch",
+    "permission_mode": "bypassPermissions",
+    "prompt_id": "prompt-real",
+    "session_id": "sess-real",
+    "tool_calls": [
+      {
+        "tool_input": {
+          "file_path": "/repo/notes.py"
+        },
+        "tool_name": "Read",
+        "tool_response": "1\tdef greet(name):\n2\t    return f\"hello {name}\"\n3\t",
+        "tool_use_id": "toolu_01KpC4Ysom9cAzB947h3WFyG"
+      }
+    ],
+    "transcript_path": "/repo/.transcript.jsonl"
+  },
+  {
+    "cwd": "/repo",
+    "effort": {
+      "level": "high"
+    },
+    "hook_event_name": "PreToolUse",
+    "permission_mode": "bypassPermissions",
+    "prompt_id": "prompt-real",
+    "session_id": "sess-real",
+    "tool_input": {
+      "file_path": "/repo/notes.py",
+      "new_string": "    return f\"hi {name}\"",
+      "old_string": "    return f\"hello {name}\"",
+      "replace_all": false
+    },
+    "tool_name": "Edit",
+    "tool_use_id": "toolu_01P8T3XcXVA91Lo3LALSSgtD",
+    "transcript_path": "/repo/.transcript.jsonl"
+  },
+  {
+    "cwd": "/repo",
+    "duration_ms": 2,
+    "effort": {
+      "level": "high"
+    },
+    "hook_event_name": "PostToolUse",
+    "permission_mode": "bypassPermissions",
+    "prompt_id": "prompt-real",
+    "session_id": "sess-real",
+    "tool_input": {
+      "file_path": "/repo/notes.py",
+      "new_string": "    return f\"hi {name}\"",
+      "old_string": "    return f\"hello {name}\"",
+      "replace_all": false
+    },
+    "tool_name": "Edit",
+    "tool_response": {
+      "filePath": "/repo/notes.py",
+      "newString": "    return f\"hi {name}\"",
+      "oldString": "    return f\"hello {name}\"",
+      "originalFile": "def greet(name):\n    return f\"hello {name}\"\n",
+      "replaceAll": false,
+      "structuredPatch": [
+        {
+          "lines": [
+            " def greet(name):",
+            "-    return f\"hello {name}\"",
+            "+    return f\"hi {name}\""
+          ],
+          "newLines": 2,
+          "newStart": 1,
+          "oldLines": 2,
+          "oldStart": 1
+        }
+      ],
+      "userModified": false
+    },
+    "tool_use_id": "toolu_01P8T3XcXVA91Lo3LALSSgtD",
+    "transcript_path": "/repo/.transcript.jsonl"
+  },
+  {
+    "cwd": "/repo",
+    "effort": {
+      "level": "high"
+    },
+    "hook_event_name": "PostToolBatch",
+    "permission_mode": "bypassPermissions",
+    "prompt_id": "prompt-real",
+    "session_id": "sess-real",
+    "tool_calls": [
+      {
+        "tool_input": {
+          "file_path": "/repo/notes.py",
+          "new_string": "    return f\"hi {name}\"",
+          "old_string": "    return f\"hello {name}\"",
+          "replace_all": false
+        },
+        "tool_name": "Edit",
+        "tool_response": "The file /repo/notes.py has been updated successfully. (file state is current in your context \u2014 no need to Read it back)",
+        "tool_use_id": "toolu_01P8T3XcXVA91Lo3LALSSgtD"
+      }
+    ],
+    "transcript_path": "/repo/.transcript.jsonl"
+  },
+  {
+    "cwd": "/repo",
+    "effort": {
+      "level": "high"
+    },
+    "hook_event_name": "PreToolUse",
+    "permission_mode": "bypassPermissions",
+    "prompt_id": "prompt-real",
+    "session_id": "sess-real",
+    "tool_input": {
+      "file_path": "/repo/notes.py"
+    },
+    "tool_name": "Read",
+    "tool_use_id": "toolu_018kwDCLkqGbbcJoxTf25dQH",
+    "transcript_path": "/repo/.transcript.jsonl"
+  },
+  {
+    "cwd": "/repo",
+    "duration_ms": 0,
+    "effort": {
+      "level": "high"
+    },
+    "hook_event_name": "PostToolUse",
+    "permission_mode": "bypassPermissions",
+    "prompt_id": "prompt-real",
+    "session_id": "sess-real",
+    "tool_input": {
+      "file_path": "/repo/notes.py"
+    },
+    "tool_name": "Read",
+    "tool_response": {
+      "file": {
+        "content": "def greet(name):\n    return f\"hi {name}\"\n",
+        "filePath": "/repo/notes.py",
+        "numLines": 3,
+        "startLine": 1,
+        "totalLines": 3
+      },
+      "type": "text"
+    },
+    "tool_use_id": "toolu_018kwDCLkqGbbcJoxTf25dQH",
+    "transcript_path": "/repo/.transcript.jsonl"
+  },
+  {
+    "cwd": "/repo",
+    "effort": {
+      "level": "high"
+    },
+    "hook_event_name": "PostToolBatch",
+    "permission_mode": "bypassPermissions",
+    "prompt_id": "prompt-real",
+    "session_id": "sess-real",
+    "tool_calls": [
+      {
+        "tool_input": {
+          "file_path": "/repo/notes.py"
+        },
+        "tool_name": "Read",
+        "tool_response": "1\tdef greet(name):\n2\t    return f\"hi {name}\"\n3\t",
+        "tool_use_id": "toolu_018kwDCLkqGbbcJoxTf25dQH"
+      }
+    ],
+    "transcript_path": "/repo/.transcript.jsonl"
+  }
+]

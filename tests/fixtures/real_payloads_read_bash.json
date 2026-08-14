@@ -1,0 +1,146 @@
+[
+  {
+    "cwd": "/repo",
+    "hook_event_name": "SessionStart",
+    "session_id": "sess-real",
+    "source": "startup",
+    "transcript_path": "/repo/.transcript.jsonl"
+  },
+  {
+    "cwd": "/repo",
+    "hook_event_name": "UserPromptSubmit",
+    "permission_mode": "bypassPermissions",
+    "prompt": "Use the Read tool to read the file sample.py. Then use the Bash tool to run exactly: cat sample.py. Then reply with just the word DONE.",
+    "prompt_id": "prompt-real",
+    "session_id": "sess-real",
+    "transcript_path": "/repo/.transcript.jsonl"
+  },
+  {
+    "cwd": "/repo",
+    "effort": {
+      "level": "high"
+    },
+    "hook_event_name": "PreToolUse",
+    "permission_mode": "bypassPermissions",
+    "prompt_id": "prompt-real",
+    "session_id": "sess-real",
+    "tool_input": {
+      "file_path": "/repo/sample.py"
+    },
+    "tool_name": "Read",
+    "tool_use_id": "toolu_01HVJebZzjjC4T1eYKUPkuR8",
+    "transcript_path": "/repo/.transcript.jsonl"
+  },
+  {
+    "cwd": "/repo",
+    "duration_ms": 0,
+    "effort": {
+      "level": "high"
+    },
+    "hook_event_name": "PostToolUse",
+    "permission_mode": "bypassPermissions",
+    "prompt_id": "prompt-real",
+    "session_id": "sess-real",
+    "tool_input": {
+      "file_path": "/repo/sample.py"
+    },
+    "tool_name": "Read",
+    "tool_response": {
+      "file": {
+        "content": "def greet(name):\n    \"\"\"Say hi.\"\"\"\n    return f\"hello {name}\"\n\n\nprint(greet(\"world\"))\n",
+        "filePath": "/repo/sample.py",
+        "numLines": 7,
+        "startLine": 1,
+        "totalLines": 7
+      },
+      "type": "text"
+    },
+    "tool_use_id": "toolu_01HVJebZzjjC4T1eYKUPkuR8",
+    "transcript_path": "/repo/.transcript.jsonl"
+  },
+  {
+    "cwd": "/repo",
+    "effort": {
+      "level": "high"
+    },
+    "hook_event_name": "PostToolBatch",
+    "permission_mode": "bypassPermissions",
+    "prompt_id": "prompt-real",
+    "session_id": "sess-real",
+    "tool_calls": [
+      {
+        "tool_input": {
+          "file_path": "/repo/sample.py"
+        },
+        "tool_name": "Read",
+        "tool_response": "1\tdef greet(name):\n2\t    \"\"\"Say hi.\"\"\"\n3\t    return f\"hello {name}\"\n4\t\n5\t\n6\tprint(greet(\"world\"))\n7\t",
+        "tool_use_id": "toolu_01HVJebZzjjC4T1eYKUPkuR8"
+      }
+    ],
+    "transcript_path": "/repo/.transcript.jsonl"
+  },
+  {
+    "cwd": "/repo",
+    "effort": {
+      "level": "high"
+    },
+    "hook_event_name": "PreToolUse",
+    "permission_mode": "bypassPermissions",
+    "prompt_id": "prompt-real",
+    "session_id": "sess-real",
+    "tool_input": {
+      "command": "cat sample.py",
+      "description": "Print sample.py contents"
+    },
+    "tool_name": "Bash",
+    "tool_use_id": "toolu_017eJLsVcDt3Yer5Zr3N2ugv",
+    "transcript_path": "/repo/.transcript.jsonl"
+  },
+  {
+    "cwd": "/repo",
+    "duration_ms": 55,
+    "effort": {
+      "level": "high"
+    },
+    "hook_event_name": "PostToolUse",
+    "permission_mode": "bypassPermissions",
+    "prompt_id": "prompt-real",
+    "session_id": "sess-real",
+    "tool_input": {
+      "command": "cat sample.py",
+      "description": "Print sample.py contents"
+    },
+    "tool_name": "Bash",
+    "tool_response": {
+      "interrupted": false,
+      "isImage": false,
+      "noOutputExpected": false,
+      "stderr": "",
+      "stdout": "def greet(name):\n    \"\"\"Say hi.\"\"\"\n    return f\"hello {name}\"\n\n\nprint(greet(\"world\"))"
+    },
+    "tool_use_id": "toolu_017eJLsVcDt3Yer5Zr3N2ugv",
+    "transcript_path": "/repo/.transcript.jsonl"
+  },
+  {
+    "cwd": "/repo",
+    "effort": {
+      "level": "high"
+    },
+    "hook_event_name": "PostToolBatch",
+    "permission_mode": "bypassPermissions",
+    "prompt_id": "prompt-real",
+    "session_id": "sess-real",
+    "tool_calls": [
+      {
+        "tool_input": {
+          "command": "cat sample.py",
+          "description": "Print sample.py contents"
+        },
+        "tool_name": "Bash",
+        "tool_response": "def greet(name):\n    \"\"\"Say hi.\"\"\"\n    return f\"hello {name}\"\n\n\nprint(greet(\"world\"))",
+        "tool_use_id": "toolu_017eJLsVcDt3Yer5Zr3N2ugv"
+      }
+    ],
+    "transcript_path": "/repo/.transcript.jsonl"
+  }
+]
