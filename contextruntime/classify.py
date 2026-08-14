@@ -161,8 +161,13 @@ def classify_reads(events, *, window: int = DEFAULT_WINDOW, distance_key: str = 
         prior_edit = next((F for F in reversed(evs[:i])
                            if _is_edit(F) and F.get("stream_key") == s and F.get("path") == p), None)
         if prior_edit is not None and _distance(R, prior_edit, distance_key)[0] <= window:
-            labels[R["event_id"]] = Label(VERIFICATION, TEMPORAL_CAUSAL, "B",
-                                          reason="post_edit_reread")
+            if prior_edit.get("mutation_status") == "unverified":
+                # the prior mutation isn't confirmed, so we can't call this a verification of it
+                labels[R["event_id"]] = Label(UNKNOWN, TEMPORAL_CAUSAL, "C",
+                                              reason="prior_unverified_mutation")
+            else:
+                labels[R["event_id"]] = Label(VERIFICATION, TEMPORAL_CAUSAL, "B",
+                                              reason="post_edit_reread")
         elif config_matcher and p and config_matcher(p):
             labels[R["event_id"]] = Label(CONFIG_REQUIRED, HEURISTIC, "C",
                                           reason="config_path_heuristic")

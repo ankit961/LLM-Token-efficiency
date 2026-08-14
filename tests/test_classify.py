@@ -76,6 +76,19 @@ def test_read_after_edit_is_verification():
     assert labels["r"].observed_class == VERIFICATION
 
 
+# ...but a re-read after an UNVERIFIED edit cannot be a verification OF that edit -- we never
+# confirmed the bytes changed, so calling it grade-B VERIFICATION would overclaim. It is UNKNOWN.
+def test_read_after_unverified_edit_is_unknown_not_verification():
+    edit = {"event_id": "e", "seq": 1, "kind": "edit", "stream_key": "s", "path": "a.py",
+            "content_version": None, "step": None, "mutation_status": "unverified"}
+    labels = classify_reads([edit, _r("r", 2, "a.py")])
+    assert labels["r"].observed_class == UNKNOWN
+    assert labels["r"].reason == "prior_unverified_mutation" and labels["r"].evidence_grade == "C"
+    # a VERIFIED prior edit, by contrast, IS a verification
+    edit["mutation_status"] = "verified_change"
+    assert classify_reads([edit, _r("r", 2, "a.py")])["r"].observed_class == VERIFICATION
+
+
 def test_read_never_edited_is_exploration():
     labels = classify_reads([_r("r", 1, "a.py")])
     assert labels["r"].observed_class == EXPLORATION and labels["r"].reason == "no_future_mutation"

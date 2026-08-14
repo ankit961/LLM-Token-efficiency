@@ -9,10 +9,14 @@ Integrity guarantees (why each matters for the eventual percentages):
   - MUTATION CERTAINTY: a mutation is `verified_change` (pre != post, both hashed), `verified_noop`
     (equal -> not recorded), or `unverified` (a hash was unavailable). An unverified mutation is an
     UNCERTAINTY boundary: it can never produce an EDIT_PRECONDITION.
-  - TRUTHFUL COVERAGE: a ledger of deliveries / tool-calls-seen / recognized / unknown-shell, not a
-    row/(row+error) ratio that looks healthy while the shell parser is blind.
+  - TRUTHFUL COVERAGE: SPLIT ledgers -- pre_tool_calls_seen vs batch_tool_calls_resolved (are we
+    missing PreToolUse deliveries?) and unknown_bash_calls vs bash_calls_seen (shell blindness,
+    measured against Bash calls only). Never a row/(row+error) ratio that looks healthy while the
+    shell parser is blind, and never a Bash-blindness rate diluted by always-recognized tools.
   - MODEL-VISIBLE RESPONSE: measured from PostToolBatch (string OR text content-block array), with
-    multimodal/unsupported marked -- never silently unmeasured. Counts are ESTIMATED tokens.
+    multimodal/unsupported marked -- never silently unmeasured. That PostToolBatch payload is also
+    the AUTHORITATIVE response_hash (attribute_tokens stamps it), not PostToolUse's structured
+    tool_response. Counts are ESTIMATED tokens.
   - GIT BLOB versions resolved at capture via `git cat-file blob ref:path` and SHA-256 of the raw
     bytes (same namespace as worktree digests), so a `git show` read conflicts correctly.
   - HASHING opens the fd once and fstat's before/after (device+inode+size+mtime), so an atomic path
@@ -101,17 +105,23 @@ def default_hasher(path) -> Tuple[str, Optional[str]]:
         os.close(fd)
 
 
-def default_git_blob_hasher(cwd, ref, path) -> Tuple[str, Optional[str]]:
-    """SHA-256 the raw bytes of `ref:path` (same namespace as a worktree file digest), so a
-    `git show HEAD~2:foo` read that no longer matches the current file conflicts correctly."""
+def default_git_blob_hasher(cwd, ref, path) -> Tuple[str, Optional[str], Optional[str]]:
+    """(status, digest, canonical_path). SHA-256 the raw bytes of `ref:path` (same namespace as a
+    worktree file digest), and resolve the CANONICAL worktree path -- a git path is repository-tree-
+    relative, so a `git show HEAD:src/a.py` from `/repo/sub` must join a native edit of
+    `/repo/src/a.py`, not `/repo/sub/src/a.py`."""
     try:
-        out = subprocess.run(["git", "-C", cwd or ".", "cat-file", "blob", f"{ref}:{path}"],
+        blob = subprocess.run(["git", "-C", cwd or ".", "cat-file", "blob", f"{ref}:{path}"],
+                              capture_output=True, timeout=5)
+        top = subprocess.run(["git", "-C", cwd or ".", "rev-parse", "--show-toplevel"],
                              capture_output=True, timeout=5)
     except Exception:      # noqa: BLE001 -- git absent / timeout / bad ref
-        return ("unavailable", None)
-    if out.returncode != 0:
-        return ("unavailable", None)
-    return ("ok", _sha(out.stdout))
+        return ("unavailable", None, None)
+    if blob.returncode != 0:
+        return ("unavailable", None, None)
+    canonical = (os.path.normpath(os.path.join(top.stdout.decode("utf-8", "replace").strip(), path))
+                 if top.returncode == 0 else None)
+    return ("ok", _sha(blob.stdout), canonical)
 
 
 def measure_model_visible_response(resp) -> dict:
@@ -200,11 +210,15 @@ class HookJournal:
         d = {r["metric"]: r["n"] for r in self.conn.execute("SELECT metric, n FROM capture_stats")}
         errs = self.conn.execute("SELECT COUNT(*) c FROM capture_errors").fetchone()["c"]
         deliveries = d.get("deliveries", 0)
-        seen = d.get("tool_calls_seen", 0)
+        pre = d.get("pre_tool_calls_seen", 0)
+        resolved = d.get("batch_tool_calls_resolved", 0)
+        bash = d.get("bash_calls_seen", 0)
         d["errors"] = errs
         d["delivery_success_ratio"] = ((deliveries - errs) / deliveries) if deliveries else None
-        d["recognition_rate"] = (d.get("tool_calls_recognized", 0) / seen) if seen else None
-        d["unknown_shell_share"] = (d.get("unknown_shell", 0) / seen) if seen else None
+        # PreToolUse deliveries seen vs the batch's authoritative resolved count (are we missing any?)
+        d["pre_capture_rate"] = (pre / resolved) if resolved else None
+        # Bash blindness measured against BASH calls only, not diluted by every other tool
+        d["bash_unknown_share"] = (d.get("unknown_bash_calls", 0) / bash) if bash else None
         return d
 
     # --- tool events -------------------------------------------------------
@@ -219,14 +233,18 @@ class HookJournal:
              % ",".join("?" * n))
         self.conn.execute(q, (batch_id, n, int(n > 1), *tool_use_ids))
 
-    def attribute_tokens(self, tool_use_id: str, tokens, chars, token_status) -> None:
+    def attribute_tokens(self, tool_use_id: str, tokens, chars, token_status, response_hash=None) -> None:
         rows = self.conn.execute(
             "SELECT event_id FROM tool_events WHERE tool_use_id=? AND kind='read'", (tool_use_id,)).fetchall()
+        # The AUTHORITATIVE model-visible response hash lives on PostToolBatch (the model-visible
+        # payload), not on PostToolUse's structured tool_response -- so we stamp it here.
         if len(rows) == 1:
             self.conn.execute(
                 "UPDATE tool_events SET model_visible_tokens=?, model_visible_chars=?, token_status=?, "
-                "token_attribution='attributed' WHERE event_id=?", (tokens, chars, token_status, rows[0]["event_id"]))
+                "response_hash=?, token_attribution='attributed' WHERE event_id=?",
+                (tokens, chars, token_status, response_hash, rows[0]["event_id"]))
         elif len(rows) > 1:
+            # one response, many materialization paths -> tokens AND response_hash are ambiguous
             self.conn.execute(
                 "UPDATE tool_events SET token_status=?, token_attribution='ambiguous_multipath' "
                 "WHERE tool_use_id=? AND kind='read'", (token_status, tool_use_id))
@@ -264,18 +282,22 @@ class HookCapture:
         self.clock = clock or time.time_ns
 
     def on_event(self, ev: dict) -> None:
-        self.j.bump("deliveries")
+        # FAIL-OPEN: absolutely nothing -- not the ledger bump, not the SAVEPOINT itself, not the
+        # dispatch -- is allowed to escape and block the tool call. The deliveries bump is taken
+        # BEFORE the savepoint so a rolled-back delivery is still counted (else the failure would be
+        # invisible to delivery_success_ratio).
         conn = self.j.conn
-        conn.execute("SAVEPOINT cr_hook")
         try:
+            self.j.bump("deliveries")
+            conn.execute("SAVEPOINT cr_hook")
             self._dispatch(ev)
             conn.execute("RELEASE cr_hook")
             self.j.commit()
-        except Exception as e:            # noqa: BLE001 -- fail-open, atomic rollback, logged (not invisible)
+        except Exception as e:            # noqa: BLE001 -- atomic rollback, logged (not invisible)
             try:
                 conn.execute("ROLLBACK TO cr_hook")
                 conn.execute("RELEASE cr_hook")
-            except Exception:             # noqa: BLE001
+            except Exception:             # noqa: BLE001 -- savepoint may never have been created
                 pass
             self.j.record_error(ev.get("hook_event_name"), ev.get("tool_use_id"), type(e).__name__, str(e))
 
@@ -324,15 +346,21 @@ class HookCapture:
 
     def _pre(self, ev):
         cwd = ev.get("cwd")
-        effects, unknown = self._effects(ev.get("tool_name"), ev.get("tool_input") or {}, cwd)
-        self.j.bump("tool_calls_seen")
-        if effects:
-            self.j.bump("tool_calls_recognized")
-        if unknown:
-            self.j.bump("unknown_shell")
+        tool = ev.get("tool_name")
+        effects, unknown = self._effects(tool, ev.get("tool_input") or {}, cwd)
+        # Split ledgers: PreToolUse deliveries vs BASH-only blindness -- so an unknown-shell rate is
+        # measured against Bash calls, not diluted by Read/Edit/etc. that are always recognized.
+        self.j.bump("pre_tool_calls_seen")
+        if tool == "Bash":
+            self.j.bump("bash_calls_seen")
+            if unknown:
+                self.j.bump("unknown_bash_calls")
         for x in effects:
             if x["representation"] == "git_blob" and x["ref"] and x["raw_path"]:
-                x["pre"] = list(self.git(cwd, x["ref"], x["raw_path"]))   # resolve blob at capture
+                status, digest, canonical = self.git(cwd, x["ref"], x["raw_path"])   # resolve blob at capture
+                x["pre"] = [status, digest]
+                if canonical:                                # git path is repo-tree-relative, not cwd-relative
+                    x["path_abs"] = x["path_norm"] = canonical
             elif x["path_abs"] and x["representation"] == "file":
                 x["pre"] = list(self.hash(x["path_abs"]))
         self.j.put_pending(ev.get("tool_use_id"), {
@@ -353,7 +381,8 @@ class HookCapture:
         p = self.j.pop_pending(ev.get("tool_use_id"))
         if p is None:
             return
-        rm = measure_model_visible_response(ev.get("tool_response"))
+        # response_hash is assigned authoritatively at PostToolBatch (model-visible payload), NOT from
+        # this structured tool_response -- so we leave it null here and let attribute_tokens stamp it.
         for ordinal, x in enumerate(p["effects"]):
             path_norm = x.get("path_norm")
             if not path_norm:
@@ -395,7 +424,7 @@ class HookCapture:
                 "path_absolute": x.get("path_abs"), "path_normalized": path_norm,
                 "repo_relative": None, "repo_id": None,
                 "pre_version": pre, "post_version": post, "content_version": content_version,
-                "version_status": version_status, "response_hash": rm["hash"],
+                "version_status": version_status, "response_hash": None,
                 "model_visible_chars": None, "model_visible_tokens": None, "token_status": None,
                 "token_attribution": None, "token_estimator_id": "chars4-v1",
                 "success": int(success), "outcome": outcome, "wall_time_ns": p.get("wall_time_ns"),
@@ -410,8 +439,11 @@ class HookCapture:
             return                                           # already processed -> idempotent no-op
         if tuids:
             self.j.stamp_batch(tuids, bid)
+        # the batch is the AUTHORITATIVE count of tool calls in this step -- pre_capture_rate compares
+        # PreToolUse deliveries seen against it, so a dropped PreToolUse shows up as < 1.0.
+        self.j.bump("batch_tool_calls_resolved", len(tuids))
         for c in calls:                                      # PostToolBatch response = model-visible content
             if isinstance(c, dict) and c.get("tool_use_id"):
                 rm = measure_model_visible_response(c.get("tool_response"))
-                self.j.attribute_tokens(c["tool_use_id"], rm["tokens"], rm["chars"], rm["status"])
+                self.j.attribute_tokens(c["tool_use_id"], rm["tokens"], rm["chars"], rm["status"], rm["hash"])
         self.j.advance_step(self._sa(ev))

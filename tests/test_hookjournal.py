@@ -166,16 +166,55 @@ def test_capture_error_is_logged_not_invisible():
     assert st["errors"] >= 1 and st["delivery_success_ratio"] is not None
 
 
-# Truthful coverage: a ledger of deliveries/seen/recognized/unknown-shell, not a row/(row+error)
-# ratio that could look healthy while the shell parser is blind.
-def test_capture_stats_are_a_truthful_ledger():
+# Truthful coverage: SPLIT ledgers. bash_unknown_share is measured against BASH calls only (not
+# diluted by always-recognized Read/Edit); pre_capture_rate is PreToolUse-seen / batch-resolved.
+def test_capture_stats_split_denominators():
+    j, c = _cap({"/repo/a.py": "v1", "/repo/b.py": "v1"})
+    c.on_event({"hook_event_name": "UserPromptSubmit", "session_id": "s"})
+    _pre(c, "s", "t1", "Bash", {"command": "cat b.py"}, cwd="/repo"); _post(c, "s", "t1", "Bash")   # known
+    _pre(c, "s", "t2", "Bash", {"command": "weird | pipeline"}, cwd="/repo"); _post(c, "s", "t2", "Bash")  # unknown
+    _pre(c, "s", "t3", "Read", {"file_path": "/repo/a.py"}); _post(c, "s", "t3", "Read")            # not Bash
+    _batch(c, "s", "p1", [{"tool_use_id": t, "tool_response": "x"} for t in ("t1", "t2", "t3")])
+    st = j.capture_stats()
+    assert st["pre_tool_calls_seen"] == 3 and st["bash_calls_seen"] == 2 and st["unknown_bash_calls"] == 1
+    # 1 unknown of 2 BASH calls -> 0.5, NOT 1/3 (the Read must not dilute shell-blindness)
+    assert st["bash_unknown_share"] == 0.5
+    assert st["batch_tool_calls_resolved"] == 3 and st["pre_capture_rate"] == 1.0
+
+
+# A dropped PreToolUse shows up as pre_capture_rate < 1.0 (the batch is the authoritative count).
+def test_pre_capture_rate_flags_a_missed_pretooluse():
     j, c = _cap({"/repo/a.py": "v1"})
     c.on_event({"hook_event_name": "UserPromptSubmit", "session_id": "s"})
-    _pre(c, "s", "t1", "Bash", {"command": "weird | pipeline"}, cwd="/repo"); _post(c, "s", "t1", "Bash")
-    _pre(c, "s", "t2", "Read", {"file_path": "/repo/a.py"}); _post(c, "s", "t2", "Read")
-    st = j.capture_stats()
-    assert st["tool_calls_seen"] == 2 and st["unknown_shell"] == 1
-    assert st["recognition_rate"] == 0.5 and st["unknown_shell_share"] == 0.5
+    _pre(c, "s", "t1", "Read", {"file_path": "/repo/a.py"}); _post(c, "s", "t1", "Read")   # only 1 Pre seen
+    _batch(c, "s", "p1", [{"tool_use_id": "t1", "tool_response": "x"},
+                          {"tool_use_id": "t2", "tool_response": "x"}])                    # batch says 2
+    assert j.capture_stats()["pre_capture_rate"] == 0.5
+
+
+# The AUTHORITATIVE response_hash comes from the PostToolBatch model-visible payload (a string or a
+# text content-block array), NOT PostToolUse's structured tool_response -- so it must equal hash(that).
+def test_response_hash_is_the_model_visible_batch_payload():
+    from contextruntime.hookjournal import measure_model_visible_response as m
+    j, c = _cap({"/repo/a.py": "v1"})
+    _pre(c, "s", "t1", "Read", {"file_path": "/repo/a.py"}); _post(c, "s", "t1", "Read")
+    row = j.tool_events()[0]
+    assert row["response_hash"] is None                          # not set from the structured PostToolUse
+    payload = [{"type": "text", "text": "hello world"}]
+    _batch(c, "s", "p1", [{"tool_use_id": "t1", "tool_name": "Read", "tool_response": payload}])
+    row = j.tool_events()[0]
+    assert row["response_hash"] == m(payload)["hash"] and row["response_hash"] is not None
+
+
+# FAIL-OPEN: even a broken journal (the ledger bump itself throws) must not let on_event raise.
+def test_on_event_never_raises_even_if_the_ledger_bump_fails():
+    j = HookJournal(":memory:")
+    c = HookCapture(j, hasher=lambda p: ("ok", "v1"))
+    j.bump = lambda *a, **k: (_ for _ in ()).throw(RuntimeError("db gone"))   # fail before any savepoint
+    c.on_event({"hook_event_name": "PreToolUse", "session_id": "s", "cwd": "/repo",
+                "tool_use_id": "t1", "tool_name": "Read", "tool_input": {"file_path": "/repo/a.py"}})
+    # no exception escaped; the delivery simply produced nothing
+    assert j.tool_events() == []
 
 
 # ATOMIC delivery: a failure after pop_pending must roll back, leaving pending intact for retry.
@@ -240,7 +279,7 @@ def test_git_blob_version_resolved_at_capture():
         return ("ok", versions[p]) if p in versions else ("absent", "absent:v1")
 
     j = HookJournal(":memory:")
-    c = HookCapture(j, hasher=h, git_blob_hasher=lambda cwd, ref, path: ("ok", "vOLD"))
+    c = HookCapture(j, hasher=h, git_blob_hasher=lambda cwd, ref, path: ("ok", "vOLD", "/repo/foo.py"))
     c.on_event({"hook_event_name": "UserPromptSubmit", "session_id": "s"})
     _pre(c, "s", "t1", "Bash", {"command": "git show HEAD~2:foo.py"}, cwd="/repo"); _post(c, "s", "t1", "Bash")
     _pre(c, "s", "t2", "Edit", {"file_path": "/repo/foo.py"}, cwd="/repo")
@@ -251,6 +290,33 @@ def test_git_blob_version_resolved_at_capture():
     assert read["representation"] == "git_blob" and read["content_version"] == "vOLD"
     labels = classify_reads(to_events(rows))
     assert labels[read["event_id"]].observed_class == UNKNOWN   # vOLD != edit pre-version vNEW
+
+
+# GIT BLOB canonical path: a git ref path is REPOSITORY-TREE-relative, so `git show HEAD:src/a.py`
+# from cwd=/repo/sub must join a native edit of /repo/src/a.py -- NOT /repo/sub/src/a.py.
+def test_git_blob_canonical_path_joins_native_edit_from_subdir():
+    versions = {"/repo/src/a.py": "vOLD"}
+
+    def h(p):
+        return ("ok", versions[p]) if p in versions else ("absent", "absent:v1")
+
+    j = HookJournal(":memory:")
+    # resolver returns the CANONICAL worktree path (repo root + repo-relative ref path), not cwd-joined
+    c = HookCapture(j, hasher=h,
+                    git_blob_hasher=lambda cwd, ref, path: ("ok", "vOLD", "/repo/src/a.py"))
+    c.on_event({"hook_event_name": "UserPromptSubmit", "session_id": "s"})
+    _pre(c, "s", "t1", "Bash", {"command": "git show HEAD:src/a.py"}, cwd="/repo/sub")
+    _post(c, "s", "t1", "Bash")
+    _pre(c, "s", "t2", "Edit", {"file_path": "/repo/src/a.py"}, cwd="/repo")
+    versions["/repo/src/a.py"] = "vNEW"
+    _post(c, "s", "t2", "Edit")
+    rows = j.tool_events("s:main:0")
+    read = [r for r in rows if r["kind"] == "read"][0]
+    edit = [r for r in rows if r["kind"] == "edit"][0]
+    # cwd-joining would have produced /repo/sub/src/a.py and the two would NEVER meet
+    assert read["path_normalized"] == edit["path_normalized"] == "/repo/src/a.py"
+    labels = classify_reads(to_events(rows))
+    assert labels[read["event_id"]].observed_class == EDIT_PRECONDITION   # vOLD == edit pre-version
 
 
 def test_measure_model_visible_response_handles_arrays_and_multimodal():
