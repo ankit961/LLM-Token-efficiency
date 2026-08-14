@@ -111,6 +111,14 @@ def classify_reads(events, *, window: int = DEFAULT_WINDOW, distance_key: str = 
                                               reason="no_future_mutation")
                 continue
             E = future[0]                        # first edit of p after R = its mutation boundary
+            # An UNVERIFIED mutation (a hash was unavailable, so we can't confirm bytes changed) is
+            # an UNCERTAINTY boundary: a read whose causal story crosses it is UNKNOWN, never a
+            # precondition -- we are not entitled to assert the edit happened at that version.
+            if E.get("mutation_status") == "unverified":
+                labels[R["event_id"]] = Label(UNKNOWN, TEMPORAL_CAUSAL, "C",
+                                              reason="unverified_mutation_boundary",
+                                              evidence={"target_mutation_id": E["event_id"]})
+                continue
             # A read and its candidate edit in the SAME parallel batch have no established causal
             # order (seq is just serialization) -> UNKNOWN, never a manufactured Read->Edit.
             if R.get("batch_id") is not None and R.get("batch_id") == E.get("batch_id"):

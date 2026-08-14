@@ -1,32 +1,39 @@
 """HookJournal -- prospective observation layer (Phase 2.4-C), wired to the REAL Claude Code hook
-contract. A SEPARATE SQLite store (hook_schema 0.2.0), never the frozen B.1 GraphStore.
+contract with evidence-integrity guarantees at the "observed vs entitled-to-claim" boundary.
+A SEPARATE SQLite store (hook_schema 0.3.0), never the frozen B.1 GraphStore.
 
-Contract notes that make this correct against Claude Code (not a synthetic shape):
-  - the event kind is `hook_event_name` (the field `event` belongs to FileChanged: change/add/unlink);
-  - `PostToolBatch` carries a `tool_calls` array, each with tool_use_id/tool_name/tool_input and the
-    SERIALIZED, model-visible `tool_response` -- that is the honest token denominator;
-  - each hook delivery is a SEPARATE process invocation (JSON on stdin), so cross-event state
-    (step epoch, pending pre-hashes, processed batches) is PERSISTED here, not held in memory;
-  - a `PostToolUseFailure` means the tool failed (its payload has an `error`) -- a failed read
-    materialized nothing, but a failed op that changed bytes is still a mutation boundary.
-
-Captures are METADATA-ONLY (hashes + counts) -- never raw file/edit/command contents. FAIL-OPEN,
-but never INVISIBLY: a capture error is logged to `capture_errors` so a coverage ratio is reportable.
+Integrity guarantees (why each matters for the eventual percentages):
+  - ATOMIC delivery: each hook delivery runs inside a SAVEPOINT; on any error it ROLLS BACK, so a
+    transient instrumentation failure can never commit half a delivery (deleted pending, claimed
+    batch) and destroy replayability. The error is then logged in a fresh transaction.
+  - MUTATION CERTAINTY: a mutation is `verified_change` (pre != post, both hashed), `verified_noop`
+    (equal -> not recorded), or `unverified` (a hash was unavailable). An unverified mutation is an
+    UNCERTAINTY boundary: it can never produce an EDIT_PRECONDITION.
+  - TRUTHFUL COVERAGE: a ledger of deliveries / tool-calls-seen / recognized / unknown-shell, not a
+    row/(row+error) ratio that looks healthy while the shell parser is blind.
+  - MODEL-VISIBLE RESPONSE: measured from PostToolBatch (string OR text content-block array), with
+    multimodal/unsupported marked -- never silently unmeasured. Counts are ESTIMATED tokens.
+  - GIT BLOB versions resolved at capture via `git cat-file blob ref:path` and SHA-256 of the raw
+    bytes (same namespace as worktree digests), so a `git show` read conflicts correctly.
+  - HASHING opens the fd once and fstat's before/after (device+inode+size+mtime), so an atomic path
+    replacement mid-hash is a race, not a false stable. wall-time comes from an INJECTED clock
+    (Claude's payload has no wall_time field).
 """
 from __future__ import annotations
 
 import hashlib
 import json
 import os
-import sqlite3
 import stat
+import subprocess
+import time
 from typing import Callable, Optional, Tuple
 
 from .ingest import est_tokens
 from .normalize import BASH_MATERIALIZATION, NATIVE_READ, bash_effects
 
-HOOK_SCHEMA_VERSION = "0.2.0"
-MAX_HASH_BYTES = 32 * 1024 * 1024          # above this a file is `oversize`, not hashed
+HOOK_SCHEMA_VERSION = "0.3.0"
+MAX_HASH_BYTES = 32 * 1024 * 1024
 
 _SCHEMA = """
 CREATE TABLE IF NOT EXISTS meta (key TEXT PRIMARY KEY, value TEXT NOT NULL);
@@ -37,24 +44,23 @@ CREATE TABLE IF NOT EXISTS tool_events (
     step INTEGER,
     batch_id TEXT, batch_size INTEGER, parallel INTEGER,
     tool_use_id TEXT, tool_name TEXT,
-    kind TEXT, channel TEXT, mutation_source TEXT, representation TEXT,
+    kind TEXT, channel TEXT, mutation_source TEXT, mutation_status TEXT, representation TEXT,
     path_absolute TEXT, path_normalized TEXT, repo_relative TEXT, repo_id TEXT,
     pre_version TEXT, post_version TEXT, content_version TEXT, version_status TEXT,
     response_hash TEXT,
-    model_visible_chars INTEGER, model_visible_tokens INTEGER, token_attribution TEXT,
+    model_visible_chars INTEGER, model_visible_tokens INTEGER, token_status TEXT, token_attribution TEXT,
     token_estimator_id TEXT,
     success INTEGER, outcome TEXT, wall_time_ns INTEGER,
     schema_version TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_te_stream ON tool_events(stream_key, seq);
 CREATE INDEX IF NOT EXISTS idx_te_tuid   ON tool_events(tool_use_id);
--- persisted cross-delivery capture state (each hook delivery is its own process)
 CREATE TABLE IF NOT EXISTS session_state (session_agent TEXT PRIMARY KEY, epoch INTEGER, step INTEGER);
 CREATE TABLE IF NOT EXISTS pending_tools (tool_use_id TEXT PRIMARY KEY, payload TEXT);
 CREATE TABLE IF NOT EXISTS processed_batches (batch_id TEXT PRIMARY KEY);
 CREATE TABLE IF NOT EXISTS capture_errors (
-    id INTEGER PRIMARY KEY AUTOINCREMENT, hook_event TEXT, tool_use_id TEXT,
-    exc_class TEXT, detail TEXT);
+    id INTEGER PRIMARY KEY AUTOINCREMENT, hook_event TEXT, tool_use_id TEXT, exc_class TEXT, detail TEXT);
+CREATE TABLE IF NOT EXISTS capture_stats (metric TEXT PRIMARY KEY, n INTEGER NOT NULL DEFAULT 0);
 """
 
 
@@ -63,43 +69,76 @@ def _sha(b: bytes) -> str:
 
 
 def default_hasher(path) -> Tuple[str, Optional[str]]:
-    """Return (status, digest). Only `ok` and `absent` are version-COMPARABLE; directory/oversize/
-    unavailable/hash_race are UNKNOWN-quality states with a NULL digest, so two failures can never
-    compare equal and masquerade as a stable snapshot. Chunked + pre/post fstat so a file that
-    changes during hashing is detected as a race, not a stable read."""
+    """(status, digest). Opens the fd ONCE and fstat's before/after (device+inode+size+mtime); a
+    file replaced/changed mid-hash is a `hash_race`, not a false `stable`. Only ok/absent are
+    version-comparable; directory/oversize/unavailable/hash_race carry a NULL digest."""
     try:
-        st = os.stat(path)
+        fd = os.open(path, os.O_RDONLY)
     except FileNotFoundError:
         return ("absent", "absent:v1")
     except OSError:
         return ("unavailable", None)
-    if stat.S_ISDIR(st.st_mode):
-        return ("directory", None)
-    if st.st_size > MAX_HASH_BYTES:
-        return ("oversize", None)
     try:
+        st = os.fstat(fd)
+        if stat.S_ISDIR(st.st_mode):
+            return ("directory", None)
+        if st.st_size > MAX_HASH_BYTES:
+            return ("oversize", None)
         h = hashlib.sha256()
-        with open(path, "rb") as f:
-            for chunk in iter(lambda: f.read(65536), b""):
-                h.update(chunk)
-        st2 = os.stat(path)
-        if (st2.st_mtime_ns, st2.st_size) != (st.st_mtime_ns, st.st_size):
+        while True:
+            chunk = os.read(fd, 65536)
+            if not chunk:
+                break
+            h.update(chunk)
+        st2 = os.fstat(fd)
+        ident = (st.st_dev, st.st_ino, st.st_size, st.st_mtime_ns)
+        if (st2.st_dev, st2.st_ino, st2.st_size, st2.st_mtime_ns) != ident:
             return ("hash_race", None)
         return ("ok", "sha256:" + h.hexdigest())
     except OSError:
         return ("unavailable", None)
+    finally:
+        os.close(fd)
 
 
-def _comparable(snap) -> Optional[str]:
-    """The digest, only when the snapshot status is version-comparable (ok/absent); else None."""
-    if not snap:
-        return None
-    status, digest = snap[0], (snap[1] if len(snap) > 1 else None)
-    return digest if status in ("ok", "absent") else None
+def default_git_blob_hasher(cwd, ref, path) -> Tuple[str, Optional[str]]:
+    """SHA-256 the raw bytes of `ref:path` (same namespace as a worktree file digest), so a
+    `git show HEAD~2:foo` read that no longer matches the current file conflicts correctly."""
+    try:
+        out = subprocess.run(["git", "-C", cwd or ".", "cat-file", "blob", f"{ref}:{path}"],
+                             capture_output=True, timeout=5)
+    except Exception:      # noqa: BLE001 -- git absent / timeout / bad ref
+        return ("unavailable", None)
+    if out.returncode != 0:
+        return ("unavailable", None)
+    return ("ok", _sha(out.stdout))
+
+
+def measure_model_visible_response(resp) -> dict:
+    """Model-visible chars/estimated tokens/hash from a PostToolBatch response, which may be a
+    serialized string OR a text content-block array. Multimodal/unsupported is marked, not silently
+    dropped. Tokens are ESTIMATED (chars/4) until a provider tokenizer is used."""
+    text, status = None, "unsupported"
+    if isinstance(resp, str):
+        text, status = resp, "text"
+    elif isinstance(resp, list):
+        blocks = [b for b in resp if isinstance(b, dict)]
+        texts = [b.get("text", "") for b in blocks if b.get("type") == "text"]
+        non_text = any(b.get("type") != "text" for b in blocks)
+        if texts:
+            text = "".join(texts)
+            status = "text_partial_multimodal" if non_text else "text"
+        elif non_text:
+            status = "multimodal"
+    if text is None:
+        return {"chars": None, "tokens": None, "hash": None, "status": status}
+    return {"chars": len(text), "tokens": est_tokens(text), "hash": _sha(text.encode("utf-8", "replace")),
+            "status": status}
 
 
 class HookJournal:
     def __init__(self, path="::memory::"):
+        import sqlite3
         self.conn = sqlite3.connect(":memory:" if path in (":memory:", "::memory::") else str(path))
         self.conn.row_factory = sqlite3.Row
         self.conn.execute("PRAGMA busy_timeout=5000")
@@ -125,7 +164,7 @@ class HookJournal:
 
     def advance_step(self, sa: str) -> None:
         self.ensure_session(sa)
-        self.conn.execute("UPDATE session_state SET step=step+1 WHERE session_agent=?", (sa,))
+        self.conn.execute("UPDATE session_state SET step=step+1 WHERE session_agent=?", (sa,))   # atomic increment
 
     def put_pending(self, tuid: str, payload: dict) -> None:
         self.conn.execute("INSERT OR REPLACE INTO pending_tools VALUES (?, ?)", (tuid, json.dumps(payload)))
@@ -137,12 +176,16 @@ class HookJournal:
         self.conn.execute("DELETE FROM pending_tools WHERE tool_use_id=?", (tuid,))
         return json.loads(r["payload"])
 
-    def batch_seen(self, batch_id: str) -> bool:
-        seen = self.conn.execute("SELECT 1 FROM processed_batches WHERE batch_id=?", (batch_id,)).fetchone()
-        if seen:
-            return True
-        self.conn.execute("INSERT OR IGNORE INTO processed_batches VALUES (?)", (batch_id,))
-        return False
+    def claim_batch(self, batch_id: str) -> bool:
+        """Atomic claim: the INSERT itself is the claim, so two concurrent replays can't both
+        proceed. Returns True only for the first caller (rowcount == 1)."""
+        cur = self.conn.execute("INSERT OR IGNORE INTO processed_batches VALUES (?)", (batch_id,))
+        return cur.rowcount == 1
+
+    def bump(self, metric: str, n: int = 1) -> None:
+        self.conn.execute(
+            "INSERT INTO capture_stats(metric, n) VALUES (?, ?) "
+            "ON CONFLICT(metric) DO UPDATE SET n = n + ?", (metric, n, n))
 
     def record_error(self, hook_event, tool_use_id, exc_class, detail) -> None:
         try:
@@ -150,20 +193,25 @@ class HookJournal:
                 "INSERT INTO capture_errors(hook_event, tool_use_id, exc_class, detail) VALUES (?,?,?,?)",
                 (hook_event, tool_use_id, exc_class, (detail or "")[:200]))
             self.conn.commit()
-        except Exception:      # noqa: BLE001 -- if even the error log is unwritable, stay fail-open
+        except Exception:      # noqa: BLE001
             pass
 
-    def capture_coverage(self) -> dict:
-        got = self.conn.execute("SELECT COUNT(*) c FROM tool_events").fetchone()["c"]
-        err = self.conn.execute("SELECT COUNT(*) c FROM capture_errors").fetchone()["c"]
-        return {"events": got, "errors": err,
-                "coverage": (got / (got + err)) if (got + err) else None}
+    def capture_stats(self) -> dict:
+        d = {r["metric"]: r["n"] for r in self.conn.execute("SELECT metric, n FROM capture_stats")}
+        errs = self.conn.execute("SELECT COUNT(*) c FROM capture_errors").fetchone()["c"]
+        deliveries = d.get("deliveries", 0)
+        seen = d.get("tool_calls_seen", 0)
+        d["errors"] = errs
+        d["delivery_success_ratio"] = ((deliveries - errs) / deliveries) if deliveries else None
+        d["recognition_rate"] = (d.get("tool_calls_recognized", 0) / seen) if seen else None
+        d["unknown_shell_share"] = (d.get("unknown_shell", 0) / seen) if seen else None
+        return d
 
     # --- tool events -------------------------------------------------------
-    def put_tool_event(self, d: dict) -> None:
-        cols = ",".join(d)
-        ph = ",".join(f":{k}" for k in d)
-        self.conn.execute(f"INSERT OR IGNORE INTO tool_events ({cols}) VALUES ({ph})", d)
+    def put_tool_event(self, dd: dict) -> None:
+        cols = ",".join(dd)
+        ph = ",".join(f":{k}" for k in dd)
+        self.conn.execute(f"INSERT OR IGNORE INTO tool_events ({cols}) VALUES ({ph})", dd)
 
     def stamp_batch(self, tool_use_ids, batch_id: str) -> None:
         n = len(tool_use_ids)
@@ -171,20 +219,17 @@ class HookJournal:
              % ",".join("?" * n))
         self.conn.execute(q, (batch_id, n, int(n > 1), *tool_use_ids))
 
-    def attribute_tokens(self, tool_use_id: str, total_tokens: int, chars: int) -> None:
-        """Attach model-visible tokens ONCE per tool call. When a single tool_use produced several
-        path materializations (e.g. `cat a b`), the one response can't be split, so mark those
-        `ambiguous_multipath` and leave per-read tokens NULL rather than double-count."""
+    def attribute_tokens(self, tool_use_id: str, tokens, chars, token_status) -> None:
         rows = self.conn.execute(
             "SELECT event_id FROM tool_events WHERE tool_use_id=? AND kind='read'", (tool_use_id,)).fetchall()
         if len(rows) == 1:
             self.conn.execute(
-                "UPDATE tool_events SET model_visible_tokens=?, model_visible_chars=?, "
-                "token_attribution='attributed' WHERE event_id=?", (total_tokens, chars, rows[0]["event_id"]))
+                "UPDATE tool_events SET model_visible_tokens=?, model_visible_chars=?, token_status=?, "
+                "token_attribution='attributed' WHERE event_id=?", (tokens, chars, token_status, rows[0]["event_id"]))
         elif len(rows) > 1:
             self.conn.execute(
-                "UPDATE tool_events SET token_attribution='ambiguous_multipath' WHERE tool_use_id=? AND kind='read'",
-                (tool_use_id,))
+                "UPDATE tool_events SET token_status=?, token_attribution='ambiguous_multipath' "
+                "WHERE tool_use_id=? AND kind='read'", (token_status, tool_use_id))
 
     def tool_events(self, stream_key: Optional[str] = None):
         if stream_key:
@@ -204,10 +249,7 @@ _EDIT_TOOLS = {"Edit": "native_edit", "Write": "native_write",
                "MultiEdit": "native_edit", "NotebookEdit": "native_edit"}
 
 
-def _norm_path(path: Optional[str], cwd: Optional[str]) -> Tuple[Optional[str], Optional[str]]:
-    """(absolute-lexical, normalized-identity). Resolve a relative path against the event's cwd so a
-    Bash `src/a.py` and a native `/repo/src/a.py` share one identity for classification. Lexical
-    only (no realpath) -- symlink spelling can itself matter."""
+def _norm_path(path, cwd):
     if not path:
         return (None, None)
     absolute = path if os.path.isabs(path) else (os.path.join(cwd, path) if cwd else path)
@@ -215,38 +257,42 @@ def _norm_path(path: Optional[str], cwd: Optional[str]) -> Tuple[Optional[str], 
 
 
 class HookCapture:
-    """Stateless across deliveries: all cross-event state lives in the HookJournal, so a PreToolUse
-    in one process and its PostToolUse in another still finalize correctly."""
-
-    def __init__(self, journal: HookJournal, hasher: Optional[Callable[[str], Tuple[str, Optional[str]]]] = None):
+    def __init__(self, journal, hasher=None, git_blob_hasher=None, clock=None):
         self.j = journal
         self.hash = hasher or default_hasher
+        self.git = git_blob_hasher or default_git_blob_hasher
+        self.clock = clock or time.time_ns
 
     def on_event(self, ev: dict) -> None:
+        self.j.bump("deliveries")
+        conn = self.j.conn
+        conn.execute("SAVEPOINT cr_hook")
         try:
             self._dispatch(ev)
+            conn.execute("RELEASE cr_hook")
             self.j.commit()
-        except Exception as e:            # noqa: BLE001 -- fail-open, but LOG the gap (not invisible)
+        except Exception as e:            # noqa: BLE001 -- fail-open, atomic rollback, logged (not invisible)
+            try:
+                conn.execute("ROLLBACK TO cr_hook")
+                conn.execute("RELEASE cr_hook")
+            except Exception:             # noqa: BLE001
+                pass
             self.j.record_error(ev.get("hook_event_name"), ev.get("tool_use_id"), type(e).__name__, str(e))
 
     def _sa(self, ev) -> str:
         return f"{ev.get('session_id')}:{ev.get('agent_id') or 'main'}"
 
     def _stream(self, ev) -> str:
-        epoch, _ = self.j.session_state(self._sa(ev))
-        return f"{self._sa(ev)}:{epoch}"
+        return f"{self._sa(ev)}:{self.j.session_state(self._sa(ev))[0]}"
 
     def _dispatch(self, ev):
         e = ev.get("hook_event_name")
         if e == "SessionStart":
-            if ev.get("source") == "clear":
-                self.j.bump_epoch(self._sa(ev))       # /clear = new lineage; resume/compact keep it
-            else:
-                self.j.ensure_session(self._sa(ev))
+            (self.j.bump_epoch if ev.get("source") == "clear" else self.j.ensure_session)(self._sa(ev))
         elif e == "SubagentStart":
             self.j.ensure_session(self._sa(ev))
         elif e == "UserPromptSubmit":
-            self.j.advance_step(self._sa(ev))         # model-request epoch += 1
+            self.j.advance_step(self._sa(ev))
         elif e == "PreToolUse":
             self._pre(ev)
         elif e in ("PostToolUse", "PostToolUseFailure"):
@@ -255,7 +301,7 @@ class HookCapture:
             self._batch(ev)
 
     def _effects(self, tool, tinput, cwd):
-        out = []
+        out, unknown = [], False
         if tool in _READ_TOOLS:
             out.append({"kind": "read", "channel": NATIVE_READ, "mutation_source": None,
                         "representation": "file", "raw_path": tinput.get("file_path"), "ref": None})
@@ -263,7 +309,9 @@ class HookCapture:
             out.append({"kind": "edit", "channel": "edit", "mutation_source": _EDIT_TOOLS[tool],
                         "representation": "file", "raw_path": tinput.get("file_path"), "ref": None})
         elif tool == "Bash":
-            for x in bash_effects(tinput.get("command", "")):
+            effs = bash_effects(tinput.get("command", ""))
+            unknown = bool(effs) and all(x.kind == "unknown" for x in effs)
+            for x in effs:
                 if x.kind == "read":
                     out.append({"kind": "read", "channel": BASH_MATERIALIZATION, "mutation_source": None,
                                 "representation": x.representation, "raw_path": x.path, "ref": x.ref})
@@ -272,46 +320,70 @@ class HookCapture:
                                 "representation": "file", "raw_path": x.path, "ref": None})
         for x in out:
             x["path_abs"], x["path_norm"] = _norm_path(x["raw_path"], cwd)
-        return out
+        return out, unknown
 
     def _pre(self, ev):
-        effects = self._effects(ev.get("tool_name"), ev.get("tool_input") or {}, ev.get("cwd"))
+        cwd = ev.get("cwd")
+        effects, unknown = self._effects(ev.get("tool_name"), ev.get("tool_input") or {}, cwd)
+        self.j.bump("tool_calls_seen")
+        if effects:
+            self.j.bump("tool_calls_recognized")
+        if unknown:
+            self.j.bump("unknown_shell")
         for x in effects:
-            if x["path_abs"] and x["representation"] == "file":
-                x["pre"] = list(self.hash(x["path_abs"]))     # (status, digest) -> list for JSON
+            if x["representation"] == "git_blob" and x["ref"] and x["raw_path"]:
+                x["pre"] = list(self.git(cwd, x["ref"], x["raw_path"]))   # resolve blob at capture
+            elif x["path_abs"] and x["representation"] == "file":
+                x["pre"] = list(self.hash(x["path_abs"]))
         self.j.put_pending(ev.get("tool_use_id"), {
             "effects": effects, "step": self.j.session_state(self._sa(ev))[1], "stream": self._stream(ev),
             "tool_name": ev.get("tool_name"), "prompt_id": ev.get("prompt_id"),
-            "session_id": ev.get("session_id"), "agent_id": ev.get("agent_id"), "cwd": ev.get("cwd")})
+            "session_id": ev.get("session_id"), "agent_id": ev.get("agent_id"), "cwd": cwd,
+            "wall_time_ns": self.clock()})
+
+    @staticmethod
+    def _cmp(snap):
+        if not snap:
+            return None
+        status = snap[0]
+        digest = snap[1] if len(snap) > 1 else None
+        return digest if status in ("ok", "absent") else None
 
     def _post(self, ev, success):
         p = self.j.pop_pending(ev.get("tool_use_id"))
         if p is None:
             return
-        resp = ev.get("tool_response")
-        resp_hash = _sha(resp.encode("utf-8", "replace")) if isinstance(resp, str) else None
+        rm = measure_model_visible_response(ev.get("tool_response"))
         for ordinal, x in enumerate(p["effects"]):
             path_norm = x.get("path_norm")
             if not path_norm:
                 continue
-            pre = _comparable(x.get("pre"))
+            pre = self._cmp(x.get("pre"))
+            mutation_status, post = None, None
             if x["representation"] == "git_blob":
-                content_version, version_status, post = resp_hash, "stable", None
+                content_version = pre                        # resolved at capture from the blob bytes
+                version_status = "stable" if pre is not None else (x.get("pre") or ["unavailable"])[0]
             else:
-                post_snap = self.hash(x["path_abs"])
-                post = _comparable(post_snap)
+                post = self._cmp(self.hash(x["path_abs"]))
                 if x["kind"] == "read":
                     if pre is None or post is None:
-                        content_version, version_status = None, (x.get("pre") or [None])[0] or post_snap[0]
+                        content_version, version_status = None, "unverified"
                     elif pre == post:
                         content_version, version_status = pre, "stable"
                     else:
                         content_version, version_status = None, "raced"
-                else:                                          # edit
-                    if pre is not None and post is not None and pre == post:
-                        continue                               # identical bytes -> not a mutation
-                    content_version, version_status = pre, ("stable" if (pre and post) else "unverified")
-            outcome = "success" if success else ("failed_partial" if x["kind"] == "edit" else "failed")
+                else:                                        # edit -> mutation certainty
+                    if pre is not None and post is not None:
+                        if pre == post:
+                            continue                         # verified_noop -> not a mutation
+                        content_version, version_status, mutation_status = pre, "stable", "verified_change"
+                    else:
+                        content_version, version_status, mutation_status = pre, "unverified", "unverified"
+            if x["kind"] == "edit":
+                outcome = ("failed_partial" if (not success and mutation_status == "verified_change")
+                           else ("failed_uncertain" if not success else "success"))
+            else:
+                outcome = "success" if success else "failed"
             eid = f"{ev.get('tool_use_id')}:{x['kind']}:{ordinal}:{hashlib.sha1(path_norm.encode()).hexdigest()[:8]}"
             self.j.put_tool_event({
                 "event_id": eid, "session_id": p["session_id"], "agent_id": p["agent_id"],
@@ -319,26 +391,27 @@ class HookCapture:
                 "batch_id": None, "batch_size": None, "parallel": None,
                 "tool_use_id": ev.get("tool_use_id"), "tool_name": p["tool_name"], "kind": x["kind"],
                 "channel": x["channel"], "mutation_source": x["mutation_source"],
-                "representation": x["representation"],
+                "mutation_status": mutation_status, "representation": x["representation"],
                 "path_absolute": x.get("path_abs"), "path_normalized": path_norm,
                 "repo_relative": None, "repo_id": None,
                 "pre_version": pre, "post_version": post, "content_version": content_version,
-                "version_status": version_status, "response_hash": resp_hash,
-                "model_visible_chars": None, "model_visible_tokens": None, "token_attribution": None,
-                "token_estimator_id": "chars4-v1", "success": int(success), "outcome": outcome,
-                "wall_time_ns": ev.get("wall_time_ns"), "schema_version": HOOK_SCHEMA_VERSION})
+                "version_status": version_status, "response_hash": rm["hash"],
+                "model_visible_chars": None, "model_visible_tokens": None, "token_status": None,
+                "token_attribution": None, "token_estimator_id": "chars4-v1",
+                "success": int(success), "outcome": outcome, "wall_time_ns": p.get("wall_time_ns"),
+                "schema_version": HOOK_SCHEMA_VERSION})
 
     def _batch(self, ev):
         calls = ev.get("tool_calls") or []
-        tuids = [c.get("tool_use_id") for c in calls if c.get("tool_use_id")]
+        tuids = [c.get("tool_use_id") for c in calls if isinstance(c, dict) and c.get("tool_use_id")]
         bid = "b_" + hashlib.sha1(
             (self._stream(ev) + str(ev.get("prompt_id")) + "|".join(sorted(tuids))).encode()).hexdigest()[:12]
-        if self.j.batch_seen(bid):
-            return                                             # idempotent: a re-delivered batch is a no-op
+        if not self.j.claim_batch(bid):
+            return                                           # already processed -> idempotent no-op
         if tuids:
             self.j.stamp_batch(tuids, bid)
-        for c in calls:                                        # PostToolBatch response = model-visible content
-            resp = c.get("tool_response")
-            if isinstance(resp, str) and c.get("tool_use_id"):
-                self.j.attribute_tokens(c["tool_use_id"], est_tokens(resp), len(resp))
-        self.j.advance_step(self._sa(ev))                      # model-request epoch advances after the batch
+        for c in calls:                                      # PostToolBatch response = model-visible content
+            if isinstance(c, dict) and c.get("tool_use_id"):
+                rm = measure_model_visible_response(c.get("tool_response"))
+                self.j.attribute_tokens(c["tool_use_id"], rm["tokens"], rm["chars"], rm["status"])
+        self.j.advance_step(self._sa(ev))

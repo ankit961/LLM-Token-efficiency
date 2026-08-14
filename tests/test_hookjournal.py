@@ -158,10 +158,108 @@ def test_clear_creates_a_new_lineage_epoch():
 
 
 def test_capture_error_is_logged_not_invisible():
-    j, c = _cap({})
-    c.on_event({"hook_event_name": "PostToolBatch", "session_id": "s", "tool_calls": "malformed"})
-    cov = j.capture_coverage()
-    assert cov["errors"] >= 1 and cov["coverage"] is not None
+    j = HookJournal(":memory:")
+    c = HookCapture(j, hasher=lambda p: (_ for _ in ()).throw(RuntimeError("boom")))
+    c.on_event({"hook_event_name": "PreToolUse", "session_id": "s", "cwd": "/repo",
+                "tool_use_id": "t1", "tool_name": "Read", "tool_input": {"file_path": "/repo/a.py"}})
+    st = j.capture_stats()
+    assert st["errors"] >= 1 and st["delivery_success_ratio"] is not None
+
+
+# Truthful coverage: a ledger of deliveries/seen/recognized/unknown-shell, not a row/(row+error)
+# ratio that could look healthy while the shell parser is blind.
+def test_capture_stats_are_a_truthful_ledger():
+    j, c = _cap({"/repo/a.py": "v1"})
+    c.on_event({"hook_event_name": "UserPromptSubmit", "session_id": "s"})
+    _pre(c, "s", "t1", "Bash", {"command": "weird | pipeline"}, cwd="/repo"); _post(c, "s", "t1", "Bash")
+    _pre(c, "s", "t2", "Read", {"file_path": "/repo/a.py"}); _post(c, "s", "t2", "Read")
+    st = j.capture_stats()
+    assert st["tool_calls_seen"] == 2 and st["unknown_shell"] == 1
+    assert st["recognition_rate"] == 0.5 and st["unknown_shell_share"] == 0.5
+
+
+# ATOMIC delivery: a failure after pop_pending must roll back, leaving pending intact for retry.
+def test_delivery_rollback_preserves_pending_on_failure():
+    j = HookJournal(":memory:")
+    calls = {"n": 0}
+
+    def h(p):
+        calls["n"] += 1
+        if calls["n"] == 2:                                  # the post-hash, AFTER pop_pending
+            raise RuntimeError("boom")
+        return ("ok", "v1")
+
+    c = HookCapture(j, hasher=h)
+    _pre(c, "s", "t1", "Edit", {"file_path": "/repo/a.py"})
+    _post(c, "s", "t1", "Edit")
+    assert j.conn.execute("SELECT 1 FROM pending_tools WHERE tool_use_id='t1'").fetchone() is not None
+    assert j.tool_events() == [] and j.capture_stats()["errors"] >= 1
+
+
+# ...and a failure after claiming a batch must not leave the batch processed or advance the step.
+def test_delivery_rollback_unclaims_batch_on_failure():
+    j = HookJournal(":memory:")
+    c = HookCapture(j, hasher=lambda p: ("ok", "v1"))
+    c.on_event({"hook_event_name": "UserPromptSubmit", "session_id": "s"})
+    j.stamp_batch = lambda *a, **k: (_ for _ in ()).throw(RuntimeError("boom"))   # fail right after claim
+    c.on_event({"hook_event_name": "PostToolBatch", "session_id": "s", "prompt_id": "p1",
+                "tool_calls": [{"tool_use_id": "t1", "tool_response": "x"}]})
+    assert j.conn.execute("SELECT COUNT(*) c FROM processed_batches").fetchone()["c"] == 0
+    assert j.session_state("s:main")[1] == 1                 # step not advanced
+
+
+# MUTATION CERTAINTY: an unverified mutation (a hash unavailable) can never produce a precondition;
+# a read crossing it is UNKNOWN.
+def test_unverified_mutation_makes_crossing_read_unknown():
+    versions = {"/repo/a.py": "v1"}
+
+    def h(p):
+        return ("ok", versions[p]) if p in versions else ("unavailable", None)
+
+    j = HookJournal(":memory:")
+    c = HookCapture(j, hasher=h)
+    c.on_event({"hook_event_name": "UserPromptSubmit", "session_id": "s"})
+    _pre(c, "s", "t1", "Read", {"file_path": "/repo/a.py"}); _post(c, "s", "t1", "Read")
+    _pre(c, "s", "t2", "Edit", {"file_path": "/repo/a.py"})
+    del versions["/repo/a.py"]                               # post-hash unavailable -> unverified mutation
+    _post(c, "s", "t2", "Edit")
+    rows = j.tool_events("s:main:0")
+    edit = [r for r in rows if r["kind"] == "edit"][0]
+    read = [r for r in rows if r["kind"] == "read"][0]
+    assert edit["mutation_status"] == "unverified"
+    labels = classify_reads(to_events(rows))
+    assert labels[read["event_id"]].observed_class == UNKNOWN
+
+
+# GIT BLOB: version resolved at capture from the blob bytes (same digest namespace as the worktree),
+# so a `git show` read that no longer matches the current file conflicts.
+def test_git_blob_version_resolved_at_capture():
+    versions = {"/repo/foo.py": "vNEW"}
+
+    def h(p):
+        return ("ok", versions[p]) if p in versions else ("absent", "absent:v1")
+
+    j = HookJournal(":memory:")
+    c = HookCapture(j, hasher=h, git_blob_hasher=lambda cwd, ref, path: ("ok", "vOLD"))
+    c.on_event({"hook_event_name": "UserPromptSubmit", "session_id": "s"})
+    _pre(c, "s", "t1", "Bash", {"command": "git show HEAD~2:foo.py"}, cwd="/repo"); _post(c, "s", "t1", "Bash")
+    _pre(c, "s", "t2", "Edit", {"file_path": "/repo/foo.py"}, cwd="/repo")
+    versions["/repo/foo.py"] = "vNEWER"
+    _post(c, "s", "t2", "Edit")
+    rows = j.tool_events("s:main:0")
+    read = [r for r in rows if r["kind"] == "read"][0]
+    assert read["representation"] == "git_blob" and read["content_version"] == "vOLD"
+    labels = classify_reads(to_events(rows))
+    assert labels[read["event_id"]].observed_class == UNKNOWN   # vOLD != edit pre-version vNEW
+
+
+def test_measure_model_visible_response_handles_arrays_and_multimodal():
+    from contextruntime.hookjournal import measure_model_visible_response as m
+    assert m("hello")["status"] == "text" and m("hello")["chars"] == 5
+    assert m([{"type": "text", "text": "abcd"}, {"type": "text", "text": "ef"}])["chars"] == 6
+    assert m([{"type": "text", "text": "hi"}, {"type": "image", "source": "x"}])["status"] == "text_partial_multimodal"
+    assert m([{"type": "image", "source": "x"}])["status"] == "multimodal" and m([{"type": "image"}])["chars"] is None
+    assert m({"result": "obj"})["status"] == "unsupported"
 
 
 def test_unavailable_hash_is_not_stable():
