@@ -78,6 +78,23 @@ gets to claim a gate once a measured trial clears it.
 > `docs/corpus-protocol.md` BEFORE any collection — predefined task mixture, failures retained, one
 > client version per journal, tasks never chosen by their exploration rate.
 
+> **Slice 3A.2 — preregistration/freeze patch (reporter-only + protocol).** `report_schema` →
+> `label-report-0.2.0`. Provenance renamed `classifier_sha` → `runtime_commit_sha` (+ a
+> `classifier_blob_sha` = sha256 of `classify.py` source). A new **admission** section exposes the
+> EXACT mechanical gate (`pre_tool_calls_seen==batch_tool_calls_resolved`, `errors==0`, `pending==0`,
+> `hook_schema==0.3.0`, `canonical_report`, `canonical_validity`, `provenance_complete`) →
+> `canonical_admissible`, plus separate `token_share_eligible` (100% fully-measured text) and
+> `bash_coverage_clean` (`unknown_bash_calls==0`, retain+count if false). `canonical_validity` now
+> requires `missing_step_reads==missing_step_mutations==seq_fallback_preconditions==0` (a missing step
+> can flip an outside-window decision without ever producing a precondition). `closure_reason` is an
+> enum `{controlled_run_completed, superseded_clear_epoch, timeout, aborted}` (free text rejected —
+> privacy). `principal_result` renamed `censoring_bounds` (identification bounds, not a sampling CI);
+> complete-case is descriptive, not "unbiased". Corpus **unit = one task run = one journal DB**
+> (streams/agents/epochs nested); protocol + a frozen 50-task plan (`docs/corpus-plan.md`, 10×5,
+> locked before task 1) preregistered; report micro (read-weighted) and macro (task-weighted), with
+> task-cluster bootstrap CIs later. Collection waits for the combined-tree snapshot (PR#2→main, then
+> PR#3→main); pilots are marked `PILOT / NOT IN CORPUS`.
+
 **What the ~53% number is and isn't.** `reduce-scan` reports *~53% reduction on
 reducible tool results, Grade C, observe mode.* It excludes source reads, history, the
 fixed base prefix, tool schemas, ordinary conversation, and retries — and there is no

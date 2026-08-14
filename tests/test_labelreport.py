@@ -171,10 +171,11 @@ def test_provenance_and_integrity_fields(tmp_path):
         _ev(j, eid="r", kind="read", step=0, stream="s:main:0", path="/a.py", vstat="stable")
         _ev(j, eid="e", kind="edit", step=1, stream="s:main:0", path="/a.py", mut="verified_change")
     db = _mk(tmp_path, "prov.db", build)
-    rep = build_report(db, classifier_sha="deadbeef", client_version="2.1.229")
+    rep = build_report(db, runtime_commit_sha="deadbeef", client_version="2.1.229")
     p = rep["provenance"]
-    assert p["report_schema_version"] == "label-report-0.1.0" and p["hook_schema_version"] == "0.3.0"
-    assert p["classifier_sha"] == "deadbeef" and p["client_version"] == "2.1.229"
+    assert p["report_schema_version"] == "label-report-0.2.0" and p["hook_schema_version"] == "0.3.0"
+    assert p["runtime_commit_sha"] == "deadbeef" and p["client_version"] == "2.1.229"
+    assert p["classifier_blob_sha"].startswith("sha256:")        # identity of classify.py source
     assert p["journal_sha256"].startswith("sha256:") and p["primary_window"] == 16
     assert p["token_estimator_id"] == "chars4-v1" and p["windows"] == ["8", "16", "32", "inf"]
     ig = rep["capture_integrity"]
@@ -412,3 +413,75 @@ def test_all_canonical_when_steps_present(tmp_path):
     db = _mk(tmp_path, "okval.db", build)
     va = build_report(db, manifest={"streams": [{"stream_key": "s:main:0", "closed": True}]})["validity"]
     assert va["canonical_validity"] is True and va["seq_fallback_preconditions"] == 0
+
+
+# 3A.2 (stricter validity): a MISSING step that never produced a precondition (a read with no future
+# edit) must still fail canonical_validity -- a missing step can flip an outside-window decision.
+def test_missing_step_without_precondition_fails_validity(tmp_path):
+    def build(j):
+        _ev(j, eid="r", kind="read", step=None, stream="s:main:0", path="/a.py")   # no edit -> exploration
+    db = _mk(tmp_path, "misstep.db", build)
+    rep = build_report(db, manifest={"streams": [{"stream_key": "s:main:0", "closed": True}]})
+    va = rep["validity"]
+    assert va["missing_step_reads"] == 1 and va["seq_fallback_preconditions"] == 0
+    assert va["canonical_validity"] is False                     # missing step alone trips the gate
+    assert rep["admission"]["checks"]["canonical_validity"] is False
+
+
+# 3A.2 (exact admission gate): a clean run with complete provenance is canonical_admissible; the
+# checks are the exact mechanical booleans the corpus harness applies.
+def test_admission_gate_exact_checks(tmp_path):
+    def build(j):
+        j.bump("deliveries"); j.bump("pre_tool_calls_seen"); j.bump("batch_tool_calls_resolved")
+        _ev(j, eid="r", kind="read", step=0, stream="s:main:0", path="/a.py", tok=10, tok_attr="attributed")
+        _ev(j, eid="e", kind="edit", step=1, stream="s:main:0", path="/a.py", mut="verified_change")
+    db = _mk(tmp_path, "adm.db", build)
+    rep = build_report(db, manifest={"streams": [{"stream_key": "s:main:0", "closed": True}]},
+                       runtime_commit_sha="abc123", client_version="2.1.229")
+    ad = rep["admission"]
+    assert ad["checks"] == {"pre_equals_batch": True, "zero_errors": True, "zero_pending": True,
+                            "hook_schema_expected": True, "canonical_report": True,
+                            "canonical_validity": True, "provenance_complete": True}
+    assert ad["canonical_admissible"] is True
+    assert ad["token_share_eligible"] is True and ad["bash_coverage_clean"] is True
+
+
+# 3A.2 (provenance completeness): a canonical run WITHOUT client/runtime stamps is NOT admissible.
+def test_admission_requires_complete_provenance(tmp_path):
+    def build(j):
+        _ev(j, eid="r", kind="read", step=0, stream="s:main:0", path="/a.py")
+    db = _mk(tmp_path, "prov2.db", build)
+    rep = build_report(db, manifest={"streams": [{"stream_key": "s:main:0", "closed": True}]})  # no stamps
+    assert rep["admission"]["checks"]["provenance_complete"] is False
+    assert rep["admission"]["canonical_admissible"] is False
+
+
+# 3A.2 (token-share eligibility is SEPARATE): a run with a multimodal read is still event-admissible
+# but NOT token-share eligible.
+def test_token_share_eligibility_is_separate_from_admission(tmp_path):
+    def build(j):
+        j.bump("deliveries"); j.bump("pre_tool_calls_seen"); j.bump("batch_tool_calls_resolved")
+        _ev(j, eid="r", kind="read", step=0, stream="s:main:0", path="/a.py", tok=10, tok_attr="attributed")
+        _ev(j, eid="img", kind="read", step=1, stream="s:main:0", path="/b.png",
+            tok=None, tok_attr="attributed", tstatus="multimodal")
+    db = _mk(tmp_path, "tse.db", build)
+    rep = build_report(db, manifest={"streams": [{"stream_key": "s:main:0", "closed": True}]},
+                       runtime_commit_sha="abc", client_version="2.1.229")
+    assert rep["admission"]["canonical_admissible"] is True       # event-label analysis still fine
+    assert rep["admission"]["token_share_eligible"] is False      # but not the token headline
+
+
+# 3A.2 (closure_reason is an enum): free-text closure_reason is rejected (could leak identifiers).
+def test_free_text_closure_reason_is_rejected(tmp_path):
+    import pytest
+    def build(j):
+        _ev(j, eid="r", kind="read", step=0, stream="s:main:0", path="/a.py")
+    db = _mk(tmp_path, "cr.db", build)
+    manifest = {"streams": [{"stream_key": "s:main:0", "closed": True,
+                             "closure_reason": "user Ankit's laptop run"}]}
+    with pytest.raises(ValueError):
+        build_report(db, manifest=manifest)
+    # the four enum values are accepted
+    for reason in ("controlled_run_completed", "timeout", "aborted"):
+        ok = {"streams": [{"stream_key": "s:main:0", "closed": True, "closure_reason": reason}]}
+        assert build_report(db, manifest=ok)["censoring"]["streams_closed"] == 1

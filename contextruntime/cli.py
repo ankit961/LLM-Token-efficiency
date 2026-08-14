@@ -141,15 +141,15 @@ def cmd_label_report(args) -> int:
         windows = tuple(labelreport.INF_WINDOW if w.strip().lower() in ("inf", "infinity")
                         else int(w) for w in args.experimental_windows.split(","))
         primary = args.experimental_primary
-    sha = None
+    runtime_sha = None
     try:
-        sha = subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True, text=True,
-                             cwd=os.path.dirname(os.path.abspath(__file__))).stdout.strip() or None
+        runtime_sha = subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True, text=True,
+                                     cwd=os.path.dirname(os.path.abspath(__file__))).stdout.strip() or None
     except Exception:  # noqa: BLE001 -- provenance is best-effort
-        sha = None
+        runtime_sha = None
     try:
         rep = labelreport.build_report(args.db, manifest=manifest, canonical=canonical, windows=windows,
-                                       primary=primary, classifier_sha=sha,
+                                       primary=primary, runtime_commit_sha=runtime_sha,
                                        client_version=args.client_version,
                                        include_stream_map=bool(args.stream_map))
     except ValueError as e:
