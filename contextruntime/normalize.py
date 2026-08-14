@@ -90,7 +90,9 @@ def bash_effects(command: str) -> list:
     if prog == "tee":
         return [ShellEffect("edit", a) for a in args] or _unknown("tee_no_file")
     if prog == "cp" and len(args) >= 2:
-        return [ShellEffect("read", args[0]), ShellEffect("edit", args[-1])]
+        # cp consumes the source's filesystem bytes but does NOT present them to the model, so it
+        # is a destination mutation only -- not a model-visible read (kind=read means materialized).
+        return [ShellEffect("edit", args[-1])]
     if prog == "mv" and len(args) >= 2:
         return [ShellEffect("edit", args[0], note="moved_from"), ShellEffect("edit", args[-1])]
     if prog == "rm":
@@ -109,14 +111,20 @@ BASH_MATERIALIZATION = "bash_materialization"
 
 
 def to_events(rows) -> list:
-    """Map HookJournal tool-event rows into the flat event dicts classify_reads consumes.
-    Only materializations (reads) and mutations (edits) become events; `unknown`/no-path rows are
-    dropped (they cannot be attributed). One row already corresponds to one path effect."""
+    """Map HookJournal tool-event rows into the flat event dicts classify_reads consumes. Only
+    materializations (reads) and mutations (edits) become events; `unknown`/no-path rows are
+    dropped. A FAILED read materialized nothing to the model, so it is not emitted (it remains a
+    diagnostic row); a failed mutation that changed bytes is still a mutation boundary. The
+    NORMALIZED path is the classification identity, so a Bash `src/a.py` and a native `/repo/src/a.py`
+    resolve to the same file. Per-read token weight uses the (unambiguously attributed) model-visible
+    token count."""
     out = []
     for r in rows:
         kind = r["kind"]                                       # read | edit | unknown
         if kind not in ("read", "edit") or not r["path_normalized"]:
             continue
+        if kind == "read" and not r["success"]:
+            continue                                           # failed read -> no materialization
         ev = {"event_id": r["event_id"], "seq": r["seq"], "kind": kind,
               "stream_key": r["stream_key"], "path": r["path_normalized"],
               "content_version": r["content_version"], "step": r["step"],
@@ -124,6 +132,6 @@ def to_events(rows) -> list:
         if kind == "read":
             ev["channel"] = r["channel"]
             ev["version_status"] = r["version_status"]
-            ev["transport_content_tokens"] = r["estimated_tokens"]
+            ev["transport_content_tokens"] = r["model_visible_tokens"]
         out.append(ev)
     return out
