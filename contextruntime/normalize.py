@@ -19,10 +19,11 @@ worktree file), so a later edit of the current file correctly makes it a version
 """
 from __future__ import annotations
 
+import os
 import re
 import shlex
 from dataclasses import dataclass
-from typing import Optional
+from typing import List, Optional
 
 _READ_CMDS = {"cat", "head", "tail", "less", "more", "bat", "nl"}   # file_materialization
 _SEARCH_CMDS = {"grep", "egrep", "fgrep", "rg", "ripgrep", "ag", "ack"}   # search_materialization
@@ -31,6 +32,10 @@ _PATH_CMDS = {"find", "ls", "tree"}                                # path_listin
 _EXEC_CMDS = {"python", "python2", "python3", "pytest", "py.test", "tox", "make", "flake8",
               "black", "isort", "mypy", "pylint", "coverage", "pip", "pip3", "npm", "node",
               "yarn", "go", "cargo", "ruff", "nox"}
+# a pipeline whose TAIL summarizes/transforms shows the model a DERIVED artifact (a count, a sort),
+# not source lines -- so it is `derived`, not `search`. A source-preserving filter tail keeps `search`.
+_SUMMARIZER_TAILS = {"wc", "sort", "uniq", "cut", "tr", "jq", "column", "paste", "comm", "md5",
+                     "md5sum", "sha1sum", "sha256sum", "xxd", "od", "base64", "tee"}
 # genuinely-complex shell we will NOT parse -> unknown. `;`/`&&`/`||` are now SPLIT into statements
 # (each recognized on its own), and a leading `|` is handled per statement -- so those are OUT. Only
 # subshells, command substitution, loops, xargs, eval, heredocs and process substitution bail here.
@@ -41,9 +46,33 @@ _TRULY_COMPLEX = re.compile(r"`|\$\(|<\(|<<|\bfor\b|\bwhile\b|\bdo\b|\bdone\b|\b
 class ShellEffect:
     kind: str                          # "read" | "edit" | "execution" | "unknown"
     path: str = ""
-    representation: str = "file"       # "file" | "git_blob" | "search" | "path_listing"
+    representation: str = "file"       # "file" | "git_blob" | "search" | "path_listing" | "derived"
     ref: Optional[str] = None          # git rev for a git_blob
     note: Optional[str] = None
+    attributable: bool = True          # may the single Bash response's tokens go to THIS read?
+
+
+@dataclass
+class BashParse:
+    """Structured result of parsing one Bash command (hook_schema 0.4.1). `effects` holds only the
+    ASSERTED effects -- from statements guaranteed to execute -- so a conditional/backgrounded
+    statement never manufactures a phantom read/edit."""
+    effects: List[ShellEffect]
+    recognized_statements: int = 0
+    unknown_statements: int = 0
+    has_execution: bool = False        # an asserted execution statement (a second output producer)
+    has_unknown: bool = False          # a statement we could not recognize (partial coverage)
+    conditional: bool = False          # some statement's effects were dropped (uncertain execution)
+
+    def coverage(self) -> str:
+        rec, unk = self.recognized_statements, self.unknown_statements
+        if rec and unk:
+            return "partial"
+        if unk:
+            return "unknown_only"
+        if rec and not any(e.kind in ("read", "edit") for e in self.effects):
+            return "execution_only"
+        return "fully" if rec else "none"
 
 
 def _unknown(note: str):
@@ -76,10 +105,28 @@ def _is_execution(leading) -> bool:
         or prog.endswith(".py")
 
 
-def _scope(ops, default="."):
-    """A representative path/scope for a search or listing (not a precise per-file identity;
-    search/listing materialize CONTEXT, not one file -- the token capture is what matters)."""
-    return ops[-1] if ops else default
+def _grep_scope(rest):
+    """Search scope for grep/rg/git grep: the PATTERN is not a path. With -e/-f the pattern is a flag
+    value, so every non-flag operand is a path; otherwise the first non-flag operand is the pattern."""
+    ops = [t for t in rest if not t.startswith("-")]
+    has_pat_flag = any(t.startswith(("-e", "-f", "--regexp", "--file")) for t in rest)
+    paths = ops if has_pat_flag else ops[1:]
+    return paths[-1] if paths else "."
+
+
+def _find_scope(rest):
+    """find scope: the search ROOT(s) come BEFORE the first -expression (`find . -name '*.py'` -> .)."""
+    paths = []
+    for t in rest:
+        if t.startswith("-"):
+            break
+        paths.append(t)
+    return paths[-1] if paths else "."
+
+
+def _list_scope(rest):
+    ops = [t for t in rest if not t.startswith("-")]
+    return ops[-1] if ops else "."
 
 
 # stderr redirects (2>&1, 2>/dev/null, 2> file) do NOT reach the model -- stripped before recognition
@@ -88,10 +135,15 @@ _STDERR_REDIR = re.compile(r"\s\d*>&\d+|\s\d+>>?\s*[^\s|;&<>]+")
 
 
 def _split_statements(cmd: str):
-    """Split a command line on top-level ; && || & into statements -- QUOTE-AWARE (a hand scanner,
-    NOT shlex punctuation_chars, which splits fd-redirects like `2>` and treats quoted separators as
-    operators). Returns raw statement strings; `|` is kept inside a statement (leading-pipe)."""
-    out, cur, q, i, n = [], [], None, 0, len(cmd)
+    """Split a command line into (statement, separator_after) pairs on top-level ; && || & --
+    QUOTE-AWARE (a hand scanner, NOT shlex punctuation_chars, which splits fd-redirects like `2>` and
+    treats quoted separators as operators). The separator is retained so execution CERTAINTY can be
+    judged (`;` sequences unconditionally; `&&`/`||`/`&` do not). `|` stays inside a statement."""
+    out, cur, sep, q, i, n = [], [], None, None, 0, len(cmd)
+
+    def flush(s):
+        out.append(("".join(cur).strip(), s))
+
     while i < n:
         c = cmd[i]
         if q:
@@ -102,42 +154,74 @@ def _split_statements(cmd: str):
         elif c in ("'", '"'):
             q = c; cur.append(c); i += 1
         elif cmd[i:i + 2] in ("&&", "||"):
-            out.append("".join(cur)); cur = []; i += 2
+            flush(cmd[i:i + 2]); cur = []; i += 2
         elif c == ";":
-            out.append("".join(cur)); cur = []; i += 1
+            flush(";"); cur = []; i += 1
         elif c == "&" and cmd[i - 1:i] != ">" and not (i + 1 < n and cmd[i + 1] == ">"):
-            out.append("".join(cur)); cur = []; i += 1        # background; `>&` and `&>` are redirects
+            flush("&"); cur = []; i += 1                      # background; `>&`/`&>` are redirects
         else:
             cur.append(c); i += 1
-    out.append("".join(cur))
-    return [s.strip() for s in out if s.strip()]
+    flush(None)
+    return [(s, sp) for s, sp in out if s]
+
+
+def bash_parse(command: str) -> BashParse:
+    """Structured recognition of a Bash command (hook_schema 0.4.1). Only statements GUARANTEED to
+    execute contribute effects; a `cd DIR` updates a virtual cwd for later statements; partial
+    recognition is preserved in the coverage counts; a read is `attributable` only when it is the sole
+    output producer (no execution / no unknown / no other read / not conditional)."""
+    cmd = (command or "").strip()
+    if not cmd:
+        return BashParse([])
+    if _TRULY_COMPLEX.search(cmd):
+        return BashParse(_unknown("complex_shell"), unknown_statements=1, has_unknown=True)
+    parts = _split_statements(cmd)
+    if not parts:
+        return BashParse([])
+    asserted, rec, unk = [], 0, 0
+    has_exec = has_unknown = conditional = False
+    vcwd, prev_sep, prev_cd = "", None, False
+    for idx, (stmt, sep_after) in enumerate(parts):
+        # a statement runs FOR CERTAIN only if it is first, or `;`-sequenced, or the `&&`-guard was a
+        # (safe) cd; never when it is backgrounded or follows a background.
+        certain = ((idx == 0 or prev_sep == ";" or (prev_sep == "&&" and prev_cd))
+                   and prev_sep != "&" and sep_after != "&")
+        head = stmt.split()
+        is_cd = bool(head) and head[0] == "cd"
+        effs = _stmt_effects(stmt)
+        if bool(effs) and all(e.kind == "unknown" for e in effs):
+            unk += 1; has_unknown = True
+        elif any(e.kind != "unknown" for e in effs):
+            rec += 1
+        for e in effs:
+            if e.kind == "unknown":
+                continue
+            if not certain:
+                conditional = True
+                continue
+            if e.kind == "execution":
+                has_exec = True
+            if e.path and vcwd and not os.path.isabs(e.path):   # resolve against the virtual cwd
+                e.path = os.path.normpath(os.path.join(vcwd, e.path))
+            asserted.append(e)
+        if is_cd and certain and len(head) > 1 and not head[1].startswith("-"):
+            d = head[1]
+            vcwd = d if os.path.isabs(d) else (os.path.normpath(os.path.join(vcwd, d)) if vcwd else d)
+        prev_cd, prev_sep = (is_cd and certain), sep_after
+    # token attribution: a read is a candidate for the single Bash response's tokens only if NO other
+    # KIND of producer co-ran (execution / unknown / conditional). Multiple READS from one call stay
+    # candidates here and are resolved to `ambiguous_multipath` downstream; a read alongside an
+    # execution or unknown is `ambiguous_composite` (its slice of the mixed response can't be isolated).
+    clean = not has_exec and not has_unknown and not conditional
+    for e in asserted:
+        if e.kind == "read":
+            e.attributable = clean
+    return BashParse(asserted, rec, unk, has_exec, has_unknown, conditional)
 
 
 def bash_effects(command: str) -> list:
-    """Recognize read/mutation/execution effects of a shell command (hook_schema 0.4.0).
-
-    Representations: file_materialization (cat/head/tail/sed -n), git_blob (git show), search
-    (grep/rg/git grep), path_listing (find/ls). `execution` (tests/python/build/lint) is recognized
-    but is NOT a read. Compound commands are SPLIT on ;/&&/|| and each statement recognized (so
-    `cd t && grep x f` yields the grep read); a `cd` statement is a no-op. Genuinely-complex shell
-    (subshells, loops, xargs, eval) is `unknown`."""
-    cmd = (command or "").strip()
-    if not cmd:
-        return []
-    if _TRULY_COMPLEX.search(cmd):
-        return _unknown("complex_shell")
-    stmts = _split_statements(cmd)
-    if stmts is None:
-        return _unknown("unparseable")
-    if not stmts:
-        return []
-    effs = []
-    for stmt in stmts:
-        effs.extend(_stmt_effects(stmt))
-    # a compound is unknown only if EVERY statement was unknown (all noise); otherwise keep the
-    # recognized read/edit/execution effects and drop the unknown noise around them.
-    recognized = [e for e in effs if e.kind != "unknown"]
-    return recognized or (effs and [_unknown("unrecognized")[0]]) or []
+    """The asserted effects of a Bash command (thin wrapper over bash_parse)."""
+    return bash_parse(command).effects
 
 
 def _has_unquoted_gt(s: str) -> bool:
@@ -170,31 +254,38 @@ def _stmt_effects(stmt: str) -> list:
                 return [ShellEffect("edit", toks[i + 1].strip("'\""), note="redirect")]
     if toks[0] == "cd":
         return []                                              # navigation only -- no materialization
-    # a single leading pipe to a pager/filter (grep ... | head) still materializes the leading
-    # command's output to the model -- analyze the FIRST pipeline segment. A pipe FILTERS the output,
-    # so a piped file read is a derived subset, never a full-file read (no content_version claim).
+    # A leading pipe to a pager/filter (grep ... | head) still materializes the leading command's
+    # output. A pipe FILTERS, so a piped file read is a derived subset (never a full-file read); a pipe
+    # whose TAIL summarizes (| wc -l) shows a DERIVED artifact (a count), not source -> representation
+    # `derived`.
     piped = "|" in toks
     leading = toks[:toks.index("|")] if piped else toks
     if not leading:
         return _unknown("empty_pipeline_head")
+    tail_prog = toks[max(i for i, t in enumerate(toks) if t == "|") + 1:][:1] if piped else []
+    derived = piped and bool(tail_prog) and tail_prog[0] in _SUMMARIZER_TAILS
     prog = leading[0]
     rest = leading[1:]
     args = [t for t in rest if not t.startswith("-")]           # non-flag operands
+
+    def rd(path, natural, note=None):
+        rep = "derived" if derived else ("search" if (piped and natural == "file") else natural)
+        return ShellEffect("read", path, representation=rep, note=note)
+
     if _is_execution(leading):
         return [ShellEffect("execution", note=prog)]
     if prog in _READ_CMDS:
         ops = _file_operands(rest)
-        rep = "search" if piped else "file"                    # piped cat = filtered subset, not full file
-        return [ShellEffect("read", a, representation=rep, note=("piped" if piped else None))
-                for a in ops] or _unknown("no_path")
+        return [rd(a, "file", note=("piped" if piped else None)) for a in ops] or _unknown("no_path")
     if prog in _SEARCH_CMDS:
-        return [ShellEffect("read", _scope(args[1:]), representation="search", note=prog)]  # args[0]=pattern
+        return [rd(_grep_scope(rest), "search", note=prog)]
     if prog == "git" and rest and rest[0] == "grep":
-        return [ShellEffect("read", _scope(args[1:]), representation="search", note="git_grep")]
+        return [rd(_grep_scope(rest[1:]), "search", note="git_grep")]
     if prog in _PATH_CMDS:
         if prog == "find" and any(t in ("-delete", "-exec", "-execdir", "-ok") for t in rest):
             return _unknown("find_mutation")   # -delete/-exec MUTATE with dynamic targets -> not a read
-        return [ShellEffect("read", _scope(args), representation="path_listing", note=prog)]
+        scope = _find_scope(rest) if prog == "find" else _list_scope(rest)
+        return [rd(scope, "path_listing", note=prog)]
     if prog == "sed":
         target = args[-1] if args else None                    # the file is the last operand
         if not target:
@@ -202,8 +293,7 @@ def _stmt_effects(stmt: str) -> list:
         if any(t == "-i" or t.startswith("-i") for t in rest):
             return [ShellEffect("edit", target, note="sed_inplace")]
         if any(t == "-n" or t.startswith("-n") for t in rest):
-            return [ShellEffect("read", target, representation=("search" if piped else "file"),
-                                note="sed_quiet")]
+            return [rd(target, "file", note="sed_quiet")]
         return _unknown("sed_ambiguous")
     if prog == "tee":
         return [ShellEffect("edit", a) for a in args] or _unknown("tee_no_file")

@@ -35,9 +35,9 @@ import time
 from typing import Callable, Optional, Tuple
 
 from .ingest import est_tokens
-from .normalize import BASH_MATERIALIZATION, NATIVE_READ, bash_effects
+from .normalize import BASH_MATERIALIZATION, NATIVE_READ, bash_parse
 
-HOOK_SCHEMA_VERSION = "0.4.0"   # 0.4.0: representation-typed shell (search/path materialization + execution)
+HOOK_SCHEMA_VERSION = "0.4.1"   # 0.4.1: execution-certainty, virtual-cwd, composite attribution, coverage
 MAX_HASH_BYTES = 32 * 1024 * 1024
 
 _SCHEMA = """
@@ -235,10 +235,13 @@ class HookJournal:
         self.conn.execute(q, (batch_id, n, int(n > 1), *tool_use_ids))
 
     def attribute_tokens(self, tool_use_id: str, tokens, chars, token_status, response_hash=None) -> None:
+        # Only reads left UNRESOLVED (token_attribution IS NULL) are attributable here. A read from a
+        # COMPOSITE Bash call (grep + pytest, or grep + an unknown reader) was pre-stamped
+        # `ambiguous_composite` at capture -- its share of the single response cannot be isolated, so it
+        # must NOT receive the whole response's tokens (that would contaminate the token denominator).
         rows = self.conn.execute(
-            "SELECT event_id FROM tool_events WHERE tool_use_id=? AND kind='read'", (tool_use_id,)).fetchall()
-        # The AUTHORITATIVE model-visible response hash lives on PostToolBatch (the model-visible
-        # payload), not on PostToolUse's structured tool_response -- so we stamp it here.
+            "SELECT event_id FROM tool_events WHERE tool_use_id=? AND kind='read' "
+            "AND token_attribution IS NULL", (tool_use_id,)).fetchall()
         if len(rows) == 1:
             self.conn.execute(
                 "UPDATE tool_events SET model_visible_tokens=?, model_visible_chars=?, token_status=?, "
@@ -248,7 +251,8 @@ class HookJournal:
             # one response, many materialization paths -> tokens AND response_hash are ambiguous
             self.conn.execute(
                 "UPDATE tool_events SET token_status=?, token_attribution='ambiguous_multipath' "
-                "WHERE tool_use_id=? AND kind='read'", (token_status, tool_use_id))
+                "WHERE token_attribution IS NULL AND tool_use_id=? AND kind='read'",
+                (token_status, tool_use_id))
 
     def tool_events(self, stream_key: Optional[str] = None):
         if stream_key:
@@ -324,45 +328,53 @@ class HookCapture:
             self._batch(ev)
 
     def _effects(self, tool, tinput, cwd):
-        out, bash_kinds = [], []
+        out, parse = [], None
         if tool in _READ_TOOLS:
             out.append({"kind": "read", "channel": NATIVE_READ, "mutation_source": None,
-                        "representation": "file", "raw_path": tinput.get("file_path"), "ref": None})
+                        "representation": "file", "raw_path": tinput.get("file_path"), "ref": None,
+                        "attributable": True})
         elif tool in _EDIT_TOOLS:
             out.append({"kind": "edit", "channel": "edit", "mutation_source": _EDIT_TOOLS[tool],
                         "representation": "file", "raw_path": tinput.get("file_path"), "ref": None})
         elif tool == "Bash":
-            effs = bash_effects(tinput.get("command", ""))
-            bash_kinds = [x.kind for x in effs]
-            for x in effs:
-                if x.kind == "read":                             # file / git_blob / search / path_listing
+            parse = bash_parse(tinput.get("command", ""))        # 0.4.1 structured parse (asserted only)
+            for x in parse.effects:
+                if x.kind == "read":                             # file/git_blob/search/path_listing/derived
                     out.append({"kind": "read", "channel": BASH_MATERIALIZATION, "mutation_source": None,
-                                "representation": x.representation, "raw_path": x.path, "ref": x.ref})
+                                "representation": x.representation, "raw_path": x.path, "ref": x.ref,
+                                "attributable": x.attributable})
                 elif x.kind == "edit":
                     out.append({"kind": "edit", "channel": "edit", "mutation_source": "bash",
                                 "representation": "file", "raw_path": x.path, "ref": None})
-                # "execution" and "unknown" produce no tool_event -- they are counted in the ledger only
+                # "execution"/"unknown" produce no tool_event -- counted in the coverage ledger only
         for x in out:
             x["path_abs"], x["path_norm"] = _norm_path(x["raw_path"], cwd)
-        return out, bash_kinds
+        return out, parse
 
     def _pre(self, ev):
         cwd = ev.get("cwd")
         tool = ev.get("tool_name")
-        effects, bash_kinds = self._effects(tool, ev.get("tool_input") or {}, cwd)
-        # Split ledgers: PreToolUse deliveries vs BASH classification. A Bash call is materialization
-        # (produced a read/edit), execution (tests/python -- recognized but not a source read), or
-        # unknown (truly unrecognized). unknown EXCLUDES execution, so bash_unknown_share reflects
-        # missed SOURCE context, not test-running noise.
+        effects, parse = self._effects(tool, ev.get("tool_input") or {}, cwd)
+        # BASH coverage ledger (0.4.1): every call is fully_recognized / partially_recognized /
+        # unknown_only / execution_only, and per-statement recognized/unknown counts are kept -- so
+        # partial recognition is NEVER hidden. unknown_bash_calls (unknown_only) drives the legacy
+        # bash_unknown_share; the coverage-specific + statement counts expose the full picture.
         self.j.bump("pre_tool_calls_seen")
-        if tool == "Bash":
+        if tool == "Bash" and parse is not None:
             self.j.bump("bash_calls_seen")
-            if any(k in ("read", "edit") for k in bash_kinds):
-                self.j.bump("bash_materialization_calls")
-            elif "execution" in bash_kinds:
+            cov = parse.coverage()                               # fully|partial|unknown_only|execution_only|none
+            self.j.bump({"fully": "bash_fully_recognized_calls",
+                         "partial": "bash_partially_recognized_calls",
+                         "unknown_only": "bash_unknown_only_calls",
+                         "execution_only": "bash_execution_only_calls"}.get(cov, "bash_none_calls"))
+            self.j.bump("bash_recognized_statements", parse.recognized_statements)
+            self.j.bump("bash_unknown_statements", parse.unknown_statements)
+            if cov == "unknown_only":
+                self.j.bump("unknown_bash_calls")
+            elif cov == "execution_only":
                 self.j.bump("execution_bash_calls")
             else:
-                self.j.bump("unknown_bash_calls")
+                self.j.bump("bash_materialization_calls")
         for x in effects:
             if x["representation"] == "git_blob" and x["ref"] and x["raw_path"]:
                 status, digest, canonical = self.git(cwd, x["ref"], x["raw_path"])   # resolve blob at capture
@@ -434,7 +446,11 @@ class HookCapture:
                 "pre_version": pre, "post_version": post, "content_version": content_version,
                 "version_status": version_status, "response_hash": None,
                 "model_visible_chars": None, "model_visible_tokens": None, "token_status": None,
-                "token_attribution": None, "token_estimator_id": "chars4-v1",
+                # a read from a COMPOSITE Bash call is pre-stamped so attribute_tokens skips it (its
+                # tokens can't be isolated from the co-produced execution/unknown output).
+                "token_attribution": (None if (x["kind"] != "read" or x.get("attributable", True))
+                                      else "ambiguous_composite"),
+                "token_estimator_id": "chars4-v1",
                 "success": int(success), "outcome": outcome, "wall_time_ns": p.get("wall_time_ns"),
                 "schema_version": HOOK_SCHEMA_VERSION})
 

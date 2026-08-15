@@ -99,13 +99,15 @@ def classify_reads(events, *, window: int = DEFAULT_WINDOW, distance_key: str = 
     for key, reads in reads_by.items():
         edits = edits_by.get(key, [])            # sorted by seq (evs is sorted)
         for R in reads:
-            # A SEARCH / PATH-LISTING (or piped, filtered) materialization shows the model search
-            # results or a directory listing -- NOT a specific file's pre-edit state -- so it can never
-            # be an edit_precondition, even when its nominal scope path is later edited. It is
-            # definitionally EXPLORATION (context materialization), final regardless of future edits.
-            if R.get("representation") in ("search", "path_listing"):
-                labels[R["event_id"]] = Label(EXPLORATION, TEMPORAL_CAUSAL, "B",
-                                              reason="search_materialization")
+            # A SEARCH / PATH-LISTING / DERIVED (piped-summarized) materialization shows the model
+            # search results, a directory listing, or a transformed artifact -- NOT a specific file's
+            # pre-edit state. It can never be a file edit_precondition; but we ALSO cannot mechanically
+            # prove its role was exploration (a repo-wide grep may have surfaced the exact edit target).
+            # The honest observed label is UNKNOWN until result-path evidence resolves the role -- so it
+            # never enters the exploration headline denominator by fiat.
+            if R.get("representation") in ("search", "path_listing", "derived"):
+                labels[R["event_id"]] = Label(UNKNOWN, TEMPORAL_CAUSAL, "C",
+                                              reason="non_file_materialization_role_unresolved")
                 continue
             # A read-time RACE (pre-hash != post-hash) means we don't know which state the model
             # actually consumed -> UNKNOWN, not a grade-C precondition candidate.

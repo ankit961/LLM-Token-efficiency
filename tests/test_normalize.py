@@ -3,11 +3,47 @@
 Only unambiguous read/mutation forms are recognized; anything with shell structure is `unknown`
 (never exploration). git show REV:PATH is a git_blob (historical), not the worktree file.
 """
-from contextruntime.normalize import bash_effects
+from contextruntime.normalize import bash_effects, bash_parse
 
 
 def _ke(effects):
     return [(e.kind, e.path) for e in effects]
+
+
+# --- hook_schema 0.4.1 evidence-integrity regressions (from independent review) ---
+def test_conditional_and_background_do_not_manufacture_effects():
+    # a statement after && / || / & is NOT guaranteed to run -> no phantom read/edit
+    assert bash_effects("false && cat never.py") == []
+    assert bash_effects("true || cat never.py") == []
+    assert bash_effects("grep x a.py & cat b.py") == []          # both adjacent to & -> uncertain
+    p = bash_parse("false && cat never.py")
+    assert p.conditional is True and p.effects == []
+
+
+def test_cd_updates_virtual_cwd_for_subsequent_paths():
+    # cd DIR && CMD: the cd guard makes CMD certain AND paths resolve against DIR
+    e = bash_effects("cd tests && grep x urls.py")
+    assert len(e) == 1 and e[0].kind == "read" and e[0].path == "tests/urls.py"
+    assert bash_effects("cd a/b ; cat c.py")[0].path == "a/b/c.py"
+
+
+def test_composite_read_is_not_attributable():
+    # grep + execution (or grep + unknown) share ONE Bash response -> the read is not attributable
+    p = bash_parse("grep x a.py ; pytest -q")
+    reads = [e for e in p.effects if e.kind == "read"]
+    assert len(reads) == 1 and reads[0].attributable is False and p.has_execution is True
+    p2 = bash_parse("grep x a.py ; mystery_reader b.py")
+    assert [e for e in p2.effects if e.kind == "read"][0].attributable is False
+    assert p2.coverage() == "partial" and p2.unknown_statements == 1     # partial recognition kept
+    # a clean single read IS attributable
+    assert bash_parse("grep foo a.py").effects[0].attributable is True
+
+
+def test_command_family_scope_and_derived_pipelines():
+    assert bash_effects("find . -name '*.py'")[0].path == "."         # not '*.py'
+    assert bash_effects("git grep needle")[0].path == "."             # not 'needle'
+    assert bash_effects("cat a.py | wc -l")[0].representation == "derived"   # a count, not source
+    assert bash_effects("cat a.py | grep needle")[0].representation == "search"  # filtered source
 
 
 def test_read_cat_multiple_files():
@@ -23,7 +59,7 @@ def test_head_tail_sed_quiet_are_reads():
 def test_redirection_tee_sed_inplace_are_mutations():
     assert _ke(bash_effects("echo hi > out.txt")) == [("edit", "out.txt")]
     assert _ke(bash_effects("echo hi >> out.txt")) == [("edit", "out.txt")]
-    assert _ke(bash_effects("printf x | tee f")) == [("unknown", "")]      # pipe -> unknown, not tee
+    assert _ke(bash_effects("printf x | tee f")) == []       # unknown-only leading (printf) -> no asserted effect
     assert _ke(bash_effects("tee f.txt")) == [("edit", "f.txt")]
     assert _ke(bash_effects("sed -i s/a/b/ f.py")) == [("edit", "f.py")]
 

@@ -42,11 +42,11 @@ from .classify import (CONFIG_REQUIRED, EDIT_PRECONDITION, EXPLORATION, UNKNOWN,
                        classify_reads)
 from .normalize import to_events
 
-REPORT_SCHEMA_VERSION = "label-report-0.2.0"   # 0.2.0: run-unit, strict admission, provenance rename
+REPORT_SCHEMA_VERSION = "label-report-0.2.1"   # 0.2.1: 0.4.1 bash coverage breakdown + composite tokens
 PRIMARY_WINDOW = 16
 INF_WINDOW = 10 ** 12                       # effectively unbounded; distances never exceed it
 DEFAULT_WINDOWS = (8, 16, 32, INF_WINDOW)
-HOOK_SCHEMA_EXPECTED = "0.4.0"   # v2 observation runtime (representation-typed shell)
+HOOK_SCHEMA_EXPECTED = "0.4.1"   # v2.1 observation runtime (execution-certainty + composite tokens)
 
 # closure_reason is an ENUM, not free text: arbitrary strings could smuggle identifiers back into an
 # artifact that claims aggregate-only privacy.
@@ -155,6 +155,14 @@ def _capture_integrity(conn, rows, events) -> dict:
         "bash_calls_seen": stats.get("bash_calls_seen", 0),
         "unknown_bash_calls": stats.get("unknown_bash_calls", 0),
         "bash_unknown_share": stats.get("bash_unknown_share"),
+        "bash_coverage": {                                  # 0.4.1 -- partial recognition is not hidden
+            "fully_recognized": stats.get("bash_fully_recognized_calls", 0),
+            "partially_recognized": stats.get("bash_partially_recognized_calls", 0),
+            "unknown_only": stats.get("bash_unknown_only_calls", 0),
+            "execution_only": stats.get("bash_execution_only_calls", 0),
+            "recognized_statements": stats.get("bash_recognized_statements", 0),
+            "unknown_statements": stats.get("bash_unknown_statements", 0),
+        },
         "pending_tools": conn.execute("SELECT COUNT(*) c FROM pending_tools").fetchone()["c"],
         "version_status_counts": dict(Counter(r["version_status"] for r in read_rows)),
         "mutation_status_counts": dict(Counter(r["mutation_status"] for r in edit_rows)),
@@ -301,6 +309,8 @@ def build_report(db_path: str, *, manifest: Optional[dict] = None, windows=None,
     def _tok_cat(eid) -> str:
         r = row_by_id[eid]
         attr, tok, st = r["token_attribution"], r["model_visible_tokens"], r["token_status"]
+        if attr == "ambiguous_composite":                   # composite Bash call -> not isolable
+            return "ambiguous_composite"
         if attr == "ambiguous_multipath":
             return "ambiguous_multipath"
         if attr == "attributed" and tok is not None and st == "text":
@@ -333,7 +343,8 @@ def build_report(db_path: str, *, manifest: Optional[dict] = None, windows=None,
                  "NULL is never zero cost. estimator=%s" % provenance["token_estimator_id"]),
         "measurement_breakdown": {k: breakdown.get(k, 0) for k in
                                   ("fully_attributed_text", "partial_multimodal", "multimodal_unmeasured",
-                                   "ambiguous_multipath", "unsupported", "unmeasured_other")},
+                                   "ambiguous_multipath", "ambiguous_composite", "unsupported",
+                                   "unmeasured_other")},
         "fully_measured_reads": len(fully_ids),
         "attribution_coverage": _pct(len(fully_ids), total_reads),
         "fully_measured_tokens_total": t_all_fully,

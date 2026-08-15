@@ -368,6 +368,34 @@ def test_execution_bash_counted_separately_from_unknown():
     assert abs(st["bash_unknown_share"] - 1 / 3) < 1e-9          # execution excluded from the numerator
 
 
+# 0.4.1: a composite Bash call (grep + pytest) must NOT attribute the mixed response to the read.
+def test_composite_bash_response_not_attributed_to_read():
+    j, c = _cap({})
+    c.on_event({"hook_event_name": "UserPromptSubmit", "session_id": "s"})
+    _pre(c, "s", "t1", "Bash", {"command": "grep x a.py ; pytest -q"}, cwd="/repo")
+    _post(c, "s", "t1", "Bash")
+    _batch(c, "s", "p1", [{"tool_use_id": "t1", "tool_name": "Bash",
+                           "tool_response": "a.py:1: x\n" + "PASSED " * 200}])
+    reads = [r for r in j.tool_events() if r["kind"] == "read"]
+    assert len(reads) == 1 and reads[0]["representation"] == "search"
+    assert reads[0]["token_attribution"] == "ambiguous_composite"     # NOT 'attributed'
+    assert reads[0]["model_visible_tokens"] is None                  # the mixed response is not summed
+    st = j.capture_stats()
+    assert st.get("bash_fully_recognized_calls") == 1                # grep + pytest both recognized
+    assert st.get("execution_bash_calls", 0) == 0                   # not execution_only (it has a read)
+
+
+# 0.4.1: partial recognition is NOT hidden -- grep + an unknown reader is a partial-coverage call.
+def test_partial_bash_recognition_is_recorded():
+    j, c = _cap({})
+    _pre(c, "s", "t1", "Bash", {"command": "grep x a.py ; mystery_reader b.py"}, cwd="/repo")
+    _post(c, "s", "t1", "Bash")
+    st = j.capture_stats()
+    assert st.get("bash_partially_recognized_calls") == 1
+    assert st.get("bash_recognized_statements") == 1 and st.get("bash_unknown_statements") == 1
+    assert st.get("unknown_bash_calls", 0) == 0                     # partial != unknown_only
+
+
 def test_pending_state_survives_a_process_boundary(tmp_path):
     # PreToolUse in one process, PostToolUse in another: pending pre-hash must be persisted, not
     # held in a Python object -- each hook delivery is a separate command-hook invocation.

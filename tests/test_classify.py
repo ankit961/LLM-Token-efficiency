@@ -71,14 +71,17 @@ def test_applicable_version_grade_b_missing_grade_c():
     assert unk["r"].observed_class == EDIT_PRECONDITION and unk["r"].evidence_grade == "C"
 
 
-# A search / path-listing materialization (grep/find, hook_schema 0.4.0) is EXPLORATION even when its
-# nominal scope path is later edited -- it never becomes a false edit_precondition.
-def test_search_read_is_exploration_not_precondition():
-    search = {"event_id": "s", "seq": 1, "kind": "read", "stream_key": "s", "path": "a.py",
-              "representation": "search", "step": 1}
-    labels = classify_reads([search, _e("e", 3, "a.py", step=2)])
-    assert labels["s"].observed_class == EXPLORATION and labels["s"].reason == "search_materialization"
-    # a normal file read of the same path IS the precondition
+# A search / path-listing / derived materialization (grep/find/pipe, hook_schema 0.4.1) is never a
+# file edit_precondition; but its role is NOT mechanically provable as exploration either, so the
+# honest observed label is UNKNOWN(non_file_materialization_role_unresolved) -- it never enters the
+# exploration headline by fiat.
+def test_non_file_materialization_is_unknown_not_precondition_or_exploration():
+    for rep in ("search", "path_listing", "derived"):
+        r = {"event_id": "s", "seq": 1, "kind": "read", "stream_key": "s", "path": "a.py",
+             "representation": rep, "step": 1}
+        lab = classify_reads([r, _e("e", 3, "a.py", step=2)])["s"]
+        assert lab.observed_class == UNKNOWN and lab.reason == "non_file_materialization_role_unresolved"
+    # a normal file read of the same path IS still the precondition
     filerd = _r("r", 1, "a.py", step=1)          # representation defaults to a real file read
     assert classify_reads([filerd, _e("e", 3, "a.py", step=2)])["r"].observed_class == EDIT_PRECONDITION
 
