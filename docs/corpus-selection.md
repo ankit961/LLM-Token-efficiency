@@ -1,77 +1,60 @@
-# Corpus task-selection procedure v1 — DRAFT (for review, NOT executed, NOT locked)
+# Corpus task-selection procedure v2 — uniform SWE-bench fix-shape strata (EXECUTED, not locked)
 
-**Purpose:** make the choice of the 50 concrete tasks *mechanical and reproducible*, so task selection
-carries no researcher degrees of freedom. This procedure is reviewed and agreed BEFORE it is executed;
-executing it fills the `UNRESOLVED` fields in `docs/corpus-plan.md`. Category is assigned purely from
-historical diffs, **blind to any run or any observed read/label**.
+**Purpose:** make the choice of the 50 tasks fully mechanical and reproducible, so selection carries no
+researcher freedom. This procedure was executed to fill `docs/corpus-plan.md` (status FILLED — pending
+review, not locked). It supersedes v1 (semantic categories via hybrid sourcing): a feasibility check
+showed SWE-bench Verified django cleanly supplies only 2 of those 5 categories — `tests_config` is
+structurally impossible (SWE-bench splits the eval test into a separate `test_patch`; the gold patch is
+source-only), `refactor` is absent (issue-fix data), and `multi_file_feature` had only 9. Uniform
+fix-shape strata avoid hand-curation and give every task a free, objective `FAIL_TO_PASS` check.
 
 - **Repository (single, fixed):** `django/django`.
-- **Runtime under test:** `obs-runtime-3a-v1` → `484f4b3` (the runner checks out the tag).
+- **Source:** `princeton-nlp/SWE-bench_Verified` (split=test), filtered `repo=="django/django"` → 231
+  instances. Each provides `instance_id`, `base_commit`, gold `patch`, `test_patch`, `FAIL_TO_PASS`,
+  `PASS_TO_PASS`, `problem_statement`. **Uniform provenance — no second pool.**
+- **Runtime under test:** `obs-runtime-3a-v1` → `484f4b3` (runner checks out the tag).
 - **One HookJournal DB per run** (the task run is the unit).
 
-## Pools
+## Fix-shape strata (assigned mechanically from the gold patch, BLIND to reads)
 
-- **S1 — issue-fix pool:** `princeton-nlp/SWE-bench_Verified`, filtered to `repo == "django/django"`.
-  Each instance provides `instance_id`, `base_commit`, gold `patch`, `test_patch`, `FAIL_TO_PASS`,
-  `PASS_TO_PASS`, `problem_statement`.
-- **S2 — refactor pool:** `django/django` merged PRs whose title matches
-  `(?i)\b(refactor|cleanup|simplify|reorganize|extract|deduplicate)\b` and NOT `\b(fix|feature|add)\b`,
-  that are behavior-preserving (touch ≥2 source files; add no new non-regression test), pinned at the
-  PR's merge-base commit. (SWE-bench is issue-FIX data and contains essentially no pure refactors, so
-  `refactor` cannot come from S1 — this is the one category sourced from raw PR history.)
+Source file = a changed file counted from the gold `patch` (SWE-bench patches are source-only).
+`n_src_files`, `src_lines` = files / (added+removed) lines in the patch. Strata are disjoint and cover
+all 231 (single-file with >60 lines = 0 in django). Eligible counts recorded at selection time:
 
-## Structural category classifier (computed from the gold diff; first match wins)
+| stratum | definition | eligible |
+|---|---|---:|
+| `fs1_oneline_1f_le3` | 1 file, ≤3 lines (locate-then-minimal-fix) | 64 |
+| `fs2_small_1f_4_6` | 1 file, 4–6 lines | 53 |
+| `fs3_medium_1f_7_15` | 1 file, 7–15 lines | 60 |
+| `fs4_large_1f_16_60` | 1 file, 16–60 lines | 22 |
+| `fs5_multi_ge2f` | ≥2 files | 32 |
 
-Definitions per changed file: **source** = not under `tests/`, `docs/`, and not a config file
-(`*.cfg`, `*.ini`, `*.toml`, `setup.py`, `conf.py`, `**/settings*.py`); **test/config** = the rest.
-Per instance compute `n_src_files`, `n_src_lines` (added+removed in source files),
-`frac_tc_lines` (test/config lines ÷ total changed lines).
-
-| order | category | predicate (on S1 gold patch) |
-|--:|---|---|
-| 1 | `tests_config` | `frac_tc_lines ≥ 0.70` |
-| 2 | `navigation_debugging` | `n_src_files == 1` and `n_src_lines ≤ 3` (locate-and-minimally-fix) |
-| 3 | `local_bug_fix` | `n_src_files == 1` and `4 ≤ n_src_lines ≤ 30` |
-| 4 | `multi_file_feature` | `n_src_files ≥ 3` |
-| — | (unmatched) | not eligible (e.g. 2-source-file fixes) — excluded, counted |
-| 5 | `refactor` | **from S2 only** (see above) |
-
-`navigation_debugging`'s "requires broad reading" is an expected *behavior*, not a selection filter —
-the observable we select on is the minimal edit (`n_src_lines ≤ 3`). We do not filter on reads.
+These are *fix shapes*, not semantic categories. For **label validity** that is sufficient: the
+labeller needs varied read/edit patterns (tiny fix ⇒ heavy navigation; multi-file ⇒ spread edits),
+which fix shape provides. No claim is made that a stratum equals a "kind of work".
 
 ## Deterministic selection (no peeking)
 
-1. Build S1, classify every instance, drop unmatched/excluded (network-dependent, flaky, or
-   over-budget instances are excluded and **counted**, not silently dropped).
-2. For each of the 4 S1 categories: sort eligible instances by `instance_id` (lexicographic), take the
-   **first 10**. For `refactor`: sort S2 by PR number ascending, take the first 10 meeting the
-   signature.
-3. **Feasibility gate (BEFORE authoring):** if any category yields < 10 eligible, STOP and bring the
-   shortfall back for a *documented* threshold adjustment — decided before any run, never after labels.
-4. Fill each category's 10 tasks into that category's 10 preassigned rows in `docs/corpus-plan.md`,
-   in ascending `run_order` (the blocked order already fixed which run_order is which category).
+1. Classify every django instance into its stratum; all five have ≥10 eligible (min 22).
+2. Within each stratum, sort eligible instances by `instance_id` (lexicographic); take the **first 10**.
+3. Blocked order (10 blocks × 5 strata, one full permutation per block ⇒ 10 runs/stratum) generated
+   once from recorded seed **20260815** (`docs/corpus-plan.md`). Each stratum's 10 tasks fill that
+   stratum's 10 run_orders in ascending order.
 
-## Objective success (`verification_command`; exit 0 == success)
+## Objective success (`verification_command`; standard SWE-bench eval)
 
-- **S1 categories:** the instance's `FAIL_TO_PASS` tests must go fail→pass AND `PASS_TO_PASS` must stay
-  passing (standard SWE-bench evaluation) at `base_commit`.
-- **refactor (S2):** BOTH (a) a **change-requiring assertion** derived mechanically from the real PR
-  diff — a specific grep/AST post-condition that holds only after the change (e.g. "module M no longer
-  imports Z"; "class X no longer defines method Y") — AND (b) the repo's regression tests
-  (`PASS_TO_PASS`). A no-op fails (a).
+At `base_commit`, apply the agent's final patch; the instance's `FAIL_TO_PASS` tests must go fail→pass
+AND `PASS_TO_PASS` must stay passing. NOT the agent's self-report. Each spec pins `FAIL_TO_PASS` and a
+`PASS_TO_PASS_sha256`.
 
 ## Task prompt
 
-- S1: the verbatim `problem_statement` (the real issue text) — the only thing the agent sees.
-- refactor: a neutral one-paragraph statement of the refactor goal from the PR title/body, **not**
-  revealing the diff.
+The verbatim `problem_statement` (the real GitHub issue text) — the only thing the agent sees.
 
-## Provenance stratum
+## What was produced (this fill) and what remains
 
-Every row records its source (`S1:swebench-verified` or `S2:django-pr`) so analysis stratifies by
-provenance and never conflates the two classes.
-
-## What executing this produces (the NEXT gate, also reviewed before lock)
-
-The 50 concrete `corpus/specs/run-NN.md` specs + filled plan rows + `task_spec_sha256` values. Only
-after those are reviewed do we compute `plan_sha256`, flip status to LOCKED, and tag `corpus-plan-v1`.
+- 50 immutable `corpus/specs/run-NN.md` + filled plan rows + `task_spec_sha256`. **Reviewed before
+  lock.**
+- NOT yet done: compute `plan_sha256`, flip status LOCKED, tag `corpus-plan-v1`; build the run harness
+  (checkout the tag → isolated worktree per `base_commit` → headless agent on `problem_statement` with
+  cr-hook wired → SWE-bench eval → one journal + label-report per run); collect.
