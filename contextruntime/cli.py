@@ -267,6 +267,27 @@ def cmd_mcp(args) -> int:
     return mcp_main(argv)
 
 
+def cmd_install(args) -> int:
+    """Wire the frozen 0.4.1 observation layer into a Claude Code project (advisory/fail-open)."""
+    from . import install as install_mod
+    rep = install_mod.install(
+        args.client, project=args.project, use_global=args.use_global,
+        with_mcp=not args.no_mcp, with_index=not args.no_index,
+        crhook_cmd=args.crhook_cmd, dry_run=args.dry_run, force=args.force)
+    print(install_mod.format_report(rep))
+    return 0 if rep.ok else 1
+
+
+def cmd_uninstall(args) -> int:
+    """Remove exactly what `install` added; the journal db survives unless --purge."""
+    from . import install as install_mod
+    rep = install_mod.uninstall(
+        args.client, project=args.project, use_global=args.use_global,
+        purge=args.purge, dry_run=args.dry_run)
+    print(install_mod.format_report(rep))
+    return 0 if rep.ok else 1
+
+
 def cmd_expand(args) -> int:
     """Resolve a result:// or ctx://symbol handle back to its payload (SemanticFS)."""
     from .semanticfs import context_expand
@@ -320,6 +341,27 @@ def main(argv=None) -> int:
     p.add_argument("--db", default=os.environ.get("CR_HOOK_DB", crhook_mod.DEFAULT_JOURNAL),
                    help="journal sqlite path (default: $CR_HOOK_DB or ~/.claude/contextruntime/hookjournal.db)")
     p.set_defaults(func=cmd_cr_hook)
+
+    p = sub.add_parser("install",
+                       help="wire the observation layer into a coding agent (advisory/fail-open, idempotent)")
+    p.add_argument("client", choices=["claude"], help="target coding agent (developer preview: claude)")
+    p.add_argument("--project", help="repo to instrument (default: cwd)")
+    p.add_argument("--global", dest="use_global", action="store_true",
+                   help="wire ~/.claude for all projects instead of this repo's .claude/")
+    p.add_argument("--no-mcp", action="store_true", help="skip the observe-only read-surface MCP")
+    p.add_argument("--no-index", action="store_true", help="skip the initial code-graph index")
+    p.add_argument("--crhook-cmd", help="override the cr-hook command written into settings.json")
+    p.add_argument("--dry-run", action="store_true", help="print the plan; touch nothing")
+    p.add_argument("--force", action="store_true", help="(reserved) proceed despite soft warnings")
+    p.set_defaults(func=cmd_install)
+
+    p = sub.add_parser("uninstall", help="remove what `install` added (journal db kept unless --purge)")
+    p.add_argument("client", choices=["claude"])
+    p.add_argument("--project", help="repo to de-instrument (default: cwd)")
+    p.add_argument("--global", dest="use_global", action="store_true")
+    p.add_argument("--purge", action="store_true", help="also delete the local state dir (journal + graph)")
+    p.add_argument("--dry-run", action="store_true")
+    p.set_defaults(func=cmd_uninstall)
 
     p = sub.add_parser("read-symbol", help="SemanticFS: rendered source-derived context under a budget")
     p.add_argument("symbol")
