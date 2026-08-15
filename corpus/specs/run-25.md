@@ -1,19 +1,22 @@
 # Task spec — run-25  (IMMUTABLE)
 
-task_id: django__django-11551
+task_id: django__django-15503
 category: fs4_large_1f_16_60
-source: SWE-bench_Verified (princeton-nlp/SWE-bench_Verified, split=test)
+source: SWE-bench_Verified (princeton-nlp/SWE-bench_Verified, split=test, revision c104f840cc67f8b6eec6f759ebc8b2693d585d4a)
 repo_id: django/django
-base_commit_sha: 7991111af12056ec9a856f35935d273526338c1f
-fix_shape_evidence: n_src_files=1, src_lines=42   # blind to reads
+base_commit_sha: 859a87d873ce7152af73ab851653b4e1c3ffea4c
+fix_shape_evidence: n_src_files=1, src_lines=26   # blind to reads
 
 ## Objective success (machine-checked; NOT agent self-report)
 verification: at base_commit, apply the agent's final patch; the FAIL_TO_PASS tests must go
               fail->pass AND all PASS_TO_PASS tests must remain passing (standard SWE-bench eval).
+# FAIL_TO_PASS entries are preserved VERBATIM from upstream SWE-bench Verified; some read like
+# prose but are genuine upstream evaluation directives -- never 'clean' them.
 FAIL_TO_PASS:
-  - test_valid_field_accessible_via_instance (modeladmin.test_checks.ListDisplayTests)
-PASS_TO_PASS_count: 119
-PASS_TO_PASS_sha256: sha256:24b09d0b4bc472d0a124c95efbcacae694321b6f09882ad6e1f6c85d6ce599aa
+  - test_has_key_number (model_fields.test_jsonfield.TestQuerying)
+  - test_has_keys (model_fields.test_jsonfield.TestQuerying)
+PASS_TO_PASS_count: 78
+PASS_TO_PASS_sha256: sha256:fad2ac54abef9908708409b9af6ca9053c3ba7892bf83d940d0250e5b337880f
 
 ## Fixed run parameters (frozen before the run)
 turn_or_walltime_budget: 40 agent turns OR 20 min wall, whichever first
@@ -22,76 +25,50 @@ headless_or_interactive: headless
 runtime: obs-runtime-3a-v1 (484f4b3)
 
 ## Prompt (verbatim issue text the agent sees)
-admin.E108 is raised on fields accessible only via instance.
+has_key, has_keys, and has_any_keys JSONField() lookups don't handle numeric keys on SQLite, MySQL, and Oracle.
 Description
 	 
-		(last modified by ajcsimons)
+		(last modified by TheTerrasque)
 	 
-As part of startup django validates the ModelAdmin's list_display list/tuple for correctness (django.admin.contrib.checks._check_list_display). Having upgraded django from 2.07 to 2.2.1 I found that a ModelAdmin with a list display that used to pass the checks and work fine in admin now fails validation, preventing django from starting. A PositionField from the django-positions library triggers this bug, explanation why follows.
-from django.db import models
-from position.Fields import PositionField
-class Thing(models.Model)
- number = models.IntegerField(default=0)
- order = PositionField()
-from django.contrib import admin
-from .models import Thing
-@admin.register(Thing)
-class ThingAdmin(admin.ModelAdmin)
- list_display = ['number', 'order']
-Under 2.2.1 this raises an incorrect admin.E108 message saying "The value of list_display[1] refers to 'order' which is not a callable...".
-Under 2.0.7 django starts up successfully.
-If you change 'number' to 'no_number' or 'order' to 'no_order' then the validation correctly complains about those.
-The reason for this bug is commit ​https://github.com/django/django/commit/47016adbf54b54143d4cf052eeb29fc72d27e6b1 which was proposed and accepted as a fix for bug https://code.djangoproject.com/ticket/28490. The problem is while it fixed that bug it broke the functionality of _check_list_display_item in other cases. The rationale for that change was that after field=getattr(model, item) field could be None if item was a descriptor returning None, but subsequent code incorrectly interpreted field being None as meaning getattr raised an AttributeError. As this was done after trying field = model._meta.get_field(item) and that failing that meant the validation error should be returned. However, after the above change if hasattr(model, item) is false then we no longer even try field = model._meta.get_field(item) before returning an error. The reason hasattr(model, item) is false in the case of a PositionField is its get method throws an exception if called on an instance of the PositionField class on the Thing model class, rather than a Thing instance.
-For clarity, here are the various logical tests that _check_list_display_item needs to deal with and the behaviour before the above change, after it, and the correct behaviour (which my suggested patch exhibits). Note this is assuming the first 2 tests callable(item) and hasattr(obj, item) are both false (corresponding to item is an actual function/lambda rather than string or an attribute of ThingAdmin).
-hasattr(model, item) returns True or False (which is the same as seeing if getattr(model, item) raises AttributeError)
-model._meta.get_field(item) returns a field or raises FieldDoesNotExist
-Get a field from somewhere, could either be from getattr(model,item) if hasattr was True or from get_field.
-Is that field an instance of ManyToManyField?
-Is that field None? (True in case of bug 28490)
- hasattr get_field field is None? field ManyToMany? 2.0 returns 2.2 returns Correct behaviour Comments 
- True ok False False [] [] [] - 
- True ok False True E109 E109 E109 - 
- True ok True False E108 [] [] good bit of 28490 fix, 2.0 was wrong 
- True raises False False [] [] [] - 
- True raises False True E109 [] E109 Another bug introduced by 28490 fix, fails to check if ManyToMany in get_field raise case 
- True raises True False E108 [] [] good bit of 28490 fix, 2.0 was wrong 
- False ok False False [] E108 [] bad bit of 28490 fix, bug hit with PositionField 
- False ok False True [] E108 E109 both 2.0 and 2.2 wrong 
- False ok True False [] E108 [] bad 28490 fix 
- False raises False False E108 E108 E108 - 
- False raises False True E108 E108 E108 impossible condition, we got no field assigned to be a ManyToMany 
- False raises True False E108 E108 E108 impossible condition, we got no field assigned to be None 
-The following code exhibits the correct behaviour in all cases. The key changes are there is no longer a check for hasattr(model, item), as that being false should not prevent us form attempting to get the field via get_field, and only return an E108 in the case both of them fail. If either of those means or procuring it are successful then we need to check if it's a ManyToMany. Whether or not the field is None is irrelevant, and behaviour is contained within the exception catching blocks that should cause it instead of signalled through a variable being set to None which is a source of conflation of different cases.
-def _check_list_display_item(self, obj, item, label):
-	if callable(item):
-		return []
-	elif hasattr(obj, item):
-		return []
-	else:
-		try:
-			field = obj.model._meta.get_field(item)
-		except FieldDoesNotExist:
-			try:
-				field = getattr(obj.model, item)
-			except AttributeError:
-				return [
-					checks.Error(
-						"The value of '%s' refers to '%s', which is not a callable, "
-						"an attribute of '%s', or an attribute or method on '%s.%s'." % (
-							label, item, obj.__class__.__name__,
-							obj.model._meta.app_label, obj.model._meta.object_name,
-						),
-						obj=obj.__class__,
-						id='admin.E108',
-					)
-				]
-		if isinstance(field, models.ManyToManyField):
-			return [
-				checks.Error(
-					"The value of '%s' must not be a ManyToManyField." % label,
-					obj=obj.__class__,
-					id='admin.E109',
-				)
-			]
-		return []
+Problem
+When using models.​JSONField() ​has_key lookup with numerical keys on SQLite database it fails to find the keys.
+Versions:
+Django: 4.0.3
+Python: 3.9.6 (tags/v3.9.6:db3ff76, Jun 28 2021, 15:26:21) [MSC v.1929 64 bit (AMD64)] on win32
+sqlite3.version: '2.6.0'
+sqlite3.sqlite_version: '3.35.5'
+Example:
+Database
+DATABASES = {
+	'default': {
+		'ENGINE': 'django.db.backends.sqlite3',
+		'NAME': 'db.sqlite3',
+	}
+}
+Model
+class JsonFieldHasKeyTest(models.Model):
+	data = models.JSONField()
+Test
+from django.test import TestCase
+from .models import JsonFieldHasKeyTest
+class JsonFieldHasKeyTestCase(TestCase):
+	def setUp(self) -> None:
+		test = JsonFieldHasKeyTest(data={'foo': 'bar'})
+		test2 = JsonFieldHasKeyTest(data={'1111': 'bar'})
+		test.save()
+		test2.save()
+	def test_json_field_has_key(self):
+		c1 = JsonFieldHasKeyTest.objects.filter(data__has_key='foo').count()
+		c2 = JsonFieldHasKeyTest.objects.filter(data__has_key='1111').count()
+		self.assertEqual(c1, 1, "Should have found 1 entry with key 'foo'")
+		self.assertEqual(c2, 1, "Should have found 1 entry with key '1111'")
+Result
+FAIL: test_json_field_has_key (markers.tests.JsonFieldHasKeyTestCase)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+ File "H:\Files\Projects\Electaco\Webservice\elecserve\markers\tests.py", line 16, in test_json_field_has_key	 
+	self.assertEqual(c2, 1, "Should have found 1 entry with key '1111'")
+AssertionError: 0 != 1 : Should have found 1 entry with key '1111'
+Additional info
+This has been tested on SQLite and Postgresql backend, it works on postgresql but fails on sqlite.
 

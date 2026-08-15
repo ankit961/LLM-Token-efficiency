@@ -1,19 +1,25 @@
 # Task spec — run-36  (IMMUTABLE)
 
-task_id: django__django-12155
+task_id: django__django-13212
 category: fs5_multi_ge2f
-source: SWE-bench_Verified (princeton-nlp/SWE-bench_Verified, split=test)
+source: SWE-bench_Verified (princeton-nlp/SWE-bench_Verified, split=test, revision c104f840cc67f8b6eec6f759ebc8b2693d585d4a)
 repo_id: django/django
-base_commit_sha: e8fcdaad5c428878d0a5d6ba820d957013f75595
-fix_shape_evidence: n_src_files=2, src_lines=23   # blind to reads
+base_commit_sha: f4e93919e4608cfc50849a1f764fd856e0917401
+fix_shape_evidence: n_src_files=2, src_lines=44   # blind to reads
 
 ## Objective success (machine-checked; NOT agent self-report)
 verification: at base_commit, apply the agent's final patch; the FAIL_TO_PASS tests must go
               fail->pass AND all PASS_TO_PASS tests must remain passing (standard SWE-bench eval).
+# FAIL_TO_PASS entries are preserved VERBATIM from upstream SWE-bench Verified; some read like
+# prose but are genuine upstream evaluation directives -- never 'clean' them.
 FAIL_TO_PASS:
-  - test_parse_rst_with_docstring_no_leading_line_feed (admin_docs.test_utils.TestUtils)
-PASS_TO_PASS_count: 6
-PASS_TO_PASS_sha256: sha256:88cbc8f98a4f8eedad180fbe17dc59aa454e3d18b61cf864266decba16ea7353
+  - test_value_placeholder_with_char_field (forms_tests.tests.test_validators.ValidatorCustomMessageTests)
+  - test_value_placeholder_with_decimal_field (forms_tests.tests.test_validators.ValidatorCustomMessageTests)
+  - test_value_placeholder_with_file_field (forms_tests.tests.test_validators.ValidatorCustomMessageTests)
+  - test_value_placeholder_with_integer_field (forms_tests.tests.test_validators.ValidatorCustomMessageTests)
+  - test_value_placeholder_with_null_character (forms_tests.tests.test_validators.ValidatorCustomMessageTests)
+PASS_TO_PASS_count: 2
+PASS_TO_PASS_sha256: sha256:8993cade25ba85f9be9d26da5881ec2a4c13a9abf6da69007eb2fecb1ac041c2
 
 ## Fixed run parameters (frozen before the run)
 turn_or_walltime_budget: 40 agent turns OR 20 min wall, whichever first
@@ -22,22 +28,12 @@ headless_or_interactive: headless
 runtime: obs-runtime-3a-v1 (484f4b3)
 
 ## Prompt (verbatim issue text the agent sees)
-docutils reports an error rendering view docstring when the first line is not empty
+Make validators include the provided value in ValidationError
 Description
 	
-Currently admindoc works correctly only with docstrings where the first line is empty, and all Django docstrings are formatted in this way.
-However usually the docstring text starts at the first line, e.g.:
-def test():
-	"""test tests something.
-	"""
-and this cause an error:
-Error in "default-role" directive:
-no content permitted.
-.. default-role:: cmsreference
-The culprit is this code in trim_docstring:
-indent = min(len(line) - len(line.lstrip()) for line in lines if line.lstrip())
-The problem is that the indentation of the first line is 0.
-The solution is to skip the first line:
-indent = min(len(line) - len(line.lstrip()) for line in lines[1:] if line.lstrip())
-Thanks.
+It is sometimes desirable to include the provide value in a custom error message. For example:
+“blah” is not a valid email.
+By making built-in validators provide value to ValidationError, one can override an error message and use a %(value)s placeholder.
+This placeholder value matches an example already in the docs:
+​https://docs.djangoproject.com/en/3.0/ref/validators/#writing-validators
 

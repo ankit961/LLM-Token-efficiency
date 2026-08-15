@@ -1,19 +1,21 @@
 # Task spec — run-02  (IMMUTABLE)
 
-task_id: django__django-11095
-category: fs2_small_1f_4_6
-source: SWE-bench_Verified (princeton-nlp/SWE-bench_Verified, split=test)
+task_id: django__django-15561
+category: fs5_multi_ge2f
+source: SWE-bench_Verified (princeton-nlp/SWE-bench_Verified, split=test, revision c104f840cc67f8b6eec6f759ebc8b2693d585d4a)
 repo_id: django/django
-base_commit_sha: 7d49ad76562e8c0597a0eb66046ab423b12888d8
-fix_shape_evidence: n_src_files=1, src_lines=6   # blind to reads
+base_commit_sha: 6991880109e35c879b71b7d9d9c154baeec12b89
+fix_shape_evidence: n_src_files=2, src_lines=35   # blind to reads
 
 ## Objective success (machine-checked; NOT agent self-report)
 verification: at base_commit, apply the agent's final patch; the FAIL_TO_PASS tests must go
               fail->pass AND all PASS_TO_PASS tests must remain passing (standard SWE-bench eval).
+# FAIL_TO_PASS entries are preserved VERBATIM from upstream SWE-bench Verified; some read like
+# prose but are genuine upstream evaluation directives -- never 'clean' them.
 FAIL_TO_PASS:
-  - test_get_inline_instances_override_get_inlines (generic_inline_admin.tests.GenericInlineModelAdminTest)
-PASS_TO_PASS_count: 19
-PASS_TO_PASS_sha256: sha256:c4cab3e3b1d1b8c603fafb7dc2c98c18ca1c27530d6b9379d934e9518c19fa83
+  - test_alter_field_choices_noop (schema.tests.SchemaTests)
+PASS_TO_PASS_count: 141
+PASS_TO_PASS_sha256: sha256:482c6665ecbc9bb26135120f0af1bb6edb7da23207658f15f328b78620a8890d
 
 ## Fixed run parameters (frozen before the run)
 turn_or_walltime_budget: 40 agent turns OR 20 min wall, whichever first
@@ -22,9 +24,8 @@ headless_or_interactive: headless
 runtime: obs-runtime-3a-v1 (484f4b3)
 
 ## Prompt (verbatim issue text the agent sees)
-add ModelAdmin.get_inlines() hook to allow set inlines based on the request or model instance.
+AlterField operation should be noop when adding/changing choices on SQLite.
 Description
 	
-add ModelAdmin.get_inlines() hook to allow set inlines based on the request or model instance.
-Currently, We can override the method get_inline_instances to do such a thing, but a for loop should be copied to my code. So I wished add a hook get_inlines(request, obj=None)
+while writing a test case for #33470 i found that for sqlite, even a seemingly db-transparent change like adding choices still generates sql (new table + insert + drop + rename) even though this shouldn't be needed. on e.g. postgres the same migration generates no sql
 

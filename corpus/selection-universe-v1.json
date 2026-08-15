@@ -1,0 +1,2326 @@
+{
+  "candidate_count": 231,
+  "candidates": [
+    {
+      "base_commit_sha": "b9cf764be62e77b4777b3a75ec256f6209a57671",
+      "fail_to_pass_sha256": "sha256:c65f793af5a3ea1346cae42d1e64b512277ea095c53ca3a9d2277997bb61d707",
+      "instance_id": "django__django-10097",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:0f366da700028e650c99d2a31d9dcce3a734d11c0202393fd0d3c55c323cf32d",
+      "problem_statement_sha256": "sha256:2288319e7e72693551b8454b5c63f165f23dfb32bc6579ad03602d3cd311bdaa",
+      "src_lines": 2,
+      "stratum": "fs1_oneline_1f_le3"
+    },
+    {
+      "base_commit_sha": "14d026cccb144c6877294ba4cd4e03ebf0842498",
+      "fail_to_pass_sha256": "sha256:fcf84aad13c78f89872f4e4a5b22ca5ff549d0a76ca122d0ca80b9fc680f15d2",
+      "instance_id": "django__django-10554",
+      "n_src_files": 2,
+      "pass_to_pass_sha256": "sha256:bd5d3b3368932914679f0fa1a7b7ce6a87a4851f282055dedecce3a883304b28",
+      "problem_statement_sha256": "sha256:2f72fa6137f1d53983cff629a05e06c42a2ad477ea4557746c4688cbd6aeb724",
+      "src_lines": 11,
+      "stratum": "fs5_multi_ge2f"
+    },
+    {
+      "base_commit_sha": "838e432e3e5519c5383d12018e6c78f8ec7833c1",
+      "fail_to_pass_sha256": "sha256:1ff2305d9d26b94e8dee5d68c2077895eb357d81e75037eb3eb69746b8f7cf33",
+      "instance_id": "django__django-10880",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:afbd4a18ed4dda5367cbd8611d697481f59377874643ff0347bb5c32fbf78d80",
+      "problem_statement_sha256": "sha256:d554ba8ef84e2e4dc22c291d413e4cb58070d5d730dae3aca383a4cdb77c20b2",
+      "src_lines": 2,
+      "stratum": "fs1_oneline_1f_le3"
+    },
+    {
+      "base_commit_sha": "e7fd69d051eaa67cb17f172a39b57253e9cb831a",
+      "fail_to_pass_sha256": "sha256:b5fc7c3584a6c4551bae1a101ecf306575de6f80a75bb5806e6c38a5a002c4f3",
+      "instance_id": "django__django-10914",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:f369ea3341fd72e7d9be376639f71a34e92ce6a8eca7fb8725adace080e3117d",
+      "problem_statement_sha256": "sha256:ba101c6d80094fe56bc64d74dcb7efe033a6e0d43dd77e8f00e65806fdbcdb8b",
+      "src_lines": 2,
+      "stratum": "fs1_oneline_1f_le3"
+    },
+    {
+      "base_commit_sha": "ddb293685235fd09e932805771ae97f72e817181",
+      "fail_to_pass_sha256": "sha256:a3e4ce22d4af78195a6a87167442cb416b37542a757511aea374cc6931d9ccbc",
+      "instance_id": "django__django-10973",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "problem_statement_sha256": "sha256:bde1c4529fef5d030d1bd73a02e45bdbf9535a3c351aa9a43dba5c8249800271",
+      "src_lines": 37,
+      "stratum": "fs4_large_1f_16_60"
+    },
+    {
+      "base_commit_sha": "36300ef336e3f130a0dadc1143163ff3d23dc843",
+      "fail_to_pass_sha256": "sha256:d9245ffc7c5dccb7ee948f037c1c2f8ef7f1dfce29b17bbe9368640c73abbebb",
+      "instance_id": "django__django-10999",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:c1cccf43d59ae22fa7f5737171fb0b130fe30898e07c4268c70e5e34c87f2a84",
+      "problem_statement_sha256": "sha256:efbac10cda6c1ef780205a8d9fc176b5489d1da8f76d9cbd366ef303052fd8d3",
+      "src_lines": 7,
+      "stratum": "fs3_medium_1f_7_15"
+    },
+    {
+      "base_commit_sha": "4b45b6c8e4d7c9701a332e80d3b1c84209dc36e2",
+      "fail_to_pass_sha256": "sha256:3b75f84052dcb247aeaed91dda8bfd2b8d1449e8cfa231a9a4ce063bbcbf9641",
+      "instance_id": "django__django-11066",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:9d417043c98bf5f55b58edecfb2a0f83b3331c4f2f876126ba0e3812b7183c6d",
+      "problem_statement_sha256": "sha256:2c4cbca71895396f6bac73ad9454105f56828f542278e2e927483f6cac599db8",
+      "src_lines": 2,
+      "stratum": "fs1_oneline_1f_le3"
+    },
+    {
+      "base_commit_sha": "8180ffba21bf10f4be905cb0d4890dc2bcff2788",
+      "fail_to_pass_sha256": "sha256:bd22d8dee29c76f86326f7ff587a3dc7e3db75ca08c89d1e10a812c60c25fefa",
+      "instance_id": "django__django-11087",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:9bf0b04d8300cd553e47a2be429aa4dc13af4e9aae8de7794c26ea5775e4f955",
+      "problem_statement_sha256": "sha256:9bd93972a91db1ad0e44e65720dd0f36f000de6264e770ffdaaeb06996a338f3",
+      "src_lines": 30,
+      "stratum": "fs4_large_1f_16_60"
+    },
+    {
+      "base_commit_sha": "7d49ad76562e8c0597a0eb66046ab423b12888d8",
+      "fail_to_pass_sha256": "sha256:f19c979dd0a44efca1fc5f78ac8db352a5115096906837c06ef759670a3ca563",
+      "instance_id": "django__django-11095",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:c4cab3e3b1d1b8c603fafb7dc2c98c18ca1c27530d6b9379d934e9518c19fa83",
+      "problem_statement_sha256": "sha256:0564572e65282f6920d43eaaa77ae7b103eec95b435aa1ba183d7daa32b9e83d",
+      "src_lines": 6,
+      "stratum": "fs2_small_1f_4_6"
+    },
+    {
+      "base_commit_sha": "d26b2424437dabeeca94d7900b37d2df4410da0c",
+      "fail_to_pass_sha256": "sha256:86d163b534716f44c528809ab43786b7eeb906365180c5d7fdd162a5c0d6fdbc",
+      "instance_id": "django__django-11099",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:4da7d26dcd434a435f19fbc1df2e3e12e519f29d9938815692c7634696d27fb5",
+      "problem_statement_sha256": "sha256:b0526bc6d9268fe373bf624621c8d5f560fc6b0ffae7e64b460d84f6726f3ed5",
+      "src_lines": 4,
+      "stratum": "fs2_small_1f_4_6"
+    },
+    {
+      "base_commit_sha": "d4df5e1b0b1c643fe0fc521add0236764ec8e92a",
+      "fail_to_pass_sha256": "sha256:aaf60e9b6630660338bf03c3bd3a3db3ac291bcc81af408b3982b70b8a306f16",
+      "instance_id": "django__django-11119",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:16957940114c06976753f75d6a138c33886aca3db7aebb584c70c8835dfce70f",
+      "problem_statement_sha256": "sha256:264fad964e8d5a49cd04509eb503175aed31535e29c9262cb9eee4b251192728",
+      "src_lines": 2,
+      "stratum": "fs1_oneline_1f_le3"
+    },
+    {
+      "base_commit_sha": "879cc3da6249e920b8d54518a0ae06de835d7373",
+      "fail_to_pass_sha256": "sha256:d11d9e85bcba7e3c23f59323a792a9cd0c75a6d5c9944c9dd1d82614c068a370",
+      "instance_id": "django__django-11133",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:9dc557cb7598ef0f0ddec67d261f495e67109e831dc3444167f794ebec561f88",
+      "problem_statement_sha256": "sha256:a7f427b7eb3f746b6985030b467a99099e6e3453319297a41e35effa7c32b8ed",
+      "src_lines": 2,
+      "stratum": "fs1_oneline_1f_le3"
+    },
+    {
+      "base_commit_sha": "c84b91b7603e488f7171fdff8f08368ef3d6b856",
+      "fail_to_pass_sha256": "sha256:6c0f0b3487b6486f1d59d54b970462e1991f41c3eca7e742a19df49571f0fb67",
+      "instance_id": "django__django-11138",
+      "n_src_files": 4,
+      "pass_to_pass_sha256": "sha256:a6f0674182472a1d97e457f4c6b1548f984cab27e34a07a1eab1c4c2f87bb38a",
+      "problem_statement_sha256": "sha256:b33c129178156fdb6d35f4d406ac6090bc6fbb7b220893ec068c0d76d7bca1ea",
+      "src_lines": 69,
+      "stratum": "fs5_multi_ge2f"
+    },
+    {
+      "base_commit_sha": "5d9cf79baf07fc4aed7ad1b06990532a65378155",
+      "fail_to_pass_sha256": "sha256:4fe87012f665325596ff834c8b681b4e2d1645da2ea5aba04bb6219311161f5b",
+      "instance_id": "django__django-11141",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:23cc267b346ea795157f1212b3e5108ae8ac5606048784b92b754ebf768d34e2",
+      "problem_statement_sha256": "sha256:f7a89b6c259b982bea8f5247ea54ad080dd4d3b5a7a559662b13928218ef6d94",
+      "src_lines": 10,
+      "stratum": "fs3_medium_1f_7_15"
+    },
+    {
+      "base_commit_sha": "e245046bb6e8b32360aa48b8a41fb7050f0fc730",
+      "fail_to_pass_sha256": "sha256:4b7b666577e08c18d9fa61d85d07a005bb64b259c160d36606bce887a3147feb",
+      "instance_id": "django__django-11149",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:599e24dffefa29ea7ca58718ebfeabd634f062780dd886bcfafb285356c512b6",
+      "problem_statement_sha256": "sha256:06f935b0cc647735e6955439f0cdd900198152c69bf75dc8f9af4673d0bc3f2b",
+      "src_lines": 56,
+      "stratum": "fs4_large_1f_16_60"
+    },
+    {
+      "base_commit_sha": "e6588aa4e793b7f56f4cadbfa155b581e0efc59a",
+      "fail_to_pass_sha256": "sha256:4872b31084242bb0a8eb18b12d31da61b4a097d8974c42cf4698306cc4a54610",
+      "instance_id": "django__django-11163",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:de12afe653768ec93d45432033766efa1e8d320b58f6f8ed02f2a69ba93fcf87",
+      "problem_statement_sha256": "sha256:8dbd8cae38c3a82b681a79bdfe8ffaa78aa6f1fad9744a1ca197f90265e5c80b",
+      "src_lines": 2,
+      "stratum": "fs1_oneline_1f_le3"
+    },
+    {
+      "base_commit_sha": "19fc6376ce67d01ca37a91ef2f55ef769f50513a",
+      "fail_to_pass_sha256": "sha256:967ac82088c147b02bf91ad794de31b362961b317032e2f9f06b3b682a951dfe",
+      "instance_id": "django__django-11179",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:307bbceaee3028bc22e73aea080648b07bbe4320d87c5ac3ec179eb50d837bff",
+      "problem_statement_sha256": "sha256:9f6cb755dfdc0db5536cba40dae20c41d4750fd6a87acc18677c929ca896d136",
+      "src_lines": 1,
+      "stratum": "fs1_oneline_1f_le3"
+    },
+    {
+      "base_commit_sha": "571ab44e8a8936014c22e7eebe4948d9611fd7ce",
+      "fail_to_pass_sha256": "sha256:48a7cf76b99e9cb8f3f042f249ecd987ae0e1afad7c61a8a9fe0891c9917cbaa",
+      "instance_id": "django__django-11206",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:eabee230af91eff6bb283059f45dd688fd1ef4b4a01d5474e97905b5fdb4f76b",
+      "problem_statement_sha256": "sha256:ee97fdc81bae9d09d812606706e4594d671418a6b4ece0d0e649518e4b915e07",
+      "src_lines": 8,
+      "stratum": "fs3_medium_1f_7_15"
+    },
+    {
+      "base_commit_sha": "ba726067604ce5a8ca3919edf653496722b433ab",
+      "fail_to_pass_sha256": "sha256:e3206907ffbdcb841ba93fb9dd19c25b2422c07b5f3c0b410890f4b0e4b66f04",
+      "instance_id": "django__django-11211",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:bd8e9a4ef5ea4cd734a3e7ca8866f3dcb86026a9390e613771f42011e3aa7a71",
+      "problem_statement_sha256": "sha256:658b186e181f63e4cf92e146a414b8f30b0fc898e5bb698a7a45bcd900fce010",
+      "src_lines": 4,
+      "stratum": "fs2_small_1f_4_6"
+    },
+    {
+      "base_commit_sha": "d87bd29c4f8dfcdf3f4a4eb8340e6770a2416fe3",
+      "fail_to_pass_sha256": "sha256:f135718265053d8bb76b922d8723d0f394b412fa6fa8ad7dca9ce9567f790bf3",
+      "instance_id": "django__django-11239",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:a3e4ce22d4af78195a6a87167442cb416b37542a757511aea374cc6931d9ccbc",
+      "problem_statement_sha256": "sha256:4f06ccec412dfd622e67248f35d24c93d00bfb755849a39f958b4e806969b86f",
+      "src_lines": 12,
+      "stratum": "fs3_medium_1f_7_15"
+    },
+    {
+      "base_commit_sha": "21aa2a5e785eef1f47beb1c3760fdd7d8915ae09",
+      "fail_to_pass_sha256": "sha256:fe979fff501ef50c46a91aa37a857fed9610850b25f5389b836c4d270dfbe34c",
+      "instance_id": "django__django-11265",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:e8ed87f7bd031817c737760c4101194bcf94d6e887302b4f2ed0d07b395255f1",
+      "problem_statement_sha256": "sha256:6186de491ef0cfc65eab80595ae1e2d5e8746e2b5751fc5e39bc75b293bbaa3c",
+      "src_lines": 11,
+      "stratum": "fs3_medium_1f_7_15"
+    },
+    {
+      "base_commit_sha": "28d5262fa3315690395f04e3619ed554dbaf725b",
+      "fail_to_pass_sha256": "sha256:c694c2a4b6190194127153b38e3127b93c11714c88868316962176aaf15f4bc3",
+      "instance_id": "django__django-11276",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:1fc7b3e0ddf680181c7152f7ec288cbc6e21146379aaae46497ca11c09107250",
+      "problem_statement_sha256": "sha256:eb475bff9bea96bffba03eee2d2d0b4e1b494afe04343176f8200a97e32077c8",
+      "src_lines": 26,
+      "stratum": "fs4_large_1f_16_60"
+    },
+    {
+      "base_commit_sha": "eb16c7260e573ec513d84cb586d96bdf508f3173",
+      "fail_to_pass_sha256": "sha256:2eaa4cca8415e13bb558c2dae3108d76c42fd4fc17153904ce94beff2f53df07",
+      "instance_id": "django__django-11292",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:3c653bf902d49f7e8a68d46efe4cb59892f2afa73f188821acd79c25935a9c1f",
+      "problem_statement_sha256": "sha256:6fdf22f6653877da6f205b4a51557ccc30e14866d85c33a67657a29deb7194b1",
+      "src_lines": 11,
+      "stratum": "fs3_medium_1f_7_15"
+    },
+    {
+      "base_commit_sha": "6866c91b638de5368c18713fa851bfe56253ea55",
+      "fail_to_pass_sha256": "sha256:840256a09d99f595c51b409a0a86fbb01f9530eacd39c97bc04971d1c22728f8",
+      "instance_id": "django__django-11299",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:73c743d42c0f313700c25825ccadfc7476b56306b0fe29df82b2d46a12611f96",
+      "problem_statement_sha256": "sha256:97b5f134c36100595809297bfa1c1ce5948944ca8c384e47b2b9df33fb94089c",
+      "src_lines": 2,
+      "stratum": "fs1_oneline_1f_le3"
+    },
+    {
+      "base_commit_sha": "55b68de643b5c2d5f0a8ea7587ab3b2966021ccc",
+      "fail_to_pass_sha256": "sha256:9176ff3c5ae58ed483857f4ec15b4f44fabe603e6bc7d853d352278091a1bde7",
+      "instance_id": "django__django-11333",
+      "n_src_files": 2,
+      "pass_to_pass_sha256": "sha256:c0af4a0dbcae837c645c43fa196d96ecd4335a216a9d7ac72ecc0585edaa752e",
+      "problem_statement_sha256": "sha256:46c75805409021e7df849f3ee81081ba222cd9ceac4020e5a956be44df192d5d",
+      "src_lines": 10,
+      "stratum": "fs5_multi_ge2f"
+    },
+    {
+      "base_commit_sha": "1f8382d34d54061eddc41df6994e20ee38c60907",
+      "fail_to_pass_sha256": "sha256:74d9723f5ba30f1fbfa964f4c60eab7c34b9fd371cfa33929e344a8b44166c5d",
+      "instance_id": "django__django-11400",
+      "n_src_files": 3,
+      "pass_to_pass_sha256": "sha256:a3bf533878fe0dc92ac401a2633cba61350de5e63a3fe2d08d6d404a8df2ff88",
+      "problem_statement_sha256": "sha256:3add264d5b3fc0e287b7bfe3c5b1179263d4a811de6caeb2a739b918bb049a21",
+      "src_lines": 26,
+      "stratum": "fs5_multi_ge2f"
+    },
+    {
+      "base_commit_sha": "21b1d239125f1228e579b1ce8d94d4d5feadd2a6",
+      "fail_to_pass_sha256": "sha256:444f761b602a9e44d6bdfd464ef55b6adaf01a07c2c5ce37843aa93734182b5b",
+      "instance_id": "django__django-11433",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:627f01462cf758b539e7cbfce1c326510c0f1e0c1b60eaac0c4e2addff0dc571",
+      "problem_statement_sha256": "sha256:65f0d2e3b24ac4220baeebaf2adbdb8124d975a8ea8397a95a0054bae9b585b7",
+      "src_lines": 7,
+      "stratum": "fs3_medium_1f_7_15"
+    },
+    {
+      "base_commit_sha": "e065b293878b1e3ea56655aa9d33e87576cd77ff",
+      "fail_to_pass_sha256": "sha256:be4366f52f43ae34cd23fedb2ed36d842a9a138cfdd86a570402016c035582b0",
+      "instance_id": "django__django-11451",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:7dfa8aad0d2af7616411e143fc612eea4c26f9b5dc3096b36718b8182ea50b0a",
+      "problem_statement_sha256": "sha256:3b394ef33a4c2eb7541dfa1eb6dd8672bd86a4de24b7c674cccf909c32b1f346",
+      "src_lines": 2,
+      "stratum": "fs1_oneline_1f_le3"
+    },
+    {
+      "base_commit_sha": "e28671187903e6aca2428374fdd504fca3032aee",
+      "fail_to_pass_sha256": "sha256:3b3d1ba475fae3bddc4a4cbb1736c09c64b6ad65e89c0eb5ba3652d0de1f3a03",
+      "instance_id": "django__django-11477",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:41638a7ad7d2e4bc6de897e965476b2eac1d0e3186e1fba0d4cd4b91c121bbfe",
+      "problem_statement_sha256": "sha256:e6f1734b2127e19740523521d8c2a947f81cb3b7f7bbe51fd8550374fd580d9b",
+      "src_lines": 2,
+      "stratum": "fs1_oneline_1f_le3"
+    },
+    {
+      "base_commit_sha": "a7038adbd02c916315b16939b835f021c2ee8880",
+      "fail_to_pass_sha256": "sha256:8e5dd0faeb14d960bf45b2d21b8ff05959cedff43aad9e7ee5cb71f78797c526",
+      "instance_id": "django__django-11490",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:ee749615693dbdfa2e18d576f7690a04d8909b06a12cf395760597dc864fae3d",
+      "problem_statement_sha256": "sha256:3e617e299646332b07e60d86867a3c5246fd7fd6cf0263a94ae5585f0fd30d00",
+      "src_lines": 1,
+      "stratum": "fs1_oneline_1f_le3"
+    },
+    {
+      "base_commit_sha": "a5308514fb4bc5086c9a16a8a24a945eeebb073c",
+      "fail_to_pass_sha256": "sha256:b9fc7b98c7f2da603db55066ccbe104af45fe0c93f08d73472478342865f8e55",
+      "instance_id": "django__django-11532",
+      "n_src_files": 5,
+      "pass_to_pass_sha256": "sha256:94416c3d6a6dcc3867cbbdf95a32d4e160764c4aa80f6809bebc1fab41066091",
+      "problem_statement_sha256": "sha256:55f341608fd38b10a968d018743892b2ae8828db032984dc7c105f6679eb65c7",
+      "src_lines": 26,
+      "stratum": "fs5_multi_ge2f"
+    },
+    {
+      "base_commit_sha": "7991111af12056ec9a856f35935d273526338c1f",
+      "fail_to_pass_sha256": "sha256:2c8daf55a027f850aa212b4fe237d5f138ca51ccbc520348617857457dad57c5",
+      "instance_id": "django__django-11551",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:24b09d0b4bc472d0a124c95efbcacae694321b6f09882ad6e1f6c85d6ce599aa",
+      "problem_statement_sha256": "sha256:cd027addb8154f7cfea79bc2b15dede0f5147436aee168f548dcbbe233ccdecb",
+      "src_lines": 42,
+      "stratum": "fs4_large_1f_16_60"
+    },
+    {
+      "base_commit_sha": "8dd5877f58f84f2b11126afbd0813e24545919ed",
+      "fail_to_pass_sha256": "sha256:7986b66130a50ee280c1a97ed30ed7bbda68e0547370be0b00a9c5078be3e6b9",
+      "instance_id": "django__django-11555",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:42d3a508e89187a41973c11fae7e1784a62f25233ad2a81ee50607fcbbd5c090",
+      "problem_statement_sha256": "sha256:7ee01f2d7d71129328901b610c75e815c7dfb7ddd1ca605d87d8d02ba6851d1c",
+      "src_lines": 3,
+      "stratum": "fs1_oneline_1f_le3"
+    },
+    {
+      "base_commit_sha": "f618e033acd37d59b536d6e6126e6c5be18037f6",
+      "fail_to_pass_sha256": "sha256:d7bb6571729cef90cb8d0409bf37309fe4d941e113f29c0c8f445470e11d74fc",
+      "instance_id": "django__django-11603",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:a109c54adebc5c68739c27596608c94b012d9f69e146e2e848c0bc6c78f60f5d",
+      "problem_statement_sha256": "sha256:cc6c06c69faae4c8e525b22f032272081f2dbc5d7d732f3589ca3f5723a0215b",
+      "src_lines": 2,
+      "stratum": "fs1_oneline_1f_le3"
+    },
+    {
+      "base_commit_sha": "05457817647368be4b019314fcc655445a5b4c0c",
+      "fail_to_pass_sha256": "sha256:b8d314f9eb665ef80d326593a45748d8ef65d287996a37e4c807c038c81af0ca",
+      "instance_id": "django__django-11728",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:0e5bf0afd4bb597bf43a3b3254fce9821194446f5306c27ee7d8d020fbe5ed11",
+      "problem_statement_sha256": "sha256:92e9410d9f1fe201c108b695ddfe9c121a14eff902d41f154f2982ad5ce6d6c7",
+      "src_lines": 22,
+      "stratum": "fs4_large_1f_16_60"
+    },
+    {
+      "base_commit_sha": "999891bd80b3d02dd916731a7a239e1036174885",
+      "fail_to_pass_sha256": "sha256:21822ecb19fac349d7ccb8a2b40651b122561ce79c98f707954641286d784e42",
+      "instance_id": "django__django-11734",
+      "n_src_files": 3,
+      "pass_to_pass_sha256": "sha256:7979048bbe011d2746b2901461191c12662d4fcfe1517f057df70243d3728e9f",
+      "problem_statement_sha256": "sha256:b51d07c9174dd7bef00b07bb42a728e48a83131a9a9b752fa99f6eb5ef0c76cc",
+      "src_lines": 10,
+      "stratum": "fs5_multi_ge2f"
+    },
+    {
+      "base_commit_sha": "003bb34b218adb23d1a7e67932a6ba9b3c4dcc81",
+      "fail_to_pass_sha256": "sha256:ec2ecf5eb021421aaa8b78fe91ef7ca1acb93a20a08e55d0b6e3050c22948f0a",
+      "instance_id": "django__django-11740",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:b7a60a4030635c6a804b0b8cc5dd15f580dad56e4570503f6cce29f958916baa",
+      "problem_statement_sha256": "sha256:e957578643e3473772f3962d3350cf65879725d62c071efa6b97fc4fda1f7d27",
+      "src_lines": 5,
+      "stratum": "fs2_small_1f_4_6"
+    },
+    {
+      "base_commit_sha": "350123f38c2b6217c38d70bfbd924a9ba3df1289",
+      "fail_to_pass_sha256": "sha256:ba98edf2c62e745b88f50faaed502914cb0706f9fcb2763566c5adbaaf55c7a4",
+      "instance_id": "django__django-11749",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:2953b20d90b1e13d6c7be8ed639ce1471636e1b8684f33a587bc781cd92101db",
+      "problem_statement_sha256": "sha256:43e20ff7e1fecc7bc072098091cafb2d1c078428917e0a43b182ef78cecccecb",
+      "src_lines": 10,
+      "stratum": "fs3_medium_1f_7_15"
+    },
+    {
+      "base_commit_sha": "b1d6b35e146aea83b171c1b921178bbaae2795ed",
+      "fail_to_pass_sha256": "sha256:506faf7f15e79ecd274f35420d49d14335fadeb7a27da12cb4d6b4a8966e895b",
+      "instance_id": "django__django-11790",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:48b3ab1b87d1e0b115205d0b13d4106cd25ba90d303004e62a91cf32e84d5786",
+      "problem_statement_sha256": "sha256:4482bb11e178b43b0d8d59d373ea8ed2631996c27f7ec51d89d65dad47ab37cb",
+      "src_lines": 4,
+      "stratum": "fs2_small_1f_4_6"
+    },
+    {
+      "base_commit_sha": "e02f67ef2d03d48128e7a118bf75f0418e24e8ac",
+      "fail_to_pass_sha256": "sha256:3649b4b1c37e1c57e712b3da449cc43dd0154bd54403fc53325814d2e66ed23e",
+      "instance_id": "django__django-11815",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:f54951ad91dca2777b328b8e65871116287765ea1de2daa50dd694df5f601f1c",
+      "problem_statement_sha256": "sha256:e022afa957e8b3db88243013133760019ad87c3d207851d0da7af9fdd8483efd",
+      "src_lines": 7,
+      "stratum": "fs3_medium_1f_7_15"
+    },
+    {
+      "base_commit_sha": "c2678e49759e5c4c329bff0eeca2886267005d21",
+      "fail_to_pass_sha256": "sha256:a71622d723914f6db7c4b3fddcd68c56f1e25c9e7d252d4784554434f5548baf",
+      "instance_id": "django__django-11820",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:bcae3f1167e0d977ee8f04e228f7a61f9f4fd1810ba73382ece8eebb1c6c416b",
+      "problem_statement_sha256": "sha256:8037de3210e730f87afe64ed1280846ba8d4d7e23c7720cba65ebe389ce36a7e",
+      "src_lines": 8,
+      "stratum": "fs3_medium_1f_7_15"
+    },
+    {
+      "base_commit_sha": "f0adf3b9b7a19cdee05368ff0c0c2d087f011180",
+      "fail_to_pass_sha256": "sha256:30fc826324a54bc7a4f2a94c7891eb230c65e4f3fb823dfc004e63c00fbb53fc",
+      "instance_id": "django__django-11848",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:48a22423fba48adf006957f37cbabcf72a7da96e0c881258689061c36ba37607",
+      "problem_statement_sha256": "sha256:cce2d9dc991da88832938161e2da1d3b1b829f72c5e178ed15a7d9ae8435db74",
+      "src_lines": 10,
+      "stratum": "fs3_medium_1f_7_15"
+    },
+    {
+      "base_commit_sha": "06909fe084f87a65459a83bd69d7cdbe4fce9a7c",
+      "fail_to_pass_sha256": "sha256:87a57951690bd65732ae77f720842ae4f8a3645503b6206066ab73c18d055d51",
+      "instance_id": "django__django-11880",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:a16777c5b12dbf3b9c72fa02513502c389b8edd9319e036d08466ff62bdd67e0",
+      "problem_statement_sha256": "sha256:e602e90dd73a70f9faf006238dfda2347f4aa08bb29365ae2611b3ea92f3eff4",
+      "src_lines": 1,
+      "stratum": "fs1_oneline_1f_le3"
+    },
+    {
+      "base_commit_sha": "04ac9b45a34440fa447feb6ae934687aacbfc5f4",
+      "fail_to_pass_sha256": "sha256:225eab4c09f8de4657f22b89c2ed95e92ba52eca541fa607752d13e43f10d710",
+      "instance_id": "django__django-11885",
+      "n_src_files": 2,
+      "pass_to_pass_sha256": "sha256:1b6379be05b0f0b0cc058112ebfeab68d9a395c7f60973cee2ef3d0fa01e3bcf",
+      "problem_statement_sha256": "sha256:bd6ce8dcb4e3ccf23898a9f244352cc8d464c3f6e5fff1f656d5a30446a6ea10",
+      "src_lines": 130,
+      "stratum": "fs5_multi_ge2f"
+    },
+    {
+      "base_commit_sha": "312049091288dbba2299de8d07ea3e3311ed7238",
+      "fail_to_pass_sha256": "sha256:f6338b20e5c69a39a5e5abea96ae040b549155d52e55077cbeb168ecfd2f3dcb",
+      "instance_id": "django__django-11951",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:fd48c456ed5d836e76e7a538352788e0c7d7178825bb6625e7e106a66105c958",
+      "problem_statement_sha256": "sha256:7c7ff1d81171a59af83ad9d0934053aa7c4e9bf6698ae2b3acde3e4d6353c169",
+      "src_lines": 3,
+      "stratum": "fs1_oneline_1f_le3"
+    },
+    {
+      "base_commit_sha": "fc2b1cc926e34041953738e58fa6ad3053059b22",
+      "fail_to_pass_sha256": "sha256:961ad7f826cf3490915b28a522bad9cb1aa1139b94f8d9dd83cda1c4cf2d26fb",
+      "instance_id": "django__django-11964",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:ea8328202ccaecdf1411cc0807cccb94d556f229cbd674877815a8b92a295a3f",
+      "problem_statement_sha256": "sha256:9f510b2ad7d3833f07816f18dfa6dbb8dacf72061c288cfe399418bfe4da25ab",
+      "src_lines": 8,
+      "stratum": "fs3_medium_1f_7_15"
+    },
+    {
+      "base_commit_sha": "84633905273fc916e3d17883810d9969c03f73c2",
+      "fail_to_pass_sha256": "sha256:e5a1457501f59e9f4a12df27b53d06e52e64834879c4cf25905e751000580150",
+      "instance_id": "django__django-11999",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:8f694fc6609405a43ef57bd032d9403f9ce298a2ec755a2ef77f2c6fd8ae3d59",
+      "problem_statement_sha256": "sha256:5c317d46980d58d2ca75a9fb2c1af025e27357abd4dcd5ea37d4b2dcd8bcd63c",
+      "src_lines": 8,
+      "stratum": "fs3_medium_1f_7_15"
+    },
+    {
+      "base_commit_sha": "58c1acb1d6054dfec29d0f30b1033bae6ef62aec",
+      "fail_to_pass_sha256": "sha256:c0f3787d591293e1bb5ec2241576706fb857e2940b80fb924b194b99f6f01b9e",
+      "instance_id": "django__django-12039",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:21b317e8aad7c720e0b3d96f08a4e7a0ec235282619d3608d4a074f4d8562832",
+      "problem_statement_sha256": "sha256:2d2bf1ab2eecd3ede142cda952d8b44ef51fab8febe416c2a85636fd4e13ea3d",
+      "src_lines": 12,
+      "stratum": "fs3_medium_1f_7_15"
+    },
+    {
+      "base_commit_sha": "b93a0e34d9b9b99d41103782b7e7aeabf47517e3",
+      "fail_to_pass_sha256": "sha256:0e17644f0d924cbd177b8d95bc0dfac0f0120f96f4f7b24d8e7cc6c5752d1bfd",
+      "instance_id": "django__django-12050",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:bd520dd90d26299f2195174e4fda6f3b0dc783155e172ca0d6900ab43cabff10",
+      "problem_statement_sha256": "sha256:161289bab4cda50aeb7a81ed68bb3a025e2a99db08588000a2f91ee206fbaa19",
+      "src_lines": 19,
+      "stratum": "fs4_large_1f_16_60"
+    },
+    {
+      "base_commit_sha": "89d41cba392b759732ba9f1db4ff29ed47da6a56",
+      "fail_to_pass_sha256": "sha256:fbfe4e728d58aa5189e4ace0f495b59fdfddc965fb0697fc6c2fb1a6274c2a5e",
+      "instance_id": "django__django-12125",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:dc0fa870dbcc0953abf7e4647ea14c58ff269ec009d99718b04355c7be8514f5",
+      "problem_statement_sha256": "sha256:d466ceb9860bfb421821c9bab47b1fa2c11295523365b174ea0b2a5a3b125a65",
+      "src_lines": 2,
+      "stratum": "fs1_oneline_1f_le3"
+    },
+    {
+      "base_commit_sha": "5573a54d409bb98b5c5acdb308310bed02d392c2",
+      "fail_to_pass_sha256": "sha256:3325776d861f7b92a27177120546dbb69640efa256b402f14a4068cabe20c0ed",
+      "instance_id": "django__django-12143",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:b80cdf5862de2c9b9d9aa37fc402da2207a9c1effdadf28f52a6629cc94588c6",
+      "problem_statement_sha256": "sha256:ea44d6cab1951bed46e10efdbfdb78f383cedc26f1d76a88cc7075ab774c2d87",
+      "src_lines": 4,
+      "stratum": "fs2_small_1f_4_6"
+    },
+    {
+      "base_commit_sha": "e8fcdaad5c428878d0a5d6ba820d957013f75595",
+      "fail_to_pass_sha256": "sha256:7de080f68b188a316b57a4e73aec0fdbd30713a4cee4642d92526a169d0e9783",
+      "instance_id": "django__django-12155",
+      "n_src_files": 2,
+      "pass_to_pass_sha256": "sha256:88cbc8f98a4f8eedad180fbe17dc59aa454e3d18b61cf864266decba16ea7353",
+      "problem_statement_sha256": "sha256:9f32a4a285f49a0f7005c54b76bcfa9d413dcf203ccc4e6f03bdb5bd89f537a4",
+      "src_lines": 23,
+      "stratum": "fs5_multi_ge2f"
+    },
+    {
+      "base_commit_sha": "3fb7c12158a2402f0f80824f6778112071235803",
+      "fail_to_pass_sha256": "sha256:2609a2e6fab27167c93e4ba173d330607553ca3279d9516b73a88e57334e9bea",
+      "instance_id": "django__django-12193",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:ada3552fe7dc7266d43aa2e403eab58671af63b7d4823ab39077c3874bc590d9",
+      "problem_statement_sha256": "sha256:6bd02eebf7c0609141d1497e235bcffa2070916542617dcee089b19d8d844eeb",
+      "src_lines": 4,
+      "stratum": "fs2_small_1f_4_6"
+    },
+    {
+      "base_commit_sha": "5a68f024987e6d16c2626a31bf653a2edddea579",
+      "fail_to_pass_sha256": "sha256:47e90a973dbaeb1a8549679716f7d474fe2d80c604171339529701a90ee5c761",
+      "instance_id": "django__django-12209",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "problem_statement_sha256": "sha256:5e48c4a578224647481334cf10311fff1141a4897260744d719b8af678daf53c",
+      "src_lines": 1,
+      "stratum": "fs1_oneline_1f_le3"
+    },
+    {
+      "base_commit_sha": "69331bb851c34f05bc77e9fc24020fe6908b9cd5",
+      "fail_to_pass_sha256": "sha256:a242efc68893d13dd6a8745340737d3b15e0f7b43358d0afcf558b20bc343eeb",
+      "instance_id": "django__django-12262",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:730cf70c96be960a908ee64c3c32a9a7f849290e0992f919db30f7861e36c87d",
+      "problem_statement_sha256": "sha256:eb0c9b99667bc7666a6ff518747eaa71c6d392f727583d3f90cabe5cf4afe994",
+      "src_lines": 2,
+      "stratum": "fs1_oneline_1f_le3"
+    },
+    {
+      "base_commit_sha": "927c903f3cd25c817c21738328b53991c035b415",
+      "fail_to_pass_sha256": "sha256:5e923698a12e3d2162e18c42512192437f4f7d0ceed9ae6d2b49f6964d55cfb6",
+      "instance_id": "django__django-12273",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:225835ee15df6567d5085f9f3066a6ef56a70dea35794ef7341457f6c1e3907a",
+      "problem_statement_sha256": "sha256:0ddf00d3800106f5e154fc638ba1e50b97e2fbebc27ab4639e16040bcf2685ca",
+      "src_lines": 3,
+      "stratum": "fs1_oneline_1f_le3"
+    },
+    {
+      "base_commit_sha": "53d8646f799de7f92ab9defe9dc56c6125448102",
+      "fail_to_pass_sha256": "sha256:4d5d030278ec0319903fbeeb94896d04c8e72808c33ed8883ad8babff541c68a",
+      "instance_id": "django__django-12276",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:115a7e3f169825b0025fb5eefb32c59b8fb95af4fd2cce434b60c7483c865496",
+      "problem_statement_sha256": "sha256:e8baf7faea7833b073ddc3bc0336ed0bbc8dae41004fbaf398cb6b8c8f667a8b",
+      "src_lines": 6,
+      "stratum": "fs2_small_1f_4_6"
+    },
+    {
+      "base_commit_sha": "4c1b401e8250f9f520b3c7dc369554477ce8b15a",
+      "fail_to_pass_sha256": "sha256:dea06e90b34a024f5ce1667760831f4ce5466b85fe6c0fe1d60f926699aa5919",
+      "instance_id": "django__django-12304",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:2327c74c9b5f063213b0b4089104a8419b3ab5f343dd8dfbeb927ef75fc0c246",
+      "problem_statement_sha256": "sha256:99dceeb9e23295f6b10e7778f737b9bfb3cf49f99eca1cfae9b10505324c3901",
+      "src_lines": 1,
+      "stratum": "fs1_oneline_1f_le3"
+    },
+    {
+      "base_commit_sha": "2e0f04507b17362239ba49830d26fec504d46978",
+      "fail_to_pass_sha256": "sha256:d6694351478ace4e6989bc185d285e160cec6c5b9642f70718b1775bc3ae9d9f",
+      "instance_id": "django__django-12308",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:815c1e8b52dd5fa8f5296dcc4365f97ecff9fffd0b201f7109d20b955c905529",
+      "problem_statement_sha256": "sha256:3a5c42ef1352e5d34855a9b6efc54b08f2e6122a861306f8f47e323775851784",
+      "src_lines": 5,
+      "stratum": "fs2_small_1f_4_6"
+    },
+    {
+      "base_commit_sha": "29c126bb349526b5f1cd78facbe9f25906f18563",
+      "fail_to_pass_sha256": "sha256:55760919fbcb07e177bb2e6258bd0e11ba206ebb76fa6bd0ae837c45af079d75",
+      "instance_id": "django__django-12325",
+      "n_src_files": 2,
+      "pass_to_pass_sha256": "sha256:d2d40b0b46ab1e2d03181fd4f7edee00a4d2292723f75eb195d8179ff7f86288",
+      "problem_statement_sha256": "sha256:8f920ccb5f6169fecd052cc74e6c0149701d063e78802c8f33d585a69bb18c02",
+      "src_lines": 8,
+      "stratum": "fs5_multi_ge2f"
+    },
+    {
+      "base_commit_sha": "335c9c94acf263901fb023404408880245b0c4b4",
+      "fail_to_pass_sha256": "sha256:3a0f7a2e075ee618a47acbdab20df356bf85e08bba97cd8c838cee7120dfe2e8",
+      "instance_id": "django__django-12406",
+      "n_src_files": 2,
+      "pass_to_pass_sha256": "sha256:1b2c52385f689a09bb2bf5af9f25e0b28ac2d11dcba1424e02462cf16e523c40",
+      "problem_statement_sha256": "sha256:0c14152f7ac2ba5dc35c69013918f93d4c0941bee9547f5eaf4e55012f00e717",
+      "src_lines": 17,
+      "stratum": "fs5_multi_ge2f"
+    },
+    {
+      "base_commit_sha": "7fa1a93c6c8109010a6ff3f604fda83b604e0e97",
+      "fail_to_pass_sha256": "sha256:0bc4e7078833cc12345669ead4a2ffa08193ee497d86b733b0292d4587aef42f",
+      "instance_id": "django__django-12419",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "problem_statement_sha256": "sha256:1f07796a60c95eb7974ea0084d52158fa47471e45dff3dde4ad328aeff3a17f6",
+      "src_lines": 2,
+      "stratum": "fs1_oneline_1f_le3"
+    },
+    {
+      "base_commit_sha": "fa5e7e46d875d4143510944f19d79df7b1739bab",
+      "fail_to_pass_sha256": "sha256:9686f15e745f47ee150658ec1c09d991326fa35e5d9199d4b3f5d7884d667e08",
+      "instance_id": "django__django-12663",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:7dac4d6abd48db9b7799545ca21aa868c60f1a5749acd0f8095fc4109deedbee",
+      "problem_statement_sha256": "sha256:0453b1e19a5f5d3644f3d6ff1fbdbf9f02062b7d22ef9a99ec54c669d83e7797",
+      "src_lines": 3,
+      "stratum": "fs1_oneline_1f_le3"
+    },
+    {
+      "base_commit_sha": "447980e72ac01da1594dd3373a03ba40b7ee6f80",
+      "fail_to_pass_sha256": "sha256:6a47223639967a201fef704d22b2a169cbf7b680d6a91dab3e8e5fb06835bdca",
+      "instance_id": "django__django-12708",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:1203ea3b995885d8e965c6a5a2bb5cb65fd21acd8c9f9a090cd45f86a1aa9c91",
+      "problem_statement_sha256": "sha256:773681998993eff75a3b69f04821e4e8683f89cfffdee38f19fe11cb3c7a98be",
+      "src_lines": 7,
+      "stratum": "fs3_medium_1f_7_15"
+    },
+    {
+      "base_commit_sha": "5b884d45ac5b76234eca614d90c83b347294c332",
+      "fail_to_pass_sha256": "sha256:d421d72aa25bf298fab3fd1c6e0b4575d766250e911749f48f8576d820326317",
+      "instance_id": "django__django-12713",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:949af4f611805d36ca196287016435e4ecaf130ac278c125f837bad129b3cb26",
+      "problem_statement_sha256": "sha256:daa45ff786da924bd2c4d52dd6d87b42fef8c43cac605a5b7853ac7dd298fe60",
+      "src_lines": 30,
+      "stratum": "fs4_large_1f_16_60"
+    },
+    {
+      "base_commit_sha": "537d422942b53bc0a2b6a51968f379c0de07793c",
+      "fail_to_pass_sha256": "sha256:1ed123cbbbec40641c59db6f8177432e5380ff0843fdf8bf9b78d91e324ec532",
+      "instance_id": "django__django-12741",
+      "n_src_files": 2,
+      "pass_to_pass_sha256": "sha256:ad64c97512b4314cfb4a1e565736f6630ecd316d6994894cd0f2301a46c6769c",
+      "problem_statement_sha256": "sha256:06e228f603008bf1f807cfa5e10f0e54802d174667e2297d56503df2a19ac25d",
+      "src_lines": 9,
+      "stratum": "fs5_multi_ge2f"
+    },
+    {
+      "base_commit_sha": "18759b2209ff556aed7f20d83cbf23e3d234e41c",
+      "fail_to_pass_sha256": "sha256:3f1d8d32d1b76debaa95a4e60f587f09f2c2852ebbede8d53a9d8fe220ac1232",
+      "instance_id": "django__django-12754",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:be7126165d187915624d1f99ca8fa67f0698a050aa7a61023acb1e44e08b09ec",
+      "problem_statement_sha256": "sha256:096b0804a84a35b844281a50c353c849cc0eba64d986c65a460f5bb04b84692e",
+      "src_lines": 10,
+      "stratum": "fs3_medium_1f_7_15"
+    },
+    {
+      "base_commit_sha": "67f9d076cfc1858b94f9ed6d1a5ce2327dcc8d0d",
+      "fail_to_pass_sha256": "sha256:b93ae0a157d364d1d217d830605cedcab12b98b58d6c7f58990a830c8f44ddd5",
+      "instance_id": "django__django-12774",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:553a53ff6c87eb5882f64de9311fc1bfbc64087c1b9f7318b41f1a69c9494788",
+      "problem_statement_sha256": "sha256:8c35fba9272466eec8851a624ea13c5c07eb184359c94dfb922efed85b0fc3b6",
+      "src_lines": 12,
+      "stratum": "fs3_medium_1f_7_15"
+    },
+    {
+      "base_commit_sha": "f2051eb8a7febdaaa43bd33bf5a6108c5f428e59",
+      "fail_to_pass_sha256": "sha256:8b762e4e87fffbb8406428298790055742706db4fbebc03f810c51e542d80339",
+      "instance_id": "django__django-12858",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:d837d2330cd267f2a80c47bbd5287447a0dc1612a41811f9c788b0b688abc910",
+      "problem_statement_sha256": "sha256:9f760a5124387f24e94d814b847aa7d039df33cb4cb376c2a61cd36815dd7310",
+      "src_lines": 4,
+      "stratum": "fs2_small_1f_4_6"
+    },
+    {
+      "base_commit_sha": "437196da9a386bd4cc62b0ce3f2de4aba468613d",
+      "fail_to_pass_sha256": "sha256:23e98a56094e0e411a177b975fbdf46324fe5c962d4853c6e879aefaab43a54f",
+      "instance_id": "django__django-12965",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:2edf35661ce4608e738a2df9fcaab9794a916310ec460eeaf24ffef0627dfde7",
+      "problem_statement_sha256": "sha256:254dbca011ff2803abe568573c62adfd5da9fe84910faf0ad79554fec9254d7b",
+      "src_lines": 2,
+      "stratum": "fs1_oneline_1f_le3"
+    },
+    {
+      "base_commit_sha": "22a59c01c00cf9fbefaee0e8e67fab82bbaf1fd2",
+      "fail_to_pass_sha256": "sha256:ffd684f246211f3228ea4fa8b94d3fe9ed6bea4e7e0a18bd8d9d9f517cf38e01",
+      "instance_id": "django__django-13012",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:ef82cfbf6479e5a23e165fae8d63dd467a1bb2cf61494647a2415170d3bc9df0",
+      "problem_statement_sha256": "sha256:1b11bed9d411d9511fc71355d4a757a90b9abe722332f5c8a986a64f5a33ff59",
+      "src_lines": 3,
+      "stratum": "fs1_oneline_1f_le3"
+    },
+    {
+      "base_commit_sha": "f83b44075dafa429d59e8755aa47e15577cc49f9",
+      "fail_to_pass_sha256": "sha256:3655222ef47ecc6c20e9a071289b991d1c99c08e50042b0ed7f820631f9f12d8",
+      "instance_id": "django__django-13023",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:9f24dfaa58142c412992b904b5b39a27bf08e8a43bcba79f5954a5cdd1fd43ea",
+      "problem_statement_sha256": "sha256:c05085a58a67bb3f452db083e2f011b6b0a4706ec1f8ef24df17fc6e6756cb70",
+      "src_lines": 2,
+      "stratum": "fs1_oneline_1f_le3"
+    },
+    {
+      "base_commit_sha": "78ad4b4b0201003792bfdbf1a7781cbc9ee03539",
+      "fail_to_pass_sha256": "sha256:6561133b7a0be81eeb0eecafde4d3c3d021c104e86c8473d3a7f73cd8b7eca9c",
+      "instance_id": "django__django-13028",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:2ce661584ab30d24541376d76e217ac7cfaea4f20a34e9bd09118f83865be012",
+      "problem_statement_sha256": "sha256:595c86a498bfd25246b3b296e410f9a474774df3fb66b907d7c809f2fb920fce",
+      "src_lines": 5,
+      "stratum": "fs2_small_1f_4_6"
+    },
+    {
+      "base_commit_sha": "a59de6e89e8dc1f3e71c9a5a5bbceb373ea5247e",
+      "fail_to_pass_sha256": "sha256:33a15e7a11492b9e3e9ed9a4ea38d8b93f5a9d30539cc10cce544b028c886ec2",
+      "instance_id": "django__django-13033",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:296c8204b958fb3863a45adf12cc5f23bc131bac90bb982d471b6725cdac2edf",
+      "problem_statement_sha256": "sha256:9da64b2f9c703ec1bd14a565ff384b69d1932e062d68e8e911a9e951f85f5a90",
+      "src_lines": 7,
+      "stratum": "fs3_medium_1f_7_15"
+    },
+    {
+      "base_commit_sha": "27c09043da52ca1f02605bf28600bfd5ace95ae4",
+      "fail_to_pass_sha256": "sha256:e2095d31641a9834b053f6d1dc3b531d74ca7429f8ae45b89d85db39256cd5ca",
+      "instance_id": "django__django-13089",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:42064e9568119adb1282ad58e1ce9c109781d41c64f40809988ff5d296cfc655",
+      "problem_statement_sha256": "sha256:5825c5a4fb9c815c7ce346478818d9a0160ebaaa75534bf94f3992b25a3f6cc3",
+      "src_lines": 9,
+      "stratum": "fs3_medium_1f_7_15"
+    },
+    {
+      "base_commit_sha": "fbe82f82555bc25dccb476c749ca062f0b522be3",
+      "fail_to_pass_sha256": "sha256:5e5f1081aaf247c41c482ccad94856c3ee6829402a32708739dfe81c6b27cbb1",
+      "instance_id": "django__django-13109",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:31c76d8bc2283bccb0bb631a28344adbcd65194053b1196df2bd346964d98a8a",
+      "problem_statement_sha256": "sha256:ae5dcc3d81e5961ced793da00ad311e186b174c968bb7c2cec7c8fae00577545",
+      "src_lines": 2,
+      "stratum": "fs1_oneline_1f_le3"
+    },
+    {
+      "base_commit_sha": "09914ccf688974e068941f55412b930729bafa06",
+      "fail_to_pass_sha256": "sha256:505c903ff7beb8b887607c34a41f118b37658dee5f0d9f49900e3631f6eb7785",
+      "instance_id": "django__django-13112",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:3fc510144c29a951171ff835dd69c55c39298fc08e514a7b4e35c920bdcbf4d5",
+      "problem_statement_sha256": "sha256:23bc7cc79708f1a1396e96c7f125e2b8db60c77298639a055c9ba2d50dec1afd",
+      "src_lines": 6,
+      "stratum": "fs2_small_1f_4_6"
+    },
+    {
+      "base_commit_sha": "ec5aa2161d8015a3fe57dcbbfe14200cd18f0a16",
+      "fail_to_pass_sha256": "sha256:3d275e272fbed8f0bc43742f8d8a51d08e77fd755f2c1e85993322694cb0a11b",
+      "instance_id": "django__django-13121",
+      "n_src_files": 4,
+      "pass_to_pass_sha256": "sha256:734c8d08fe20c56a050432abb4e49fc8ce18596a696af1ce25b6ede7a49eb94c",
+      "problem_statement_sha256": "sha256:37a34c2a2b342e01d020f528d940358d465faa6f1c427f0f2a855a1d7d768f45",
+      "src_lines": 70,
+      "stratum": "fs5_multi_ge2f"
+    },
+    {
+      "base_commit_sha": "2d67222472f80f251607ae1b720527afceba06ad",
+      "fail_to_pass_sha256": "sha256:1ae47183623c463a90acd4c5b5fc573f3676e2b0535a1c32b5bd95bcd891a5a2",
+      "instance_id": "django__django-13128",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:fffcad2f2dfc75e9c6052bdfb6faa5fe6924ceede5ec11b22bd073c3d2992fee",
+      "problem_statement_sha256": "sha256:d05584e584d668d3bc05dac8dc889140cbec5336c30912ddf99cb5fc0f8f9716",
+      "src_lines": 43,
+      "stratum": "fs4_large_1f_16_60"
+    },
+    {
+      "base_commit_sha": "7af8f4127397279d19ef7c7899e93018274e2f9b",
+      "fail_to_pass_sha256": "sha256:259d5f482cd27fc937c3bb658eb25f3321a2ec1602b7a9c5b15183124423451a",
+      "instance_id": "django__django-13158",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:63e059804dcda1448604cc8e9deea1cb1267ee1b47840d6839e7aa3265e421e0",
+      "problem_statement_sha256": "sha256:7939c5ed353c7d0a907dbaa7389c478cb1d18d44096c3c84f3a07a827d36ce0c",
+      "src_lines": 3,
+      "stratum": "fs1_oneline_1f_le3"
+    },
+    {
+      "base_commit_sha": "156a2138db20abc89933121e4ff2ee2ce56a173a",
+      "fail_to_pass_sha256": "sha256:f6adefa8e6bf1c0177664efe04f217b4a72cd826952f4a2d37ce392991747587",
+      "instance_id": "django__django-13195",
+      "n_src_files": 3,
+      "pass_to_pass_sha256": "sha256:1b9a9a0cda666e1db5aa280094fd10c60f9e96e79d36a01e6c65c050443d081c",
+      "problem_statement_sha256": "sha256:0e4d0ef4cd6f3ef28f227f6d3eb1c9db8a5249e7dbb5361922695786e5394fce",
+      "src_lines": 22,
+      "stratum": "fs5_multi_ge2f"
+    },
+    {
+      "base_commit_sha": "f4e93919e4608cfc50849a1f764fd856e0917401",
+      "fail_to_pass_sha256": "sha256:2cc3cb48b989e68a8421b3bc68825975b667ff48cede843040c9e6f93835abc0",
+      "instance_id": "django__django-13212",
+      "n_src_files": 2,
+      "pass_to_pass_sha256": "sha256:8993cade25ba85f9be9d26da5881ec2a4c13a9abf6da69007eb2fecb1ac041c2",
+      "problem_statement_sha256": "sha256:a79d287e01597f81eca52a95eafec22b22872f3dc0e06b8837a711242627b150",
+      "src_lines": 44,
+      "stratum": "fs5_multi_ge2f"
+    },
+    {
+      "base_commit_sha": "6e9c5ee88fc948e05b4a7d9f82a8861ed2b0343d",
+      "fail_to_pass_sha256": "sha256:19a0baf429d952346e23e31e683c36a0eab3cd81a5dcf83c70f313e104d3002a",
+      "instance_id": "django__django-13279",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:8df67f12cf7e5d1875a236eed2e08297f81688078bfe1eb09f7e6005187ef112",
+      "problem_statement_sha256": "sha256:1717b549ca903701f93bd54096281c7b223c471cb822f2e8703d60637a33eb91",
+      "src_lines": 9,
+      "stratum": "fs3_medium_1f_7_15"
+    },
+    {
+      "base_commit_sha": "8954f255bbf5f4ee997fd6de62cb50fc9b5dd697",
+      "fail_to_pass_sha256": "sha256:c0741468c9b9e89a5ba6c8fd5ae5f2663f0e1e49597ce3d1bf52636e7cf1a0db",
+      "instance_id": "django__django-13297",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:f58c63037934f69f6248cedffc9e9ab313b81c9e64b36624c5a55cc27d7e5233",
+      "problem_statement_sha256": "sha256:e61d15a6ceed56f64d664100196a3313d242c09e49317661ec6aa85c8c980c36",
+      "src_lines": 5,
+      "stratum": "fs2_small_1f_4_6"
+    },
+    {
+      "base_commit_sha": "36bc47069ce071e80c8129500de3b8664d2058a7",
+      "fail_to_pass_sha256": "sha256:2634a9fb5a63ad0dd244e05d88d8d4685470bf92291328e32bcc1ba148534195",
+      "instance_id": "django__django-13315",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:e179e17eca1192249d679bb2c6d261ec9f2ce53616fb5ed4e8df8cff24d6c35b",
+      "problem_statement_sha256": "sha256:23acf4cc72106d313ec1c5743de12eed7749031842e215685a30db410495531f",
+      "src_lines": 12,
+      "stratum": "fs3_medium_1f_7_15"
+    },
+    {
+      "base_commit_sha": "ece18207cbb64dd89014e279ac636a6c9829828e",
+      "fail_to_pass_sha256": "sha256:4b0681e575923ebb403171f4dde0b1676c213fee6fe2abd15bfa230ff0fd854f",
+      "instance_id": "django__django-13343",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:7b1f477a681451f1ef560b0c0d2d5974cfe1fc68104abbe8740d38bcd3996342",
+      "problem_statement_sha256": "sha256:e105d6198bfcc19f652eb3f7d9a0fc8243ada3b8492de1688b31b3e4b43a1153",
+      "src_lines": 4,
+      "stratum": "fs2_small_1f_4_6"
+    },
+    {
+      "base_commit_sha": "e39e727ded673e74016b5d3658d23cbe20234d11",
+      "fail_to_pass_sha256": "sha256:bde03a7aee91edd9f3ed7cc80e703611c5d5fb2b978b9521eef779e62d389229",
+      "instance_id": "django__django-13344",
+      "n_src_files": 3,
+      "pass_to_pass_sha256": "sha256:b680b9c69b2078a2573f647de942004919b88a965767d76818863dd7b1b2784d",
+      "problem_statement_sha256": "sha256:fa0d64caaae3c17b9e52c447593c2c8ac3354046b1df2ceb293645b293b06090",
+      "src_lines": 32,
+      "stratum": "fs5_multi_ge2f"
+    },
+    {
+      "base_commit_sha": "9c92924cd5d164701e2514e1c2d6574126bd7cc2",
+      "fail_to_pass_sha256": "sha256:177afc0468af2af0183273ab9b9346920248127832b1a6a76ea7254317c15749",
+      "instance_id": "django__django-13346",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:9f01f57876fee274959c721ee44d6a9982cac1b19361e990145f8462de90a667",
+      "problem_statement_sha256": "sha256:3cb764082e21011777c787f5ecf6688762b6f899a8b1f4ef1fab404245dc227c",
+      "src_lines": 25,
+      "stratum": "fs4_large_1f_16_60"
+    },
+    {
+      "base_commit_sha": "76e0151ea0e0f56dca66cee846a78b89346d2c4c",
+      "fail_to_pass_sha256": "sha256:fb472118e5f08ce523809bac7920954115c4a0608f400fb8b9c9bb1feb637ebe",
+      "instance_id": "django__django-13363",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:9573567e699cb22872b231418c1871bfef56b5ae09e46c2a7acc07cb5ed3066b",
+      "problem_statement_sha256": "sha256:097d83cb362b6f57378d29dc14641c115abeeb3aabfa8bf57ed92f2da0b790ea",
+      "src_lines": 4,
+      "stratum": "fs2_small_1f_4_6"
+    },
+    {
+      "base_commit_sha": "453967477e3ddae704cd739eac2449c0e13d464c",
+      "fail_to_pass_sha256": "sha256:0548c81ebc2fe06bfcc0b70af83d6480e4ef9539289fd66d7b88445d88af9d9a",
+      "instance_id": "django__django-13401",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:10ae664c3b759a0309b1bae95a769f7fa8d877c37ef2fa2b154369cf427ac7a7",
+      "problem_statement_sha256": "sha256:07a5d3176edc3678b34a08f4f72789a0f7e0af6a29389b6109c5009e098762a3",
+      "src_lines": 26,
+      "stratum": "fs4_large_1f_16_60"
+    },
+    {
+      "base_commit_sha": "84609b3205905097d7d3038d32e6101f012c0619",
+      "fail_to_pass_sha256": "sha256:c74044e04efa73a73cf8084216495445757305662fda17f24024439bcbcff301",
+      "instance_id": "django__django-13406",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:a11d9973de06c165bb4d869da240369f95dc563215934ddf5630793d268e6e3b",
+      "problem_statement_sha256": "sha256:ca2ece66b44ccf60d98ae4b1e6f5bdc9bcfefc640ea3b3bac0bfa7554a49fa2a",
+      "src_lines": 2,
+      "stratum": "fs1_oneline_1f_le3"
+    },
+    {
+      "base_commit_sha": "580a4341cb0b4cbfc215a70afc004875a7e815f4",
+      "fail_to_pass_sha256": "sha256:e661f7dc14f7d42cf3c576723c4c5418ea4ace077b89ba163cd9c10371daf46d",
+      "instance_id": "django__django-13410",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:bcc382f300d3e79ba69af80a4df15aff5031e0868589562a169aec2159b4a3e2",
+      "problem_statement_sha256": "sha256:a0d73591704ec56dc81c6e7035614a8bd526166b9700b9f982c4c58c4b719676",
+      "src_lines": 11,
+      "stratum": "fs3_medium_1f_7_15"
+    },
+    {
+      "base_commit_sha": "71ae1ab0123582cc5bfe0f7d5f4cc19a9412f396",
+      "fail_to_pass_sha256": "sha256:f0765d063422e0d3849bd96debdb377ba5ad3b0b118787f0f69da010830dbfa9",
+      "instance_id": "django__django-13417",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:91d7145783bd4f73b82ed3cab611f1ea365d434c9fbbec90ed29841791ff37d6",
+      "problem_statement_sha256": "sha256:7778fbb63ad2655872035b872bbaba9e904a8547fb6d3ef5fd8aa0e0997c054e",
+      "src_lines": 7,
+      "stratum": "fs3_medium_1f_7_15"
+    },
+    {
+      "base_commit_sha": "2a55431a5678af52f669ffe7dff3dd0bd21727f8",
+      "fail_to_pass_sha256": "sha256:6ea27365ca2143bd7387c9d3a16f8cafd0f4dcf2aa2150b36d228ab8b11a0ad8",
+      "instance_id": "django__django-13449",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:b2cb94807ada1ebdc17a87c78e00ca93a2027676aba95462eee4f0ed2b14f860",
+      "problem_statement_sha256": "sha256:b082782316bb4c8f2899f9f31d81edd84d4ded60ed7627073f56014db30da0d9",
+      "src_lines": 12,
+      "stratum": "fs3_medium_1f_7_15"
+    },
+    {
+      "base_commit_sha": "b79088306513d5ed76d31ac40ab3c15f858946ea",
+      "fail_to_pass_sha256": "sha256:75fb6b8b77ef6e73620e51dcdc067098b6469714199a86554a31fe6f3fa6847d",
+      "instance_id": "django__django-13512",
+      "n_src_files": 2,
+      "pass_to_pass_sha256": "sha256:bcf22d7cea4b9410e2085de62d318cdcdc091b8dd10988d5d52d4a798ba617ef",
+      "problem_statement_sha256": "sha256:77633ba2243ab634f8e720517e2dea5dee17f839be6ad5ae87c58b4bf021cbf6",
+      "src_lines": 5,
+      "stratum": "fs5_multi_ge2f"
+    },
+    {
+      "base_commit_sha": "6599608c4d0befdcb820ddccce55f183f247ae4f",
+      "fail_to_pass_sha256": "sha256:8cab25c7d3415babb4058531e01e5ba78fb5c96e286b5636c4cc1a6061679d70",
+      "instance_id": "django__django-13513",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:90538d6bca2eb9664f53b5af1c03c8ddd889a0e501f87df04f8f364093e2475d",
+      "problem_statement_sha256": "sha256:db52b2ac85d9ffdc2d35533770ede3c4c61472b7e111b351053abd0d678468d5",
+      "src_lines": 44,
+      "stratum": "fs4_large_1f_16_60"
+    },
+    {
+      "base_commit_sha": "b7da588e883e12b8ac3bb8a486e654e30fc1c6c8",
+      "fail_to_pass_sha256": "sha256:3196b1a9e7333e861fa385361a6e8095932cf6b0c8edf77550f1738fc678bdec",
+      "instance_id": "django__django-13516",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:ed4516fe9ee85fd1743c98c08d00a68f4355cf63aebb64fa03f3bbfc2c328996",
+      "problem_statement_sha256": "sha256:b2aa69aba131cbff8cc00252876c7fce9fb8226461cdb25a902029535818a40d",
+      "src_lines": 4,
+      "stratum": "fs2_small_1f_4_6"
+    },
+    {
+      "base_commit_sha": "7f9e4524d6b23424cf44fbe1bf1f4e70f6bb066e",
+      "fail_to_pass_sha256": "sha256:b21deb4caccaf52c99c59dd7f9e69f6f1aa8c3338a2d0d2192f79021bc8f3c90",
+      "instance_id": "django__django-13551",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:344daf77dcea43775d7876c78ee80fb7230064ce92d67177f6e1feae8cc2b071",
+      "problem_statement_sha256": "sha256:e6346f8aa9161943a4e9cb982869c271a849cf3a8988e926d32bb177ee8f02e6",
+      "src_lines": 10,
+      "stratum": "fs3_medium_1f_7_15"
+    },
+    {
+      "base_commit_sha": "ede9fac75807fe5810df66280a60e7068cc97e4a",
+      "fail_to_pass_sha256": "sha256:2404dc306d3b6e30d1b5120f13fc0c53af5a606abd02f240ae1be1bcc8494681",
+      "instance_id": "django__django-13568",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:42ff5fb12f037fd852648366c6a8b451000c97be758a54819e264f3b7bc1c333",
+      "problem_statement_sha256": "sha256:919d7cd6597b70c38f5e1aaeb15f5433c5aa76d6df01dc6d5dad11b23f44b425",
+      "src_lines": 5,
+      "stratum": "fs2_small_1f_4_6"
+    },
+    {
+      "base_commit_sha": "257f8495d6c93e30ab0f52af4c488d7344bcf112",
+      "fail_to_pass_sha256": "sha256:04af7871e283d2c59a8cbd65a56c9ed9c7e4b64c9d82be19bf71f6a0ad52e4e7",
+      "instance_id": "django__django-13569",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:02c28c43e7a980aeaf28e967fadc6bbd1ad0ee891d8792411b068b3e25b75d5c",
+      "problem_statement_sha256": "sha256:224927604fb87c103765f979b79d32e837525161fc8192644f5932e4c797561d",
+      "src_lines": 3,
+      "stratum": "fs1_oneline_1f_le3"
+    },
+    {
+      "base_commit_sha": "755dbf39fcdc491fe9b588358303e259c7750be4",
+      "fail_to_pass_sha256": "sha256:2ea83a3c5b21dd622c9454a0e5d49b4d06a5d576a6948a21da9b61dd81f70596",
+      "instance_id": "django__django-13590",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:5fdf2821875879088296b3ec95fd6af974d6a894d04d4d8b89a2dd03e17986b5",
+      "problem_statement_sha256": "sha256:05b78c5617cc34ad2af8034fde1a60f353913bda2cecfe6c547ce5f80dfaafbf",
+      "src_lines": 6,
+      "stratum": "fs2_small_1f_4_6"
+    },
+    {
+      "base_commit_sha": "0773837e15bb632afffb6848a58c59a791008fa1",
+      "fail_to_pass_sha256": "sha256:0706be34fdd44789da410a3de0410907f1546d66fc4c70096eefe518a90aadfa",
+      "instance_id": "django__django-13658",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:7eebad3ea6332081718c24718ede678cab122bc27b4ff5f3dce164980b25a30b",
+      "problem_statement_sha256": "sha256:764f9340434a4ec85588c26979702eceac011b8e753ca0165b78bbdefae98bb5",
+      "src_lines": 7,
+      "stratum": "fs3_medium_1f_7_15"
+    },
+    {
+      "base_commit_sha": "c448e614c60cc97c6194c62052363f4f501e0953",
+      "fail_to_pass_sha256": "sha256:2f70b1ea5bdf8fd566901cd825d021c7fb271b87aa613a745a0123200d8d4b69",
+      "instance_id": "django__django-13670",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:6a75494813061800c7998b6c069c15a27db2296ef12bf43a14573f5f64c8aea5",
+      "problem_statement_sha256": "sha256:2b0864eb153038e5272adca0a3ce20666fb56b1c813c89aca8e4ea51842ab77a",
+      "src_lines": 4,
+      "stratum": "fs2_small_1f_4_6"
+    },
+    {
+      "base_commit_sha": "d746f28949c009251a8741ba03d156964050717f",
+      "fail_to_pass_sha256": "sha256:63ec7b6eb1307f1f52a3f31fb7ac427133bc9782e91fb972c9ce80bd56e2eba8",
+      "instance_id": "django__django-13741",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:2eb8555a0a4886cc868a7d6b64454a472aa996ba21e4793bcc150f1dcfedb089",
+      "problem_statement_sha256": "sha256:649548e0c7ba74a107750c961644b757d2d8465b58073945fa9b92ff29705aba",
+      "src_lines": 15,
+      "stratum": "fs3_medium_1f_7_15"
+    },
+    {
+      "base_commit_sha": "bb64b99b78a579cb2f6178011a4cf9366e634438",
+      "fail_to_pass_sha256": "sha256:aee6dd6e70dd66902ecdf15444adfeddd7ae8de75f0c5f27b2c4616156f3c654",
+      "instance_id": "django__django-13786",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:92e83b3dc79c244423db7052b0d8f34ba80d11376838adab74b406619d8a554a",
+      "problem_statement_sha256": "sha256:d45af58840168e1fc6be62f4cec2c28e8538aaf9db2dc1be29531dfe7f8ed648",
+      "src_lines": 6,
+      "stratum": "fs2_small_1f_4_6"
+    },
+    {
+      "base_commit_sha": "fe886eee36be8022f34cfe59aa61ff1c21fe01d9",
+      "fail_to_pass_sha256": "sha256:5f620eca01dc760de50e4d24e34a31688455b574bc94e6a1721a6050bb4cca47",
+      "instance_id": "django__django-13794",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:9a4f163531f5427e9dbdb67490a388bd3776cbfbf6019d2a3ae24b8ba558b406",
+      "problem_statement_sha256": "sha256:8fec230311b96c7a82993e454ee4cb7288e74ba228b16cf24b991b4894bcffea",
+      "src_lines": 6,
+      "stratum": "fs2_small_1f_4_6"
+    },
+    {
+      "base_commit_sha": "89fc144dedc737a79929231438f035b1d4a993c9",
+      "fail_to_pass_sha256": "sha256:c81045f8cda0c45324697a02fbc7ef894a1cf423df784bc2fb6c9c2d9c225ea3",
+      "instance_id": "django__django-13807",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:3d3218e4fea2e9e278a681e0f18eca087677ac61d3d4a407a90e8115505d63fb",
+      "problem_statement_sha256": "sha256:76117df0c07f45dd32c37f2b6b6c60218d89e2785ce40cca9378dd771f5d19e6",
+      "src_lines": 11,
+      "stratum": "fs3_medium_1f_7_15"
+    },
+    {
+      "base_commit_sha": "bef6f7584280f1cc80e5e2d80b7ad073a93d26ec",
+      "fail_to_pass_sha256": "sha256:4256aab8a097c34829e6628e964a12985df1b763fcb6f130cb2d5c4de3199c73",
+      "instance_id": "django__django-13809",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:b1a4845df775e981ba628ad826da7ccfd7792d111d155991ca8078502792ee02",
+      "problem_statement_sha256": "sha256:7a85668efd30416150d8bb3013727c6ebf8d0013064afc93e5b96d2aabcf456c",
+      "src_lines": 9,
+      "stratum": "fs3_medium_1f_7_15"
+    },
+    {
+      "base_commit_sha": "429d089d0a8fbd400e0c010708df4f0d16218970",
+      "fail_to_pass_sha256": "sha256:71612af4dfc31f5c16c8580e3342b882af6635f1cd933f0e4e682c7b026fe75c",
+      "instance_id": "django__django-13810",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:3416b299f3e2a7eccb8ab0d6cccc5a5b8b91b20883387e385e1b6fca9039c555",
+      "problem_statement_sha256": "sha256:56e9927b1d405bb6be5bd7a327cea4ed7a83858f705590310391df2fd2066379",
+      "src_lines": 6,
+      "stratum": "fs2_small_1f_4_6"
+    },
+    {
+      "base_commit_sha": "98ad327864aed8df245fd19ea9d2743279e11643",
+      "fail_to_pass_sha256": "sha256:66996094d9649e422a1c7f12a929d153a2da312dde1a46987d06a2d21ceaa77e",
+      "instance_id": "django__django-13820",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:1a95d22b8de9f93de937773d93074f1f92f379f5babe51e9254a7b6b366b2fef",
+      "problem_statement_sha256": "sha256:8448b0b82597255474fabc23fafe8fb9aee04c6f7bbc5a59dbec7918a19063e4",
+      "src_lines": 14,
+      "stratum": "fs3_medium_1f_7_15"
+    },
+    {
+      "base_commit_sha": "e64c1d8055a3e476122633da141f16b50f0c4a2d",
+      "fail_to_pass_sha256": "sha256:e6a75a0f4f605e2a194f01f78d90497f58f032834c7eee06a98cfab34ec3705e",
+      "instance_id": "django__django-13821",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:6c263037e729c8db3b1b708b8378a8d2d6dead0ae16e55d8e745cb7740b5ef59",
+      "problem_statement_sha256": "sha256:265686648c416aaf4879d6757538e5d9ee13c00496288e6fbd5fbdb9901cf3ec",
+      "src_lines": 6,
+      "stratum": "fs2_small_1f_4_6"
+    },
+    {
+      "base_commit_sha": "415f50298f97fb17f841a9df38d995ccf347dfcc",
+      "fail_to_pass_sha256": "sha256:837ecc2388220304bc2dc94525ac777e633095e7315d521b0aef4f50b5cc8eb7",
+      "instance_id": "django__django-13837",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:03abbced05114de7ba7b581fd9f7cf3794c4327bb8825d198b520256b25bd94a",
+      "problem_statement_sha256": "sha256:34e44d1cfd0354cf9ed68afafef69789c59418e2ea0620e23b6402522a2ae4ac",
+      "src_lines": 10,
+      "stratum": "fs3_medium_1f_7_15"
+    },
+    {
+      "base_commit_sha": "0c42cdf0d2422f4c080e93594d5d15381d6e955e",
+      "fail_to_pass_sha256": "sha256:045bd61c11351a9087c22e951a563cf3bb050eec20cafc5854e856c2dd815531",
+      "instance_id": "django__django-13925",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:37ca926bc677992d1703764eb5335f653c4261625f4b9018c90d0ff04a0ef80c",
+      "problem_statement_sha256": "sha256:53aa9d5d9f674abca126966c4a1292cebbfcdb29346652e41d2151dd88f09b69",
+      "src_lines": 5,
+      "stratum": "fs2_small_1f_4_6"
+    },
+    {
+      "base_commit_sha": "42e8cf47c7ee2db238bf91197ea398126c546741",
+      "fail_to_pass_sha256": "sha256:fa781d478e04e057bd2bc271b0ef0045160cea4a6f3a6fdd39b7b2a24842831d",
+      "instance_id": "django__django-13933",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:43ffe656542394664ad33030fb12585be70d82733eb31edb76ad00464b8dec7c",
+      "problem_statement_sha256": "sha256:401348caf9cb639acfea61bb1f3bbc93a59d3e8a025d2fb99dd17c4a512723dd",
+      "src_lines": 6,
+      "stratum": "fs2_small_1f_4_6"
+    },
+    {
+      "base_commit_sha": "f39634ff229887bf7790c069d0c411b38494ca38",
+      "fail_to_pass_sha256": "sha256:1c14f84fe9242445d50571f539410b9fb31f7108c74f86a81193e96e658b25e1",
+      "instance_id": "django__django-13964",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:967cc1a500012ad6024a086ce1044bbe097c29033f3af3fb476172fb7230e143",
+      "problem_statement_sha256": "sha256:d0a164326a7b3fd89b9236e331075a4b9dd8285ea90f5757ea056d87737020c3",
+      "src_lines": 2,
+      "stratum": "fs1_oneline_1f_le3"
+    },
+    {
+      "base_commit_sha": "619f26d2895d121854b1bed1b535d42b722e2eba",
+      "fail_to_pass_sha256": "sha256:9dc44bd5b01fc77e3fcfbe77c1fe6b59a3085b8f22a00a971a0b9ab344ff6074",
+      "instance_id": "django__django-14007",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:5d8a36193ef92bf81ae5da9bdbbe9dfdfc82f50b2cc3860a170f7d8515b7c04e",
+      "problem_statement_sha256": "sha256:61950a482ff12ae94f13cdf0032eeb04986240655411db0358161491ad853e0a",
+      "src_lines": 21,
+      "stratum": "fs4_large_1f_16_60"
+    },
+    {
+      "base_commit_sha": "e4430f22c8e3d29ce5d9d0263fba57121938d06d",
+      "fail_to_pass_sha256": "sha256:a198ad695f798b221b256da1daa805629d709a3fd4acff0b732c32d320c5f0ca",
+      "instance_id": "django__django-14011",
+      "n_src_files": 2,
+      "pass_to_pass_sha256": "sha256:835243baf3ffdbda13849372fe7a0597dd84e03b2c3d4a222208e01bc8507a03",
+      "problem_statement_sha256": "sha256:be59236cc1523a08327292712cb4cb8f939a49866e7355254a3efa586ae4fdd2",
+      "src_lines": 24,
+      "stratum": "fs5_multi_ge2f"
+    },
+    {
+      "base_commit_sha": "466920f6d726eee90d5566e0a9948e92b33a122e",
+      "fail_to_pass_sha256": "sha256:57a8cceb14bc0b166d11c5faa2c1a180ef03cd36db1269ae2f2dd42eb0144aa7",
+      "instance_id": "django__django-14017",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:b7bec58e115479ef9a89cbddd221715b76a6f12d275d4b73e836c8025e4446fc",
+      "problem_statement_sha256": "sha256:a9b1b917d84ea9f7230d9dd8a0e81fe9261b0a878979d52423fa24cbb574acba",
+      "src_lines": 2,
+      "stratum": "fs1_oneline_1f_le3"
+    },
+    {
+      "base_commit_sha": "db1fc5cd3c5d36cdb5d0fe4404efd6623dd3e8fb",
+      "fail_to_pass_sha256": "sha256:ba27ecb4c0d7008c9d2bfb639900e5e4e6762cf5c6916a8f7d87a1d238ba8a3b",
+      "instance_id": "django__django-14034",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:ba937c8e3d92ed7cb5d7afdbeb91f601034f4d22db64d6d62fd768cf597900a2",
+      "problem_statement_sha256": "sha256:8c9d626d0cc8f675b7b679ccde8ee202319203f4a5c57f2faeb08bbbc7ad7fd9",
+      "src_lines": 14,
+      "stratum": "fs3_medium_1f_7_15"
+    },
+    {
+      "base_commit_sha": "179ee13eb37348cd87169a198aec18fedccc8668",
+      "fail_to_pass_sha256": "sha256:ea58887419f638650862a1d5c3bc4c7b7bd2f28a5155348d890d1728f2853054",
+      "instance_id": "django__django-14053",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:13c8c17be651d9517e7cee64fafc56a83eb0cc0f619d4270be31d3fd087169fb",
+      "problem_statement_sha256": "sha256:cca208480bfc81085f4ca0bf64ee24023dbc67f90016f0f45790b5b6170683b8",
+      "src_lines": 19,
+      "stratum": "fs4_large_1f_16_60"
+    },
+    {
+      "base_commit_sha": "d01709aae21de9cd2565b9c52f32732ea28a2d98",
+      "fail_to_pass_sha256": "sha256:4fce3ee4ea30bd935899fddcff76333af520efe00a9eeab32dabdfe03b3150f9",
+      "instance_id": "django__django-14089",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:5cf83fc3715971c41773ef132098ed1b8fc4fc00e8096b8578e7831bc9baa37f",
+      "problem_statement_sha256": "sha256:cbfb85cb9ea9b08049b15ffaff23b96640926088e725b8b70f7ef2a31b767118",
+      "src_lines": 3,
+      "stratum": "fs1_oneline_1f_le3"
+    },
+    {
+      "base_commit_sha": "bc04941bf811d1ea2c79fb7fc20457ed2c7e3410",
+      "fail_to_pass_sha256": "sha256:cc726325f3c42d576759217f4e58bad30b52e4364300e4c585ad68845d181190",
+      "instance_id": "django__django-14122",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:d3aeab7a617e8200870d26727868d1b5ddf807f3279d1180c601d036bb3add5e",
+      "problem_statement_sha256": "sha256:977d049025358afe0585a110b6fdcfe236b41139b69f5300d6b4aa5195523097",
+      "src_lines": 11,
+      "stratum": "fs3_medium_1f_7_15"
+    },
+    {
+      "base_commit_sha": "45814af6197cfd8f4dc72ee43b90ecde305a1d5a",
+      "fail_to_pass_sha256": "sha256:1c7209092c699d906f9711259d7f47c2f3f73d280b3a517e85bc5b116426f22e",
+      "instance_id": "django__django-14140",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:92f9e941fc748022c19056e0f7cca902dd14272cc27dbc33dc7fd1025bf58049",
+      "problem_statement_sha256": "sha256:a305c3e778a6834a2fac10b055678ce26e2ee1173e5c6c0b969a50a12a261b03",
+      "src_lines": 12,
+      "stratum": "fs3_medium_1f_7_15"
+    },
+    {
+      "base_commit_sha": "2f13c476abe4ba787b6cb71131818341911f43cc",
+      "fail_to_pass_sha256": "sha256:21d2e05ee5d9544eb3acdd844a1d664d69998be971b0cb63fa82736ee73b30c2",
+      "instance_id": "django__django-14155",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:385a186042f5cf3115cc105cf44860ca1792993be32de4ac9e4331be6f8af105",
+      "problem_statement_sha256": "sha256:99528d0959fec5b17e878bcf5770321d0bbcd6728de15155b2e4d5d4f019e1de",
+      "src_lines": 13,
+      "stratum": "fs3_medium_1f_7_15"
+    },
+    {
+      "base_commit_sha": "6efc35b4fe3009666e56a60af0675d7d532bf4ff",
+      "fail_to_pass_sha256": "sha256:e630b1bce3c22eeed6a3518f2be3dbf896f9a5de4008f0a0939ef92601fb96c3",
+      "instance_id": "django__django-14170",
+      "n_src_files": 2,
+      "pass_to_pass_sha256": "sha256:1b4038b674667e2d54cab4d80533da910ee9c16a44cbc3a0b486038fcf1ef620",
+      "problem_statement_sha256": "sha256:8cf4ee1d30b4dea29472bf630efb43bae3dba0dcd4704599e04ab5fcf0789dc6",
+      "src_lines": 38,
+      "stratum": "fs5_multi_ge2f"
+    },
+    {
+      "base_commit_sha": "30e123ed351317b7527f632b3b7dc4e81e850449",
+      "fail_to_pass_sha256": "sha256:89b16163add526028faf5b430eeedcf440afca153034867c0db587c66c42ff21",
+      "instance_id": "django__django-14238",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:109c513c610b4bc25a6b20f6f22b5db84db088a3d8f707849c22625965551e0f",
+      "problem_statement_sha256": "sha256:ee71cd2bf018f9b6642fe511b99cd64cebaf60a85abc709d87d65ee2c97a2ffd",
+      "src_lines": 2,
+      "stratum": "fs1_oneline_1f_le3"
+    },
+    {
+      "base_commit_sha": "5a8e8f80bb82a867eab7e4d9d099f21d0a976d22",
+      "fail_to_pass_sha256": "sha256:16184368a8ddb5db383e31258e8d5a65a512a02203f54325901a4be5bd2c6ff0",
+      "instance_id": "django__django-14311",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:fd4de4ac74ea3ad5bbd77064eea65c81b32940b6109668e7099957b4ff6c539d",
+      "problem_statement_sha256": "sha256:461ce927881a7aee7d62b6cea89d7bc71d0f6ce70e107dbf073a0abe37394d4b",
+      "src_lines": 9,
+      "stratum": "fs3_medium_1f_7_15"
+    },
+    {
+      "base_commit_sha": "187118203197801c6cb72dc8b06b714b23b6dd3d",
+      "fail_to_pass_sha256": "sha256:3b110180f230f84a10e62d894e3fecd51b5d200dc6942182f1f3b93047420d67",
+      "instance_id": "django__django-14315",
+      "n_src_files": 2,
+      "pass_to_pass_sha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "problem_statement_sha256": "sha256:bef4cf98805c60cd26812114b20594a4cf19b71cbd87b68f2424e16bb288c768",
+      "src_lines": 5,
+      "stratum": "fs5_multi_ge2f"
+    },
+    {
+      "base_commit_sha": "a708f39ce67af174df90c5b5e50ad1976cec7cb8",
+      "fail_to_pass_sha256": "sha256:698fa77e7134fd9672eafa761a8d70e9be2f6f35183b92a23ff55d9ea721a8d6",
+      "instance_id": "django__django-14349",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:4a82ed214db8792f3ff1f3a832e5fc8c12e0a4e69a0ece7ce00db97b727b6563",
+      "problem_statement_sha256": "sha256:a68339a313302a5206f13b93193a304536f6bd11f99f1a0555a7077431b99152",
+      "src_lines": 3,
+      "stratum": "fs1_oneline_1f_le3"
+    },
+    {
+      "base_commit_sha": "06fd4df41afb5aa1d681b853c3c08d8c688ca3a5",
+      "fail_to_pass_sha256": "sha256:9f9e385b504158d5a676013cb987f8d5384ef00843da6bd4c9f95504cf5a6ead",
+      "instance_id": "django__django-14351",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:60c286eb45f7e446d1140f5fb877bf990837955621890822255753ad48bfe6b9",
+      "problem_statement_sha256": "sha256:3634baa513384ea0fff395865c0be84f51bc20db766ab44634106e45cb39bae5",
+      "src_lines": 9,
+      "stratum": "fs3_medium_1f_7_15"
+    },
+    {
+      "base_commit_sha": "b1a4b1f0bdf05adbd3dc4dde14228e68da54c1a3",
+      "fail_to_pass_sha256": "sha256:89ea07512dab8adeeaaafca710e67232c08e7c243ea91760819f313cc6c091af",
+      "instance_id": "django__django-14373",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:865f31f3a1b0a814c09f06919ed93e58c0ea0b3d205ad70c5d9d58c5682ac30b",
+      "problem_statement_sha256": "sha256:3a92f914a19e30131524e7b737d800631f22bc13950e775dd3a81e75e702b45c",
+      "src_lines": 4,
+      "stratum": "fs2_small_1f_4_6"
+    },
+    {
+      "base_commit_sha": "d06c5b358149c02a62da8a5469264d05f29ac659",
+      "fail_to_pass_sha256": "sha256:699e92e07a137ed65af03e052e408a6a346070558ca50f7cbe7ceac0458a4321",
+      "instance_id": "django__django-14376",
+      "n_src_files": 2,
+      "pass_to_pass_sha256": "sha256:353dc2137492a3cd4ada210bc0735c469c2d481ca3044548f761213ace138f94",
+      "problem_statement_sha256": "sha256:5365417653d0973045c8b9dad432b1ea4300765b3114a94b249824beb70ec215",
+      "src_lines": 13,
+      "stratum": "fs5_multi_ge2f"
+    },
+    {
+      "base_commit_sha": "de32fe83a2e4a20887972c69a0693b94eb25a88b",
+      "fail_to_pass_sha256": "sha256:3b904937bef518e703f7a1d70a21bdc79c2bb64986b29dd4d824defa6e00a1a8",
+      "instance_id": "django__django-14404",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:72417553f62f61230737e8b25a140e17a7c988682563e751e1d67b8c5dbb11f5",
+      "problem_statement_sha256": "sha256:def9177a98fb70db5e820c239d7c624fe8e84ef5b3c0a48fdda3cbf03e2e004b",
+      "src_lines": 5,
+      "stratum": "fs2_small_1f_4_6"
+    },
+    {
+      "base_commit_sha": "5e04e84d67da8163f365e9f5fcd169e2630e2873",
+      "fail_to_pass_sha256": "sha256:6ea17de664acc6d0017b21f3f9737dc851f2ee0b2dca26ada9ce88c903cf4511",
+      "instance_id": "django__django-14434",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:94904d7798b85c49b88ddd71040d02a1e8a34b2bb48ff9f6775a0993f1f2e93b",
+      "problem_statement_sha256": "sha256:069b0d7ba8ebff2f277a626aec1231cfee3546478a755fd268df7ecf2e4ee766",
+      "src_lines": 8,
+      "stratum": "fs3_medium_1f_7_15"
+    },
+    {
+      "base_commit_sha": "7272e1963ffdf39c1d4fe225d5425a45dd095d11",
+      "fail_to_pass_sha256": "sha256:3f57cc8407b8f79fb13dcf01820144b929629f19c35be8b10c7b90acd0ac4913",
+      "instance_id": "django__django-14493",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:cd0ae5c75eead7162fa6b45329b72163dbf21e428be849584b12490a71d0a6da",
+      "problem_statement_sha256": "sha256:cc9de371234c2f0d9b3de4138b2ce9166d023f8c0862aee47daabf371d863356",
+      "src_lines": 1,
+      "stratum": "fs1_oneline_1f_le3"
+    },
+    {
+      "base_commit_sha": "8c3bd0b708b488a1f6e8bd8cc6b96569904605be",
+      "fail_to_pass_sha256": "sha256:8b622fd74d201b1937d1ba2e4738ee99d841cd2c39041448ffd053944969cd2d",
+      "instance_id": "django__django-14500",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:e0c5aeca8308b452910746f1150fb3ef71344e63dd48686f8972c2ef20df0a52",
+      "problem_statement_sha256": "sha256:b5100d0bf94598959c948adbc85bc8ee1dfe12dac61312ed2abdba68d8eab4fd",
+      "src_lines": 5,
+      "stratum": "fs2_small_1f_4_6"
+    },
+    {
+      "base_commit_sha": "910ecd1b8df7678f45c3d507dde6bcb1faafa243",
+      "fail_to_pass_sha256": "sha256:06083d184ec0d573377ff207255ed089ba03a429ebf885f6c40524e738c6b2f9",
+      "instance_id": "django__django-14534",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:f0fb2024dd3ce42145e9d7d95de2aafe0005cb2967ad48246bb09251adb55b40",
+      "problem_statement_sha256": "sha256:2dfdaf218918ae65f7a8279d0c7bb35685a56cfa459949bed8d8765ac33511f9",
+      "src_lines": 2,
+      "stratum": "fs1_oneline_1f_le3"
+    },
+    {
+      "base_commit_sha": "6a5ef557f80a8eb6a758ebe99c8bb477ca47459e",
+      "fail_to_pass_sha256": "sha256:d8122ac91a0c149d1d0eee797557e2bd70f5fbac8c485bced55867f775c023de",
+      "instance_id": "django__django-14539",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:4121c79d244fa744491f3299487bb37ead4db20c39bb1245478c67424e49dded",
+      "problem_statement_sha256": "sha256:914210188a0f0d3164757e5694efc608a1a55b5bdd8710f9bb72926cd6e599bf",
+      "src_lines": 5,
+      "stratum": "fs2_small_1f_4_6"
+    },
+    {
+      "base_commit_sha": "d79be3ed39b76d3e34431873eec16f6dd354ab17",
+      "fail_to_pass_sha256": "sha256:e696a866c0fc64074adc43aa2e77d78685f558e87e5a2944633122a8fec9efef",
+      "instance_id": "django__django-14559",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:bddb10a99e88edadcf51a79df57d3ead3bb58cd938dd7b140e84abe050c0cd58",
+      "problem_statement_sha256": "sha256:6cc9af44c911bf02e1f72e4b16fbc31d33889d6468f7ef4ffde9ef408f92e90f",
+      "src_lines": 6,
+      "stratum": "fs2_small_1f_4_6"
+    },
+    {
+      "base_commit_sha": "36fa071d6ebd18a61c4d7f1b5c9d17106134bd44",
+      "fail_to_pass_sha256": "sha256:8d0b1da023ebfb0363798008a158fbfd671f3f2a8255749563803805e942b0e7",
+      "instance_id": "django__django-14580",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:e13bb41af7dc7109cc9db7901f933181153582c704db74c95569d8f6721ea0f3",
+      "problem_statement_sha256": "sha256:636298273b9a33484b44d2319b239719d8913afa944d0659f8af13415e8f2c7c",
+      "src_lines": 2,
+      "stratum": "fs1_oneline_1f_le3"
+    },
+    {
+      "base_commit_sha": "7f33c1e22dbc34a7afae7967783725b10f1f13b1",
+      "fail_to_pass_sha256": "sha256:474e304431c1f415617990500285dcc35099d41e2d79db56ab88b0e46543d339",
+      "instance_id": "django__django-14608",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:c6608c77f390193855a335649d853b77e353957cc42b3a70f814aa2662549fde",
+      "problem_statement_sha256": "sha256:28120c6f6a8b2a68dc45ba85d6154eb892ad4040da4961ffc4d8d34a60fd992e",
+      "src_lines": 7,
+      "stratum": "fs3_medium_1f_7_15"
+    },
+    {
+      "base_commit_sha": "84400d2e9db7c51fee4e9bb04c028f665b8e7624",
+      "fail_to_pass_sha256": "sha256:23219fb246823160f61110f3602e61f2c00d6c82240138c1f98713f74b98ace0",
+      "instance_id": "django__django-14631",
+      "n_src_files": 2,
+      "pass_to_pass_sha256": "sha256:5c13c8bdee477f3894c6869b9215f1266068a8aa6416827eaf4c3289fd1f64ad",
+      "problem_statement_sha256": "sha256:1d3f964a6347e618040724052803c6e2011af7a3288f08293494b40da803118d",
+      "src_lines": 65,
+      "stratum": "fs5_multi_ge2f"
+    },
+    {
+      "base_commit_sha": "00ea883ef56fb5e092cbe4a6f7ff2e7470886ac4",
+      "fail_to_pass_sha256": "sha256:9765a987534797b61105d6bf820dec4022e893213ac5e9cd55e3f65954a31bbc",
+      "instance_id": "django__django-14672",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "problem_statement_sha256": "sha256:ff82815c7599ddedc3670e83f2a86a3ddb817a5697c861baed4cd27146e51f62",
+      "src_lines": 2,
+      "stratum": "fs1_oneline_1f_le3"
+    },
+    {
+      "base_commit_sha": "0af9a5fc7d765aa05ea784e2c3237675f3bb4b49",
+      "fail_to_pass_sha256": "sha256:219faff32b389f5c05dd28bf871494394accb1159b12246c7f525a598be70642",
+      "instance_id": "django__django-14725",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:40f1ad1cca42ba75f3998b580ea134d1313b4b81e67ab439f998816bb3115675",
+      "problem_statement_sha256": "sha256:dce7d4945c7b8b97bb004da9edae37b3d03bf2d284a99c7901634f198a928494",
+      "src_lines": 13,
+      "stratum": "fs3_medium_1f_7_15"
+    },
+    {
+      "base_commit_sha": "b64db05b9cedd96905d637a2d824cbbf428e40e7",
+      "fail_to_pass_sha256": "sha256:7ba3c811fb094238e2b162c571fa0c705fb97df6a9aee34ad35939c19d6c94ab",
+      "instance_id": "django__django-14752",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:5a0e4ed0f426e4f8935b931012143b8d28a7a5e75babcc76211a6017ba7188a2",
+      "problem_statement_sha256": "sha256:1b904159e732bdd60114e919ef960bb89f645abf72dad8ca4ecb0897e11bea66",
+      "src_lines": 12,
+      "stratum": "fs3_medium_1f_7_15"
+    },
+    {
+      "base_commit_sha": "4e8121e8e42a24acc3565851c9ef50ca8322b15c",
+      "fail_to_pass_sha256": "sha256:d4db524bb0a77275a7db9b348fec674112a99e15229e0a6094c3657419912c9c",
+      "instance_id": "django__django-14765",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:3238632a9ddbacdc98cf2b8d8ac65726fe0541b0a868d142bfa444a58071c2d6",
+      "problem_statement_sha256": "sha256:9fc69efed0cf0027e31a1ce26ac09b72d66e7d3e2125a055188e2ac870ff4d90",
+      "src_lines": 7,
+      "stratum": "fs3_medium_1f_7_15"
+    },
+    {
+      "base_commit_sha": "4884a87e022056eda10534c13d74e49b8cdda632",
+      "fail_to_pass_sha256": "sha256:6766431129a4c77b66571297f7e71cb8e01d7f6cf2482380a3296beb733b0d7b",
+      "instance_id": "django__django-14771",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:f2ad39ecfe372ead7d479874f60daa827e8579598f5748baf955bbf9e1607525",
+      "problem_statement_sha256": "sha256:c73f49f76429d7c1fd9ba1b867ed0bf555f7cbe2cef3891f312c4d856d42bd6f",
+      "src_lines": 5,
+      "stratum": "fs2_small_1f_4_6"
+    },
+    {
+      "base_commit_sha": "004b4620f6f4ad87261e149898940f2dcd5757ef",
+      "fail_to_pass_sha256": "sha256:b104474a09766ce378fa75fdf07f23ff133a7127dcdf343b226763c8f021fdea",
+      "instance_id": "django__django-14787",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:b665ee9f02496050cd40b9e04ee6b4cca45fd5722b8d270bc1eecc1f9bdce830",
+      "problem_statement_sha256": "sha256:b52409ced83e2b68e7961a34db6792ca6b89277456ea14c6c166c7f8c8e17c0d",
+      "src_lines": 2,
+      "stratum": "fs1_oneline_1f_le3"
+    },
+    {
+      "base_commit_sha": "d89f976bddb49fb168334960acc8979c3de991fa",
+      "fail_to_pass_sha256": "sha256:5a761e5b8c02a1443ad3f912a02e5d674e5933da1525bbffdaaaf4c0ad5d993a",
+      "instance_id": "django__django-14792",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:cc7b801d7ea76449d8910cc3e80131c840c7d898e2a52b5345e3f1a5be819369",
+      "problem_statement_sha256": "sha256:b5f5a0d21a40deb0fea2a4a0dfa0b0c5f45c891648de9e0d622db437f3b84e3e",
+      "src_lines": 7,
+      "stratum": "fs3_medium_1f_7_15"
+    },
+    {
+      "base_commit_sha": "475cffd1d64c690cdad16ede4d5e81985738ceb4",
+      "fail_to_pass_sha256": "sha256:951d200bedb0c4b4253c33cd3c7e70d84906e5d55ceb5768844b40d6d97334cd",
+      "instance_id": "django__django-14855",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:293079bd59af48b286ec2f234b39e3948d8adcb75e70ddcf0ff089048d3949af",
+      "problem_statement_sha256": "sha256:7c113fe11bfa67ad47de43ed350aab131ae71456dec54707251ac2e79d5de7b9",
+      "src_lines": 6,
+      "stratum": "fs2_small_1f_4_6"
+    },
+    {
+      "base_commit_sha": "903aaa35e5ceaa33bfc9b19b7f6da65ce5a91dd4",
+      "fail_to_pass_sha256": "sha256:d333c23d153219e6703176635886e6618f51b3fa8119734aec98bd17a5ff1c07",
+      "instance_id": "django__django-14915",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:49e5e174fb694c759f07db088456dff06fde77383425f4293c866fe4b2f7a551",
+      "problem_statement_sha256": "sha256:bf8158a727f6dc6c7342fadb1af16bfe69171e4a5a9e1db719367ce0dbacc849",
+      "src_lines": 3,
+      "stratum": "fs1_oneline_1f_le3"
+    },
+    {
+      "base_commit_sha": "a754b82dac511475b6276039471ccd17cc64aeb8",
+      "fail_to_pass_sha256": "sha256:9f89fd8d4c48b71b5fc02da0e93af9322ee3ff3e1f02f74697823dcd12c39452",
+      "instance_id": "django__django-14999",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:639a7e199ece3cad775ef447cd3b8490aa3b9fde76209dafcaae9880492b8aa5",
+      "problem_statement_sha256": "sha256:5264ba42b6576487dbd71edab4f86f5c7e2642f728562861bea1a0fad04da819",
+      "src_lines": 11,
+      "stratum": "fs3_medium_1f_7_15"
+    },
+    {
+      "base_commit_sha": "e1d673c373a7d032060872b690a92fc95496612e",
+      "fail_to_pass_sha256": "sha256:7cdd89971ff22038085bdce140def02b0f961398c8ad7e0577fe5b0196c489fe",
+      "instance_id": "django__django-15022",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:500ececeb2fb661a34a3f5c77bb971fe4b5aa5b4164d15fa772eceb06730367c",
+      "problem_statement_sha256": "sha256:053d6cadf868999d5c91d65c608c767c064794a28f5a6ce572ddb790e1dcd63f",
+      "src_lines": 4,
+      "stratum": "fs2_small_1f_4_6"
+    },
+    {
+      "base_commit_sha": "dab48b7482295956973879d15bfd4d3bb0718772",
+      "fail_to_pass_sha256": "sha256:1bf8d446f390ab6b37dc8be86fb8e40775ed9b52f12b5df8e0f8dea84647fc6e",
+      "instance_id": "django__django-15037",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:2cd4e150b318922f82584afd4f15899caf498b130ecda28e6dd557b8e58b6600",
+      "problem_statement_sha256": "sha256:0d8c12fc486d8e5e0c9c28316b6d7052f1630eecc58aa279c2bcfae3478f4f09",
+      "src_lines": 8,
+      "stratum": "fs3_medium_1f_7_15"
+    },
+    {
+      "base_commit_sha": "2c7846d992ca512d36a73f518205015c88ed088c",
+      "fail_to_pass_sha256": "sha256:ac4f9e5fe5bb6e911442dc3ba3d1f2a5dcf500020ae8848a2e95ba9fe7d0d9b7",
+      "instance_id": "django__django-15098",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:d79f9e7cd341fa34d38206db692e9cef598ead4324946211845299308bd3b2c7",
+      "problem_statement_sha256": "sha256:d851e9e482d434693a8ffd0b6f1452774897d663326ba7f51d28aa70893506b5",
+      "src_lines": 2,
+      "stratum": "fs1_oneline_1f_le3"
+    },
+    {
+      "base_commit_sha": "dd528cb2cefc0db8b91a7ff0a2bc87305b976597",
+      "fail_to_pass_sha256": "sha256:ca047dadbb5e835712088285ec3335989f5551a790a4906a27b2d3361f0a6a2a",
+      "instance_id": "django__django-15103",
+      "n_src_files": 2,
+      "pass_to_pass_sha256": "sha256:86e637f02dcbbcf18d372ba9df0ec727e4298a75129c6f14ca8a485e3c8f43d7",
+      "problem_statement_sha256": "sha256:34eeb1884ba091d5ef043989c3516cae61b057232f28bbf2d341c5cf670b2f84",
+      "src_lines": 17,
+      "stratum": "fs5_multi_ge2f"
+    },
+    {
+      "base_commit_sha": "a7e7043c8746933dafce652507d3b821801cdc7d",
+      "fail_to_pass_sha256": "sha256:6ff748d1d2f3b2f1b38296c369f6db4c7060ebd7b3d9445710f635146a9fc71d",
+      "instance_id": "django__django-15104",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:34374107fc1570dd23c52e4fb3152b12c5b529fb39c0cf8df94db3c0db363be5",
+      "problem_statement_sha256": "sha256:28a48760ccbbb8e549a66edeae834de8a47f4a34d06ba80e4c929c6ea55626d2",
+      "src_lines": 2,
+      "stratum": "fs1_oneline_1f_le3"
+    },
+    {
+      "base_commit_sha": "9a6e2df3a8f01ea761529bec48e5a8dc0ea9575b",
+      "fail_to_pass_sha256": "sha256:a570a5b315f1115c8115152ef0e672c7de41e28df1e2926fdb8be7ffc53f3aad",
+      "instance_id": "django__django-15127",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:424ab33b919233ca0bab2fcf861eb19695d4ac3463a70f0d66358fb5cdeb833a",
+      "problem_statement_sha256": "sha256:c292bb768c1a7f54599f5232bf0ec130db16cae3504ab40183bf07f4ff3f3622",
+      "src_lines": 11,
+      "stratum": "fs3_medium_1f_7_15"
+    },
+    {
+      "base_commit_sha": "cb383753c0e0eb52306e1024d32a782549c27e61",
+      "fail_to_pass_sha256": "sha256:be08cebf84ba1771155195484c130a4ead08bd139df1ba040c6d9e1958c0d681",
+      "instance_id": "django__django-15128",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:69947e8076ca6540ee60b83119822c70bae9f72534aec71b74ae8de13ad07193",
+      "problem_statement_sha256": "sha256:45a25eccc76c2a4696cf8ae4ddc4b1d8ccaf016a096c077f16d0db237f16a8f4",
+      "src_lines": 28,
+      "stratum": "fs4_large_1f_16_60"
+    },
+    {
+      "base_commit_sha": "96e7ff5e9ff6362d9a886545869ce4496ca4b0fb",
+      "fail_to_pass_sha256": "sha256:e00305dff158a2c88d70d6c5065b4ea3d0ac608925ec99f216db6e11003ed387",
+      "instance_id": "django__django-15161",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:49dd6ce4c9fe07ffc480fa4f67a779e8c946b334dfc84b8545cd14e559074559",
+      "problem_statement_sha256": "sha256:57e447ac62225ffba5dba333898b1c0a4c43d39f66a983cb54b238f5350dd134",
+      "src_lines": 6,
+      "stratum": "fs2_small_1f_4_6"
+    },
+    {
+      "base_commit_sha": "361bb8f786f112ee275be136795c0b1ecefff928",
+      "fail_to_pass_sha256": "sha256:b26e8d96c3c92ccb15ae371739b589a05a9ab42c9e05547f7afb3fe180b4a397",
+      "instance_id": "django__django-15252",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:602e3e66804484254ecd76848df6935fe34115ef7d3f6d1eb5bd2e7863237285",
+      "problem_statement_sha256": "sha256:ac94dfb5dfb9903b30502daafec445b4d52b5549b1ab13215baf510048fc3e7d",
+      "src_lines": 8,
+      "stratum": "fs3_medium_1f_7_15"
+    },
+    {
+      "base_commit_sha": "0ab58c120939093fea90822f376e1866fc714d1f",
+      "fail_to_pass_sha256": "sha256:4258e68d2989fec993a825058b1ac84df248f951b01829c87c7d7dd6f95e83ee",
+      "instance_id": "django__django-15268",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:2c0a8d5ea816923418c1c4a45c2af714890ee7a8c624ed98f1fdce9dcc0ef587",
+      "problem_statement_sha256": "sha256:d924c4fce88325ef036717d83eec6886a45e706bcdb2990f20049ed3d6377f07",
+      "src_lines": 13,
+      "stratum": "fs3_medium_1f_7_15"
+    },
+    {
+      "base_commit_sha": "30613d6a748fce18919ff8b0da166d9fda2ed9bc",
+      "fail_to_pass_sha256": "sha256:ad345f4d42ac6eee83ccc48c23789ff9e8754d46448a42bdff43ac13c9924a00",
+      "instance_id": "django__django-15277",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:9148cef85137496ace6aba3cdb6bd52b8055f3771aa49f95002ff076ffb15160",
+      "problem_statement_sha256": "sha256:98525d608a2e031433d4b7356a5bfc0143c43f0e34ab84fd9f2a2d6e15f8359d",
+      "src_lines": 3,
+      "stratum": "fs1_oneline_1f_le3"
+    },
+    {
+      "base_commit_sha": "0ab58c120939093fea90822f376e1866fc714d1f",
+      "fail_to_pass_sha256": "sha256:e44c67214820051f8a5856c84dc5ebac2e364f31995b03015d4503f5edb06341",
+      "instance_id": "django__django-15278",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:6135f2828c8a063dc221ec4f54f063d637650ae7d8acac265454a74bbe5366c3",
+      "problem_statement_sha256": "sha256:1a089ebde40b260fa592330ff3bf56f5bfa3f06d96e50e5f17196fa2e6140d74",
+      "src_lines": 13,
+      "stratum": "fs3_medium_1f_7_15"
+    },
+    {
+      "base_commit_sha": "973fa566521037ac140dcece73fceae50ee522f1",
+      "fail_to_pass_sha256": "sha256:892127f19fe01e76219eb6ab4445ea52e4387b063486716466eac5a973a490cb",
+      "instance_id": "django__django-15280",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:35985e20af70f4e8a646ddbd23157e3a8dc680f2a6cdf218d8bf1404a758af58",
+      "problem_statement_sha256": "sha256:064a07fb72e08e129f1fbe7f8d633a6b54b3e15107da3af57dc8ddc9b8da0ad8",
+      "src_lines": 5,
+      "stratum": "fs2_small_1f_4_6"
+    },
+    {
+      "base_commit_sha": "652c68ffeebd510a6f59e1b56b3e007d07683ad8",
+      "fail_to_pass_sha256": "sha256:e2aba90c7a81e924b909731c900c1a8111473e4dc1ea5836859084966c35876e",
+      "instance_id": "django__django-15315",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:fb3e74e991027e9579bea755f9e7c251a2c88b3c606ae07cf0f81b012b03a68e",
+      "problem_statement_sha256": "sha256:a26b3534bece469f866614b19fadd37e13c9a06ce293bfe21e32313b9cfa90fd",
+      "src_lines": 6,
+      "stratum": "fs2_small_1f_4_6"
+    },
+    {
+      "base_commit_sha": "e972620ada4f9ed7bc57f28e133e85c85b0a7b20",
+      "fail_to_pass_sha256": "sha256:d62f28d50385350323a3fb0274903f8364d48944a13143bea21a248261c6cd37",
+      "instance_id": "django__django-15368",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:99190019a5bc7df9f1d8a784adfc5887ab12ad7519d9cae165da0724fb704d34",
+      "problem_statement_sha256": "sha256:1bced2e7a3d9d1a655c00e9057eca1f32180b3ef8cbdb43fa560b580531f07d0",
+      "src_lines": 4,
+      "stratum": "fs2_small_1f_4_6"
+    },
+    {
+      "base_commit_sha": "beb7ddbcee03270e833b2f74927ccfc8027aa693",
+      "fail_to_pass_sha256": "sha256:e318a2fa7198bd577361eb1b347baed48dd447c82bc4aa48ce669920e275dc91",
+      "instance_id": "django__django-15375",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:daafe1af116986f3f5976dc0a4a1b85734a274a4b7ceb513b9a7200f2658ab59",
+      "problem_statement_sha256": "sha256:4616483f7cb30681f19b8196d8484bef3b60b87d89b3547c73c01b54b98a1ba8",
+      "src_lines": 4,
+      "stratum": "fs2_small_1f_4_6"
+    },
+    {
+      "base_commit_sha": "71e7c8e73712419626f1c2b6ec036e8559a2d667",
+      "fail_to_pass_sha256": "sha256:6078bfcf7b877deeb92eda7ec0343dc03bac0883a9ace9e946ddb03da2533280",
+      "instance_id": "django__django-15380",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:160cd5d430c5b40a27a90870e204b0a52e0cec3bdd69f81c90a62e761f79b275",
+      "problem_statement_sha256": "sha256:53100fe4bc9f478124a2d09309952bdae262d1f27673d79613eaea157cf20191",
+      "src_lines": 2,
+      "stratum": "fs1_oneline_1f_le3"
+    },
+    {
+      "base_commit_sha": "770d3e6a4ce8e0a91a9e27156036c1985e74d4a3",
+      "fail_to_pass_sha256": "sha256:a0e7ec89c261e1f976ccad97907493e364783a40900990e8dd39ca69c74cfa4c",
+      "instance_id": "django__django-15382",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:4569a4da966a93e77da831e0defabc62b5a2719bf76b3343cfcb650589c8e75e",
+      "problem_statement_sha256": "sha256:edcce7a405fe9cea7bd3d257a381b34a8247f33ad1ad1d95d6899109c98873da",
+      "src_lines": 19,
+      "stratum": "fs4_large_1f_16_60"
+    },
+    {
+      "base_commit_sha": "e0442a628eb480eac6a7888aed5a86f83499e299",
+      "fail_to_pass_sha256": "sha256:92b51e515ca72bf137d845ea8544bb39eeb10f4b82e93778ab99e7a2d09a7700",
+      "instance_id": "django__django-15467",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:262ad6a8d52fab16b66e9b8e5d93cd8a977e97823f04999328209b5c5b53c040",
+      "problem_statement_sha256": "sha256:fc7443424d0b936393fb4f7cf0d1c3045fbd138a736a563d555bbf5cafccd99b",
+      "src_lines": 4,
+      "stratum": "fs2_small_1f_4_6"
+    },
+    {
+      "base_commit_sha": "d90e34c61b27fba2527834806639eebbcfab9631",
+      "fail_to_pass_sha256": "sha256:3f8770761af0f1e7c2759ce1976d74a71323e787d1877f85fd462eefb24c3cce",
+      "instance_id": "django__django-15499",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:8cefe61ba0340695526069822d6f572ba574ad916ebc37fa7997f5842d6eabdb",
+      "problem_statement_sha256": "sha256:5b157eb69d1b4d671f1f1751692541bfd58a51abda2269af5968a299640619ad",
+      "src_lines": 13,
+      "stratum": "fs3_medium_1f_7_15"
+    },
+    {
+      "base_commit_sha": "859a87d873ce7152af73ab851653b4e1c3ffea4c",
+      "fail_to_pass_sha256": "sha256:5ad1c63fd68805093f9e78d97e334636d9d6c2df9a7ec457c210b44f7fc7f4ef",
+      "instance_id": "django__django-15503",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:fad2ac54abef9908708409b9af6ca9053c3ba7892bf83d940d0250e5b337880f",
+      "problem_statement_sha256": "sha256:ae5996a2ff543fb4739d14e1d0080c854ac289205e0abe1d687645bc14af2123",
+      "src_lines": 26,
+      "stratum": "fs4_large_1f_16_60"
+    },
+    {
+      "base_commit_sha": "fbacaa58ffc5a62456ee68b90efa13957f761ce4",
+      "fail_to_pass_sha256": "sha256:4e90a265bc7bcb6ecd70c01dff4f0ba7d986c5ec7e250a433d6648d0b378952f",
+      "instance_id": "django__django-15525",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:518dafa0c8ce13005794aa46e653033b012cf73b0f525e6c2b5bfb0c5f83b76c",
+      "problem_statement_sha256": "sha256:d08bb0e6192157df05eeac23a447e986930f16b9905c8071c73bc00007945357",
+      "src_lines": 4,
+      "stratum": "fs2_small_1f_4_6"
+    },
+    {
+      "base_commit_sha": "59ab3fd0e9e606d7f0f7ca26609c06ee679ece97",
+      "fail_to_pass_sha256": "sha256:0f5d3ffb8d66878532d598cccc3515e998aad8ad7193cfde79e59f77022062fa",
+      "instance_id": "django__django-15554",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:fdf05532a4d4f8c669347689097fadd023f0a417c8749dc726be725f17fe694d",
+      "problem_statement_sha256": "sha256:2d27a8c06b70734c54326cfad54dacbad5376e57a6a6ea68a4c33e91047624af",
+      "src_lines": 47,
+      "stratum": "fs4_large_1f_16_60"
+    },
+    {
+      "base_commit_sha": "6991880109e35c879b71b7d9d9c154baeec12b89",
+      "fail_to_pass_sha256": "sha256:fe974bbba0c9ff2078243769da05210bb1c203e22714dfe22c862fbd7e3f2620",
+      "instance_id": "django__django-15561",
+      "n_src_files": 2,
+      "pass_to_pass_sha256": "sha256:482c6665ecbc9bb26135120f0af1bb6edb7da23207658f15f328b78620a8890d",
+      "problem_statement_sha256": "sha256:faf31e89ae86084aeea09177048679096a74f81864023dda9cbe3a32e3db6e46",
+      "src_lines": 35,
+      "stratum": "fs5_multi_ge2f"
+    },
+    {
+      "base_commit_sha": "9ffd4eae2ce7a7100c98f681e2b6ab818df384a4",
+      "fail_to_pass_sha256": "sha256:2e35439d02e755d2bd464fe73f759d98386cc765811ccedbfc06d4922f43f1a7",
+      "instance_id": "django__django-15563",
+      "n_src_files": 2,
+      "pass_to_pass_sha256": "sha256:39a7ecf7313f9a4ff0e6c8da67f17f3fc2e5aa5af7f506117378e4b970bd856f",
+      "problem_statement_sha256": "sha256:46a090e69eecd18516e4819f11699ec9c5b3d2226db86a616217d9115cdfb5a7",
+      "src_lines": 25,
+      "stratum": "fs5_multi_ge2f"
+    },
+    {
+      "base_commit_sha": "884b4c27f506b3c29d58509fc83a35c30ea10d94",
+      "fail_to_pass_sha256": "sha256:4b5385d4e1f7fe4c91fec0047eb7c0611833230d35d47179876868df838a8b0e",
+      "instance_id": "django__django-15569",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:be58acf913633e60cc291eeccbf8bd5570822aa1bd016030883c58d16001a591",
+      "problem_statement_sha256": "sha256:107938cd24f7bef580939d1998ce566f02fe292c37bcd14013c5f28ec5fb4f51",
+      "src_lines": 1,
+      "stratum": "fs1_oneline_1f_le3"
+    },
+    {
+      "base_commit_sha": "0b31e024873681e187b574fe1c4afe5e48aeeecf",
+      "fail_to_pass_sha256": "sha256:933b7ef70c61a548cc580b05fd75c96668de83d5d584d4a4f52fef5f019b6a8b",
+      "instance_id": "django__django-15572",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:ee16f9cf44b90597d6efbaf356b9e5c502bdf8884a95cf3da5e4b081a0fb5fab",
+      "problem_statement_sha256": "sha256:f9d1889009c44a56a4487dbf777c536841b4b30a2472ee1d1e30b75007f12aa3",
+      "src_lines": 4,
+      "stratum": "fs2_small_1f_4_6"
+    },
+    {
+      "base_commit_sha": "694cf458f16b8d340a3195244196980b2dec34fd",
+      "fail_to_pass_sha256": "sha256:9901831e0020a5c151937c9e46b23d391e318cd3129169ea7e087905f6ecfbeb",
+      "instance_id": "django__django-15629",
+      "n_src_files": 4,
+      "pass_to_pass_sha256": "sha256:33373f218f61e2b82117bd5f1d40d30913c16c5a1386136acb69b3029bb951af",
+      "problem_statement_sha256": "sha256:f0d48bfd83441c3935b06e4a92bcdb578150b817ce17a73b3275233796473aa6",
+      "src_lines": 42,
+      "stratum": "fs5_multi_ge2f"
+    },
+    {
+      "base_commit_sha": "647480166bfe7532e8c471fef0146e3a17e6c0c9",
+      "fail_to_pass_sha256": "sha256:1546d6c07fd1826884cdc9451503c7fd6ea8aa3631b5b09d48d5b25679d1f45e",
+      "instance_id": "django__django-15695",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:1403bdc2f26a928195ec71eadcca7c6bd5fb7ff32432f16fd76dab61fbd28700",
+      "problem_statement_sha256": "sha256:613bfb30e51009598a05937b5149afbc0cf7b5eb59572cc4282e9154fd39da22",
+      "src_lines": 3,
+      "stratum": "fs1_oneline_1f_le3"
+    },
+    {
+      "base_commit_sha": "93cedc82f29076c824d476354527af1150888e4f",
+      "fail_to_pass_sha256": "sha256:beb1f18df8a5621f19a664dacf195fecd7fd66db0ed3aad2976412c0e9658dff",
+      "instance_id": "django__django-15731",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:a9588b0a643feb2c69f9f30f86ff6bcd3e632fa948c71aeb353161413bf381f0",
+      "problem_statement_sha256": "sha256:b28cf585d0d568812aef7b882e47df7a542f7736ee900877c426c000a3ed953c",
+      "src_lines": 4,
+      "stratum": "fs2_small_1f_4_6"
+    },
+    {
+      "base_commit_sha": "ce69e34bd646558bb44ea92cecfd98b345a0b3e0",
+      "fail_to_pass_sha256": "sha256:7de24654de176b47a294573eaf4d35176451c25507e0ca32af1f80f80d9d124a",
+      "instance_id": "django__django-15732",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:751ab886adfb7389685d3817cefbd14265c7f88945d7a2b5e4f6cd4acc25d322",
+      "problem_statement_sha256": "sha256:9fec2159f491fae94855a4e7f43923ee35d5c1b124f9f26769a0e6015ff0f312",
+      "src_lines": 32,
+      "stratum": "fs4_large_1f_16_60"
+    },
+    {
+      "base_commit_sha": "8c0886b068ba4e224dd78104b93c9638b860b398",
+      "fail_to_pass_sha256": "sha256:51426e1c375dd92064560f25d8334921fc370aaff640a52a944ac85a5322d5e3",
+      "instance_id": "django__django-15741",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:48e9a1c561515394b0ccbaec1af76bccd1f9357c525c3fc37fb075930935c20e",
+      "problem_statement_sha256": "sha256:885e417777d572d47461e7ec0c9eb4ea29ec0e446a60f4515cbf32625a3a9cbf",
+      "src_lines": 1,
+      "stratum": "fs1_oneline_1f_le3"
+    },
+    {
+      "base_commit_sha": "5eb6a2b33d70b9889e1cafa12594ad6f80773d3a",
+      "fail_to_pass_sha256": "sha256:8c540192bf213fc5ea71065f02ba440c26750b1b7dfa0f0e7ff98b86f23520a3",
+      "instance_id": "django__django-15814",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:3e8c1d9c4c14275e487ed02edc7c01a32b972e06bdedfd50f83c4a7bcef05c9d",
+      "problem_statement_sha256": "sha256:2ade174953b4185bc7ebb099982940b2b244588d523290a1f468b54fd5c87ea7",
+      "src_lines": 1,
+      "stratum": "fs1_oneline_1f_le3"
+    },
+    {
+      "base_commit_sha": "b4817d20b9e55df30be0b1b2ca8c8bb6d61aab07",
+      "fail_to_pass_sha256": "sha256:3e0f830b6f5749df74f27a8e9d7aaa2bca6696297fa459e5d96b0949fd7be6bf",
+      "instance_id": "django__django-15851",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:8015a63da5223cb6bdc5d7fd511b475411df924208afe6331b1a3384b1365734",
+      "problem_statement_sha256": "sha256:f4d50fcd56c36967abc5518f3cf22d8f7cdec73d9ee380ead21efd6c4e434526",
+      "src_lines": 2,
+      "stratum": "fs1_oneline_1f_le3"
+    },
+    {
+      "base_commit_sha": "37c5b8c07be104fd5288cd87f101e48cb7a40298",
+      "fail_to_pass_sha256": "sha256:48ce2b76f5e2c485712346f1921a6e54ca853df09c0495dbe7cba6655e391c01",
+      "instance_id": "django__django-15863",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:03dbbfda73756265643a3d3d92f374664b82b63f29b702129356d913ff9f9a20",
+      "problem_statement_sha256": "sha256:1ebdb648984e2cfa5ad5cfa36fddb9ee9dc83e08d602602194b729276ee6a3fc",
+      "src_lines": 2,
+      "stratum": "fs1_oneline_1f_le3"
+    },
+    {
+      "base_commit_sha": "88e67a54b7ed0210c11523a337b498aadb2f5187",
+      "fail_to_pass_sha256": "sha256:a31b61b23f720f401d07b5b3086d533b610e514dc3782660a95cb2d7b93eb47c",
+      "instance_id": "django__django-15916",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:652af4600325dc05076d45cd5f1b81f0eb652c025b63a51ee15096dcf1f1afe1",
+      "problem_statement_sha256": "sha256:561a7dff2336249703a63a8fbfcf8e868324859d74b3da2ade1a4fee5ed23d61",
+      "src_lines": 13,
+      "stratum": "fs3_medium_1f_7_15"
+    },
+    {
+      "base_commit_sha": "63884829acd207404f2a5c3cc1d6b4cd0a822b70",
+      "fail_to_pass_sha256": "sha256:50aa5760639e136f5a08fe2d23fdd8db23477601dfbb926130f6dd8833da4672",
+      "instance_id": "django__django-15930",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:640d1a541a5cf4fce0d818904e46f816547047844f39de62367ba775ad927903",
+      "problem_statement_sha256": "sha256:e2c63560dec85eba8d54e55e16e39c352b0db782bc1b1f06aef31819757e9732",
+      "src_lines": 5,
+      "stratum": "fs2_small_1f_4_6"
+    },
+    {
+      "base_commit_sha": "f387d024fc75569d2a4a338bfda76cc2f328f627",
+      "fail_to_pass_sha256": "sha256:8db1120fdc1619611e82d127fe47ccb263da04fbcb74bb28119892fd236bb8a8",
+      "instance_id": "django__django-15957",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:fc70b33e093dd1373cf3281c89a0834170ec37fec62f34bfc0c421450280e746",
+      "problem_statement_sha256": "sha256:676a7fa58acee1293e62f431bfea0ddd001785e0efd2051bb50d7314027e9213",
+      "src_lines": 33,
+      "stratum": "fs4_large_1f_16_60"
+    },
+    {
+      "base_commit_sha": "2480554dc4ada4ecf3f6a08e318735a2e50783f3",
+      "fail_to_pass_sha256": "sha256:50fcf69fe32437224755cc03afd2967002bd6bc40daf85fc440592f1871a68ed",
+      "instance_id": "django__django-15973",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:93f74bbf5998e548be6e80712115c9a332d38e272b756255dcb70ba0f85ff457",
+      "problem_statement_sha256": "sha256:8f96852cd0ac22cf509a263bbe10456db887c640e893fc4c49f453b45e1ed023",
+      "src_lines": 2,
+      "stratum": "fs1_oneline_1f_le3"
+    },
+    {
+      "base_commit_sha": "7e6b537f5b92be152779fc492bb908d27fe7c52a",
+      "fail_to_pass_sha256": "sha256:30c1bd1ba9a5deeafe10a3bdfebf143342df1e5141431fc880f6cd755ca889ca",
+      "instance_id": "django__django-15987",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:1020a9fbd3ed1c2a69a5466d4e296ad442ea67b6ab577f1146b2962e10d9e3c8",
+      "problem_statement_sha256": "sha256:74fc422f95f0cc73e0782cafc65260bc6805ce03753bea993d58c0641edc8a5d",
+      "src_lines": 2,
+      "stratum": "fs1_oneline_1f_le3"
+    },
+    {
+      "base_commit_sha": "0c3981eb5094419fe200eb46c71b5376a2266166",
+      "fail_to_pass_sha256": "sha256:fecb53767870ff81b908896efbc6b01125d975cd7821cfc3beff4dd6328a174e",
+      "instance_id": "django__django-16032",
+      "n_src_files": 2,
+      "pass_to_pass_sha256": "sha256:be7005f5feb97081369d153c886e7102e6d2bd4adfd17493b734cc2a5cd6b8d5",
+      "problem_statement_sha256": "sha256:a6962d82b41042e5d8c3ddd56535e25107582436685e7ab9efc78b0da6df86c1",
+      "src_lines": 11,
+      "stratum": "fs5_multi_ge2f"
+    },
+    {
+      "base_commit_sha": "bf47c719719d0e190a99fa2e7f959d5bbb7caf8a",
+      "fail_to_pass_sha256": "sha256:0d3d97e89f98b6ee94556d8e5dd60863a8792b9f0169af86e4810df5e77d7377",
+      "instance_id": "django__django-16082",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:36f57c72ab56ca2e7d1fd6898c7e1e008832067e1cdc21ac9e6689db5fb5f24c",
+      "problem_statement_sha256": "sha256:1d2c67bed1ede6923fe1102ec80424352c4ad9263a4049da7684b360d9aeef87",
+      "src_lines": 1,
+      "stratum": "fs1_oneline_1f_le3"
+    },
+    {
+      "base_commit_sha": "c6350d594c359151ee17b0c4f354bb44f28ff69e",
+      "fail_to_pass_sha256": "sha256:9c123d0faedd32a497974a13b82f845133c2d70de00ad7599695e82baeb62726",
+      "instance_id": "django__django-16100",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:bff247eebbd9bdf482fb6dfab920b1223565a2c794c096b575fc69f856af8b09",
+      "problem_statement_sha256": "sha256:1348b1dd6ab1cb64b3178fe8cf3fa0b9998eaa9eb0a7c522fb5eed67f62254ba",
+      "src_lines": 20,
+      "stratum": "fs4_large_1f_16_60"
+    },
+    {
+      "base_commit_sha": "5d36a8266c7d5d1994d7a7eeb4016f80d9cb0401",
+      "fail_to_pass_sha256": "sha256:08aa25408be39a3f0946410534ad8420d571ba799e2f4afc429ac9fd1ff77f67",
+      "instance_id": "django__django-16116",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:0fa8f715db3c000cb90b4000792622f18a17f0ad40fc8b7d7b92497bd3965b1c",
+      "problem_statement_sha256": "sha256:2f9755e00c736ae0fd1d1b7f5361f1a3928b5efcbf3abc6736b8589c723fc6bf",
+      "src_lines": 9,
+      "stratum": "fs3_medium_1f_7_15"
+    },
+    {
+      "base_commit_sha": "19e6efa50b603af325e7f62058364f278596758f",
+      "fail_to_pass_sha256": "sha256:f99ef36d70fa10d6fa0488fb88020aff85927c4d78d1e068a12045ea62cb8528",
+      "instance_id": "django__django-16136",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:840b7475046610abdbfe8d35302963ed20d47ebfdd5335892054ebd9aabbbaf0",
+      "problem_statement_sha256": "sha256:94dcebd6197a6b892e97650b984227b233cb75312d624d939ff1a2956850c3bc",
+      "src_lines": 11,
+      "stratum": "fs3_medium_1f_7_15"
+    },
+    {
+      "base_commit_sha": "d559cb02da30f74debbb1fc3a46de0df134d2d80",
+      "fail_to_pass_sha256": "sha256:e5a4823973342ac78e88794245aff357d6e28dbff9eabb712db749e890fad9c4",
+      "instance_id": "django__django-16139",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:cf941b06d2e6fc40566925d8ab1314b7686f2050de1b05d03a478d78bd65a3d7",
+      "problem_statement_sha256": "sha256:b995147ec63f69ca6a39f0fdbf6e8d9f5647458bc7e76a693157834c38435ec2",
+      "src_lines": 4,
+      "stratum": "fs2_small_1f_4_6"
+    },
+    {
+      "base_commit_sha": "93d4c9ea1de24eb391cb2b3561b6703fd46374df",
+      "fail_to_pass_sha256": "sha256:3bb19ebed68fcafec4ca01bb0be522f09a82c0034acfee5dfb171adae99d9a76",
+      "instance_id": "django__django-16145",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:5ad3f188f404c650b5a024dec476bc0823d6c25149ac8e8e68580c7b5cfc0ba3",
+      "problem_statement_sha256": "sha256:04c20c6816a5e01d7261a30182d4c5718c4758e2b629fbba7e2778fdec4cb77f",
+      "src_lines": 9,
+      "stratum": "fs3_medium_1f_7_15"
+    },
+    {
+      "base_commit_sha": "444b6da7cc229a58a2c476a52e45233001dc7073",
+      "fail_to_pass_sha256": "sha256:7b38c8785922e172fcc9e7530cab0299fb5fde4c083be0b7b5901ac9ca17a5ab",
+      "instance_id": "django__django-16255",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:dfbb675fde7057b2dbb0fa026a154129ca7485e454262fe47e21214bd4f7f97d",
+      "problem_statement_sha256": "sha256:2359a3443b4020179e535a3df289178a975a90472b1fb6c3c23adf85aee5c371",
+      "src_lines": 2,
+      "stratum": "fs1_oneline_1f_le3"
+    },
+    {
+      "base_commit_sha": "76e37513e22f4d9a01c7f15eee36fe44388e6670",
+      "fail_to_pass_sha256": "sha256:6440d13b598a6663c78fcf1c3f9553288f4d414f1214a86b6b52bfd4e5967fb3",
+      "instance_id": "django__django-16256",
+      "n_src_files": 2,
+      "pass_to_pass_sha256": "sha256:70fb6f82022061589df25a3a879ffa4c23cc04bfc0c41a7a3fa73ca690d71eb1",
+      "problem_statement_sha256": "sha256:8573a7026e50e932c44f36aeeb9c57c6fd28231d65e43fb98b39afa563d4f01c",
+      "src_lines": 55,
+      "stratum": "fs5_multi_ge2f"
+    },
+    {
+      "base_commit_sha": "321ecb40f4da842926e1bc07e11df4aabe53ca4b",
+      "fail_to_pass_sha256": "sha256:bff3ac56ad005ee1b95cf3696d1ad55dbbc37d48a9ceb4b040bba3082ebbf7e6",
+      "instance_id": "django__django-16263",
+      "n_src_files": 4,
+      "pass_to_pass_sha256": "sha256:419e87a7829172ea87e8eb06a1cd0bf447097d10f7a8d1f21123b82228a5eaed",
+      "problem_statement_sha256": "sha256:ef08a5be58ef19907c5ccbc08283ca421442f12cf119e39a33cc4d0224911e56",
+      "src_lines": 93,
+      "stratum": "fs5_multi_ge2f"
+    },
+    {
+      "base_commit_sha": "7d5329852f19c6ae78c6f6f3d3e41835377bf295",
+      "fail_to_pass_sha256": "sha256:3da7111838bcae290ab92b63f7384930e00b2616711f374e304d90aa702aaeb1",
+      "instance_id": "django__django-16315",
+      "n_src_files": 2,
+      "pass_to_pass_sha256": "sha256:3730a500295d1280fc62bb54c1b884a3c1d8bdd69739166978170b83b7613788",
+      "problem_statement_sha256": "sha256:1e77d04330a04cec33e1085c3641b845bddc133ae3c5102cdd71b9fd61023fa9",
+      "src_lines": 13,
+      "stratum": "fs5_multi_ge2f"
+    },
+    {
+      "base_commit_sha": "60a7bd89860e504c0c33b02c78edcac87f6d1b5a",
+      "fail_to_pass_sha256": "sha256:b77af2b4775826d1d1037444b925848604ef56d8491b917155fbea5cb2c5aeef",
+      "instance_id": "django__django-16333",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:768ceddc48e6449a59102f7229304a64a47b8c68d834a604a999c07070bb7cc4",
+      "problem_statement_sha256": "sha256:603fcbce6271954ca24171d4ae19dcaba962abf158fc04f53d3fd18dbcd20cb3",
+      "src_lines": 2,
+      "stratum": "fs1_oneline_1f_le3"
+    },
+    {
+      "base_commit_sha": "6c86495bcee22eac19d7fb040b2988b830707cbd",
+      "fail_to_pass_sha256": "sha256:8fdd79b584098ac4a0374cb6d7ec9235253805a57890ebce1dd181e715345938",
+      "instance_id": "django__django-16429",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:0b7c5aa9d63844ecaac3fc4cc06939751dec92e115c23b5b8b04535a385289dc",
+      "problem_statement_sha256": "sha256:b6ca3283813884840693619432ca2d9fe158676400cb3c3524f3b059d57b1200",
+      "src_lines": 1,
+      "stratum": "fs1_oneline_1f_le3"
+    },
+    {
+      "base_commit_sha": "1250483ebf73f7a82ff820b94092c63ce4238264",
+      "fail_to_pass_sha256": "sha256:8851bb70ad9f55cbb44f5bf1429c0bfdeb218f2e2fc616ebb013272a80889adc",
+      "instance_id": "django__django-16454",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:d1997eb927145b501543feea2ef379aceeac46bae2aab507b6b52af7f921a7d5",
+      "problem_statement_sha256": "sha256:1b38e35ca2721cfc6bfdf1b9fdc133975c7e5c72b4ef5e91e132fd578e89d0e0",
+      "src_lines": 10,
+      "stratum": "fs3_medium_1f_7_15"
+    },
+    {
+      "base_commit_sha": "39f83765e12b0e5d260b7939fc3fe281d879b279",
+      "fail_to_pass_sha256": "sha256:9c3765e707f18ea3caadaebe7dba8dd16db5cc723bd8a825389d13a1502247b2",
+      "instance_id": "django__django-16485",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:6bfb5023523aeae8b4ca50c9faf064509e07d665bc302a6c42148bd621135ccc",
+      "problem_statement_sha256": "sha256:b4fa6712d6e1d39bf9c121043248a2ba7faecb8c92f65be12459ab0f7d32b4e0",
+      "src_lines": 2,
+      "stratum": "fs1_oneline_1f_le3"
+    },
+    {
+      "base_commit_sha": "e3a4cee081cf60650b8824f0646383b79cb110e7",
+      "fail_to_pass_sha256": "sha256:413f4f8350ab7ce3255c7fe019252abb4e373c7195d7963895d5ed1da8c018ad",
+      "instance_id": "django__django-16493",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:76d77a0b83a4769001d209fd3d826c10269aa6e0300131b7457030943d736ba7",
+      "problem_statement_sha256": "sha256:75075130dacc249477d2c94033054758246062c4b4570d8a8b5c6ac0a220ab79",
+      "src_lines": 5,
+      "stratum": "fs2_small_1f_4_6"
+    },
+    {
+      "base_commit_sha": "246eb4836a6fb967880f838aa0d22ecfdca8b6f1",
+      "fail_to_pass_sha256": "sha256:87a1213eb49ec62680ed2b1f8c27ce88869ab8612a3e0ac412cfb29661a03a71",
+      "instance_id": "django__django-16502",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:cf866c97ee08fa66a49ab28939b6c8eeaec6c9b4d942bcdeb79b73c1c564e416",
+      "problem_statement_sha256": "sha256:7efef7822c78cdf0e41a2bf058fd740eeb35cb07a471343a0bbc7128caf0305f",
+      "src_lines": 27,
+      "stratum": "fs4_large_1f_16_60"
+    },
+    {
+      "base_commit_sha": "bd366ca2aeffa869b7dbc0b0aa01caea75e6dc31",
+      "fail_to_pass_sha256": "sha256:8d18f39e60af100f42de843a1f080d2a96c42f00ffe41b6a5a36df166409a4ac",
+      "instance_id": "django__django-16527",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:2d5eaf4aac1440f3a6ddc2909e7cc9fb0081bc42b5e75f5445d7594d90ecc6d0",
+      "problem_statement_sha256": "sha256:d9bcb36c05a8542b01cc22ded3b6545b090ccac64f969ddee3981d62c6e74e10",
+      "src_lines": 2,
+      "stratum": "fs1_oneline_1f_le3"
+    },
+    {
+      "base_commit_sha": "51c9bb7cd16081133af4f0ab6d06572660309730",
+      "fail_to_pass_sha256": "sha256:935034bd31af5f02f2055641d1e7d8ee4cb9276ad5c66f07b362f5c4b3bb0ded",
+      "instance_id": "django__django-16560",
+      "n_src_files": 2,
+      "pass_to_pass_sha256": "sha256:fea39cfd32df77b21688b71db97067d07a4402047d751cc04bea962ac52638e1",
+      "problem_statement_sha256": "sha256:55bdf0c9598df4bb15567401559ad47ae47a817a1a61031101d6d4105e3e2da3",
+      "src_lines": 85,
+      "stratum": "fs5_multi_ge2f"
+    },
+    {
+      "base_commit_sha": "278881e37619278789942513916acafaa88d26f3",
+      "fail_to_pass_sha256": "sha256:11f8eae03f914799bb1cf1fe30fbc905a065b295924248f0113a485c952de99a",
+      "instance_id": "django__django-16569",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:640b755c6e75f8928e754f33bf2fd9d7af980d6472eece64b35ae048d7da655f",
+      "problem_statement_sha256": "sha256:06d476280f43c0739d98b1cc072683c8b766243ba66ee1ad7c4c86bc1c62cfcb",
+      "src_lines": 4,
+      "stratum": "fs2_small_1f_4_6"
+    },
+    {
+      "base_commit_sha": "f9fe062de5fc0896d6bbbf3f260b5c44473b3c77",
+      "fail_to_pass_sha256": "sha256:57fbcd0cf67f2ddf34a4ecff63a98214a11aea11074835df3f376ea231c146df",
+      "instance_id": "django__django-16595",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:f5e3a6fcc4975d0d7586ce8531916dd487378ab75458e7fbeb55cad89946dd69",
+      "problem_statement_sha256": "sha256:9634961aa789b58bc0e66fae12245de8b9f826e5f69b752226458f5888fe2116",
+      "src_lines": 6,
+      "stratum": "fs2_small_1f_4_6"
+    },
+    {
+      "base_commit_sha": "55bcbd8d172b689811fae17cde2f09218dd74e9c",
+      "fail_to_pass_sha256": "sha256:32586541320ae8ee536328101f0240e98468396cffe5a52949e28b13944caff1",
+      "instance_id": "django__django-16612",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:9b1dc1b3908ffe6c4f059dbb0963a486f90aecfe8bd243e411ae5f71d2d6810b",
+      "problem_statement_sha256": "sha256:360343632af96cb566321012a292dbc7e00e3201c90017aa1d73e9f8f01979d9",
+      "src_lines": 4,
+      "stratum": "fs2_small_1f_4_6"
+    },
+    {
+      "base_commit_sha": "9b224579875e30203d079cc2fee83b116d98eb78",
+      "fail_to_pass_sha256": "sha256:05c71d7a57b10be8832998388e3a8bb63d164e2ead8d7bac81829d6707ebab59",
+      "instance_id": "django__django-16631",
+      "n_src_files": 2,
+      "pass_to_pass_sha256": "sha256:04b5d97d3cba241c37d06c3618ffeb66c2b0826b8fc00411d74fd73d81a3130e",
+      "problem_statement_sha256": "sha256:32af93df5e62a2e558611028be5030691d5720d2a172c9a0e83213c68d779a8a",
+      "src_lines": 33,
+      "stratum": "fs5_multi_ge2f"
+    },
+    {
+      "base_commit_sha": "fbe850106b2e4b85f838219cb9e1df95fba6c164",
+      "fail_to_pass_sha256": "sha256:40e73cb6530efde02653943b442872d24d0f4f659a243fea548ca567d88996c9",
+      "instance_id": "django__django-16642",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:79b60a4c7af4ea467dbebf4c1f43400884a8bb6ad9c8f88ee0a9e8b14ac8cc34",
+      "problem_statement_sha256": "sha256:8c925b62cf8a6164ad42e17af5c693af15ee49cf2295d42ed29c83ca9300895f",
+      "src_lines": 2,
+      "stratum": "fs1_oneline_1f_le3"
+    },
+    {
+      "base_commit_sha": "d687febce5868545f99974d2499a91f81a32fef5",
+      "fail_to_pass_sha256": "sha256:9ff304aa28667fec6fae870ed796d3d80bd487e39e32f193830114442f48b2f1",
+      "instance_id": "django__django-16661",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:910aa507af2e6e361120cb3a50d469f9bfcf15f7cc341d629d1f47fa375ad2bc",
+      "problem_statement_sha256": "sha256:8ae40c58d69fbb6c556a88fd5efa91256048a66c1a75b2b6047bedc907979619",
+      "src_lines": 10,
+      "stratum": "fs3_medium_1f_7_15"
+    },
+    {
+      "base_commit_sha": "0eb3e9bd754e4c9fac8b616b705178727fc8031e",
+      "fail_to_pass_sha256": "sha256:ec5dbbf452c932f583802abf191ce4ffb764b80d4204bc96cce6912b103ed4b7",
+      "instance_id": "django__django-16662",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:96b0905d831a273d009bc9cc7be4274cfbffab6f1993e118330f1f623d5843a5",
+      "problem_statement_sha256": "sha256:42e240ffdb04350697f828e621ac52538d02097c07e3bd29e2e48e7005968beb",
+      "src_lines": 5,
+      "stratum": "fs2_small_1f_4_6"
+    },
+    {
+      "base_commit_sha": "02c356f2f3945b8075735d485c3cf48cad991011",
+      "fail_to_pass_sha256": "sha256:c4e3dc904092d07cd71e41d784b7f3a8b34d122ae37e7b8f10ca1659ef32d70e",
+      "instance_id": "django__django-16667",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:d76e137c27511c1e7111d37a85d9a05428f367750a6674d236425f337b06d867",
+      "problem_statement_sha256": "sha256:f5e8f8238e1858da54eeda18945034c35444d586b4fb303dab3b95f44a0f06f4",
+      "src_lines": 2,
+      "stratum": "fs1_oneline_1f_le3"
+    },
+    {
+      "base_commit_sha": "3b62d8c83e3e48d2ed61cfa32a61c56d9e030293",
+      "fail_to_pass_sha256": "sha256:196fd67fae483b7cb7c6df9956c3df767d57d4ab08c4c568af2e1e2f44e8d2ec",
+      "instance_id": "django__django-16801",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:3ab2b8f97c3b6d3c47e3771249ebb49930e1d6e591c828d37bf68d3a47378b96",
+      "problem_statement_sha256": "sha256:f7f76c637955914a37f86dce9b70030f0740b9013c976a1aa0240db988a4591a",
+      "src_lines": 9,
+      "stratum": "fs3_medium_1f_7_15"
+    },
+    {
+      "base_commit_sha": "0b0998dc151feb77068e2387c34cc50ef6b356ae",
+      "fail_to_pass_sha256": "sha256:4ada0b7bbbd4cd0400c2c2695c5777fe4fd64731cc480cfee3b901dcb374b979",
+      "instance_id": "django__django-16819",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:f3921fd87f56d7b9e76c4d9228b6faeb582341406efe30c6c5bdd2d5fb2b53f4",
+      "problem_statement_sha256": "sha256:97b715a333546c080e735147ddaec689c9bac7e3c9f656b0225ba9b42a2cec70",
+      "src_lines": 5,
+      "stratum": "fs2_small_1f_4_6"
+    },
+    {
+      "base_commit_sha": "98f6ada0e2058d67d91fb6c16482411ec2ca0967",
+      "fail_to_pass_sha256": "sha256:7d313412b5ee6925f15df694436216869eb7618b645bceb73e7cfdcccdf04633",
+      "instance_id": "django__django-16877",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "problem_statement_sha256": "sha256:a27611c7e5e670510d13fa2a390101af04671478b7f29d91fc6833223a50236f",
+      "src_lines": 10,
+      "stratum": "fs3_medium_1f_7_15"
+    },
+    {
+      "base_commit_sha": "d3d173425fc0a1107836da5b4567f1c88253191b",
+      "fail_to_pass_sha256": "sha256:cd98f10f41bff0b1b6573fc1996812abfdbab07229fe1f93dd9bbe2cb48767bd",
+      "instance_id": "django__django-16899",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:fdc7ab7bc7a49833d91f17f66141c3592db0a11e1a62e878c1534826797f6a1a",
+      "problem_statement_sha256": "sha256:9c9351066a13a3059571433afaff2b7a9948b725fdf47c3c39f8f0b73fc1394f",
+      "src_lines": 5,
+      "stratum": "fs2_small_1f_4_6"
+    },
+    {
+      "base_commit_sha": "ee36e101e8f8c0acde4bb148b738ab7034e902a0",
+      "fail_to_pass_sha256": "sha256:d8da4142bf1e0486a110fd39ebfbd076ceedaecc06618207ab000c6aa25924b9",
+      "instance_id": "django__django-16901",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:7eeafa5af8d7040303523db034f63034f92f3f13407d9c92d7ae94465b34268e",
+      "problem_statement_sha256": "sha256:c8993e991640f6009471290abeba79fbb302f7b82c293f7e9340fe4e1220f532",
+      "src_lines": 7,
+      "stratum": "fs3_medium_1f_7_15"
+    },
+    {
+      "base_commit_sha": "1136aa5005f0ae70fea12796b7e37d6f027b9263",
+      "fail_to_pass_sha256": "sha256:052b49c860cdf8240e7156781ebd1c7f98b246a24c6d6ec664260d66c882c888",
+      "instance_id": "django__django-16938",
+      "n_src_files": 2,
+      "pass_to_pass_sha256": "sha256:37157270e5c2bf32727918052bfd40bdc2acb1154ac78ca0176f640e338721ee",
+      "problem_statement_sha256": "sha256:df77a03b1d4dc247eb9cb80cd7a2d98d9b6f63f3036e1a3d65431ff0edc39d39",
+      "src_lines": 8,
+      "stratum": "fs5_multi_ge2f"
+    },
+    {
+      "base_commit_sha": "f64fd47a7627ed6ffe2df2a32ded6ee528a784eb",
+      "fail_to_pass_sha256": "sha256:a97c9fe1f2d40d1327ecd9b33b01d7de6d707e1eae8fbacc6f954c1afd6f0276",
+      "instance_id": "django__django-16950",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:c84b143bf039f9b4b5845ff60aa69ad6bdb16bb432b38b7ea9847f4891ee8ea9",
+      "problem_statement_sha256": "sha256:f269742c4cfd7938fbc0c71820914948ed127d5ce9750df52c33f7a340b91f34",
+      "src_lines": 8,
+      "stratum": "fs3_medium_1f_7_15"
+    },
+    {
+      "base_commit_sha": "953f29f700a60fc09b08b2c2270c12c447490c6a",
+      "fail_to_pass_sha256": "sha256:8c48c251199170806e8e0dc393df46d272ef651be3167c0a8375db0a4e27141e",
+      "instance_id": "django__django-17029",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:432b206b16b655c68cfb988f673a52f46a5276a4d6f191a2badc9ec19717d0c5",
+      "problem_statement_sha256": "sha256:4de1d6b3ae651b2f319eab80284de337f4a85e6bb7ea0b00ebbe2713b2ad5e38",
+      "src_lines": 1,
+      "stratum": "fs1_oneline_1f_le3"
+    },
+    {
+      "base_commit_sha": "f8c43aca467b7b0c4bb0a7fa41362f90b610b8df",
+      "fail_to_pass_sha256": "sha256:3e73caac74babaa00b503ac73578a61e725850277e0dbcfadcbb9a1a450511bb",
+      "instance_id": "django__django-17084",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:e4eb7fa9e0f75b6742d32019b86f5326af4d70d571dfb9d8c64bc7a6e7ca6868",
+      "problem_statement_sha256": "sha256:04cc3977bbc184d950a14a6b4e9caf06f854fa2575218694b65982247ca6388c",
+      "src_lines": 6,
+      "stratum": "fs2_small_1f_4_6"
+    },
+    {
+      "base_commit_sha": "4a72da71001f154ea60906a2f74898d32b7322a7",
+      "fail_to_pass_sha256": "sha256:f93015eeab7506c49be2176261fa8846d12168f11801a77ff5b0dc823d5cf09c",
+      "instance_id": "django__django-17087",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:c5b45b89f6603c772371d5bb7a584595cceb8321440a04965f3754b800b9b29f",
+      "problem_statement_sha256": "sha256:70cad331a2b095ca612c98e2d2d81a549fb32f91f6ac261196d30d4a77bdb2fb",
+      "src_lines": 2,
+      "stratum": "fs1_oneline_1f_le3"
+    },
+    {
+      "base_commit_sha": "f8fab6f90233c7114d642dfe01a4e6d4cb14ee7d",
+      "fail_to_pass_sha256": "sha256:948782dca26805e35e9aefd0a6177045f47043537ff475d4044e036bac278b1c",
+      "instance_id": "django__django-7530",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:3d955d8bc18643a6c8c5e1daf7e74833b090df4b26539ef4680049ef23837914",
+      "problem_statement_sha256": "sha256:660d95fad484d129e2943cf8276d081cfceb02bada155f6ddf2e5e1ce4af5d39",
+      "src_lines": 2,
+      "stratum": "fs1_oneline_1f_le3"
+    },
+    {
+      "base_commit_sha": "84322a29ce9b0940335f8ab3d60e55192bef1e50",
+      "fail_to_pass_sha256": "sha256:f0cde432fb1c3affc8b9ec74f8faeb0658ed0c260c6c12dce9aad3f7f0a735d5",
+      "instance_id": "django__django-9296",
+      "n_src_files": 1,
+      "pass_to_pass_sha256": "sha256:13810f531aad73e5d7fce89350321a7f474f8634814aadb1cdc5bb571bb50d44",
+      "problem_statement_sha256": "sha256:1dad6e4ae15cb47af74a688dc59b6a40fa55b6ec0086f587e16c784c78acfc23",
+      "src_lines": 4,
+      "stratum": "fs2_small_1f_4_6"
+    }
+  ],
+  "dataset": "princeton-nlp/SWE-bench_Verified",
+  "dataset_revision": "c104f840cc67f8b6eec6f759ebc8b2693d585d4a",
+  "repo_filter": "django/django",
+  "split": "test",
+  "strata": {
+    "fs1_oneline_1f_le3": "1f<=3",
+    "fs2_small_1f_4_6": "1f4-6",
+    "fs3_medium_1f_7_15": "1f7-15",
+    "fs4_large_1f_16_60": "1f16-60",
+    "fs5_multi_ge2f": ">=2f"
+  }
+}

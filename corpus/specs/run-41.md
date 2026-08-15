@@ -1,20 +1,21 @@
 # Task spec — run-41  (IMMUTABLE)
 
-task_id: django__django-12325
-category: fs5_multi_ge2f
-source: SWE-bench_Verified (princeton-nlp/SWE-bench_Verified, split=test)
+task_id: django__django-16527
+category: fs1_oneline_1f_le3
+source: SWE-bench_Verified (princeton-nlp/SWE-bench_Verified, split=test, revision c104f840cc67f8b6eec6f759ebc8b2693d585d4a)
 repo_id: django/django
-base_commit_sha: 29c126bb349526b5f1cd78facbe9f25906f18563
-fix_shape_evidence: n_src_files=2, src_lines=8   # blind to reads
+base_commit_sha: bd366ca2aeffa869b7dbc0b0aa01caea75e6dc31
+fix_shape_evidence: n_src_files=1, src_lines=2   # blind to reads
 
 ## Objective success (machine-checked; NOT agent self-report)
 verification: at base_commit, apply the agent's final patch; the FAIL_TO_PASS tests must go
               fail->pass AND all PASS_TO_PASS tests must remain passing (standard SWE-bench eval).
+# FAIL_TO_PASS entries are preserved VERBATIM from upstream SWE-bench Verified; some read like
+# prose but are genuine upstream evaluation directives -- never 'clean' them.
 FAIL_TO_PASS:
-  - test_clash_parent_link (invalid_models_tests.test_relative_fields.ComplexClashTests)
-  - test_onetoone_with_parent_model (invalid_models_tests.test_models.OtherModelTests)
-PASS_TO_PASS_count: 201
-PASS_TO_PASS_sha256: sha256:d2d40b0b46ab1e2d03181fd4f7edee00a4d2292723f75eb195d8179ff7f86288
+  - test_submit_row_save_as_new_add_permission_required (admin_views.test_templatetags.AdminTemplateTagsTest.test_submit_row_save_as_new_add_permission_required)
+PASS_TO_PASS_count: 6
+PASS_TO_PASS_sha256: sha256:2d5eaf4aac1440f3a6ddc2909e7cc9fb0081bc42b5e75f5445d7594d90ecc6d0
 
 ## Fixed run parameters (frozen before the run)
 turn_or_walltime_budget: 40 agent turns OR 20 min wall, whichever first
@@ -23,19 +24,16 @@ headless_or_interactive: headless
 runtime: obs-runtime-3a-v1 (484f4b3)
 
 ## Prompt (verbatim issue text the agent sees)
-pk setup for MTI to parent get confused by multiple OneToOne references.
+"show_save_as_new" in admin can add without this permission
 Description
-	
-class Document(models.Model):
-	pass
-class Picking(Document):
-	document_ptr = models.OneToOneField(Document, on_delete=models.CASCADE, parent_link=True, related_name='+')
-	origin = models.OneToOneField(Document, related_name='picking', on_delete=models.PROTECT)
-produces django.core.exceptions.ImproperlyConfigured: Add parent_link=True to appname.Picking.origin.
-class Picking(Document):
-	origin = models.OneToOneField(Document, related_name='picking', on_delete=models.PROTECT)
-	document_ptr = models.OneToOneField(Document, on_delete=models.CASCADE, parent_link=True, related_name='+')
-Works
-First issue is that order seems to matter?
-Even if ordering is required "by design"(It shouldn't be we have explicit parent_link marker) shouldn't it look from top to bottom like it does with managers and other things?
+	 
+		(last modified by Mariusz Felisiak)
+	 
+At "django/contrib/admin/templatetags/admin_modify.py" file, line 102, I think you must put one more verification for this tag: "and has_add_permission", because "save_as_new" is a add modification.
+I rewrite this for my project:
+			"show_save_as_new": not is_popup
+			and has_add_permission # This line that I put!!!
+			and has_change_permission
+			and change
+			and save_as,
 
