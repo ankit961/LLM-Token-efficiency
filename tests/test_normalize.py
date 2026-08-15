@@ -96,3 +96,38 @@ def test_redirected_grep_is_an_edit_not_a_read():
     # `grep pat foo > out` sends bytes to a file, not the model -> edit of out, never a search read.
     e = bash_effects("grep pat foo > out.txt")
     assert e[0].kind == "edit" and e[0].path == "out.txt"
+
+
+# --- 0.4.0 adversarial-audit regressions ---
+def test_stderr_redirect_does_not_fake_an_edit_or_drop_the_read():
+    # `cmd 2>/dev/null` / `2>&1` redirect STDERR -- stdout still reaches the model, so the read stands
+    # and NO edit of /dev/null is fabricated (the HIGH compound-split bug).
+    assert bash_effects("cat config.py 2>/dev/null") == [
+        bash_effects("cat config.py 2>/dev/null")[0]]  # one effect
+    e = bash_effects("cat config.py 2>/dev/null")
+    assert e[0].kind == "read" and e[0].path == "config.py" and e[0].representation == "file"
+    assert bash_effects("grep -rn TODO src/ 2>/dev/null")[0].representation == "search"
+    assert bash_effects("ls -la 2>&1")[0].kind == "read"        # 2>&1 not split at the &
+
+
+def test_quoted_metacharacters_are_not_operators():
+    # a quoted separator/redirect is a grep PATTERN, not shell structure
+    assert bash_effects("grep '>' file.py")[0].kind == "read"   # not an edit
+    assert bash_effects("grep '&&' a.py")[0].kind == "read"     # not split into a phantom execution
+    assert bash_effects("grep ';' f.py")[0].kind == "read"
+
+
+def test_execution_only_on_program_not_operand():
+    # `cat manage.py` READS manage.py -- it must not be flagged execution by the operand name
+    assert bash_effects("cat manage.py")[0].kind == "read"
+    assert bash_effects("git show HEAD:runtests.py")[0].representation == "git_blob"
+    assert bash_effects("grep -n def manage.py")[0].kind == "read"
+    assert bash_effects("./manage.py test")[0].kind == "execution"   # program IS manage.py -> execution
+
+
+def test_find_mutation_is_not_a_read():
+    for cmd in ["find . -name '*.pyc' -delete", "find build -delete",
+                "find . -type f -exec rm {} +", "find . -name x -execdir rm {} ;"]:
+        assert all(e.kind == "unknown" for e in bash_effects(cmd)), cmd
+    # a plain find is still a path_listing read
+    assert bash_effects("find . -name '*.py'")[0].representation == "path_listing"

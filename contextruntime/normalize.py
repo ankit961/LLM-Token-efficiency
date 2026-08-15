@@ -69,12 +69,11 @@ def _file_operands(rest) -> list:
 
 
 def _is_execution(leading) -> bool:
+    # ONLY the program (leading[0]) decides execution -- never a file OPERAND, else `cat manage.py`
+    # or `git show HEAD:runtests.py` would be mis-flagged execution and the read dropped.
     prog = leading[0]
-    if prog in _EXEC_CMDS:
-        return True
-    # ./manage.py test, tests/runtests.py, python -m ... , a .py script invoked directly
-    return any(t.rstrip("/").endswith(("manage.py", "runtests.py")) for t in leading) \
-        or (prog.endswith(".py"))
+    return prog in _EXEC_CMDS or prog.rstrip("/").endswith(("manage.py", "runtests.py")) \
+        or prog.endswith(".py")
 
 
 def _scope(ops, default="."):
@@ -83,23 +82,35 @@ def _scope(ops, default="."):
     return ops[-1] if ops else default
 
 
+# stderr redirects (2>&1, 2>/dev/null, 2> file) do NOT reach the model -- stripped before recognition
+# so they neither fabricate an edit nor pollute operands. STDOUT redirect stays (it IS an edit).
+_STDERR_REDIR = re.compile(r"\s\d*>&\d+|\s\d+>>?\s*[^\s|;&<>]+")
+
+
 def _split_statements(cmd: str):
-    """Split a command line on top-level ;, &&, ||, & into statements (quote-aware). Returns a list
-    of token-lists, or None if unparseable. `|` is kept inside a statement (handled as leading-pipe)."""
-    lex = shlex.shlex(cmd, posix=True, punctuation_chars=True)
-    lex.whitespace_split = True
-    try:
-        toks = list(lex)
-    except ValueError:
-        return None
-    stmts, cur = [], []
-    for t in toks:
-        if t in (";", "&&", "||", "&"):
-            stmts.append(cur); cur = []
+    """Split a command line on top-level ; && || & into statements -- QUOTE-AWARE (a hand scanner,
+    NOT shlex punctuation_chars, which splits fd-redirects like `2>` and treats quoted separators as
+    operators). Returns raw statement strings; `|` is kept inside a statement (leading-pipe)."""
+    out, cur, q, i, n = [], [], None, 0, len(cmd)
+    while i < n:
+        c = cmd[i]
+        if q:
+            cur.append(c)
+            if c == q:
+                q = None
+            i += 1
+        elif c in ("'", '"'):
+            q = c; cur.append(c); i += 1
+        elif cmd[i:i + 2] in ("&&", "||"):
+            out.append("".join(cur)); cur = []; i += 2
+        elif c == ";":
+            out.append("".join(cur)); cur = []; i += 1
+        elif c == "&" and cmd[i - 1:i] != ">" and not (i + 1 < n and cmd[i + 1] == ">"):
+            out.append("".join(cur)); cur = []; i += 1        # background; `>&` and `&>` are redirects
         else:
-            cur.append(t)
-    stmts.append(cur)
-    return [s for s in stmts if s]
+            cur.append(c); i += 1
+    out.append("".join(cur))
+    return [s.strip() for s in out if s.strip()]
 
 
 def bash_effects(command: str) -> list:
@@ -121,24 +132,43 @@ def bash_effects(command: str) -> list:
     if not stmts:
         return []
     effs = []
-    for toks in stmts:
-        effs.extend(_stmt_effects(toks))
+    for stmt in stmts:
+        effs.extend(_stmt_effects(stmt))
     # a compound is unknown only if EVERY statement was unknown (all noise); otherwise keep the
     # recognized read/edit/execution effects and drop the unknown noise around them.
     recognized = [e for e in effs if e.kind != "unknown"]
     return recognized or (effs and [_unknown("unrecognized")[0]]) or []
 
 
-def _stmt_effects(toks: list) -> list:
-    """Effects of ONE shell statement (already tokenized; may contain a leading `|`)."""
+def _has_unquoted_gt(s: str) -> bool:
+    """True if `>` appears OUTSIDE quotes -- so a quoted grep pattern `'>'` is not read as a redirect."""
+    q = None
+    for c in s:
+        if q:
+            q = None if c == q else q
+        elif c in ("'", '"'):
+            q = c
+        elif c == ">":
+            return True
+    return False
+
+
+def _stmt_effects(stmt: str) -> list:
+    """Effects of ONE shell statement (raw string; may contain a leading `|` and redirects)."""
+    stmt = _STDERR_REDIR.sub("", " " + stmt).strip()           # drop stderr redirects (not model-visible)
+    try:
+        toks = shlex.split(stmt)                                # plain shlex: `2>/dev/null` stays one token
+    except ValueError:
+        return _unknown("unparseable")
     if not toks:
         return []
-    # output redirection to a file is a mutation of that file -- the bytes go to disk, NOT the model,
-    # so `grep pat foo > out` is an edit of out, never a search read.
-    for i, t in enumerate(toks):
-        if t in (">", ">>") and i + 1 < len(toks):
-            return [ShellEffect("edit", toks[i + 1], note="redirect")]
-    if toks and toks[0] == "cd":
+    # STDOUT redirection sends the model-visible output to a file -- an edit of that file, never a read.
+    # Gated on an UNQUOTED `>` so a quoted pattern (grep '>' f) is not mistaken for a redirect.
+    if _has_unquoted_gt(stmt):
+        for i, t in enumerate(toks):
+            if t in (">", ">>", "1>", "1>>", "&>", "&>>") and i + 1 < len(toks):
+                return [ShellEffect("edit", toks[i + 1].strip("'\""), note="redirect")]
+    if toks[0] == "cd":
         return []                                              # navigation only -- no materialization
     # a single leading pipe to a pager/filter (grep ... | head) still materializes the leading
     # command's output to the model -- analyze the FIRST pipeline segment. A pipe FILTERS the output,
@@ -162,6 +192,8 @@ def _stmt_effects(toks: list) -> list:
     if prog == "git" and rest and rest[0] == "grep":
         return [ShellEffect("read", _scope(args[1:]), representation="search", note="git_grep")]
     if prog in _PATH_CMDS:
+        if prog == "find" and any(t in ("-delete", "-exec", "-execdir", "-ok") for t in rest):
+            return _unknown("find_mutation")   # -delete/-exec MUTATE with dynamic targets -> not a read
         return [ShellEffect("read", _scope(args), representation="path_listing", note=prog)]
     if prog == "sed":
         target = args[-1] if args else None                    # the file is the last operand
@@ -217,6 +249,7 @@ def to_events(rows) -> list:
               "batch_id": r["batch_id"]}
         if kind == "read":
             ev["channel"] = r["channel"]
+            ev["representation"] = r["representation"]         # search/path_listing vs file/git_blob
             ev["version_status"] = r["version_status"]
             ev["transport_content_tokens"] = r["model_visible_tokens"]
         else:

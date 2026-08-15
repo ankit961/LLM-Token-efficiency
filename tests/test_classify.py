@@ -71,6 +71,18 @@ def test_applicable_version_grade_b_missing_grade_c():
     assert unk["r"].observed_class == EDIT_PRECONDITION and unk["r"].evidence_grade == "C"
 
 
+# A search / path-listing materialization (grep/find, hook_schema 0.4.0) is EXPLORATION even when its
+# nominal scope path is later edited -- it never becomes a false edit_precondition.
+def test_search_read_is_exploration_not_precondition():
+    search = {"event_id": "s", "seq": 1, "kind": "read", "stream_key": "s", "path": "a.py",
+              "representation": "search", "step": 1}
+    labels = classify_reads([search, _e("e", 3, "a.py", step=2)])
+    assert labels["s"].observed_class == EXPLORATION and labels["s"].reason == "search_materialization"
+    # a normal file read of the same path IS the precondition
+    filerd = _r("r", 1, "a.py", step=1)          # representation defaults to a real file read
+    assert classify_reads([filerd, _e("e", 3, "a.py", step=2)])["r"].observed_class == EDIT_PRECONDITION
+
+
 def test_read_after_edit_is_verification():
     labels = classify_reads([_e("e", 1, "a.py"), _r("r", 2, "a.py")])
     assert labels["r"].observed_class == VERIFICATION
