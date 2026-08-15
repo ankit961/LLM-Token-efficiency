@@ -167,6 +167,28 @@ def cmd_label_report(args) -> int:
     return 0
 
 
+def cmd_corpus_run(args) -> int:
+    """Run ONE task through the corpus runner (TaskSetup -> agent -> observation -> evaluator)."""
+    import datetime
+    from . import corpusrunner as cr
+    spec = cr.parse_spec(args.spec)
+    agent = (cr.ClaudeBackend(model=args.model, walltime_limit_s=args.walltime)
+             if args.agent == "claude" else cr.MockAgentBackend())
+    evaluator = cr.LocalStubEvaluator()          # OfficialSweBenchDockerEvaluator runs on linux, later
+    runner = cr.CorpusRunner(args.repo, args.runs_dir, agent, evaluator,
+                             runtime_sha=args.runtime_sha or "", crhook_cmd=args.crhook_cmd)
+    t0 = datetime.datetime.utcnow().isoformat() + "Z"
+    manifest = runner.run_one(spec, expected_spec_sha=(spec.spec_sha256 if args.verify_sha else None),
+                              start_time=t0, in_corpus=not args.pilot)
+    manifest["end_time"] = datetime.datetime.utcnow().isoformat() + "Z"
+    print(json.dumps({k: manifest[k] for k in
+                      ("run_order", "task_id", "agent", "model", "termination_reason",
+                       "canonical_admissible", "capture_errors", "pending_tools", "pre_capture_rate",
+                       "evaluation_status", "journal_sha256", "patch_sha256")}, indent=2))
+    print(f"\n[run dir: {os.path.join(args.runs_dir, 'run-%02d' % spec.run_order)}]", file=sys.stderr)
+    return 0
+
+
 def cmd_index_code(args) -> int:
     """Build the CodeSymbol graph (Graph-Lite) for a repository path."""
     from .codegraph import builder
@@ -340,6 +362,20 @@ def main(argv=None) -> int:
     p.add_argument("--stream-map", help="write the raw pseudonym->stream_key map to this LOCAL file (not shared)")
     p.add_argument("--client-version", help="Claude Code client version stamp (one DB must be one client)")
     p.set_defaults(func=cmd_label_report)
+
+    p = sub.add_parser("corpus-run", help="run ONE task through the corpus runner (observe-only)")
+    p.add_argument("--repo", required=True, help="local git mirror of the target repo (e.g. django)")
+    p.add_argument("--runs-dir", required=True, help="output dir for immutable run-NN/ directories")
+    p.add_argument("--spec", required=True, help="locked corpus/specs/run-NN.md")
+    p.add_argument("--agent", choices=["mock", "claude"], default="mock")
+    p.add_argument("--model", default="sonnet", help="fixed model for the claude backend")
+    p.add_argument("--walltime", type=int, default=1200, help="agent wall-clock budget seconds")
+    p.add_argument("--crhook-cmd", default="contextruntime cr-hook",
+                   help="FROZEN cr-hook command (e.g. /path/to/obs-runtime-3a-v2.1/venv/bin/contextruntime cr-hook)")
+    p.add_argument("--runtime-sha", help="observation runtime SHA to stamp (obs-runtime-3a-v2.1)")
+    p.add_argument("--pilot", action="store_true", help="mark this run PILOT / NOT IN CORPUS")
+    p.add_argument("--verify-sha", action="store_true", help="require the spec bytes to match its recorded SHA")
+    p.set_defaults(func=cmd_corpus_run)
 
     p = sub.add_parser("index-code", help="build the CodeSymbol graph (Graph-Lite) for a repo")
     p.add_argument("path")
