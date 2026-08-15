@@ -173,7 +173,7 @@ def test_provenance_and_integrity_fields(tmp_path):
     db = _mk(tmp_path, "prov.db", build)
     rep = build_report(db, runtime_commit_sha="deadbeef", client_version="2.1.229")
     p = rep["provenance"]
-    assert p["report_schema_version"] == "label-report-0.2.0" and p["hook_schema_version"] == "0.3.0"
+    assert p["report_schema_version"] == "label-report-0.2.0" and p["hook_schema_version"] == "0.4.0"
     assert p["runtime_commit_sha"] == "deadbeef" and p["client_version"] == "2.1.229"
     assert p["classifier_blob_sha"].startswith("sha256:")        # identity of classify.py source
     assert p["journal_sha256"].startswith("sha256:") and p["primary_window"] == 16

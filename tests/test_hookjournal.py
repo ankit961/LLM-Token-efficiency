@@ -336,6 +336,38 @@ def test_unavailable_hash_is_not_stable():
     assert row["version_status"] != "stable" and row["content_version"] is None
 
 
+# hook_schema 0.4.0: a grep is captured as a SEARCH materialization read with model-visible tokens,
+# so agent navigation context is no longer invisible.
+def test_grep_captured_as_search_read():
+    j, c = _cap({})
+    c.on_event({"hook_event_name": "UserPromptSubmit", "session_id": "s"})
+    _pre(c, "s", "t1", "Bash", {"command": "grep -rn needle django/utils/"}, cwd="/repo")
+    _post(c, "s", "t1", "Bash")
+    _batch(c, "s", "p1", [{"tool_use_id": "t1", "tool_name": "Bash",
+                           "tool_response": "django/utils/x.py:12: needle here\n" * 20}])
+    rows = j.tool_events()
+    assert len(rows) == 1 and rows[0]["kind"] == "read"
+    assert rows[0]["representation"] == "search" and rows[0]["channel"] == "bash_materialization"
+    assert rows[0]["model_visible_tokens"] and rows[0]["token_attribution"] == "attributed"
+
+
+# 0.4.0 three-way Bash ledger: execution (tests/python) is recognized but is NOT a read and NOT
+# counted as unknown -- so bash_unknown_share reflects missed SOURCE context, not test-running.
+def test_execution_bash_counted_separately_from_unknown():
+    j, c = _cap({})
+    _pre(c, "s", "t1", "Bash", {"command": "python tests/runtests.py auth"}); _post(c, "s", "t1", "Bash")
+    _pre(c, "s", "t2", "Bash", {"command": "grep -rn x src"}); _post(c, "s", "t2", "Bash")
+    _pre(c, "s", "t3", "Bash", {"command": "weird | thing"}); _post(c, "s", "t3", "Bash")
+    rows = j.tool_events()
+    assert [r["representation"] for r in rows] == ["search"]      # only grep produced a read event
+    st = j.capture_stats()
+    assert st["bash_calls_seen"] == 3
+    assert st.get("execution_bash_calls") == 1                    # runtests -> execution, not unknown
+    assert st.get("bash_materialization_calls") == 1             # grep
+    assert st.get("unknown_bash_calls") == 1                     # weird
+    assert abs(st["bash_unknown_share"] - 1 / 3) < 1e-9          # execution excluded from the numerator
+
+
 def test_pending_state_survives_a_process_boundary(tmp_path):
     # PreToolUse in one process, PostToolUse in another: pending pre-hash must be persisted, not
     # held in a Python object -- each hook delivery is a separate command-hook invocation.

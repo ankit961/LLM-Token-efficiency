@@ -3,10 +3,15 @@
 Kept SEPARATE from capture so a HookJournal can be re-run through different windows/normalizers
 without recapturing. Two pieces:
 
-  bash_effects(command)  -> conservative, HIGH-PRECISION shell recognizer. Only unambiguous
-                            read/mutation forms are classified; ANYTHING else is `unknown` (never
-                            exploration). The labeller's content-version hash backstop catches
-                            mutations we miss, so under-recognition is safe.
+  bash_effects(command)  -> shell recognizer with REPRESENTATION TYPES (hook_schema 0.4.0):
+                            file_materialization (cat/head/tail/sed -n), git_blob (git show),
+                            search (grep/rg/git grep), path_listing (find/ls). `execution`
+                            (tests/python/build/lint) is recognized but is NOT a read -- Python
+                            opening files internally is not model-visible source context. Genuinely-
+                            complex shell stays `unknown`. Search/listing materialize CONTEXT (their
+                            model-visible output), so they ARE reads even though they aren't a single
+                            file; their token weight is what matters, and they classify as exploration
+                            (a search scope is rarely the exact path later edited).
   to_events(rows)        -> HookJournal tool-event rows -> the flat dicts classify_reads consumes.
 
 A read via `git show REV:PATH` is a `git_blob` representation (the historical blob, NOT the
@@ -19,16 +24,24 @@ import shlex
 from dataclasses import dataclass
 from typing import Optional
 
-_READ_CMDS = {"cat", "head", "tail", "less", "more", "bat", "nl"}
-# any of these means shell structure we will NOT parse precisely -> unknown (conservative)
-_COMPLEX = re.compile(r"[|;`]|\$\(|\|\||&&|<<|<\(|\bfor\b|\bwhile\b|\bdo\b|\bxargs\b|\bfind\b|\beval\b")
+_READ_CMDS = {"cat", "head", "tail", "less", "more", "bat", "nl"}   # file_materialization
+_SEARCH_CMDS = {"grep", "egrep", "fgrep", "rg", "ripgrep", "ag", "ack"}   # search_materialization
+_PATH_CMDS = {"find", "ls", "tree"}                                # path_listing
+# execution: runs code/tests -- NOT a source read even though Python itself opens many files
+_EXEC_CMDS = {"python", "python2", "python3", "pytest", "py.test", "tox", "make", "flake8",
+              "black", "isort", "mypy", "pylint", "coverage", "pip", "pip3", "npm", "node",
+              "yarn", "go", "cargo", "ruff", "nox"}
+# genuinely-complex shell we will NOT parse -> unknown. `;`/`&&`/`||` are now SPLIT into statements
+# (each recognized on its own), and a leading `|` is handled per statement -- so those are OUT. Only
+# subshells, command substitution, loops, xargs, eval, heredocs and process substitution bail here.
+_TRULY_COMPLEX = re.compile(r"`|\$\(|<\(|<<|\bfor\b|\bwhile\b|\bdo\b|\bdone\b|\bxargs\b|\beval\b")
 
 
 @dataclass
 class ShellEffect:
-    kind: str                          # "read" | "edit" | "unknown"
+    kind: str                          # "read" | "edit" | "execution" | "unknown"
     path: str = ""
-    representation: str = "file"       # "file" | "git_blob"
+    representation: str = "file"       # "file" | "git_blob" | "search" | "path_listing"
     ref: Optional[str] = None          # git rev for a git_blob
     note: Optional[str] = None
 
@@ -55,29 +68,101 @@ def _file_operands(rest) -> list:
     return ops
 
 
+def _is_execution(leading) -> bool:
+    prog = leading[0]
+    if prog in _EXEC_CMDS:
+        return True
+    # ./manage.py test, tests/runtests.py, python -m ... , a .py script invoked directly
+    return any(t.rstrip("/").endswith(("manage.py", "runtests.py")) for t in leading) \
+        or (prog.endswith(".py"))
+
+
+def _scope(ops, default="."):
+    """A representative path/scope for a search or listing (not a precise per-file identity;
+    search/listing materialize CONTEXT, not one file -- the token capture is what matters)."""
+    return ops[-1] if ops else default
+
+
+def _split_statements(cmd: str):
+    """Split a command line on top-level ;, &&, ||, & into statements (quote-aware). Returns a list
+    of token-lists, or None if unparseable. `|` is kept inside a statement (handled as leading-pipe)."""
+    lex = shlex.shlex(cmd, posix=True, punctuation_chars=True)
+    lex.whitespace_split = True
+    try:
+        toks = list(lex)
+    except ValueError:
+        return None
+    stmts, cur = [], []
+    for t in toks:
+        if t in (";", "&&", "||", "&"):
+            stmts.append(cur); cur = []
+        else:
+            cur.append(t)
+    stmts.append(cur)
+    return [s for s in stmts if s]
+
+
 def bash_effects(command: str) -> list:
-    """Recognize only unambiguous read/mutation file effects of a single shell command."""
+    """Recognize read/mutation/execution effects of a shell command (hook_schema 0.4.0).
+
+    Representations: file_materialization (cat/head/tail/sed -n), git_blob (git show), search
+    (grep/rg/git grep), path_listing (find/ls). `execution` (tests/python/build/lint) is recognized
+    but is NOT a read. Compound commands are SPLIT on ;/&&/|| and each statement recognized (so
+    `cd t && grep x f` yields the grep read); a `cd` statement is a no-op. Genuinely-complex shell
+    (subshells, loops, xargs, eval) is `unknown`."""
     cmd = (command or "").strip()
     if not cmd:
         return []
-    if _COMPLEX.search(cmd):
+    if _TRULY_COMPLEX.search(cmd):
         return _unknown("complex_shell")
-    try:
-        toks = shlex.split(cmd)
-    except ValueError:
+    stmts = _split_statements(cmd)
+    if stmts is None:
         return _unknown("unparseable")
+    if not stmts:
+        return []
+    effs = []
+    for toks in stmts:
+        effs.extend(_stmt_effects(toks))
+    # a compound is unknown only if EVERY statement was unknown (all noise); otherwise keep the
+    # recognized read/edit/execution effects and drop the unknown noise around them.
+    recognized = [e for e in effs if e.kind != "unknown"]
+    return recognized or (effs and [_unknown("unrecognized")[0]]) or []
+
+
+def _stmt_effects(toks: list) -> list:
+    """Effects of ONE shell statement (already tokenized; may contain a leading `|`)."""
     if not toks:
         return []
-    # a single output redirection to a file is a mutation of that file
+    # output redirection to a file is a mutation of that file -- the bytes go to disk, NOT the model,
+    # so `grep pat foo > out` is an edit of out, never a search read.
     for i, t in enumerate(toks):
         if t in (">", ">>") and i + 1 < len(toks):
             return [ShellEffect("edit", toks[i + 1], note="redirect")]
-    prog = toks[0]
-    rest = toks[1:]
+    if toks and toks[0] == "cd":
+        return []                                              # navigation only -- no materialization
+    # a single leading pipe to a pager/filter (grep ... | head) still materializes the leading
+    # command's output to the model -- analyze the FIRST pipeline segment. A pipe FILTERS the output,
+    # so a piped file read is a derived subset, never a full-file read (no content_version claim).
+    piped = "|" in toks
+    leading = toks[:toks.index("|")] if piped else toks
+    if not leading:
+        return _unknown("empty_pipeline_head")
+    prog = leading[0]
+    rest = leading[1:]
     args = [t for t in rest if not t.startswith("-")]           # non-flag operands
+    if _is_execution(leading):
+        return [ShellEffect("execution", note=prog)]
     if prog in _READ_CMDS:
         ops = _file_operands(rest)
-        return [ShellEffect("read", a) for a in ops] or _unknown("no_path")
+        rep = "search" if piped else "file"                    # piped cat = filtered subset, not full file
+        return [ShellEffect("read", a, representation=rep, note=("piped" if piped else None))
+                for a in ops] or _unknown("no_path")
+    if prog in _SEARCH_CMDS:
+        return [ShellEffect("read", _scope(args[1:]), representation="search", note=prog)]  # args[0]=pattern
+    if prog == "git" and rest and rest[0] == "grep":
+        return [ShellEffect("read", _scope(args[1:]), representation="search", note="git_grep")]
+    if prog in _PATH_CMDS:
+        return [ShellEffect("read", _scope(args), representation="path_listing", note=prog)]
     if prog == "sed":
         target = args[-1] if args else None                    # the file is the last operand
         if not target:
@@ -85,7 +170,8 @@ def bash_effects(command: str) -> list:
         if any(t == "-i" or t.startswith("-i") for t in rest):
             return [ShellEffect("edit", target, note="sed_inplace")]
         if any(t == "-n" or t.startswith("-n") for t in rest):
-            return [ShellEffect("read", target, note="sed_quiet")]
+            return [ShellEffect("read", target, representation=("search" if piped else "file"),
+                                note="sed_quiet")]
         return _unknown("sed_ambiguous")
     if prog == "tee":
         return [ShellEffect("edit", a) for a in args] or _unknown("tee_no_file")
@@ -97,8 +183,8 @@ def bash_effects(command: str) -> list:
         return [ShellEffect("edit", args[0], note="moved_from"), ShellEffect("edit", args[-1])]
     if prog == "rm":
         return [ShellEffect("edit", a, note="deleted") for a in args] or _unknown("rm_no_file")
-    if prog == "git" and len(toks) >= 3 and toks[1] == "show":
-        m = re.match(r"([^:]+):(.+)", toks[2])
+    if prog == "git" and len(leading) >= 3 and leading[1] == "show":
+        m = re.match(r"([^:]+):(.+)", leading[2])
         if m:
             return [ShellEffect("read", m.group(2), representation="git_blob", ref=m.group(1))]
         return _unknown("git_show_no_blob")

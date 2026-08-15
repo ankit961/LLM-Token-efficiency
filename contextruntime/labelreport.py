@@ -46,7 +46,7 @@ REPORT_SCHEMA_VERSION = "label-report-0.2.0"   # 0.2.0: run-unit, strict admissi
 PRIMARY_WINDOW = 16
 INF_WINDOW = 10 ** 12                       # effectively unbounded; distances never exceed it
 DEFAULT_WINDOWS = (8, 16, 32, INF_WINDOW)
-HOOK_SCHEMA_EXPECTED = "0.3.0"
+HOOK_SCHEMA_EXPECTED = "0.4.0"   # v2 observation runtime (representation-typed shell)
 
 # closure_reason is an ENUM, not free text: arbitrary strings could smuggle identifiers back into an
 # artifact that claims aggregate-only privacy.

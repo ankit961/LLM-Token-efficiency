@@ -41,7 +41,58 @@ def test_git_show_is_a_git_blob_not_worktree():
     assert e[0].representation == "git_blob" and e[0].ref == "HEAD~2"
 
 
-def test_complex_shell_is_unknown_never_exploration():
-    for cmd in ["cat a.py | grep x", "for f in *; do cat $f; done", "cat $(ls)",
-                "a.sh && b.sh", "cat a; cat b", "python -c 'open(1)'"]:
+def test_genuinely_complex_shell_is_unknown_never_exploration():
+    # truly-complex shell (subshell / loop / xargs) is still unknown. Compound ;/&&/|| is SPLIT and
+    # recognized per statement (tested below), so it is NOT in this list.
+    for cmd in ["for f in *; do cat $f; done", "cat $(ls)", "grep x $(ls)", "a.sh && b.sh",
+                "weird thing", "xargs cat < list"]:
         assert all(x.kind == "unknown" for x in bash_effects(cmd)), cmd
+
+
+def test_compound_statements_are_split_and_recognized():
+    # cd t && grep x f  -> the grep read (cd is a no-op); grep;grep -> two reads; a pwd;ls -> the ls
+    assert [x.representation for x in bash_effects("cd tests && grep -n '@' urls.txt")] == ["search"]
+    assert len(bash_effects("grep -n a f | head; grep -n b f")) == 2
+    assert [x.representation for x in bash_effects("pwd; ls django/")] == ["path_listing"]
+    # cat a; cat b -> two file reads (each statement is a clean file materialization)
+    e = bash_effects("cat a.py; cat b.py")
+    assert [x.kind for x in e] == ["read", "read"] and {x.representation for x in e} == {"file"}
+
+
+# --- hook_schema 0.4.0: representation-typed shell ---
+def test_grep_is_search_materialization():
+    e = bash_effects("grep -rn 'needle' django/utils/")
+    assert len(e) == 1 and e[0].kind == "read" and e[0].representation == "search"
+    e2 = bash_effects("git grep needle")
+    assert e2[0].kind == "read" and e2[0].representation == "search" and e2[0].note == "git_grep"
+    e3 = bash_effects("rg pattern src")
+    assert e3[0].kind == "read" and e3[0].representation == "search"
+
+
+def test_find_and_ls_are_path_listing():
+    for cmd in ["find . -name '*.py'", "ls django/db/", "find django -type f"]:
+        e = bash_effects(cmd)
+        assert e[0].kind == "read" and e[0].representation == "path_listing", cmd
+
+
+def test_execution_is_recognized_not_a_read_or_unknown():
+    for cmd in ["python -c 'open(1)'", "python tests/runtests.py auth", "./manage.py test",
+                "pytest tests/", "tox -e py39", "make", "flake8 django/", "pip install -e ."]:
+        e = bash_effects(cmd)
+        assert e and all(x.kind == "execution" for x in e), cmd
+
+
+def test_leading_pipe_materializes_filtered_subset_as_search():
+    # `cat a.py | grep x` shows the model a FILTERED subset -> a search (derived) read of a.py, NOT a
+    # full-file read (so it never claims a full-file content_version).
+    e = bash_effects("cat a.py | grep x")
+    assert len(e) == 1 and e[0].kind == "read" and e[0].path == "a.py"
+    assert e[0].representation == "search"                      # filtered, not "file"
+    # a piped grep is still search
+    assert bash_effects("grep pat dir | head")[0].representation == "search"
+
+
+def test_redirected_grep_is_an_edit_not_a_read():
+    # `grep pat foo > out` sends bytes to a file, not the model -> edit of out, never a search read.
+    e = bash_effects("grep pat foo > out.txt")
+    assert e[0].kind == "edit" and e[0].path == "out.txt"

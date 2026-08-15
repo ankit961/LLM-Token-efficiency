@@ -10,9 +10,10 @@ Integrity guarantees (why each matters for the eventual percentages):
     (equal -> not recorded), or `unverified` (a hash was unavailable). An unverified mutation is an
     UNCERTAINTY boundary: it can never produce an EDIT_PRECONDITION.
   - TRUTHFUL COVERAGE: SPLIT ledgers -- pre_tool_calls_seen vs batch_tool_calls_resolved (are we
-    missing PreToolUse deliveries?) and unknown_bash_calls vs bash_calls_seen (shell blindness,
-    measured against Bash calls only). Never a row/(row+error) ratio that looks healthy while the
-    shell parser is blind, and never a Bash-blindness rate diluted by always-recognized tools.
+    missing PreToolUse deliveries?) and, for Bash, a THREE-way split (0.4.0): bash_materialization_calls
+    (produced a read/edit) vs execution_bash_calls (tests/python -- recognized, not a source read) vs
+    unknown_bash_calls (truly unrecognized). bash_unknown_share = unknown/bash therefore reflects missed
+    SOURCE context, not test-running noise -- execution is not counted as blindness.
   - MODEL-VISIBLE RESPONSE: measured from PostToolBatch (string OR text content-block array), with
     multimodal/unsupported marked -- never silently unmeasured. That PostToolBatch payload is also
     the AUTHORITATIVE response_hash (attribute_tokens stamps it), not PostToolUse's structured
@@ -36,7 +37,7 @@ from typing import Callable, Optional, Tuple
 from .ingest import est_tokens
 from .normalize import BASH_MATERIALIZATION, NATIVE_READ, bash_effects
 
-HOOK_SCHEMA_VERSION = "0.3.0"
+HOOK_SCHEMA_VERSION = "0.4.0"   # 0.4.0: representation-typed shell (search/path materialization + execution)
 MAX_HASH_BYTES = 32 * 1024 * 1024
 
 _SCHEMA = """
@@ -323,7 +324,7 @@ class HookCapture:
             self._batch(ev)
 
     def _effects(self, tool, tinput, cwd):
-        out, unknown = [], False
+        out, bash_kinds = [], []
         if tool in _READ_TOOLS:
             out.append({"kind": "read", "channel": NATIVE_READ, "mutation_source": None,
                         "representation": "file", "raw_path": tinput.get("file_path"), "ref": None})
@@ -332,28 +333,35 @@ class HookCapture:
                         "representation": "file", "raw_path": tinput.get("file_path"), "ref": None})
         elif tool == "Bash":
             effs = bash_effects(tinput.get("command", ""))
-            unknown = bool(effs) and all(x.kind == "unknown" for x in effs)
+            bash_kinds = [x.kind for x in effs]
             for x in effs:
-                if x.kind == "read":
+                if x.kind == "read":                             # file / git_blob / search / path_listing
                     out.append({"kind": "read", "channel": BASH_MATERIALIZATION, "mutation_source": None,
                                 "representation": x.representation, "raw_path": x.path, "ref": x.ref})
                 elif x.kind == "edit":
                     out.append({"kind": "edit", "channel": "edit", "mutation_source": "bash",
                                 "representation": "file", "raw_path": x.path, "ref": None})
+                # "execution" and "unknown" produce no tool_event -- they are counted in the ledger only
         for x in out:
             x["path_abs"], x["path_norm"] = _norm_path(x["raw_path"], cwd)
-        return out, unknown
+        return out, bash_kinds
 
     def _pre(self, ev):
         cwd = ev.get("cwd")
         tool = ev.get("tool_name")
-        effects, unknown = self._effects(tool, ev.get("tool_input") or {}, cwd)
-        # Split ledgers: PreToolUse deliveries vs BASH-only blindness -- so an unknown-shell rate is
-        # measured against Bash calls, not diluted by Read/Edit/etc. that are always recognized.
+        effects, bash_kinds = self._effects(tool, ev.get("tool_input") or {}, cwd)
+        # Split ledgers: PreToolUse deliveries vs BASH classification. A Bash call is materialization
+        # (produced a read/edit), execution (tests/python -- recognized but not a source read), or
+        # unknown (truly unrecognized). unknown EXCLUDES execution, so bash_unknown_share reflects
+        # missed SOURCE context, not test-running noise.
         self.j.bump("pre_tool_calls_seen")
         if tool == "Bash":
             self.j.bump("bash_calls_seen")
-            if unknown:
+            if any(k in ("read", "edit") for k in bash_kinds):
+                self.j.bump("bash_materialization_calls")
+            elif "execution" in bash_kinds:
+                self.j.bump("execution_bash_calls")
+            else:
                 self.j.bump("unknown_bash_calls")
         for x in effects:
             if x["representation"] == "git_blob" and x["ref"] and x["raw_path"]:
