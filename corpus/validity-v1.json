@@ -1,0 +1,511 @@
+{
+  "schema": "corpus-validity-v1",
+  "dataset": "princeton-nlp/SWE-bench_Verified",
+  "dataset_revision": "c104f840cc67",
+  "check": "git apply --check (forward) at base_commit",
+  "note": "gold/test patches are NEVER embedded (agent-contamination); only booleans + sha256",
+  "n_valid": 50,
+  "n_invalid": 0,
+  "tasks": [
+    {
+      "run": "run-01",
+      "instance_id": "django__django-13513",
+      "base_commit": "6599608c4d0befdcb820ddccce55f183f247ae4f",
+      "gold_patch_applies_forward": true,
+      "test_patch_applies_forward": true,
+      "gold_patch_sha256": "sha256:86c49e25f321f44a32b87fca0b77743d92c977b1fd3f076c8c860b3cfb933f10",
+      "fail_to_pass_count": 1,
+      "valid": true
+    },
+    {
+      "run": "run-02",
+      "instance_id": "django__django-15561",
+      "base_commit": "6991880109e35c879b71b7d9d9c154baeec12b89",
+      "gold_patch_applies_forward": true,
+      "test_patch_applies_forward": true,
+      "gold_patch_sha256": "sha256:21a16cd2075ee98d03798302d693e0d49a9eac2df4bb30bd8ddc996326a26e12",
+      "fail_to_pass_count": 1,
+      "valid": true
+    },
+    {
+      "run": "run-03",
+      "instance_id": "django__django-15022",
+      "base_commit": "e1d673c373a7d032060872b690a92fc95496612e",
+      "gold_patch_applies_forward": true,
+      "test_patch_applies_forward": true,
+      "gold_patch_sha256": "sha256:cff576b3c6df42b65fde51da27302647389f9bae0bbf95738bab018068578e4d",
+      "fail_to_pass_count": 3,
+      "valid": true
+    },
+    {
+      "run": "run-04",
+      "instance_id": "django__django-14672",
+      "base_commit": "00ea883ef56fb5e092cbe4a6f7ff2e7470886ac4",
+      "gold_patch_applies_forward": true,
+      "test_patch_applies_forward": true,
+      "gold_patch_sha256": "sha256:c7e640b82d576f4c62c8dbc6a6d45100bf7d27838c9e2940e72f789732b53391",
+      "fail_to_pass_count": 168,
+      "valid": true
+    },
+    {
+      "run": "run-05",
+      "instance_id": "django__django-13658",
+      "base_commit": "0773837e15bb632afffb6848a58c59a791008fa1",
+      "gold_patch_applies_forward": true,
+      "test_patch_applies_forward": true,
+      "gold_patch_sha256": "sha256:667081efc6e0e867f91fe6549e1b73d5de3cc02a95d1659d476040c4c96d47f5",
+      "fail_to_pass_count": 1,
+      "valid": true
+    },
+    {
+      "run": "run-06",
+      "instance_id": "django__django-12193",
+      "base_commit": "3fb7c12158a2402f0f80824f6778112071235803",
+      "gold_patch_applies_forward": true,
+      "test_patch_applies_forward": true,
+      "gold_patch_sha256": "sha256:5cca9d8a9087d9d37fc7449d5c059f9c9441dd9b521d2e2e02e2198e41250c27",
+      "fail_to_pass_count": 1,
+      "valid": true
+    },
+    {
+      "run": "run-07",
+      "instance_id": "django__django-12406",
+      "base_commit": "335c9c94acf263901fb023404408880245b0c4b4",
+      "gold_patch_applies_forward": true,
+      "test_patch_applies_forward": true,
+      "gold_patch_sha256": "sha256:b6b2baa9c9acf5d945e985719aafb64dbd0a1c8c0e18447f9c5e5655d5202fee",
+      "fail_to_pass_count": 3,
+      "valid": true
+    },
+    {
+      "run": "run-08",
+      "instance_id": "django__django-11964",
+      "base_commit": "fc2b1cc926e34041953738e58fa6ad3053059b22",
+      "gold_patch_applies_forward": true,
+      "test_patch_applies_forward": true,
+      "gold_patch_sha256": "sha256:5df808eec57ca720def54b40bc2695b724f2d62fa767a7586342af4856936cfd",
+      "fail_to_pass_count": 2,
+      "valid": true
+    },
+    {
+      "run": "run-09",
+      "instance_id": "django__django-11299",
+      "base_commit": "6866c91b638de5368c18713fa851bfe56253ea55",
+      "gold_patch_applies_forward": true,
+      "test_patch_applies_forward": true,
+      "gold_patch_sha256": "sha256:e3e2fe9c2eb1ce40f8387f76c46ad82e1e73abe93c15ed336578d9436f19000a",
+      "fail_to_pass_count": 1,
+      "valid": true
+    },
+    {
+      "run": "run-10",
+      "instance_id": "django__django-14053",
+      "base_commit": "179ee13eb37348cd87169a198aec18fedccc8668",
+      "gold_patch_applies_forward": true,
+      "test_patch_applies_forward": true,
+      "gold_patch_sha256": "sha256:19ff433af4d3ba1f86ceacd81ba0d059e4c2bc754a44cb27ef82b9b3f16a9a39",
+      "fail_to_pass_count": 1,
+      "valid": true
+    },
+    {
+      "run": "run-11",
+      "instance_id": "django__django-11239",
+      "base_commit": "d87bd29c4f8dfcdf3f4a4eb8340e6770a2416fe3",
+      "gold_patch_applies_forward": true,
+      "test_patch_applies_forward": true,
+      "gold_patch_sha256": "sha256:6d9a0d621741ea9e6a75c38d425a9710dfe7de7a7bb670be9dcb8f18ca45f996",
+      "fail_to_pass_count": 1,
+      "valid": true
+    },
+    {
+      "run": "run-12",
+      "instance_id": "django__django-13590",
+      "base_commit": "755dbf39fcdc491fe9b588358303e259c7750be4",
+      "gold_patch_applies_forward": true,
+      "test_patch_applies_forward": true,
+      "gold_patch_sha256": "sha256:ba7ed1d4001a3c163610b60e1784459414c19490ce01c7cd30bf98681b0cc0d8",
+      "fail_to_pass_count": 1,
+      "valid": true
+    },
+    {
+      "run": "run-13",
+      "instance_id": "django__django-15382",
+      "base_commit": "770d3e6a4ce8e0a91a9e27156036c1985e74d4a3",
+      "gold_patch_applies_forward": true,
+      "test_patch_applies_forward": true,
+      "gold_patch_sha256": "sha256:86ddf1a328d1fb80022b0418ffa5c5bde491634c2540d7ef60aae2b02edadd6d",
+      "fail_to_pass_count": 1,
+      "valid": true
+    },
+    {
+      "run": "run-14",
+      "instance_id": "django__django-11138",
+      "base_commit": "c84b91b7603e488f7171fdff8f08368ef3d6b856",
+      "gold_patch_applies_forward": true,
+      "test_patch_applies_forward": true,
+      "gold_patch_sha256": "sha256:9ae4408e05d1a96259df33cc7606befd29e043cfb334bfecbf254fd643df0cb8",
+      "fail_to_pass_count": 1,
+      "valid": true
+    },
+    {
+      "run": "run-15",
+      "instance_id": "django__django-12419",
+      "base_commit": "7fa1a93c6c8109010a6ff3f604fda83b604e0e97",
+      "gold_patch_applies_forward": true,
+      "test_patch_applies_forward": true,
+      "gold_patch_sha256": "sha256:a1f6c1f9598eda33d4de4b85f018d759390b8e6c951af3f554b9df5b90ff7862",
+      "fail_to_pass_count": 1,
+      "valid": true
+    },
+    {
+      "run": "run-16",
+      "instance_id": "django__django-14771",
+      "base_commit": "4884a87e022056eda10534c13d74e49b8cdda632",
+      "gold_patch_applies_forward": true,
+      "test_patch_applies_forward": true,
+      "gold_patch_sha256": "sha256:1c83d9dec46fd4b66504230743f4884ddf30293f4d6a5975adee81b8fc5c167d",
+      "fail_to_pass_count": 1,
+      "valid": true
+    },
+    {
+      "run": "run-17",
+      "instance_id": "django__django-16502",
+      "base_commit": "246eb4836a6fb967880f838aa0d22ecfdca8b6f1",
+      "gold_patch_applies_forward": true,
+      "test_patch_applies_forward": true,
+      "gold_patch_sha256": "sha256:a4cd5d618966b2716837f8c58dbe81436c7580acb05b28cfc5a4f8bf144cad85",
+      "fail_to_pass_count": 1,
+      "valid": true
+    },
+    {
+      "run": "run-18",
+      "instance_id": "django__django-13809",
+      "base_commit": "bef6f7584280f1cc80e5e2d80b7ad073a93d26ec",
+      "gold_patch_applies_forward": true,
+      "test_patch_applies_forward": true,
+      "gold_patch_sha256": "sha256:6ffda1af3e10ea2092376fb86a88a1e7533dbae2c2a09bf9e1974f62bf0fbba8",
+      "fail_to_pass_count": 1,
+      "valid": true
+    },
+    {
+      "run": "run-19",
+      "instance_id": "django__django-14315",
+      "base_commit": "187118203197801c6cb72dc8b06b714b23b6dd3d",
+      "gold_patch_applies_forward": true,
+      "test_patch_applies_forward": true,
+      "gold_patch_sha256": "sha256:ed8be697b5db400ec850270d66b4e57ca0aebc2677fba7c6094862947d828c26",
+      "fail_to_pass_count": 11,
+      "valid": true
+    },
+    {
+      "run": "run-20",
+      "instance_id": "django__django-11951",
+      "base_commit": "312049091288dbba2299de8d07ea3e3311ed7238",
+      "gold_patch_applies_forward": true,
+      "test_patch_applies_forward": true,
+      "gold_patch_sha256": "sha256:b382abb1894bfce82e22ecdfdba4ee2f0e2204848fd62933935d4785652ec85b",
+      "fail_to_pass_count": 1,
+      "valid": true
+    },
+    {
+      "run": "run-21",
+      "instance_id": "django__django-15277",
+      "base_commit": "30613d6a748fce18919ff8b0da166d9fda2ed9bc",
+      "gold_patch_applies_forward": true,
+      "test_patch_applies_forward": true,
+      "gold_patch_sha256": "sha256:e3f74ce7e7722d34086a2a87fa81a5a654a28c11e93ab8e0c2b5d8dc64df0095",
+      "fail_to_pass_count": 2,
+      "valid": true
+    },
+    {
+      "run": "run-22",
+      "instance_id": "django__django-13195",
+      "base_commit": "156a2138db20abc89933121e4ff2ee2ce56a173a",
+      "gold_patch_applies_forward": true,
+      "test_patch_applies_forward": true,
+      "gold_patch_sha256": "sha256:72c9740f89e88304565d49a9aa1c37d38633215b9fd69aaca3a9f277821b02cf",
+      "fail_to_pass_count": 5,
+      "valid": true
+    },
+    {
+      "run": "run-23",
+      "instance_id": "django__django-13821",
+      "base_commit": "e64c1d8055a3e476122633da141f16b50f0c4a2d",
+      "gold_patch_applies_forward": true,
+      "test_patch_applies_forward": true,
+      "gold_patch_sha256": "sha256:48c30978a5ac44b9e49d08fe05b8a582d4228362411185ab769bb3bb337f9ef7",
+      "fail_to_pass_count": 1,
+      "valid": true
+    },
+    {
+      "run": "run-24",
+      "instance_id": "django__django-14608",
+      "base_commit": "7f33c1e22dbc34a7afae7967783725b10f1f13b1",
+      "gold_patch_applies_forward": true,
+      "test_patch_applies_forward": true,
+      "gold_patch_sha256": "sha256:cbc3f2704cd4eb268f81bb96c2c7af7ccbc72ba7929a2624dc055bc06eaccf71",
+      "fail_to_pass_count": 4,
+      "valid": true
+    },
+    {
+      "run": "run-25",
+      "instance_id": "django__django-15503",
+      "base_commit": "859a87d873ce7152af73ab851653b4e1c3ffea4c",
+      "gold_patch_applies_forward": true,
+      "test_patch_applies_forward": true,
+      "gold_patch_sha256": "sha256:ce31da0f4a72554cde0262e34cbb6e7c978ba8b0220aeda521715f11bf60f511",
+      "fail_to_pass_count": 2,
+      "valid": true
+    },
+    {
+      "run": "run-26",
+      "instance_id": "django__django-13128",
+      "base_commit": "2d67222472f80f251607ae1b720527afceba06ad",
+      "gold_patch_applies_forward": true,
+      "test_patch_applies_forward": true,
+      "gold_patch_sha256": "sha256:94a9113eaa93a0d6e30c44a0f03c650e187e79ecaa65600993f33f0d4c492538",
+      "fail_to_pass_count": 7,
+      "valid": true
+    },
+    {
+      "run": "run-27",
+      "instance_id": "django__django-12039",
+      "base_commit": "58c1acb1d6054dfec29d0f30b1033bae6ef62aec",
+      "gold_patch_applies_forward": true,
+      "test_patch_applies_forward": true,
+      "gold_patch_sha256": "sha256:effee99739f097a0c1d323f5d3341bc14cf6eb07ab0add68b52f3447f3abd462",
+      "fail_to_pass_count": 1,
+      "valid": true
+    },
+    {
+      "run": "run-28",
+      "instance_id": "django__django-11740",
+      "base_commit": "003bb34b218adb23d1a7e67932a6ba9b3c4dcc81",
+      "gold_patch_applies_forward": true,
+      "test_patch_applies_forward": true,
+      "gold_patch_sha256": "sha256:87a8df03c5a6c48e26c26af2b41d2c9d67e197947dfb94bdbda1f07a3c613d85",
+      "fail_to_pass_count": 1,
+      "valid": true
+    },
+    {
+      "run": "run-29",
+      "instance_id": "django__django-10554",
+      "base_commit": "14d026cccb144c6877294ba4cd4e03ebf0842498",
+      "gold_patch_applies_forward": true,
+      "test_patch_applies_forward": true,
+      "gold_patch_sha256": "sha256:98523eeb6147f2d4be05885f8e4f49a8505b3368c2e1ec4ecd39ea9fc880105d",
+      "fail_to_pass_count": 2,
+      "valid": true
+    },
+    {
+      "run": "run-30",
+      "instance_id": "django__django-16429",
+      "base_commit": "6c86495bcee22eac19d7fb040b2988b830707cbd",
+      "gold_patch_applies_forward": true,
+      "test_patch_applies_forward": true,
+      "gold_patch_sha256": "sha256:2e868e782c287a4e430f143fa41afa8c033b2e05992ca773009f4b0d5bc2780f",
+      "fail_to_pass_count": 4,
+      "valid": true
+    },
+    {
+      "run": "run-31",
+      "instance_id": "django__django-14765",
+      "base_commit": "4e8121e8e42a24acc3565851c9ef50ca8322b15c",
+      "gold_patch_applies_forward": true,
+      "test_patch_applies_forward": true,
+      "gold_patch_sha256": "sha256:67f6a80384f255931186b6ff6c79727b0e8edae3fb7d0e4850b8fba931a910f7",
+      "fail_to_pass_count": 1,
+      "valid": true
+    },
+    {
+      "run": "run-32",
+      "instance_id": "django__django-13012",
+      "base_commit": "22a59c01c00cf9fbefaee0e8e67fab82bbaf1fd2",
+      "gold_patch_applies_forward": true,
+      "test_patch_applies_forward": true,
+      "gold_patch_sha256": "sha256:b4d8de8ef58708861d0cedce73104e3eddca69495a0b5ae8e5c809849bebe6de",
+      "fail_to_pass_count": 2,
+      "valid": true
+    },
+    {
+      "run": "run-33",
+      "instance_id": "django__django-12308",
+      "base_commit": "2e0f04507b17362239ba49830d26fec504d46978",
+      "gold_patch_applies_forward": true,
+      "test_patch_applies_forward": true,
+      "gold_patch_sha256": "sha256:5b01ba6570e402108145db119391aed9bf82b0030d8ba41b6e4a56bd3b9446d2",
+      "fail_to_pass_count": 2,
+      "valid": true
+    },
+    {
+      "run": "run-34",
+      "instance_id": "django__django-11333",
+      "base_commit": "55b68de643b5c2d5f0a8ea7587ab3b2966021ccc",
+      "gold_patch_applies_forward": true,
+      "test_patch_applies_forward": true,
+      "gold_patch_sha256": "sha256:eda6a87fe39c2bc8b3b136c10053d2c59a7134c35224f0fd762b00ad8662b21d",
+      "fail_to_pass_count": 1,
+      "valid": true
+    },
+    {
+      "run": "run-35",
+      "instance_id": "django__django-11728",
+      "base_commit": "05457817647368be4b019314fcc655445a5b4c0c",
+      "gold_patch_applies_forward": true,
+      "test_patch_applies_forward": true,
+      "gold_patch_sha256": "sha256:7da97e8979686c7a8e8884e857718385f9c40207572ee5ca76e43771a03af9f9",
+      "fail_to_pass_count": 2,
+      "valid": true
+    },
+    {
+      "run": "run-36",
+      "instance_id": "django__django-13212",
+      "base_commit": "f4e93919e4608cfc50849a1f764fd856e0917401",
+      "gold_patch_applies_forward": true,
+      "test_patch_applies_forward": true,
+      "gold_patch_sha256": "sha256:e5289566e5f9bfe936d6339b7f2562207ba34f90d3a1f10b2f08194a0e5b5166",
+      "fail_to_pass_count": 5,
+      "valid": true
+    },
+    {
+      "run": "run-37",
+      "instance_id": "django__django-13401",
+      "base_commit": "453967477e3ddae704cd739eac2449c0e13d464c",
+      "gold_patch_applies_forward": true,
+      "test_patch_applies_forward": true,
+      "gold_patch_sha256": "sha256:45dcfa367768ba23f811f8a00492ea4a5d812a4b932a46fb623ca1869383c15a",
+      "fail_to_pass_count": 1,
+      "valid": true
+    },
+    {
+      "run": "run-38",
+      "instance_id": "django__django-16901",
+      "base_commit": "ee36e101e8f8c0acde4bb148b738ab7034e902a0",
+      "gold_patch_applies_forward": true,
+      "test_patch_applies_forward": true,
+      "gold_patch_sha256": "sha256:0dea4c806febead774d7e0bbd78b3ba69c67cad75e8ebd07840a180bd06f9354",
+      "fail_to_pass_count": 1,
+      "valid": true
+    },
+    {
+      "run": "run-39",
+      "instance_id": "django__django-12276",
+      "base_commit": "53d8646f799de7f92ab9defe9dc56c6125448102",
+      "gold_patch_applies_forward": true,
+      "test_patch_applies_forward": true,
+      "gold_patch_sha256": "sha256:104ede2ba3131ad8512548dd6dc6b15e87152b3a82241aba7975a7810dd009ba",
+      "fail_to_pass_count": 2,
+      "valid": true
+    },
+    {
+      "run": "run-40",
+      "instance_id": "django__django-11477",
+      "base_commit": "e28671187903e6aca2428374fdd504fca3032aee",
+      "gold_patch_applies_forward": true,
+      "test_patch_applies_forward": true,
+      "gold_patch_sha256": "sha256:cba46df40568af2ead931ad6cae5686321100e5193ee8fdc732227d034ac3ae2",
+      "fail_to_pass_count": 3,
+      "valid": true
+    },
+    {
+      "run": "run-41",
+      "instance_id": "django__django-16527",
+      "base_commit": "bd366ca2aeffa869b7dbc0b0aa01caea75e6dc31",
+      "gold_patch_applies_forward": true,
+      "test_patch_applies_forward": true,
+      "gold_patch_sha256": "sha256:ec7af453a8f6fa122e425dd81aff110fb5296aca4cac987699c967b9125cc9c3",
+      "fail_to_pass_count": 1,
+      "valid": true
+    },
+    {
+      "run": "run-42",
+      "instance_id": "django__django-15368",
+      "base_commit": "e972620ada4f9ed7bc57f28e133e85c85b0a7b20",
+      "gold_patch_applies_forward": true,
+      "test_patch_applies_forward": true,
+      "gold_patch_sha256": "sha256:ae13d00936775e006d9513037d07347bbe1c8946256017b5715132a497a3ae7f",
+      "fail_to_pass_count": 1,
+      "valid": true
+    },
+    {
+      "run": "run-43",
+      "instance_id": "django__django-16256",
+      "base_commit": "76e37513e22f4d9a01c7f15eee36fe44388e6670",
+      "gold_patch_applies_forward": true,
+      "test_patch_applies_forward": true,
+      "gold_patch_sha256": "sha256:ad5011a53655f561ee8f084d7373198c8b73c6dfd10eb3593f25205a54d1ed7f",
+      "fail_to_pass_count": 9,
+      "valid": true
+    },
+    {
+      "run": "run-44",
+      "instance_id": "django__django-12713",
+      "base_commit": "5b884d45ac5b76234eca614d90c83b347294c332",
+      "gold_patch_applies_forward": true,
+      "test_patch_applies_forward": true,
+      "gold_patch_sha256": "sha256:a99542c2cd4921f681ec42111964372a0d6dffbfc717c8f5ab06b0b5b63abc63",
+      "fail_to_pass_count": 1,
+      "valid": true
+    },
+    {
+      "run": "run-45",
+      "instance_id": "django__django-16136",
+      "base_commit": "19e6efa50b603af325e7f62058364f278596758f",
+      "gold_patch_applies_forward": true,
+      "test_patch_applies_forward": true,
+      "gold_patch_sha256": "sha256:11df4bc8da7d1c195e5ab096b09ef2507a9cd9a8c7bac87ea6e0ee919b1ba677",
+      "fail_to_pass_count": 2,
+      "valid": true
+    },
+    {
+      "run": "run-46",
+      "instance_id": "django__django-13406",
+      "base_commit": "84609b3205905097d7d3038d32e6101f012c0619",
+      "gold_patch_applies_forward": true,
+      "test_patch_applies_forward": true,
+      "gold_patch_sha256": "sha256:8a616a0504bacd3be5dbb103ea8785ed4276f11cbe1fa441394e90cd5205f307",
+      "fail_to_pass_count": 3,
+      "valid": true
+    },
+    {
+      "run": "run-47",
+      "instance_id": "django__django-13449",
+      "base_commit": "2a55431a5678af52f669ffe7dff3dd0bd21727f8",
+      "gold_patch_applies_forward": true,
+      "test_patch_applies_forward": true,
+      "gold_patch_sha256": "sha256:6a8e2da4b297ef526ccfd5bdb41e75b9ae20071a7a12b12117deb07965590c85",
+      "fail_to_pass_count": 1,
+      "valid": true
+    },
+    {
+      "run": "run-48",
+      "instance_id": "django__django-15554",
+      "base_commit": "59ab3fd0e9e606d7f0f7ca26609c06ee679ece97",
+      "gold_patch_applies_forward": true,
+      "test_patch_applies_forward": true,
+      "gold_patch_sha256": "sha256:ceef43e95a8d882b99bc77e779fb5daae9af18c20d682c015b1f5fbbaee195fd",
+      "fail_to_pass_count": 1,
+      "valid": true
+    },
+    {
+      "run": "run-49",
+      "instance_id": "django__django-12143",
+      "base_commit": "5573a54d409bb98b5c5acdb308310bed02d392c2",
+      "gold_patch_applies_forward": true,
+      "test_patch_applies_forward": true,
+      "gold_patch_sha256": "sha256:ff2a1294407a9bc32b7304c56c15106b35f46243f4d601ccd72be5b2d09b5fc6",
+      "fail_to_pass_count": 1,
+      "valid": true
+    },
+    {
+      "run": "run-50",
+      "instance_id": "django__django-13344",
+      "base_commit": "e39e727ded673e74016b5d3658d23cbe20234d11",
+      "gold_patch_applies_forward": true,
+      "test_patch_applies_forward": true,
+      "gold_patch_sha256": "sha256:cd4ce142ef39fd702719df87d61b4d6c21d40a39985baf48a469c3fa9248459a",
+      "fail_to_pass_count": 2,
+      "valid": true
+    }
+  ]
+}
