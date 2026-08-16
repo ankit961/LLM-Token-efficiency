@@ -1,0 +1,1343 @@
+{
+  "bucket_event_counts": {
+    "config_required": 0,
+    "exploration_reducible": 57,
+    "required": 110,
+    "search_listing_reducible": 306,
+    "unresolved_other": 55,
+    "verification": 10
+  },
+  "bucket_tokens": {
+    "config_required": 0,
+    "exploration_reducible": 52535,
+    "required": 70726,
+    "search_listing_reducible": 73360,
+    "unresolved_other": 44610,
+    "verification": 5455
+  },
+  "by_stratum": {
+    "fs1_oneline_1f_le3": {
+      "c_safe": 0.1467,
+      "c_upper": 0.6163,
+      "tokens": {
+        "config_required": 0,
+        "exploration_reducible": 4904,
+        "required": 9067,
+        "search_listing_reducible": 15693,
+        "unresolved_other": 3512,
+        "verification": 242
+      },
+      "total_fully_measured_tokens": 33418
+    },
+    "fs2_small_1f_4_6": {
+      "c_safe": 0.2298,
+      "c_upper": 0.5304,
+      "tokens": {
+        "config_required": 0,
+        "exploration_reducible": 9369,
+        "required": 14031,
+        "search_listing_reducible": 12252,
+        "unresolved_other": 4549,
+        "verification": 562
+      },
+      "total_fully_measured_tokens": 40763
+    },
+    "fs3_medium_1f_7_15": {
+      "c_safe": 0.1646,
+      "c_upper": 0.4187,
+      "tokens": {
+        "config_required": 0,
+        "exploration_reducible": 7314,
+        "required": 18443,
+        "search_listing_reducible": 11294,
+        "unresolved_other": 6283,
+        "verification": 1104
+      },
+      "total_fully_measured_tokens": 44438
+    },
+    "fs4_large_1f_16_60": {
+      "c_safe": 0.2226,
+      "c_upper": 0.3885,
+      "tokens": {
+        "config_required": 0,
+        "exploration_reducible": 13183,
+        "required": 15110,
+        "search_listing_reducible": 9822,
+        "unresolved_other": 18608,
+        "verification": 2498
+      },
+      "total_fully_measured_tokens": 59221
+    },
+    "fs5_multi_ge2f": {
+      "c_safe": 0.258,
+      "c_upper": 0.611,
+      "tokens": {
+        "config_required": 0,
+        "exploration_reducible": 17765,
+        "required": 14075,
+        "search_listing_reducible": 24299,
+        "unresolved_other": 11658,
+        "verification": 1049
+      },
+      "total_fully_measured_tokens": 68846
+    }
+  },
+  "c_safe": {
+    "definition": "exploration_reducible / all_fully_measured_read_tokens",
+    "ratio": 0.213,
+    "tokens": 52535
+  },
+  "c_upper": {
+    "definition": "(exploration_reducible + search_listing_reducible) / all_fully_measured_read_tokens",
+    "ratio": 0.5103,
+    "tokens": 125895
+  },
+  "excluded_event_counts": {
+    "ambiguous_composite": 29,
+    "ambiguous_multipath": 22
+  },
+  "excluded_tokens": {
+    "ambiguous_composite": 0,
+    "ambiguous_multipath": 0
+  },
+  "n_runs": 50,
+  "per_run": [
+    {
+      "counts": {
+        "config_required": 0,
+        "exploration_reducible": 1,
+        "required": 0,
+        "search_listing_reducible": 0,
+        "unresolved_other": 0,
+        "verification": 0
+      },
+      "excluded_counts": {},
+      "excluded_tokens": {},
+      "run": "run-01",
+      "stratum": "fs4_large_1f_16_60",
+      "task_id": "django__django-13513",
+      "tokens": {
+        "config_required": 0,
+        "exploration_reducible": 342,
+        "required": 0,
+        "search_listing_reducible": 0,
+        "unresolved_other": 0,
+        "verification": 0
+      }
+    },
+    {
+      "counts": {
+        "config_required": 0,
+        "exploration_reducible": 0,
+        "required": 2,
+        "search_listing_reducible": 4,
+        "unresolved_other": 0,
+        "verification": 1
+      },
+      "excluded_counts": {},
+      "excluded_tokens": {},
+      "run": "run-02",
+      "stratum": "fs5_multi_ge2f",
+      "task_id": "django__django-15561",
+      "tokens": {
+        "config_required": 0,
+        "exploration_reducible": 0,
+        "required": 1308,
+        "search_listing_reducible": 245,
+        "unresolved_other": 0,
+        "verification": 490
+      }
+    },
+    {
+      "counts": {
+        "config_required": 0,
+        "exploration_reducible": 3,
+        "required": 3,
+        "search_listing_reducible": 8,
+        "unresolved_other": 2,
+        "verification": 0
+      },
+      "excluded_counts": {
+        "ambiguous_composite": 1
+      },
+      "excluded_tokens": {
+        "ambiguous_composite": 0
+      },
+      "run": "run-03",
+      "stratum": "fs2_small_1f_4_6",
+      "task_id": "django__django-15022",
+      "tokens": {
+        "config_required": 0,
+        "exploration_reducible": 1731,
+        "required": 1218,
+        "search_listing_reducible": 2328,
+        "unresolved_other": 1622,
+        "verification": 0
+      }
+    },
+    {
+      "counts": {
+        "config_required": 0,
+        "exploration_reducible": 1,
+        "required": 2,
+        "search_listing_reducible": 4,
+        "unresolved_other": 1,
+        "verification": 0
+      },
+      "excluded_counts": {},
+      "excluded_tokens": {},
+      "run": "run-04",
+      "stratum": "fs1_oneline_1f_le3",
+      "task_id": "django__django-14672",
+      "tokens": {
+        "config_required": 0,
+        "exploration_reducible": 309,
+        "required": 275,
+        "search_listing_reducible": 1738,
+        "unresolved_other": 462,
+        "verification": 0
+      }
+    },
+    {
+      "counts": {
+        "config_required": 0,
+        "exploration_reducible": 0,
+        "required": 1,
+        "search_listing_reducible": 2,
+        "unresolved_other": 0,
+        "verification": 0
+      },
+      "excluded_counts": {},
+      "excluded_tokens": {},
+      "run": "run-05",
+      "stratum": "fs3_medium_1f_7_15",
+      "task_id": "django__django-13658",
+      "tokens": {
+        "config_required": 0,
+        "exploration_reducible": 0,
+        "required": 333,
+        "search_listing_reducible": 252,
+        "unresolved_other": 0,
+        "verification": 0
+      }
+    },
+    {
+      "counts": {
+        "config_required": 0,
+        "exploration_reducible": 0,
+        "required": 1,
+        "search_listing_reducible": 7,
+        "unresolved_other": 0,
+        "verification": 0
+      },
+      "excluded_counts": {},
+      "excluded_tokens": {},
+      "run": "run-06",
+      "stratum": "fs2_small_1f_4_6",
+      "task_id": "django__django-12193",
+      "tokens": {
+        "config_required": 0,
+        "exploration_reducible": 0,
+        "required": 728,
+        "search_listing_reducible": 1737,
+        "unresolved_other": 0,
+        "verification": 0
+      }
+    },
+    {
+      "counts": {
+        "config_required": 0,
+        "exploration_reducible": 2,
+        "required": 3,
+        "search_listing_reducible": 9,
+        "unresolved_other": 1,
+        "verification": 0
+      },
+      "excluded_counts": {
+        "ambiguous_composite": 2
+      },
+      "excluded_tokens": {
+        "ambiguous_composite": 0
+      },
+      "run": "run-07",
+      "stratum": "fs5_multi_ge2f",
+      "task_id": "django__django-12406",
+      "tokens": {
+        "config_required": 0,
+        "exploration_reducible": 1613,
+        "required": 545,
+        "search_listing_reducible": 1588,
+        "unresolved_other": 1289,
+        "verification": 0
+      }
+    },
+    {
+      "counts": {
+        "config_required": 0,
+        "exploration_reducible": 0,
+        "required": 1,
+        "search_listing_reducible": 1,
+        "unresolved_other": 0,
+        "verification": 0
+      },
+      "excluded_counts": {},
+      "excluded_tokens": {},
+      "run": "run-08",
+      "stratum": "fs3_medium_1f_7_15",
+      "task_id": "django__django-11964",
+      "tokens": {
+        "config_required": 0,
+        "exploration_reducible": 0,
+        "required": 672,
+        "search_listing_reducible": 6,
+        "unresolved_other": 0,
+        "verification": 0
+      }
+    },
+    {
+      "counts": {
+        "config_required": 0,
+        "exploration_reducible": 2,
+        "required": 2,
+        "search_listing_reducible": 3,
+        "unresolved_other": 1,
+        "verification": 0
+      },
+      "excluded_counts": {},
+      "excluded_tokens": {},
+      "run": "run-09",
+      "stratum": "fs1_oneline_1f_le3",
+      "task_id": "django__django-11299",
+      "tokens": {
+        "config_required": 0,
+        "exploration_reducible": 1483,
+        "required": 1928,
+        "search_listing_reducible": 506,
+        "unresolved_other": 825,
+        "verification": 0
+      }
+    },
+    {
+      "counts": {
+        "config_required": 0,
+        "exploration_reducible": 2,
+        "required": 1,
+        "search_listing_reducible": 1,
+        "unresolved_other": 0,
+        "verification": 0
+      },
+      "excluded_counts": {
+        "ambiguous_composite": 1
+      },
+      "excluded_tokens": {
+        "ambiguous_composite": 0
+      },
+      "run": "run-10",
+      "stratum": "fs4_large_1f_16_60",
+      "task_id": "django__django-14053",
+      "tokens": {
+        "config_required": 0,
+        "exploration_reducible": 1058,
+        "required": 4819,
+        "search_listing_reducible": 51,
+        "unresolved_other": 0,
+        "verification": 0
+      }
+    },
+    {
+      "counts": {
+        "config_required": 0,
+        "exploration_reducible": 0,
+        "required": 3,
+        "search_listing_reducible": 6,
+        "unresolved_other": 1,
+        "verification": 1
+      },
+      "excluded_counts": {
+        "ambiguous_multipath": 4
+      },
+      "excluded_tokens": {
+        "ambiguous_multipath": 0
+      },
+      "run": "run-11",
+      "stratum": "fs3_medium_1f_7_15",
+      "task_id": "django__django-11239",
+      "tokens": {
+        "config_required": 0,
+        "exploration_reducible": 0,
+        "required": 1997,
+        "search_listing_reducible": 872,
+        "unresolved_other": 215,
+        "verification": 486
+      }
+    },
+    {
+      "counts": {
+        "config_required": 0,
+        "exploration_reducible": 0,
+        "required": 2,
+        "search_listing_reducible": 9,
+        "unresolved_other": 1,
+        "verification": 0
+      },
+      "excluded_counts": {},
+      "excluded_tokens": {},
+      "run": "run-12",
+      "stratum": "fs2_small_1f_4_6",
+      "task_id": "django__django-13590",
+      "tokens": {
+        "config_required": 0,
+        "exploration_reducible": 0,
+        "required": 1008,
+        "search_listing_reducible": 1444,
+        "unresolved_other": 404,
+        "verification": 0
+      }
+    },
+    {
+      "counts": {
+        "config_required": 0,
+        "exploration_reducible": 2,
+        "required": 2,
+        "search_listing_reducible": 6,
+        "unresolved_other": 0,
+        "verification": 1
+      },
+      "excluded_counts": {},
+      "excluded_tokens": {},
+      "run": "run-13",
+      "stratum": "fs4_large_1f_16_60",
+      "task_id": "django__django-15382",
+      "tokens": {
+        "config_required": 0,
+        "exploration_reducible": 2766,
+        "required": 475,
+        "search_listing_reducible": 1343,
+        "unresolved_other": 0,
+        "verification": 436
+      }
+    },
+    {
+      "counts": {
+        "config_required": 0,
+        "exploration_reducible": 4,
+        "required": 6,
+        "search_listing_reducible": 14,
+        "unresolved_other": 3,
+        "verification": 0
+      },
+      "excluded_counts": {
+        "ambiguous_composite": 1
+      },
+      "excluded_tokens": {
+        "ambiguous_composite": 0
+      },
+      "run": "run-14",
+      "stratum": "fs5_multi_ge2f",
+      "task_id": "django__django-11138",
+      "tokens": {
+        "config_required": 0,
+        "exploration_reducible": 4714,
+        "required": 6041,
+        "search_listing_reducible": 6081,
+        "unresolved_other": 2580,
+        "verification": 0
+      }
+    },
+    {
+      "counts": {
+        "config_required": 0,
+        "exploration_reducible": 2,
+        "required": 1,
+        "search_listing_reducible": 16,
+        "unresolved_other": 1,
+        "verification": 0
+      },
+      "excluded_counts": {},
+      "excluded_tokens": {},
+      "run": "run-15",
+      "stratum": "fs1_oneline_1f_le3",
+      "task_id": "django__django-12419",
+      "tokens": {
+        "config_required": 0,
+        "exploration_reducible": 690,
+        "required": 1435,
+        "search_listing_reducible": 5862,
+        "unresolved_other": 881,
+        "verification": 0
+      }
+    },
+    {
+      "counts": {
+        "config_required": 0,
+        "exploration_reducible": 0,
+        "required": 3,
+        "search_listing_reducible": 2,
+        "unresolved_other": 0,
+        "verification": 0
+      },
+      "excluded_counts": {},
+      "excluded_tokens": {},
+      "run": "run-16",
+      "stratum": "fs2_small_1f_4_6",
+      "task_id": "django__django-14771",
+      "tokens": {
+        "config_required": 0,
+        "exploration_reducible": 0,
+        "required": 1622,
+        "search_listing_reducible": 273,
+        "unresolved_other": 0,
+        "verification": 0
+      }
+    },
+    {
+      "counts": {
+        "config_required": 0,
+        "exploration_reducible": 2,
+        "required": 2,
+        "search_listing_reducible": 3,
+        "unresolved_other": 1,
+        "verification": 0
+      },
+      "excluded_counts": {
+        "ambiguous_composite": 5,
+        "ambiguous_multipath": 4
+      },
+      "excluded_tokens": {
+        "ambiguous_composite": 0,
+        "ambiguous_multipath": 0
+      },
+      "run": "run-17",
+      "stratum": "fs4_large_1f_16_60",
+      "task_id": "django__django-16502",
+      "tokens": {
+        "config_required": 0,
+        "exploration_reducible": 816,
+        "required": 1628,
+        "search_listing_reducible": 251,
+        "unresolved_other": 1531,
+        "verification": 0
+      }
+    },
+    {
+      "counts": {
+        "config_required": 0,
+        "exploration_reducible": 2,
+        "required": 4,
+        "search_listing_reducible": 7,
+        "unresolved_other": 1,
+        "verification": 1
+      },
+      "excluded_counts": {
+        "ambiguous_composite": 1,
+        "ambiguous_multipath": 2
+      },
+      "excluded_tokens": {
+        "ambiguous_composite": 0,
+        "ambiguous_multipath": 0
+      },
+      "run": "run-18",
+      "stratum": "fs3_medium_1f_7_15",
+      "task_id": "django__django-13809",
+      "tokens": {
+        "config_required": 0,
+        "exploration_reducible": 4388,
+        "required": 3400,
+        "search_listing_reducible": 1046,
+        "unresolved_other": 771,
+        "verification": 106
+      }
+    },
+    {
+      "counts": {
+        "config_required": 0,
+        "exploration_reducible": 0,
+        "required": 2,
+        "search_listing_reducible": 0,
+        "unresolved_other": 0,
+        "verification": 1
+      },
+      "excluded_counts": {},
+      "excluded_tokens": {},
+      "run": "run-19",
+      "stratum": "fs5_multi_ge2f",
+      "task_id": "django__django-14315",
+      "tokens": {
+        "config_required": 0,
+        "exploration_reducible": 0,
+        "required": 2283,
+        "search_listing_reducible": 0,
+        "unresolved_other": 0,
+        "verification": 559
+      }
+    },
+    {
+      "counts": {
+        "config_required": 0,
+        "exploration_reducible": 0,
+        "required": 1,
+        "search_listing_reducible": 1,
+        "unresolved_other": 0,
+        "verification": 0
+      },
+      "excluded_counts": {},
+      "excluded_tokens": {},
+      "run": "run-20",
+      "stratum": "fs1_oneline_1f_le3",
+      "task_id": "django__django-11951",
+      "tokens": {
+        "config_required": 0,
+        "exploration_reducible": 0,
+        "required": 362,
+        "search_listing_reducible": 314,
+        "unresolved_other": 0,
+        "verification": 0
+      }
+    },
+    {
+      "counts": {
+        "config_required": 0,
+        "exploration_reducible": 0,
+        "required": 0,
+        "search_listing_reducible": 3,
+        "unresolved_other": 0,
+        "verification": 0
+      },
+      "excluded_counts": {},
+      "excluded_tokens": {},
+      "run": "run-21",
+      "stratum": "fs1_oneline_1f_le3",
+      "task_id": "django__django-15277",
+      "tokens": {
+        "config_required": 0,
+        "exploration_reducible": 0,
+        "required": 0,
+        "search_listing_reducible": 525,
+        "unresolved_other": 0,
+        "verification": 0
+      }
+    },
+    {
+      "counts": {
+        "config_required": 0,
+        "exploration_reducible": 1,
+        "required": 3,
+        "search_listing_reducible": 8,
+        "unresolved_other": 2,
+        "verification": 0
+      },
+      "excluded_counts": {
+        "ambiguous_composite": 3
+      },
+      "excluded_tokens": {
+        "ambiguous_composite": 0
+      },
+      "run": "run-22",
+      "stratum": "fs5_multi_ge2f",
+      "task_id": "django__django-13195",
+      "tokens": {
+        "config_required": 0,
+        "exploration_reducible": 176,
+        "required": 824,
+        "search_listing_reducible": 1448,
+        "unresolved_other": 1806,
+        "verification": 0
+      }
+    },
+    {
+      "counts": {
+        "config_required": 0,
+        "exploration_reducible": 2,
+        "required": 5,
+        "search_listing_reducible": 6,
+        "unresolved_other": 0,
+        "verification": 1
+      },
+      "excluded_counts": {
+        "ambiguous_multipath": 2
+      },
+      "excluded_tokens": {
+        "ambiguous_multipath": 0
+      },
+      "run": "run-23",
+      "stratum": "fs2_small_1f_4_6",
+      "task_id": "django__django-13821",
+      "tokens": {
+        "config_required": 0,
+        "exploration_reducible": 1780,
+        "required": 1978,
+        "search_listing_reducible": 1250,
+        "unresolved_other": 0,
+        "verification": 562
+      }
+    },
+    {
+      "counts": {
+        "config_required": 0,
+        "exploration_reducible": 2,
+        "required": 6,
+        "search_listing_reducible": 14,
+        "unresolved_other": 2,
+        "verification": 0
+      },
+      "excluded_counts": {
+        "ambiguous_multipath": 2
+      },
+      "excluded_tokens": {
+        "ambiguous_multipath": 0
+      },
+      "run": "run-24",
+      "stratum": "fs3_medium_1f_7_15",
+      "task_id": "django__django-14608",
+      "tokens": {
+        "config_required": 0,
+        "exploration_reducible": 2162,
+        "required": 7169,
+        "search_listing_reducible": 5102,
+        "unresolved_other": 1418,
+        "verification": 0
+      }
+    },
+    {
+      "counts": {
+        "config_required": 0,
+        "exploration_reducible": 3,
+        "required": 5,
+        "search_listing_reducible": 6,
+        "unresolved_other": 3,
+        "verification": 1
+      },
+      "excluded_counts": {},
+      "excluded_tokens": {},
+      "run": "run-25",
+      "stratum": "fs4_large_1f_16_60",
+      "task_id": "django__django-15503",
+      "tokens": {
+        "config_required": 0,
+        "exploration_reducible": 2857,
+        "required": 2042,
+        "search_listing_reducible": 1728,
+        "unresolved_other": 3115,
+        "verification": 1337
+      }
+    },
+    {
+      "counts": {
+        "config_required": 0,
+        "exploration_reducible": 2,
+        "required": 3,
+        "search_listing_reducible": 7,
+        "unresolved_other": 3,
+        "verification": 1
+      },
+      "excluded_counts": {},
+      "excluded_tokens": {},
+      "run": "run-26",
+      "stratum": "fs4_large_1f_16_60",
+      "task_id": "django__django-13128",
+      "tokens": {
+        "config_required": 0,
+        "exploration_reducible": 1167,
+        "required": 1922,
+        "search_listing_reducible": 2807,
+        "unresolved_other": 7799,
+        "verification": 725
+      }
+    },
+    {
+      "counts": {
+        "config_required": 0,
+        "exploration_reducible": 0,
+        "required": 1,
+        "search_listing_reducible": 1,
+        "unresolved_other": 0,
+        "verification": 0
+      },
+      "excluded_counts": {},
+      "excluded_tokens": {},
+      "run": "run-27",
+      "stratum": "fs3_medium_1f_7_15",
+      "task_id": "django__django-12039",
+      "tokens": {
+        "config_required": 0,
+        "exploration_reducible": 0,
+        "required": 1794,
+        "search_listing_reducible": 265,
+        "unresolved_other": 0,
+        "verification": 0
+      }
+    },
+    {
+      "counts": {
+        "config_required": 0,
+        "exploration_reducible": 0,
+        "required": 2,
+        "search_listing_reducible": 9,
+        "unresolved_other": 4,
+        "verification": 0
+      },
+      "excluded_counts": {
+        "ambiguous_composite": 1
+      },
+      "excluded_tokens": {
+        "ambiguous_composite": 0
+      },
+      "run": "run-28",
+      "stratum": "fs2_small_1f_4_6",
+      "task_id": "django__django-11740",
+      "tokens": {
+        "config_required": 0,
+        "exploration_reducible": 0,
+        "required": 1672,
+        "search_listing_reducible": 3391,
+        "unresolved_other": 1700,
+        "verification": 0
+      }
+    },
+    {
+      "counts": {
+        "config_required": 0,
+        "exploration_reducible": 5,
+        "required": 1,
+        "search_listing_reducible": 31,
+        "unresolved_other": 3,
+        "verification": 0
+      },
+      "excluded_counts": {
+        "ambiguous_composite": 4
+      },
+      "excluded_tokens": {
+        "ambiguous_composite": 0
+      },
+      "run": "run-29",
+      "stratum": "fs5_multi_ge2f",
+      "task_id": "django__django-10554",
+      "tokens": {
+        "config_required": 0,
+        "exploration_reducible": 4836,
+        "required": 355,
+        "search_listing_reducible": 11663,
+        "unresolved_other": 1691,
+        "verification": 0
+      }
+    },
+    {
+      "counts": {
+        "config_required": 0,
+        "exploration_reducible": 0,
+        "required": 2,
+        "search_listing_reducible": 2,
+        "unresolved_other": 0,
+        "verification": 0
+      },
+      "excluded_counts": {},
+      "excluded_tokens": {},
+      "run": "run-30",
+      "stratum": "fs1_oneline_1f_le3",
+      "task_id": "django__django-16429",
+      "tokens": {
+        "config_required": 0,
+        "exploration_reducible": 0,
+        "required": 1688,
+        "search_listing_reducible": 104,
+        "unresolved_other": 0,
+        "verification": 0
+      }
+    },
+    {
+      "counts": {
+        "config_required": 0,
+        "exploration_reducible": 0,
+        "required": 1,
+        "search_listing_reducible": 4,
+        "unresolved_other": 0,
+        "verification": 0
+      },
+      "excluded_counts": {},
+      "excluded_tokens": {},
+      "run": "run-31",
+      "stratum": "fs3_medium_1f_7_15",
+      "task_id": "django__django-14765",
+      "tokens": {
+        "config_required": 0,
+        "exploration_reducible": 0,
+        "required": 165,
+        "search_listing_reducible": 541,
+        "unresolved_other": 0,
+        "verification": 0
+      }
+    },
+    {
+      "counts": {
+        "config_required": 0,
+        "exploration_reducible": 1,
+        "required": 1,
+        "search_listing_reducible": 8,
+        "unresolved_other": 1,
+        "verification": 1
+      },
+      "excluded_counts": {},
+      "excluded_tokens": {},
+      "run": "run-32",
+      "stratum": "fs1_oneline_1f_le3",
+      "task_id": "django__django-13012",
+      "tokens": {
+        "config_required": 0,
+        "exploration_reducible": 565,
+        "required": 724,
+        "search_listing_reducible": 3025,
+        "unresolved_other": 418,
+        "verification": 242
+      }
+    },
+    {
+      "counts": {
+        "config_required": 0,
+        "exploration_reducible": 2,
+        "required": 2,
+        "search_listing_reducible": 4,
+        "unresolved_other": 1,
+        "verification": 0
+      },
+      "excluded_counts": {},
+      "excluded_tokens": {},
+      "run": "run-33",
+      "stratum": "fs2_small_1f_4_6",
+      "task_id": "django__django-12308",
+      "tokens": {
+        "config_required": 0,
+        "exploration_reducible": 5858,
+        "required": 2777,
+        "search_listing_reducible": 628,
+        "unresolved_other": 287,
+        "verification": 0
+      }
+    },
+    {
+      "counts": {
+        "config_required": 0,
+        "exploration_reducible": 0,
+        "required": 2,
+        "search_listing_reducible": 3,
+        "unresolved_other": 1,
+        "verification": 0
+      },
+      "excluded_counts": {},
+      "excluded_tokens": {},
+      "run": "run-34",
+      "stratum": "fs5_multi_ge2f",
+      "task_id": "django__django-11333",
+      "tokens": {
+        "config_required": 0,
+        "exploration_reducible": 0,
+        "required": 381,
+        "search_listing_reducible": 486,
+        "unresolved_other": 102,
+        "verification": 0
+      }
+    },
+    {
+      "counts": {
+        "config_required": 0,
+        "exploration_reducible": 1,
+        "required": 3,
+        "search_listing_reducible": 4,
+        "unresolved_other": 0,
+        "verification": 0
+      },
+      "excluded_counts": {},
+      "excluded_tokens": {},
+      "run": "run-35",
+      "stratum": "fs4_large_1f_16_60",
+      "task_id": "django__django-11728",
+      "tokens": {
+        "config_required": 0,
+        "exploration_reducible": 1397,
+        "required": 1258,
+        "search_listing_reducible": 192,
+        "unresolved_other": 0,
+        "verification": 0
+      }
+    },
+    {
+      "counts": {
+        "config_required": 0,
+        "exploration_reducible": 1,
+        "required": 0,
+        "search_listing_reducible": 1,
+        "unresolved_other": 0,
+        "verification": 0
+      },
+      "excluded_counts": {},
+      "excluded_tokens": {},
+      "run": "run-36",
+      "stratum": "fs5_multi_ge2f",
+      "task_id": "django__django-13212",
+      "tokens": {
+        "config_required": 0,
+        "exploration_reducible": 832,
+        "required": 0,
+        "search_listing_reducible": 451,
+        "unresolved_other": 0,
+        "verification": 0
+      }
+    },
+    {
+      "counts": {
+        "config_required": 0,
+        "exploration_reducible": 0,
+        "required": 1,
+        "search_listing_reducible": 3,
+        "unresolved_other": 0,
+        "verification": 0
+      },
+      "excluded_counts": {},
+      "excluded_tokens": {},
+      "run": "run-37",
+      "stratum": "fs4_large_1f_16_60",
+      "task_id": "django__django-13401",
+      "tokens": {
+        "config_required": 0,
+        "exploration_reducible": 0,
+        "required": 373,
+        "search_listing_reducible": 193,
+        "unresolved_other": 0,
+        "verification": 0
+      }
+    },
+    {
+      "counts": {
+        "config_required": 0,
+        "exploration_reducible": 0,
+        "required": 2,
+        "search_listing_reducible": 11,
+        "unresolved_other": 1,
+        "verification": 0
+      },
+      "excluded_counts": {
+        "ambiguous_multipath": 2
+      },
+      "excluded_tokens": {
+        "ambiguous_multipath": 0
+      },
+      "run": "run-38",
+      "stratum": "fs3_medium_1f_7_15",
+      "task_id": "django__django-16901",
+      "tokens": {
+        "config_required": 0,
+        "exploration_reducible": 0,
+        "required": 1510,
+        "search_listing_reducible": 1315,
+        "unresolved_other": 1639,
+        "verification": 0
+      }
+    },
+    {
+      "counts": {
+        "config_required": 0,
+        "exploration_reducible": 0,
+        "required": 2,
+        "search_listing_reducible": 2,
+        "unresolved_other": 0,
+        "verification": 0
+      },
+      "excluded_counts": {},
+      "excluded_tokens": {},
+      "run": "run-39",
+      "stratum": "fs2_small_1f_4_6",
+      "task_id": "django__django-12276",
+      "tokens": {
+        "config_required": 0,
+        "exploration_reducible": 0,
+        "required": 1160,
+        "search_listing_reducible": 241,
+        "unresolved_other": 0,
+        "verification": 0
+      }
+    },
+    {
+      "counts": {
+        "config_required": 0,
+        "exploration_reducible": 3,
+        "required": 3,
+        "search_listing_reducible": 8,
+        "unresolved_other": 0,
+        "verification": 0
+      },
+      "excluded_counts": {
+        "ambiguous_composite": 1
+      },
+      "excluded_tokens": {
+        "ambiguous_composite": 0
+      },
+      "run": "run-40",
+      "stratum": "fs1_oneline_1f_le3",
+      "task_id": "django__django-11477",
+      "tokens": {
+        "config_required": 0,
+        "exploration_reducible": 760,
+        "required": 1333,
+        "search_listing_reducible": 1988,
+        "unresolved_other": 0,
+        "verification": 0
+      }
+    },
+    {
+      "counts": {
+        "config_required": 0,
+        "exploration_reducible": 1,
+        "required": 1,
+        "search_listing_reducible": 3,
+        "unresolved_other": 0,
+        "verification": 0
+      },
+      "excluded_counts": {},
+      "excluded_tokens": {},
+      "run": "run-41",
+      "stratum": "fs1_oneline_1f_le3",
+      "task_id": "django__django-16527",
+      "tokens": {
+        "config_required": 0,
+        "exploration_reducible": 1097,
+        "required": 584,
+        "search_listing_reducible": 515,
+        "unresolved_other": 0,
+        "verification": 0
+      }
+    },
+    {
+      "counts": {
+        "config_required": 0,
+        "exploration_reducible": 0,
+        "required": 2,
+        "search_listing_reducible": 5,
+        "unresolved_other": 1,
+        "verification": 0
+      },
+      "excluded_counts": {
+        "ambiguous_multipath": 2
+      },
+      "excluded_tokens": {
+        "ambiguous_multipath": 0
+      },
+      "run": "run-42",
+      "stratum": "fs2_small_1f_4_6",
+      "task_id": "django__django-15368",
+      "tokens": {
+        "config_required": 0,
+        "exploration_reducible": 0,
+        "required": 842,
+        "search_listing_reducible": 691,
+        "unresolved_other": 536,
+        "verification": 0
+      }
+    },
+    {
+      "counts": {
+        "config_required": 0,
+        "exploration_reducible": 3,
+        "required": 3,
+        "search_listing_reducible": 18,
+        "unresolved_other": 3,
+        "verification": 0
+      },
+      "excluded_counts": {},
+      "excluded_tokens": {},
+      "run": "run-43",
+      "stratum": "fs5_multi_ge2f",
+      "task_id": "django__django-16256",
+      "tokens": {
+        "config_required": 0,
+        "exploration_reducible": 1691,
+        "required": 1962,
+        "search_listing_reducible": 1853,
+        "unresolved_other": 2619,
+        "verification": 0
+      }
+    },
+    {
+      "counts": {
+        "config_required": 0,
+        "exploration_reducible": 1,
+        "required": 2,
+        "search_listing_reducible": 8,
+        "unresolved_other": 3,
+        "verification": 0
+      },
+      "excluded_counts": {
+        "ambiguous_multipath": 2
+      },
+      "excluded_tokens": {
+        "ambiguous_multipath": 0
+      },
+      "run": "run-44",
+      "stratum": "fs4_large_1f_16_60",
+      "task_id": "django__django-12713",
+      "tokens": {
+        "config_required": 0,
+        "exploration_reducible": 735,
+        "required": 1235,
+        "search_listing_reducible": 809,
+        "unresolved_other": 1504,
+        "verification": 0
+      }
+    },
+    {
+      "counts": {
+        "config_required": 0,
+        "exploration_reducible": 0,
+        "required": 1,
+        "search_listing_reducible": 3,
+        "unresolved_other": 0,
+        "verification": 0
+      },
+      "excluded_counts": {},
+      "excluded_tokens": {},
+      "run": "run-45",
+      "stratum": "fs3_medium_1f_7_15",
+      "task_id": "django__django-16136",
+      "tokens": {
+        "config_required": 0,
+        "exploration_reducible": 0,
+        "required": 761,
+        "search_listing_reducible": 203,
+        "unresolved_other": 0,
+        "verification": 0
+      }
+    },
+    {
+      "counts": {
+        "config_required": 0,
+        "exploration_reducible": 0,
+        "required": 4,
+        "search_listing_reducible": 6,
+        "unresolved_other": 2,
+        "verification": 0
+      },
+      "excluded_counts": {
+        "ambiguous_composite": 1
+      },
+      "excluded_tokens": {
+        "ambiguous_composite": 0
+      },
+      "run": "run-46",
+      "stratum": "fs1_oneline_1f_le3",
+      "task_id": "django__django-13406",
+      "tokens": {
+        "config_required": 0,
+        "exploration_reducible": 0,
+        "required": 738,
+        "search_listing_reducible": 1116,
+        "unresolved_other": 926,
+        "verification": 0
+      }
+    },
+    {
+      "counts": {
+        "config_required": 0,
+        "exploration_reducible": 3,
+        "required": 3,
+        "search_listing_reducible": 8,
+        "unresolved_other": 4,
+        "verification": 1
+      },
+      "excluded_counts": {
+        "ambiguous_multipath": 2
+      },
+      "excluded_tokens": {
+        "ambiguous_multipath": 0
+      },
+      "run": "run-47",
+      "stratum": "fs3_medium_1f_7_15",
+      "task_id": "django__django-13449",
+      "tokens": {
+        "config_required": 0,
+        "exploration_reducible": 764,
+        "required": 642,
+        "search_listing_reducible": 1692,
+        "unresolved_other": 2240,
+        "verification": 512
+      }
+    },
+    {
+      "counts": {
+        "config_required": 0,
+        "exploration_reducible": 2,
+        "required": 4,
+        "search_listing_reducible": 13,
+        "unresolved_other": 7,
+        "verification": 0
+      },
+      "excluded_counts": {
+        "ambiguous_composite": 2
+      },
+      "excluded_tokens": {
+        "ambiguous_composite": 0
+      },
+      "run": "run-48",
+      "stratum": "fs4_large_1f_16_60",
+      "task_id": "django__django-15554",
+      "tokens": {
+        "config_required": 0,
+        "exploration_reducible": 2045,
+        "required": 1358,
+        "search_listing_reducible": 2448,
+        "unresolved_other": 4659,
+        "verification": 0
+      }
+    },
+    {
+      "counts": {
+        "config_required": 0,
+        "exploration_reducible": 0,
+        "required": 2,
+        "search_listing_reducible": 2,
+        "unresolved_other": 0,
+        "verification": 0
+      },
+      "excluded_counts": {},
+      "excluded_tokens": {},
+      "run": "run-49",
+      "stratum": "fs2_small_1f_4_6",
+      "task_id": "django__django-12143",
+      "tokens": {
+        "config_required": 0,
+        "exploration_reducible": 0,
+        "required": 1026,
+        "search_listing_reducible": 269,
+        "unresolved_other": 0,
+        "verification": 0
+      }
+    },
+    {
+      "counts": {
+        "config_required": 0,
+        "exploration_reducible": 1,
+        "required": 1,
+        "search_listing_reducible": 2,
+        "unresolved_other": 1,
+        "verification": 0
+      },
+      "excluded_counts": {
+        "ambiguous_composite": 6
+      },
+      "excluded_tokens": {
+        "ambiguous_composite": 0
+      },
+      "run": "run-50",
+      "stratum": "fs5_multi_ge2f",
+      "task_id": "django__django-13344",
+      "tokens": {
+        "config_required": 0,
+        "exploration_reducible": 3903,
+        "required": 376,
+        "search_listing_reducible": 484,
+        "unresolved_other": 1571,
+        "verification": 0
+      }
+    }
+  ],
+  "primary_window": 16,
+  "schema": "opportunity-ceiling-v1",
+  "total_fully_measured_tokens": 246686
+}

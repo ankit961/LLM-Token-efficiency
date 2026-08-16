@@ -89,7 +89,48 @@ SWE-bench issues provide. This held regardless of which specific tool the nudge 
 **Evidence grade**: A for the null result itself (11/11 zero, both brief versions log-confirmed
 delivered); the *interpretation* (why) is reasoned from the evidence, not independently tested.
 
-## 4. What remains open
+## 4. The opportunity ceiling — how much is there to gain, if adoption weren't voluntary
+
+§3 established that asking the agent to opt in doesn't work. That reframes the question: if a
+runtime could safely substitute or reduce reads on the agent's behalf — never asking, never
+depending on cooperation — how much of the corpus's actual read-token volume is even a plausible
+candidate? This is answered entirely offline, at zero cost, over the 50 already-classified
+Observation Corpus v2.1 journals (`corpus/opportunity_ceiling.py`, output committed at
+`corpus/analysis/opportunity-ceiling-v1.json`). It reuses the frozen classifier exactly as the
+label-report does; it adds no new classification, only a bucketing of the existing labels/reasons
+by reduction candidacy, deliberately as conservative as the classifier itself — an `UNKNOWN` read
+is never optimistically counted as reducible just to raise the number.
+
+Of **246,686 fully-measured read tokens** across all 50 runs (cross-checked exactly against §1's
+91.3%/589-read figures — 538 fully-attributed + 29 `ambiguous_composite` + 22 `ambiguous_multipath`
+= 589):
+
+| bucket | tokens | share | meaning |
+|---|---:|---:|---|
+| `required` (edit precondition) | 70,726 | 28.7% | must remain exact, never a candidate |
+| `search_listing_reducible` | 73,360 | 29.7% | grep/find/listing output — a *different* mechanism (output compaction, i.e. Phase-1 `ContextReduce`), not semantic substitution |
+| `exploration_reducible` | 52,535 | 21.3% | confidently no future mutation — the classic semantic-substitution candidate |
+| `unresolved_other` | 44,610 | 18.1% | classifier is correctly uncertain — not counted as reducible |
+| `verification` | 5,455 | 2.2% | post-edit re-check, reported separately |
+
+```
+C_safe  = exploration_reducible / all                         = 52,535 / 246,686 = 21.3%
+C_upper = (exploration_reducible + search_listing_reducible) / all = 125,895 / 246,686 = 51.0%
+```
+
+**Read as: even before touching the adoption problem, 21–51% of context materialized in these
+tasks is a plausible reduction candidate under runtime-mediated control** — the conservative
+number counts only confident-exploration reads; the optimistic number also counts search/listing
+output, which is a different and already-partially-built mechanism (the Phase-1 `ContextReduce`
+reducer library), not a new one. Per-stratum, the ceiling doesn't collapse anywhere: `C_safe` stays
+in a 15–26% band across all 5 fix-shape strata, and `C_upper` in a 39–62% band — the opportunity
+isn't concentrated in one easy stratum and absent elsewhere.
+
+**Evidence grade**: A (pure arithmetic over already-classified, already-verified data; the
+bucketing logic is unit-tested and the sanity totals reconcile exactly with §1's independently
+reported figures).
+
+## 5. What remains open
 
 - **Arm C (`semantic_enforced`)** — reserved, unimplemented, unstarted. §3's finding is relevant
   evidence for a future enforcement discussion but does not itself authorize building it; that
@@ -100,8 +141,8 @@ delivered); the *interpretation* (why) is reasoned from the evidence, not indepe
 - **bash coverage completeness** and **config_required exercise** — both flagged, neither closed.
 - **Cross-agent generalization** (Codex, etc.) — untested; everything above is Claude-specific.
 
-## 5. What's durable regardless of any single experiment's outcome
+## 6. What's durable regardless of any single experiment's outcome
 
-The mechanism fixes (§3), the observation instrumentation (§1), and the grading pipeline (§2) are
-now permanent, reusable infrastructure — they don't depend on the adoption finding and remain
-correct and available for direct/explicit use.
+The mechanism fixes (§3), the observation instrumentation (§1), the grading pipeline (§2), and the
+opportunity-ceiling analysis (§4) are now permanent, reusable infrastructure — they don't depend on
+the adoption finding and remain correct and available for direct/explicit use.
