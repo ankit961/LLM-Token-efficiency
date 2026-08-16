@@ -258,13 +258,18 @@ class ClaudeBackend(AgentBackend):
         argv = ["claude", "-p", prompt, "--settings", settings_path, "--model", self.model,
                 "--permission-mode", "bypassPermissions"]
 
+        steering = {"mcp_enabled": False, "brief_included": False, "brief_chars": 0}
         if self.arm == "semantic_directive":
             run_dir = os.path.dirname(settings_path)
             repo_id = self.repo_id or spec.repo_id
-            argv += ["--mcp-config", self._mcp_config_path(run_dir, repo_id)]
+            mcp_path = self._mcp_config_path(run_dir, repo_id)
+            argv += ["--mcp-config", mcp_path]
+            steering["mcp_enabled"] = True
             brief = self._directive_brief(repo_id)
             if brief:
                 argv += ["--append-system-prompt", brief]
+                steering["brief_included"] = True
+                steering["brief_chars"] = len(brief)
 
         t0 = self.clock()
         term, tail, rc = "completed", "", 0
@@ -277,7 +282,8 @@ class ClaudeBackend(AgentBackend):
         walltime = round(self.clock() - t0, 3)
         diff = subprocess.run(["git", "-C", worktree, "diff"], capture_output=True, text=True).stdout
         return AgentResult(agent=self.name, agent_version=self.client_version, model=self.model,
-                           patch=diff, result={"returncode": rc, "stdout_tail": tail, "arm": self.arm},
+                           patch=diff, result={"returncode": rc, "stdout_tail": tail, "arm": self.arm,
+                                               "steering": steering},
                            termination_reason=term, budget_turns=None, budget_walltime=walltime,
                            arm=self.arm)
 

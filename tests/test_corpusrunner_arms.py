@@ -175,6 +175,25 @@ def test_agent_result_and_manifest_field_stamp_the_arm(monkeypatch, tmp_path):
     assert res.arm == "native" and res.result["arm"] == "native"
 
 
+def test_result_logs_whether_steering_was_actually_included(monkeypatch, tmp_path):
+    """Regression: two real silent-failure modes were found in this exact path (MCP subprocess
+    couldn't import cross-cwd; an over-budget bundle). Without an explicit log of what was
+    actually included in argv, a zero-adoption result is ambiguous after the fact -- this makes
+    it checkable without re-running anything."""
+    backend, _ = _capturing_backend(monkeypatch, arm="native")
+    run_dir = tmp_path / "run-01"; run_dir.mkdir()
+    native_res = backend.run(str(tmp_path / "wt"), _spec(), str(tmp_path / "j.db"), str(run_dir / "s.json"))
+    assert native_res.result["steering"] == {"mcp_enabled": False, "brief_included": False, "brief_chars": 0}
+
+    graph = str(tmp_path / "graph.db")
+    _indexed_graph(graph)
+    directive, _ = _capturing_backend(monkeypatch, arm="semantic_directive", codegraph_db=graph, repo_id="demo")
+    run_dir2 = tmp_path / "run-02"; run_dir2.mkdir()
+    directive_res = directive.run(str(tmp_path / "wt2"), _spec(), str(tmp_path / "j2.db"), str(run_dir2 / "s.json"))
+    st = directive_res.result["steering"]
+    assert st["mcp_enabled"] is True and st["brief_included"] is True and st["brief_chars"] > 0
+
+
 # --------------------------------------------------------------------------- semantic_enforced (RESERVED)
 def test_semantic_enforced_constructs_but_never_runs(monkeypatch, tmp_path):
     backend, calls = _capturing_backend(monkeypatch, arm="semantic_enforced")   # construction is fine
