@@ -183,7 +183,8 @@ def test_result_logs_whether_steering_was_actually_included(monkeypatch, tmp_pat
     backend, _ = _capturing_backend(monkeypatch, arm="native")
     run_dir = tmp_path / "run-01"; run_dir.mkdir()
     native_res = backend.run(str(tmp_path / "wt"), _spec(), str(tmp_path / "j.db"), str(run_dir / "s.json"))
-    assert native_res.result["steering"] == {"mcp_enabled": False, "brief_included": False, "brief_chars": 0}
+    assert native_res.result["steering"] == {"mcp_enabled": False, "brief_included": False,
+                                             "brief_chars": 0, "brief_version": None}
 
     graph = str(tmp_path / "graph.db")
     _indexed_graph(graph)
@@ -192,6 +193,7 @@ def test_result_logs_whether_steering_was_actually_included(monkeypatch, tmp_pat
     directive_res = directive.run(str(tmp_path / "wt2"), _spec(), str(tmp_path / "j2.db"), str(run_dir2 / "s.json"))
     st = directive_res.result["steering"]
     assert st["mcp_enabled"] is True and st["brief_included"] is True and st["brief_chars"] > 0
+    assert st["brief_version"]  # provenance: which brief design produced this run's adoption data
 
 
 # --------------------------------------------------------------------------- semantic_enforced (RESERVED)

@@ -30,8 +30,23 @@ def _graph(tmp_path, n_defs=3):
 def test_brief_names_the_tools_and_the_heuristic(tmp_path):
     brief = B.build_brief(_graph(tmp_path), REPO)
     assert "read_symbol" in brief and "context_search" in brief
-    assert "UNDERSTAND" in brief and "EDIT" in brief          # the semantic/native (C10) heuristic
+    assert "EDIT" in brief                                    # C10: native for editing, unchanged
     assert "advisory" in brief and "3 symbols" in brief
+
+
+def test_brief_maps_locate_then_examine_to_search_then_read_symbol(tmp_path):
+    """v2-locate-then-examine: context_search (no name needed) is the imperative for the LOCATE
+    phase of a debugging task; read_symbol (needs a name) is reserved for once a symbol is known.
+    Ordering matters -- context_search must be introduced before read_symbol in the tool list,
+    and the POLICY line must tie context_search to the 'don't know which symbol yet' case."""
+    brief = B.build_brief(_graph(tmp_path), REPO)
+    assert brief.index("context_search") < brief.index("read_symbol")
+    assert "don't yet know which function/class" in brief
+    assert "context_search(query) FIRST" in brief
+
+
+def test_brief_version_is_stamped_and_importable():
+    assert B.BRIEF_VERSION == "v2-locate-then-examine"
 
 
 def test_brief_is_empty_on_unindexed_repo(tmp_path):

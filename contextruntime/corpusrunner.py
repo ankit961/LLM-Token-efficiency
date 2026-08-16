@@ -258,7 +258,7 @@ class ClaudeBackend(AgentBackend):
         argv = ["claude", "-p", prompt, "--settings", settings_path, "--model", self.model,
                 "--permission-mode", "bypassPermissions"]
 
-        steering = {"mcp_enabled": False, "brief_included": False, "brief_chars": 0}
+        steering = {"mcp_enabled": False, "brief_included": False, "brief_chars": 0, "brief_version": None}
         if self.arm == "semantic_directive":
             run_dir = os.path.dirname(settings_path)
             repo_id = self.repo_id or spec.repo_id
@@ -270,6 +270,8 @@ class ClaudeBackend(AgentBackend):
                 argv += ["--append-system-prompt", brief]
                 steering["brief_included"] = True
                 steering["brief_chars"] = len(brief)
+                from .policybrief import BRIEF_VERSION
+                steering["brief_version"] = BRIEF_VERSION
 
         t0 = self.clock()
         term, tail, rc = "completed", "", 0
