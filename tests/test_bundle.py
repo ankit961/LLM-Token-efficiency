@@ -98,6 +98,40 @@ def test_ambiguity_hint_is_repo_scoped():
     s.close()
 
 
+# ambiguity hint candidates are CAPPED -- an uncapped list can consume nearly a whole budget on
+# disambiguation noise instead of the requested symbol's body (found live on django: a common
+# name like `deconstruct` collided with 80+ symbols repo-wide, serialized=2709/2048, body=20,
+# 99% overhead, budget_insufficient). Live-verified fix on that exact case: serialized dropped
+# to 1808/2048 with body=901 (no longer over budget). This test locks the cap in with a small
+# synthetic fixture so the property doesn't require a huge indexed repo to exercise.
+def test_ambiguity_hint_candidates_are_capped():
+    s = _store()
+    n_extra = bundle.AMBIGUITY_HINT_CAP + 10   # push well past the cap
+    for i in range(n_extra):
+        s.conn.execute(
+            "INSERT INTO symbols(symbol_id,repo_id,language,kind,qualified_name,path,parser,"
+            "resolution_quality,schema_version) VALUES(?,?,?,?,?,?,?,?,?)",
+            (f"bundle::extra{i}.py::extra{i}.save", "bundle", "python", "function",
+             f"extra{i}.save", f"extra{i}.py", "python_ast", 0.9, "0.10.0"))
+    s.conn.commit()
+    b = build_bundle(s, _root(s), budget=1000)
+    hint = next(h for h in b.ambiguity_hints if h["name"] == "save")
+    # the ORIGINAL 2 (a.save/b.save) plus n_extra synthetic ones
+    assert hint["total_candidates"] == 2 + n_extra
+    assert len(hint["candidates"]) == bundle.AMBIGUITY_HINT_CAP
+    s.close()
+
+
+def test_ambiguity_hint_serialization_reports_truncation_honestly():
+    from contextruntime.semanticfs import _fmt_hint
+    hint = {"name": "save", "candidates": ["a.save", "b.save"], "total_candidates": 47}
+    text = _fmt_hint(hint)
+    assert "+45 more" in text and "a.save" in text and "b.save" in text
+    # no truncation -> no "+N more" noise
+    exact = {"name": "x", "candidates": ["a.x"], "total_candidates": 1}
+    assert "more" not in _fmt_hint(exact)
+
+
 # 5. monotonicity: more budget -> never less information
 def test_monotonic_in_budget():
     s = _store(); root = _root(s)

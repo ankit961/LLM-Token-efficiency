@@ -127,9 +127,18 @@ def _serialize(sections: list, ambiguity_hints: list) -> str:
         head += f"  [{s['handle']}]"
         parts.append(head + "\n" + s["text"])
     if ambiguity_hints:
-        parts.append("# ambiguous (not resolved): " +
-                     "; ".join(f"{h['name']}→{h['candidates']}" for h in ambiguity_hints))
+        parts.append("# ambiguous (not resolved): " + "; ".join(_fmt_hint(h) for h in ambiguity_hints))
     return "\n\n".join(parts)
+
+
+def _fmt_hint(h: dict) -> str:
+    """Bundle._collect already caps `candidates` (bundle.AMBIGUITY_HINT_CAP); this renders the
+    truncation honestly rather than silently hiding it -- a name with 80 collisions in a large
+    codebase (django's `deconstruct`/`get`/`compile`, etc.) must never blow the whole budget on
+    disambiguation noise instead of the requested symbol's own body."""
+    total = h.get("total_candidates", len(h["candidates"]))
+    more = f", +{total - len(h['candidates'])} more" if total > len(h["candidates"]) else ""
+    return f"{h['name']}→{h['candidates']}{more}"
 
 
 _RESOLVE_DEF_KINDS = ("class", "function", "method", "interface", "type", "constant", "test")

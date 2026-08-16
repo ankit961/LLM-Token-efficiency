@@ -40,6 +40,7 @@ LEVEL_VALUE = {"signature": 1.0, "skeleton": 1.6, "slice": 2.2, "implementation"
 DEP_EDGES = ("CALLS", "IMPLEMENTS", "IMPORTS")
 HARD = {"exact", "scoped"}
 SOFT = {"inferred"}
+AMBIGUITY_HINT_CAP = 5     # max candidates SHOWN per ambiguous name (never affects selection)
 
 
 @dataclass
@@ -138,14 +139,24 @@ def _collect(store: GraphStore, root_id: str, repo_id: str, pol: BundlePolicy):
             if dst not in seen:
                 seen.add(dst)
                 frontier.append((dst, dist + 1, this_branch))
-    # ambiguity hints — REPO-SCOPED (never leak another repo's symbol names)
+    # ambiguity hints — REPO-SCOPED (never leak another repo's symbol names), candidate list
+    # CAPPED (a common short name -- get/set/deconstruct/compile -- can collide with 50-80+
+    # symbols in a large codebase like django; uncapped, the hint block alone can consume nearly
+    # an entire budget on disambiguation noise instead of the requested symbol's own body).
+    # Ambiguous names never enter `candidates` above regardless of cap size -- this only bounds
+    # what gets DISPLAYED as a diagnostic hint, never affects bundle selection correctness.
     hints = []
     for name in sorted(ambiguities):
+        total = store.conn.execute(
+            "SELECT COUNT(*) FROM symbols WHERE repo_id=? "
+            "AND (qualified_name LIKE ? OR qualified_name = ?)",
+            (repo_id, f"%.{name}", name)).fetchone()[0]
         cands = [r["qualified_name"] for r in store.conn.execute(
             "SELECT qualified_name FROM symbols WHERE repo_id=? "
-            "AND (qualified_name LIKE ? OR qualified_name = ?) ORDER BY qualified_name",
-            (repo_id, f"%.{name}", name))]
-        hints.append({"name": name, "candidates": cands, "reason": "ambiguous short-name"})
+            "AND (qualified_name LIKE ? OR qualified_name = ?) ORDER BY qualified_name LIMIT ?",
+            (repo_id, f"%.{name}", name, AMBIGUITY_HINT_CAP))]
+        hints.append({"name": name, "candidates": cands, "total_candidates": total,
+                     "reason": "ambiguous short-name"})
     return candidates, hints
 
 
