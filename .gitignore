@@ -28,3 +28,7 @@ venv/
 # ContextRuntime local install (`contextruntime install claude`) — local dev state, not source
 .claude/
 .mcp.json
+
+# Local backup of raw experiment journals (moved off /tmp for durability; large binary sqlite +
+# potentially contains local file paths in patches/logs — never commit). See docs/HANDOVER-*.md.
+.local-data/
