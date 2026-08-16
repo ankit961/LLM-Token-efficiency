@@ -34,9 +34,6 @@ from ..normalize import bash_parse
 # set is a scope change, not a tweak.
 REDUCIBLE_REPRESENTATIONS = frozenset({"search", "path_listing"})
 
-# Native tools whose result IS, by construction, one of the reducible representations.
-_NATIVE_SEARCH_TOOLS = frozenset({"Grep", "Glob"})
-
 
 @dataclass(frozen=True)
 class RouteDecision:
@@ -61,10 +58,16 @@ def route(tool_name: Optional[str], tool_input: Optional[dict]) -> RouteDecision
     tool = tool_name or "?"
     args = tool_input or {}
 
-    # Native structured search tools: the result is a match/name listing by construction.
-    if tool in _NATIVE_SEARCH_TOOLS:
-        return RouteDecision(reduce=True, reason=f"native {tool} → search listing",
+    # Native structured search tools — the result is a listing by construction, but of two
+    # different shapes: Grep returns match lines (search), Glob returns file paths
+    # (path_listing). Routing them to the right representation gives each the correct reducer
+    # formatting (per-file match rollup vs. a plain "N more paths" tail).
+    if tool == "Grep":
+        return RouteDecision(reduce=True, reason="native Grep → match listing",
                              tool=tool, representation="search", reducer="grep")
+    if tool == "Glob":
+        return RouteDecision(reduce=True, reason="native Glob → path listing",
+                             tool=tool, representation="path_listing", reducer="grep")
 
     if tool != "Bash":
         # native Read, WebFetch/WebSearch, Task, MCP tools, Edit/Write, ... — not in

@@ -95,9 +95,16 @@ def handle(event: dict) -> int:
     enforce = os.environ.get("CR_REDUCE_MODE") == "enforce"
     will_replace = enforce and version_ok
 
+    cas = None
     if will_replace:
-        # (2) Make the handle recoverable BEFORE emitting the summary that references it.
-        livecas.put(raw, reducer=red.reducer, representation=decision.representation or "")
+        # (2) STRICT recovery: replace ONLY after the live CAS confirms the COMPLETE payload
+        # is persisted and recoverable. A failed OR bounded/truncated write => do not reduce;
+        # pass the raw output through unchanged. This closes the dead-/partial-handle hole:
+        # we never reduce below the floor unless recovery is genuinely available.
+        cas = livecas.put_confirmed(raw, reducer=red.reducer,
+                                    representation=decision.representation or "")
+        if not (cas.persisted and cas.exact):
+            will_replace = False
 
     # (7) Durable decision record for offline replay / live observability.
     livecas.log_decision({
@@ -107,11 +114,19 @@ def handle(event: dict) -> int:
         "saved_tokens": red.saved_tokens, "ratio": round(red.ratio, 4),
         "handle": red.handle, "enforced": will_replace, "version_ok": version_ok,
         "client_version": client_version, "invariants_ok": red.invariants_ok,
+        "cas_persisted": bool(cas and cas.persisted),
+        "cas_exact": bool(cas and cas.exact),
+        "cas_truncated": bool(cas and cas.truncated),
     })
 
     if not will_replace:
-        why = ("observe mode (CR_REDUCE_MODE≠enforce)" if not enforce
-               else f"client version {client_version!r} not confirmed for output replacement")
+        if not enforce:
+            why = "observe mode (CR_REDUCE_MODE≠enforce)"
+        elif not version_ok:
+            why = f"client version {client_version!r} not confirmed for output replacement"
+        else:
+            why = (f"live CAS could not confirm complete recovery "
+                   f"({cas.note if cas else 'no write'}) — passing raw through")
         return _passthrough(
             f"[contextreduce] observe: {red.reducer} would save {red.saved_tokens} tok "
             f"({100*(1-red.ratio):.0f}%) on a {decision.representation} result — {why}")

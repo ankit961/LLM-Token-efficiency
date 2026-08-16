@@ -19,7 +19,7 @@ from contextruntime.store import GraphStore
 # --------------------------------------------------------------------- routing gate
 @pytest.mark.parametrize("tool,args,reduce,rep", [
     ("Grep", {"pattern": "x"},                       True,  "search"),
-    ("Glob", {"pattern": "*.py"},                    True,  "search"),
+    ("Glob", {"pattern": "*.py"},                    True,  "path_listing"),   # paths, not matches
     ("Bash", {"command": "grep -rn foo src/"},       True,  "search"),
     ("Bash", {"command": "rg foo"},                  True,  "search"),
     ("Bash", {"command": "find . -name '*.py'"},     True,  "path_listing"),
@@ -215,6 +215,100 @@ def test_reduce_search_path_listing_uses_path_tail():
     assert "more path(s)" in out.reduced_text
     assert "matches by file:" not in out.reduced_text     # listing gets the simpler tail
     assert out.handle in out.reduced_text
+
+
+# ============================= B1.0.1 — merge-blocker repairs (adversarial) ================
+import io
+import os
+import subprocess
+import sys
+
+
+def _grep_event(n=400):
+    raw = "\n".join(f"src/f{i}.py:{i}: def handler_{i}(): pass" for i in range(n))
+    return {"tool_name": "Grep", "tool_input": {"pattern": "handler"}, "tool_response": raw}
+
+
+def _enforce_env(tmp_path, **extra):
+    (v,) = tuple(doctor.CONFIRMED_OUTPUT_REPLACEMENT_VERSIONS)
+    env = {"CR_REDUCE_MODE": "enforce", "CR_CLIENT_VERSION": v,
+           "CR_DB": str(tmp_path / "live.db"), "CR_DECISION_LOG": str(tmp_path / "d.jsonl")}
+    env.update(extra)
+    return env
+
+
+def test_put_confirmed_reports_persistence_and_exactness(tmp_path):
+    db = str(tmp_path / "live.db")
+    s = livecas.put_confirmed("hit\n" * 200, path=db)
+    assert s.persisted and s.exact and not s.truncated
+
+
+def test_put_confirmed_not_exact_when_truncated(tmp_path, monkeypatch):
+    monkeypatch.setattr(livecas, "MAX_SAMPLE_BYTES", 50)
+    s = livecas.put_confirmed("x" * 5000, path=str(tmp_path / "live.db"))
+    assert s.persisted and s.truncated and not s.exact         # stored, but NOT complete
+
+
+def test_put_confirmed_fails_closed_on_write_error(tmp_path, monkeypatch):
+    def boom(*a, **k):
+        raise OSError("disk on fire")
+    monkeypatch.setattr(livecas, "_connect", boom)
+    s = livecas.put_confirmed("data\n" * 100, path=str(tmp_path / "live.db"))
+    assert not s.persisted and not s.exact                     # never claims a phantom persist
+
+
+def test_hook_passes_through_when_cas_write_fails(tmp_path, monkeypatch, capsys):
+    """The blocker: a swallowed CAS-write failure must NOT emit a compact response with a
+    dead handle. Enforce + confirmed version, but the CAS cannot persist → pass raw through."""
+    monkeypatch.setattr(livecas, "_connect", lambda *a, **k: (_ for _ in ()).throw(OSError("nope")))
+    for k, val in _enforce_env(tmp_path).items():
+        monkeypatch.setenv(k, val)
+    monkeypatch.setattr("sys.stdin", io.StringIO(json.dumps(_grep_event())))
+    assert hook_mod.main() == 0
+    out = capsys.readouterr()
+    assert out.out.strip() == "{}"                             # NOT replaced — raw passes through
+    assert "could not confirm complete recovery" in out.err
+    rec = json.loads(open(tmp_path / "d.jsonl").read().splitlines()[-1])
+    assert rec["enforced"] is False and rec["cas_persisted"] is False
+
+
+def test_hook_passes_through_when_cas_would_truncate(tmp_path, monkeypatch, capsys):
+    monkeypatch.setattr(livecas, "MAX_SAMPLE_BYTES", 40)       # force a bounded (inexact) store
+    for k, val in _enforce_env(tmp_path).items():
+        monkeypatch.setenv(k, val)
+    monkeypatch.setattr("sys.stdin", io.StringIO(json.dumps(_grep_event())))
+    assert hook_mod.main() == 0
+    out = capsys.readouterr()
+    assert out.out.strip() == "{}"                             # incomplete recovery → do not reduce
+    rec = json.loads(open(tmp_path / "d.jsonl").read().splitlines()[-1])
+    assert rec["enforced"] is False and rec["cas_exact"] is False and rec["cas_truncated"] is True
+
+
+def test_all_launch_commands_carry_pythonpath(tmp_path):
+    scope = I.resolve_scope("claude", str(tmp_path), False)
+    assert I.default_crhook_cmd(scope).startswith("PYTHONPATH=")
+    assert I.default_crpolicy_cmd(scope).startswith("PYTHONPATH=")
+    assert "PYTHONPATH=" in I.default_reducer_cmd(scope)
+    assert I.mcp_entry(scope)["env"]["PYTHONPATH"] == I._pkg_root()
+
+
+def test_foreign_cwd_package_imports_with_pythonpath():
+    """From an unrelated cwd (/), the package resolves ONLY because PYTHONPATH is set — the
+    exact launch condition the MCP server and hooks face in a source checkout."""
+    r = subprocess.run(
+        [sys.executable, "-c", "import contextruntime.reducers.hook, contextruntime.mcp"],
+        cwd="/", env={**os.environ, "PYTHONPATH": I._pkg_root()},
+        capture_output=True, text=True)
+    assert r.returncode == 0, r.stderr
+
+
+def test_glob_uses_path_listing_formatting():
+    from contextruntime.reducers import library
+    d = gate.route("Glob", {"pattern": "*.py"})
+    assert d.representation == "path_listing"
+    raw = "\n".join(f"src/dir{i}/file{i}.py" for i in range(300))
+    out = library.reduce_search(raw, {}, budget_tokens=96, representation=d.representation)
+    assert "more path(s)" in out.reduced_text and "matches by file:" not in out.reduced_text
 
 
 def test_reduce_search_no_truncation_keeps_everything():
