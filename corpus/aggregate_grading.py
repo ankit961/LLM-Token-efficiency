@@ -31,6 +31,24 @@ def load_reports(results_dir: str) -> dict:
     return reports
 
 
+def load_empty_patch_ids(results_dir: str) -> set:
+    """The harness's own run-summary JSON (`*.<run_id>.json` in each shard's artifact root) lists
+    `empty_patch_ids` -- instances it deliberately did NOT grade because the submitted patch was
+    empty. That is a real task outcome (no fix was produced -> unresolved), not a grading
+    infrastructure failure, and must not be reported as `grader_error`."""
+    ids = set()
+    for path in glob.glob(os.path.join(results_dir, "**", "*.json"), recursive=True):
+        if os.path.basename(os.path.dirname(path)).startswith("run_evaluation"):
+            continue  # skip anything under the per-instance logs tree, only top-level summaries
+        try:
+            data = json.load(open(path))
+        except Exception:      # noqa: BLE001
+            continue
+        if isinstance(data, dict) and "empty_patch_ids" in data:
+            ids.update(data["empty_patch_ids"])
+    return ids
+
+
 def _f2p_passed(verdict: dict) -> bool:
     ts = verdict.get("tests_status", {}).get("FAIL_TO_PASS", {})
     return len(ts.get("failure", [])) == 0 and len(ts.get("success", [])) > 0
@@ -44,16 +62,24 @@ def _p2p_passed(verdict: dict) -> bool:
 def aggregate(results_dir: str, index_path: str) -> dict:
     index = json.load(open(index_path))
     reports = load_reports(results_dir)
+    empty_patch_ids = load_empty_patch_ids(results_dir)
 
     rows = []
     for task_id, meta in index.items():
         v = reports.get(task_id)
         if v is None:
+            is_empty = task_id in empty_patch_ids or meta.get("empty_patch", False)
             rows.append({
                 "task_id": task_id, "stratum": meta.get("stratum"),
-                "resolved": None, "fail_to_pass_passed": None, "pass_to_pass_passed": None,
-                "grader_error": True, "empty_patch": meta.get("empty_patch", False),
-                "note": "no report.json produced for this instance",
+                # an empty patch is a genuine task outcome (no fix produced -> unresolved), NOT a
+                # grading infrastructure failure -- only a missing report for a NON-empty patch is.
+                "resolved": False if is_empty else None,
+                "fail_to_pass_passed": False if is_empty else None,
+                "pass_to_pass_passed": None,
+                "grader_error": not is_empty,
+                "empty_patch": is_empty,
+                "note": "empty patch -- harness did not grade it, counted unresolved" if is_empty
+                        else "no report.json produced for this instance",
             })
             continue
         rows.append({
