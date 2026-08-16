@@ -5,6 +5,7 @@ returns the reduced text plus a handle to the full raw payload.
 from __future__ import annotations
 
 import re
+from collections import Counter
 
 from .base import ReducedOutput, make_handle, tokens
 from ..redact import redact
@@ -13,6 +14,22 @@ GREP_KEEP = 20
 LOG_TAIL = 15
 GENERIC_HEAD = 10
 GENERIC_TAIL = 10
+
+# B1.1 — search/listing reducer budget. The compact summary targets this many
+# model-visible tokens; critical evidence (search diagnostics) and the recovery handle
+# are NEVER dropped to meet it (evidence + recoverability outrank the budget target).
+SEARCH_BUDGET_TOKENS = 256
+FILE_TABLE_MAX = 12                  # named files in the "matches by file" rollup
+
+# Search-tool diagnostics that are decision-relevant and must always survive: a search
+# that could not read part of its scope is evidence, not verbosity.
+_SEARCH_DIAG = re.compile(
+    r"(: No such file or directory$|: Permission denied$|: Is a directory$|"
+    r"^Binary file .* matches$|^grep: |^egrep: |^fgrep: |^rg: |^ripgrep: |^find: |^ls: )")
+
+# grep -n / rg -n line:  path:lineno:content   ·   grep without -n:  path:content
+_MATCH_WITH_LINENO = re.compile(r"^(.*?):(\d+):")
+_MATCH_WITH_PATH = re.compile(r"^([^:]+):")
 
 _FAIL = re.compile(r"(FAILED|ERROR\b|FAIL\b|✗|✘|AssertionError|Traceback|"
                    r"^E\s|Exception|panic:|--- FAIL)", re.I)
@@ -52,6 +69,86 @@ def reduce_grep(raw: str, args: dict) -> ReducedOutput:
     omitted = max(0, len(lines) - GREP_KEEP)
     kept = head + ([f"... {omitted} more matches"] if omitted else [])
     return _wrap("grep", raw, kept, head, note=f"{len(lines)} matches, kept {len(head)}")
+
+
+def _match_path(line: str) -> str:
+    """The file a search-result line belongs to. Handles grep -n (`path:lineno:…`), grep
+    without -n (`path:…`), and bare paths (find/ls). Falls back to the whole line."""
+    m = _MATCH_WITH_LINENO.match(line) or _MATCH_WITH_PATH.match(line)
+    return m.group(1) if m else line
+
+
+def reduce_search(raw: str, args: dict, *, budget_tokens: int = SEARCH_BUDGET_TOKENS,
+                  representation: str = "search") -> ReducedOutput:
+    """B1.1 — budget-aware compaction for a search/listing output.
+
+    Deterministic guarantees (all testable):
+      * every kept match keeps its `path:lineno:` prefix VERBATIM — filenames and line
+        numbers are never rewritten;
+      * every search diagnostic (permission denied / no such file / binary match / tool
+        error) survives, regardless of budget — it is decision-relevant evidence;
+      * the model-visible summary targets `budget_tokens`; when matches are dropped to
+        meet it, a per-file rollup names the highest-hit files so the *shape* of the
+        result survives even when individual lines don't;
+      * a `result://` recovery handle is always appended — full expansion is one call away.
+    """
+    lines = [ln for ln in raw.splitlines() if ln.strip()]
+    diags, matches = [], []
+    for ln in lines:
+        (diags if _SEARCH_DIAG.search(ln) else matches).append(ln)
+
+    by_file = Counter(_match_path(m) for m in matches)
+    listing = representation == "path_listing"
+    noun = "paths" if listing else "matches"
+    header = f"{len(matches)} {noun} in {len(by_file)} file(s)"
+    if diags:
+        header += f"; {len(diags)} diagnostic(s)"
+
+    handle = make_handle(raw)
+    handle_tokens = tokens(f"[+ full output: {handle}]")
+    # Must-keep skeleton: header + all diagnostics + the (reserved) handle line.
+    must_keep = [header] + diags
+    reserved = tokens("\n".join(must_keep)) + handle_tokens
+
+    # Pre-build the truncation footer so its cost is RESERVED exactly (not guessed): the
+    # per-file rollup is fully determined by by_file; only the integer counts vary.
+    rollup = None
+    if matches and not listing:
+        top = by_file.most_common(FILE_TABLE_MAX)
+        rollup = "matches by file: " + ", ".join(f"{p}×{c}" for p, c in top)
+        if len(by_file) > FILE_TABLE_MAX:
+            rollup += f", +{len(by_file) - FILE_TABLE_MAX} more file(s)"
+    if not matches:
+        footer_reserve = 0
+    elif listing:
+        footer_reserve = tokens(f"... 0 more path(s) — full listing: {handle}")
+    else:
+        footer_reserve = tokens(rollup) + tokens(f"... 0 more match(es) across 0 file(s) — full: {handle}")
+    room = max(0, budget_tokens - reserved - footer_reserve)
+
+    kept_matches, used = [], 0
+    for m in matches:
+        t = tokens(m) + 1                         # +1 for the newline join
+        if used + t > room:
+            break
+        kept_matches.append(m)
+        used += t
+    dropped = matches[len(kept_matches):]
+
+    body = list(must_keep) + kept_matches
+    if dropped:                                   # footer only when we actually truncated
+        if listing:
+            body.append(f"... {len(dropped)} more path(s) — full listing: {handle}")
+        else:
+            files_with_dropped = len({_match_path(m) for m in dropped})
+            body.append(rollup)
+            body.append(f"... {len(dropped)} more match(es) across {files_with_dropped} file(s) — full: {handle}")
+
+    note = (f"{len(matches)} {noun}, kept {len(kept_matches)}, budget {budget_tokens} tok"
+            + (f", {len(diags)} diagnostic(s) preserved" if diags else ""))
+    # Preserved evidence = the diagnostics (checked by _wrap before redaction). Filenames
+    # of kept lines ride along in the kept lines themselves.
+    return _wrap("search", raw, body, diags, note=note)
 
 
 def reduce_git(raw: str, args: dict) -> ReducedOutput:

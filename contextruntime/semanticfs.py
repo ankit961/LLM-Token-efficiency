@@ -86,7 +86,21 @@ def context_expand(store: GraphStore, handle: str) -> Expansion:
         return Expansion(handle, False, note="unrecognized handle scheme")
     row = store.blob(h)
     if row is None:
-        return Expansion(handle, False, note="expired or evicted — re-run the source operation")
+        # B1.0: a handle the batch/graph CAS never held may be a LIVE reducer handle —
+        # resolve it from the dedicated live CAS (CR_DB) before giving up. Fail-open: any
+        # live-CAS error just falls through to the honest "re-run the source" answer.
+        try:
+            from .reducers import livecas
+            rec = livecas.resolve(handle)
+        except Exception:                       # noqa: BLE001
+            rec = None
+        if rec is not None and rec.found:
+            return Expansion(handle, True, kind="tool_result", byte_size=rec.stored_bytes,
+                             text=rec.text, note=rec.note)
+        # Not in either CAS. Always keep the actionable guidance so the model re-runs the
+        # source op rather than looping on a dead handle.
+        detail = f"{rec.note}; " if rec is not None and rec.note else ""
+        return Expansion(handle, False, note=f"{detail}expired or evicted — re-run the source operation")
     o = store.conn.execute(
         "SELECT kind FROM objects WHERE content_hash=? LIMIT 1", (h,)).fetchone()
     return Expansion(handle, True, kind=(o["kind"] if o else None),
