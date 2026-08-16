@@ -1,0 +1,352 @@
+{
+  "django__django-13513": {
+    "run": "run-01",
+    "stratum": "fs4_large_1f_16_60",
+    "termination_reason": "completed",
+    "empty_patch": true,
+    "patch_sha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "django__django-15561": {
+    "run": "run-02",
+    "stratum": "fs5_multi_ge2f",
+    "termination_reason": "completed",
+    "empty_patch": false,
+    "patch_sha256": "sha256:3441c75bf6d852fd62ac8630d118d731a3bb31902b8e22c08ef836e64d1c213a"
+  },
+  "django__django-15022": {
+    "run": "run-03",
+    "stratum": "fs2_small_1f_4_6",
+    "termination_reason": "completed",
+    "empty_patch": false,
+    "patch_sha256": "sha256:734acefbcea31a8ad1fd214c4cd2d92bd0510dd189330c386be38838427fed04"
+  },
+  "django__django-14672": {
+    "run": "run-04",
+    "stratum": "fs1_oneline_1f_le3",
+    "termination_reason": "completed",
+    "empty_patch": false,
+    "patch_sha256": "sha256:89304411d0b104b2efb4f8282faabba5161467a8fb36635b253125fc158c2b25"
+  },
+  "django__django-13658": {
+    "run": "run-05",
+    "stratum": "fs3_medium_1f_7_15",
+    "termination_reason": "completed",
+    "empty_patch": false,
+    "patch_sha256": "sha256:031e6fb1b49f7aef4dff0d4ceaaeba2bef8d149e7cdeabb52ab3661c18c365c5"
+  },
+  "django__django-12193": {
+    "run": "run-06",
+    "stratum": "fs2_small_1f_4_6",
+    "termination_reason": "completed",
+    "empty_patch": false,
+    "patch_sha256": "sha256:6d3ae9e42d9811c542145fef242a9acd572ed09260bc7c60800833750b8f5141"
+  },
+  "django__django-12406": {
+    "run": "run-07",
+    "stratum": "fs5_multi_ge2f",
+    "termination_reason": "completed",
+    "empty_patch": false,
+    "patch_sha256": "sha256:2ed218a5c68f6b80ae170beb9a8241613807b6bb0c2f5eef99c40806f35122d5"
+  },
+  "django__django-11964": {
+    "run": "run-08",
+    "stratum": "fs3_medium_1f_7_15",
+    "termination_reason": "completed",
+    "empty_patch": false,
+    "patch_sha256": "sha256:f89d091186086e648ac18c6c7720187b239e04d75105e7bd5e21253dec9a30b6"
+  },
+  "django__django-11299": {
+    "run": "run-09",
+    "stratum": "fs1_oneline_1f_le3",
+    "termination_reason": "completed",
+    "empty_patch": false,
+    "patch_sha256": "sha256:1b59fa0cb0263d7a26d386ae310769773c61ecb0530df7c8ed1b7294856c9c85"
+  },
+  "django__django-14053": {
+    "run": "run-10",
+    "stratum": "fs4_large_1f_16_60",
+    "termination_reason": "completed",
+    "empty_patch": false,
+    "patch_sha256": "sha256:2495f17e1d16650f45f0a917ee3c9a699895ccfe5cb38a6545ee5e8c6cd109b6"
+  },
+  "django__django-11239": {
+    "run": "run-11",
+    "stratum": "fs3_medium_1f_7_15",
+    "termination_reason": "completed",
+    "empty_patch": false,
+    "patch_sha256": "sha256:ba4a6dc1f32b8a03792f1172e388d20257a42ad37a9f949256fa3ed163de5f47"
+  },
+  "django__django-13590": {
+    "run": "run-12",
+    "stratum": "fs2_small_1f_4_6",
+    "termination_reason": "completed",
+    "empty_patch": false,
+    "patch_sha256": "sha256:82aa6fe20fb7c7237a9bca24fce7eabe7b6d36a725a0cdea62c7874f2cae189b"
+  },
+  "django__django-15382": {
+    "run": "run-13",
+    "stratum": "fs4_large_1f_16_60",
+    "termination_reason": "completed",
+    "empty_patch": false,
+    "patch_sha256": "sha256:818d92b6838655aebfb08df670b6cdbd2b43047d3aff46370b8b6ca68fda5af7"
+  },
+  "django__django-11138": {
+    "run": "run-14",
+    "stratum": "fs5_multi_ge2f",
+    "termination_reason": "completed",
+    "empty_patch": false,
+    "patch_sha256": "sha256:6bdebbed6db437740663f2291000d02eefdec306592cd1b8d1326f6cba12064c"
+  },
+  "django__django-12419": {
+    "run": "run-15",
+    "stratum": "fs1_oneline_1f_le3",
+    "termination_reason": "completed",
+    "empty_patch": false,
+    "patch_sha256": "sha256:0a249db21cce2a1550caf7b593abaefa4b87f00f7a26fe66930e64d4329c6c05"
+  },
+  "django__django-14771": {
+    "run": "run-16",
+    "stratum": "fs2_small_1f_4_6",
+    "termination_reason": "completed",
+    "empty_patch": false,
+    "patch_sha256": "sha256:e4fdabe2d3a65b52255d8ec65aaa1aa9639d8bdf7644547823bc6807ae1d0d56"
+  },
+  "django__django-16502": {
+    "run": "run-17",
+    "stratum": "fs4_large_1f_16_60",
+    "termination_reason": "completed",
+    "empty_patch": false,
+    "patch_sha256": "sha256:8ce593ff2eac439c031ceb0501649e659dba21f16425cbbd435069786df9b293"
+  },
+  "django__django-13809": {
+    "run": "run-18",
+    "stratum": "fs3_medium_1f_7_15",
+    "termination_reason": "completed",
+    "empty_patch": false,
+    "patch_sha256": "sha256:759cd7af05b7d14aa84034e21e28910f41b51d4359809a985a2f7192a89c5307"
+  },
+  "django__django-14315": {
+    "run": "run-19",
+    "stratum": "fs5_multi_ge2f",
+    "termination_reason": "completed",
+    "empty_patch": false,
+    "patch_sha256": "sha256:e8d7a9a365d26ff58ed1cde57dbc15445b447979fefaefccf148168b12fbc1e1"
+  },
+  "django__django-11951": {
+    "run": "run-20",
+    "stratum": "fs1_oneline_1f_le3",
+    "termination_reason": "completed",
+    "empty_patch": false,
+    "patch_sha256": "sha256:3cc0b623a4393acf23f2426804f91ba7a471b940d928d93b072d6163d0cffd86"
+  },
+  "django__django-15277": {
+    "run": "run-21",
+    "stratum": "fs1_oneline_1f_le3",
+    "termination_reason": "completed",
+    "empty_patch": false,
+    "patch_sha256": "sha256:8512d6bc5111e1339c1786cd5be241461e34fd8ee13a81a04afa5257ef244aae"
+  },
+  "django__django-13195": {
+    "run": "run-22",
+    "stratum": "fs5_multi_ge2f",
+    "termination_reason": "completed",
+    "empty_patch": false,
+    "patch_sha256": "sha256:136481241d30fc1abbd3e864d8e36b5c80f89fabf0507ff69da173d282f30375"
+  },
+  "django__django-13821": {
+    "run": "run-23",
+    "stratum": "fs2_small_1f_4_6",
+    "termination_reason": "completed",
+    "empty_patch": false,
+    "patch_sha256": "sha256:a8d41545e15072b00247912ec842be9445ce3b3b31a40db6be6a53d85af749d9"
+  },
+  "django__django-14608": {
+    "run": "run-24",
+    "stratum": "fs3_medium_1f_7_15",
+    "termination_reason": "completed",
+    "empty_patch": false,
+    "patch_sha256": "sha256:eb14716a89ece38ca38fc312a8d1c32b77e73fdc12b6bd482475b9214dc8c4aa"
+  },
+  "django__django-15503": {
+    "run": "run-25",
+    "stratum": "fs4_large_1f_16_60",
+    "termination_reason": "completed",
+    "empty_patch": false,
+    "patch_sha256": "sha256:f19993a4895db815c35caf16af104182b64715190e0f123a93795e95b8668f10"
+  },
+  "django__django-13128": {
+    "run": "run-26",
+    "stratum": "fs4_large_1f_16_60",
+    "termination_reason": "completed",
+    "empty_patch": false,
+    "patch_sha256": "sha256:583f7c91add28d9f7dba23d70df95fc16008600e600ee88183bcd9a536bab5f8"
+  },
+  "django__django-12039": {
+    "run": "run-27",
+    "stratum": "fs3_medium_1f_7_15",
+    "termination_reason": "completed",
+    "empty_patch": false,
+    "patch_sha256": "sha256:cae2af2398c20361d17e2bf6ca41446394fce054b8bf6388e9b1f1f6a27ef2b4"
+  },
+  "django__django-11740": {
+    "run": "run-28",
+    "stratum": "fs2_small_1f_4_6",
+    "termination_reason": "completed",
+    "empty_patch": false,
+    "patch_sha256": "sha256:1aa64920cc79dd7825951c913f51225b768228df18c7b2b68c63858b6233a019"
+  },
+  "django__django-10554": {
+    "run": "run-29",
+    "stratum": "fs5_multi_ge2f",
+    "termination_reason": "budget_walltime",
+    "empty_patch": false,
+    "patch_sha256": "sha256:36f3c3a2ebe623b3d11295e7a1473a9a6d0dc065eacb64953e2305b06112c5fa"
+  },
+  "django__django-16429": {
+    "run": "run-30",
+    "stratum": "fs1_oneline_1f_le3",
+    "termination_reason": "completed",
+    "empty_patch": false,
+    "patch_sha256": "sha256:05b6651e8e8d5d14f62752c0ebd74485bcfa1e8de7395c8e83543a5c7d431b07"
+  },
+  "django__django-14765": {
+    "run": "run-31",
+    "stratum": "fs3_medium_1f_7_15",
+    "termination_reason": "completed",
+    "empty_patch": false,
+    "patch_sha256": "sha256:2485e4ec7b1224ff03bc3535d5b0cf0f69585415fd2c4e7f5305c3df65e9d20e"
+  },
+  "django__django-13012": {
+    "run": "run-32",
+    "stratum": "fs1_oneline_1f_le3",
+    "termination_reason": "completed",
+    "empty_patch": false,
+    "patch_sha256": "sha256:4f054f42d5af731409d8bd69dda48dc2592ab2a5e00d8b9450033d3f7a89a3c5"
+  },
+  "django__django-12308": {
+    "run": "run-33",
+    "stratum": "fs2_small_1f_4_6",
+    "termination_reason": "completed",
+    "empty_patch": false,
+    "patch_sha256": "sha256:b28e93de8dbcbb7b21fafa8f32cb1f0a5ce134f85adf7c3c0ca1f06c46e487ba"
+  },
+  "django__django-11333": {
+    "run": "run-34",
+    "stratum": "fs5_multi_ge2f",
+    "termination_reason": "completed",
+    "empty_patch": false,
+    "patch_sha256": "sha256:7d84d7534660fb33f954d0de106e5e5bd0f95fec0445c6998b06079fe236616c"
+  },
+  "django__django-11728": {
+    "run": "run-35",
+    "stratum": "fs4_large_1f_16_60",
+    "termination_reason": "completed",
+    "empty_patch": false,
+    "patch_sha256": "sha256:4fb110a94462ef048b52ea7a9b7daeb1c9918064dd808d69899fb5a201c9edad"
+  },
+  "django__django-13212": {
+    "run": "run-36",
+    "stratum": "fs5_multi_ge2f",
+    "termination_reason": "completed",
+    "empty_patch": false,
+    "patch_sha256": "sha256:6ee2f0e4ea0f654effad538dda337e723ab432144a79ca76f62e1445cb649594"
+  },
+  "django__django-13401": {
+    "run": "run-37",
+    "stratum": "fs4_large_1f_16_60",
+    "termination_reason": "completed",
+    "empty_patch": false,
+    "patch_sha256": "sha256:8afd312a3f3e8d18e803b8732d5c8071ad01a9afdcdebbda83ce87a9923c9235"
+  },
+  "django__django-16901": {
+    "run": "run-38",
+    "stratum": "fs3_medium_1f_7_15",
+    "termination_reason": "completed",
+    "empty_patch": false,
+    "patch_sha256": "sha256:19053fe149612eff160ab90f405417d368dadab1f876feab5d1e165e2f555235"
+  },
+  "django__django-12276": {
+    "run": "run-39",
+    "stratum": "fs2_small_1f_4_6",
+    "termination_reason": "completed",
+    "empty_patch": false,
+    "patch_sha256": "sha256:f0e2c2d1a79e62108257183d16517ebc4f110095123b92839ded9cb2cd016a73"
+  },
+  "django__django-11477": {
+    "run": "run-40",
+    "stratum": "fs1_oneline_1f_le3",
+    "termination_reason": "completed",
+    "empty_patch": false,
+    "patch_sha256": "sha256:e3afee5ce38694b76bd51a53345629f3b2871ccf0307ab49e50d35176295cb00"
+  },
+  "django__django-16527": {
+    "run": "run-41",
+    "stratum": "fs1_oneline_1f_le3",
+    "termination_reason": "completed",
+    "empty_patch": false,
+    "patch_sha256": "sha256:c7f9bfcda29bb940f2fc5c82b328c27dc25248b5f2cee2fc1dbf03b416a04ff7"
+  },
+  "django__django-15368": {
+    "run": "run-42",
+    "stratum": "fs2_small_1f_4_6",
+    "termination_reason": "completed",
+    "empty_patch": false,
+    "patch_sha256": "sha256:817593418ba8eb06fcafc3372e4bc47bdbc64ddc9516f49f47bea16ea790e1d8"
+  },
+  "django__django-16256": {
+    "run": "run-43",
+    "stratum": "fs5_multi_ge2f",
+    "termination_reason": "completed",
+    "empty_patch": false,
+    "patch_sha256": "sha256:59a55529af10d29738067280e9b48e52ea2e3049434a565c5e3067dbec6db6f0"
+  },
+  "django__django-12713": {
+    "run": "run-44",
+    "stratum": "fs4_large_1f_16_60",
+    "termination_reason": "completed",
+    "empty_patch": false,
+    "patch_sha256": "sha256:9744af46b7974493a4b54ed797c8c5ef71c0aaca430a3b2a855df4484aeefc3d"
+  },
+  "django__django-16136": {
+    "run": "run-45",
+    "stratum": "fs3_medium_1f_7_15",
+    "termination_reason": "completed",
+    "empty_patch": false,
+    "patch_sha256": "sha256:1a5e50fa9b478e266f0ea54f36bcae767caedbf29fc4c524b5f363a417334622"
+  },
+  "django__django-13406": {
+    "run": "run-46",
+    "stratum": "fs1_oneline_1f_le3",
+    "termination_reason": "completed",
+    "empty_patch": false,
+    "patch_sha256": "sha256:90ac28ea9697e7a2020d9cdddf5476cd0c6384ffe0d529ffa43ef4e6987dad61"
+  },
+  "django__django-13449": {
+    "run": "run-47",
+    "stratum": "fs3_medium_1f_7_15",
+    "termination_reason": "completed",
+    "empty_patch": false,
+    "patch_sha256": "sha256:1215e7f45134151efdfe117f38983027245221aa981b73a3dfa48cd50aa0ed03"
+  },
+  "django__django-15554": {
+    "run": "run-48",
+    "stratum": "fs4_large_1f_16_60",
+    "termination_reason": "completed",
+    "empty_patch": false,
+    "patch_sha256": "sha256:96c68e6ba6331a1d35e4d7229ec928e3cd632dececa9f2f3991c6d007abf7d9b"
+  },
+  "django__django-12143": {
+    "run": "run-49",
+    "stratum": "fs2_small_1f_4_6",
+    "termination_reason": "completed",
+    "empty_patch": false,
+    "patch_sha256": "sha256:11c13fba32678fb90b3907387a411fc4f638b735fc4c76292fa29a570001ca6c"
+  },
+  "django__django-13344": {
+    "run": "run-50",
+    "stratum": "fs5_multi_ge2f",
+    "termination_reason": "completed",
+    "empty_patch": false,
+    "patch_sha256": "sha256:7fb0222d2581793bc5ed5eed09e09770a386cb3ffe2106209c401427ef2c12bd"
+  }
+}

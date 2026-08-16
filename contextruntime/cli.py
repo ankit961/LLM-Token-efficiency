@@ -172,7 +172,8 @@ def cmd_corpus_run(args) -> int:
     import datetime
     from . import corpusrunner as cr
     spec = cr.parse_spec(args.spec)
-    agent = (cr.ClaudeBackend(model=args.model, walltime_limit_s=args.walltime)
+    agent = (cr.ClaudeBackend(model=args.model, walltime_limit_s=args.walltime, arm=args.arm,
+                              codegraph_db=args.codegraph_db, repo_id=args.repo_id)
              if args.agent == "claude" else cr.MockAgentBackend())
     evaluator = cr.LocalStubEvaluator()          # OfficialSweBenchDockerEvaluator runs on linux, later
     runner = cr.CorpusRunner(args.repo, args.runs_dir, agent, evaluator,
@@ -470,6 +471,13 @@ def main(argv=None) -> int:
     p.add_argument("--runtime-sha", help="observation runtime SHA to stamp (obs-runtime-3a-v2.1)")
     p.add_argument("--pilot", action="store_true", help="mark this run PILOT / NOT IN CORPUS")
     p.add_argument("--verify-sha", action="store_true", help="require the spec bytes to match its recorded SHA")
+    p.add_argument("--arm", choices=["native", "semantic_directive", "semantic_enforced"],
+                   default="native",
+                   help="Semantic Admission Experiment v1 condition: native=baseline (Arm A); "
+                        "semantic_directive=MCP+directive brief, native fallback stays available (Arm B); "
+                        "semantic_enforced=RESERVED, not runnable yet")
+    p.add_argument("--codegraph-db", help="indexed code-graph sqlite (required for --arm semantic_directive)")
+    p.add_argument("--repo-id", help="repo_id used at index-code time (default: the spec's repo_id)")
     p.set_defaults(func=cmd_corpus_run)
 
     p = sub.add_parser("index-code", help="build the CodeSymbol graph (Graph-Lite) for a repo")

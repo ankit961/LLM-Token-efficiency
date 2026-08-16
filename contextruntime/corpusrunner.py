@@ -119,6 +119,16 @@ class AgentResult:
     termination_reason: str                      # completed | budget_turns | budget_walltime | error
     budget_turns: Optional[int] = None
     budget_walltime: Optional[float] = None
+    arm: str = "native"                          # native | semantic_directive | semantic_enforced
+
+
+# Semantic Admission Experiment v1 arms (see docs/semantic-admission-experiment-v1.md once frozen).
+# native            -- current baseline: no MCP, no steering. Arm A.
+# semantic_directive-- SemanticFS MCP enabled + directive brief via --append-system-prompt; native
+#                      tool calls remain fully available (fail-open, not a gate). Arm B.
+# semantic_enforced -- RESERVED. Hard/enforced semantic admission. NOT implemented -- earned only
+#                      after B's success + token results are reviewed (do not run yet).
+ARMS = ("native", "semantic_directive", "semantic_enforced")
 
 
 class AgentBackend(ABC):
@@ -175,15 +185,31 @@ class MockAgentBackend(AgentBackend):
 class ClaudeBackend(AgentBackend):
     """Real headless Claude Code (`claude -p`) run inside the worktree, cr-hook (settings_path) wired to
     the per-run journal. Budget wall-clock starts at the first agent request (this call), NOT during
-    checkout/provisioning, per the plan's harness contract; SWE-bench grading is a SEPARATE stage."""
+    checkout/provisioning, per the plan's harness contract; SWE-bench grading is a SEPARATE stage.
+
+    `arm` selects the Semantic Admission Experiment v1 condition (see ARMS). The task PROMPT is
+    IDENTICAL across arms -- only extra CLI flags differ (--mcp-config, --append-system-prompt),
+    per protocol ("same task prompt"). semantic_directive never disables native tools -- it only
+    ADDS the SemanticFS MCP + a directive steering brief; a symbol_read failure or agent choice to
+    ignore the brief falls back to native Read/Bash exactly as in the native arm (fail-open)."""
     name = "claude"
 
     def __init__(self, model: str = "sonnet", walltime_limit_s: int = 1200,
-                 client_version: Optional[str] = None, clock=None):
+                 client_version: Optional[str] = None, clock=None,
+                 arm: str = "native", codegraph_db: Optional[str] = None,
+                 repo_id: Optional[str] = None):
+        if arm not in ARMS:
+            raise ValueError(f"unknown arm {arm!r}; must be one of {ARMS}")
+        if arm == "semantic_directive" and not codegraph_db:
+            raise ValueError("arm='semantic_directive' requires codegraph_db "
+                             "(the indexed code-graph backing the SemanticFS MCP)")
         self.model = model
         self.limit = walltime_limit_s
         self.client_version = client_version or self._version()
         self.clock = clock or __import__("time").time
+        self.arm = arm
+        self.codegraph_db = codegraph_db
+        self.repo_id = repo_id
 
     @staticmethod
     def _version() -> str:
@@ -193,16 +219,46 @@ class ClaudeBackend(AgentBackend):
         except Exception:      # noqa: BLE001
             return "unknown"
 
+    def _mcp_config_path(self, run_dir: str, repo_id: str) -> str:
+        from .install import cli_argv
+        argv = cli_argv() + ["mcp", "--db", self.codegraph_db, "--repo", repo_id]
+        cfg = {"mcpServers": {"contextruntime": {"command": argv[0], "args": argv[1:]}}}
+        path = os.path.join(run_dir, "mcp-config.json")
+        _write(path, json.dumps(cfg, indent=2))
+        return path
+
+    def _directive_brief(self, repo_id: str) -> str:
+        from .policybrief import build_brief
+        try:
+            return build_brief(self.codegraph_db, repo_id)
+        except Exception:      # noqa: BLE001 -- steering is advisory; never break the run
+            return ""
+
     def run(self, worktree, spec, journal_db, settings_path) -> AgentResult:
+        if self.arm == "semantic_enforced":
+            raise NotImplementedError(
+                "arm='semantic_enforced' is RESERVED -- hard/enforced semantic admission is not "
+                "implemented. Per protocol it is earned only after semantic_directive's success and "
+                "token results are reviewed. Use arm='native' or 'semantic_directive'.")
+
+        # IDENTICAL across arms -- this is the one thing the protocol requires not to move.
         prompt = (spec.problem_statement + "\n\nWork in the repository at the fixed base commit; "
                   "implement a fix for the issue above. Reply DONE when finished.")
+        argv = ["claude", "-p", prompt, "--settings", settings_path, "--model", self.model,
+                "--permission-mode", "bypassPermissions"]
+
+        if self.arm == "semantic_directive":
+            run_dir = os.path.dirname(settings_path)
+            repo_id = self.repo_id or spec.repo_id
+            argv += ["--mcp-config", self._mcp_config_path(run_dir, repo_id)]
+            brief = self._directive_brief(repo_id)
+            if brief:
+                argv += ["--append-system-prompt", brief]
+
         t0 = self.clock()
         term, tail, rc = "completed", "", 0
         try:
-            proc = subprocess.run(
-                ["claude", "-p", prompt, "--settings", settings_path, "--model", self.model,
-                 "--permission-mode", "bypassPermissions"],
-                cwd=worktree, capture_output=True, text=True, timeout=self.limit)
+            proc = subprocess.run(argv, cwd=worktree, capture_output=True, text=True, timeout=self.limit)
             rc, tail = proc.returncode, (proc.stdout or "")[-2000:]
             term = "completed" if rc == 0 else "error"
         except subprocess.TimeoutExpired:
@@ -210,8 +266,9 @@ class ClaudeBackend(AgentBackend):
         walltime = round(self.clock() - t0, 3)
         diff = subprocess.run(["git", "-C", worktree, "diff"], capture_output=True, text=True).stdout
         return AgentResult(agent=self.name, agent_version=self.client_version, model=self.model,
-                           patch=diff, result={"returncode": rc, "stdout_tail": tail},
-                           termination_reason=term, budget_turns=None, budget_walltime=walltime)
+                           patch=diff, result={"returncode": rc, "stdout_tail": tail, "arm": self.arm},
+                           termination_reason=term, budget_turns=None, budget_walltime=walltime,
+                           arm=self.arm)
 
 
 # --------------------------------------------------------------------------- evaluators
@@ -304,6 +361,7 @@ class CorpusRunner:
             "runtime_tag": self.runtime_tag, "runtime_sha": self.runtime_sha,
             "hook_schema": HOOK_SCHEMA, "report_schema": REPORT_SCHEMA,
             "agent": agent_res.agent, "agent_version": agent_res.agent_version, "model": agent_res.model,
+            "arm": agent_res.arm,
             "start_time": start_time, "end_time": end_time,
             "termination_reason": agent_res.termination_reason,
             "budget_turns": agent_res.budget_turns, "budget_walltime": agent_res.budget_walltime,
