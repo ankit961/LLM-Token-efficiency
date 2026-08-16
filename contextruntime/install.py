@@ -132,21 +132,29 @@ def cli_argv() -> list[str]:
     return [sys.executable, "-m", "contextruntime.cli"]
 
 
+def _pkg_root() -> str:
+    """Parent of the ``contextruntime`` package dir. Put on PYTHONPATH in EVERY launched
+    command (cr-hook, cr-policy, reducer, MCP) so the package resolves from ANY project cwd,
+    even in a bare (non-pip-installed / editable) checkout — the foreign-cwd startup fix
+    (B1.0 §3.4). Without it, `python -m contextruntime.*` depends on the caller's cwd, the
+    exact class of defect that invalidated the first SemanticFS experiment."""
+    return str(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+
+def _pythonpath_prefix() -> str:
+    """`PYTHONPATH=<pkg_root> ` — prepended to shell hook commands. Harmless when the console
+    script is installed; load-bearing when running `python -m …` from a source checkout."""
+    return f"PYTHONPATH={shlex.quote(_pkg_root())} "
+
+
 def default_crhook_cmd(scope: Scope) -> str:
     argv = cli_argv() + ["cr-hook", "--db", scope.journal_db]
-    return " ".join(shlex.quote(a) for a in argv)
+    return _pythonpath_prefix() + " ".join(shlex.quote(a) for a in argv)
 
 
 def default_crpolicy_cmd(scope: Scope) -> str:
     argv = cli_argv() + ["cr-policy", "--graph", scope.codegraph_db, "--repo", scope.repo_id]
-    return " ".join(shlex.quote(a) for a in argv)
-
-
-def _pkg_root() -> str:
-    """Parent of the ``contextruntime`` package dir. Put on PYTHONPATH in the reducer hook
-    command so ``python -m contextruntime.reducers.hook`` resolves from ANY project cwd,
-    even in a bare (non-pip-installed) checkout — the foreign-cwd startup fix (B1.0 §3.4)."""
-    return str(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    return _pythonpath_prefix() + " ".join(shlex.quote(a) for a in argv)
 
 
 def default_reducer_cmd(scope: Scope, *, enforce: bool = False,
@@ -249,7 +257,10 @@ def mcp_entry(scope: Scope) -> dict:
         "args": argv[1:] + ["mcp", "--db", scope.codegraph_db, "--repo", scope.repo_id],
         # B1.0: the MCP server resolves context_expand(result://…). Point it at the SAME live
         # CAS the reducer hook writes, so a reducer-emitted handle is recoverable through MCP.
-        "env": {"CR_DB": scope.live_cas_db},
+        # B1.0.1: also carry PYTHONPATH so the server actually STARTS from the target repo's
+        # cwd in a source checkout — otherwise the reducer could mint a handle the MCP server
+        # can never resolve because it failed to launch.
+        "env": {"CR_DB": scope.live_cas_db, "PYTHONPATH": _pkg_root()},
     }
 
 
@@ -313,6 +324,7 @@ class Report:
     dry_run: bool
     steps: list[Step] = field(default_factory=list)
     verify: dict = field(default_factory=dict)
+    enforcing: bool = False        # reduction actually rewrites tool output (enforce mode)
 
     def add(self, s: Step) -> None:
         self.steps.append(s)
@@ -343,6 +355,7 @@ def install(client: str, *, project: str | None = None, use_global: bool = False
     client_version = _parse_version(det.get("version"))
     confirmed = doctor.output_replacement_confirmed(client_version)
     enforce = bool(enable_reduction and confirmed)
+    rep.enforcing = enforce
     reducer_cmd = None
     if with_reducer:
         reducer_cmd = default_reducer_cmd(
@@ -556,7 +569,13 @@ def format_report(rep: Report) -> str:
         for c in v["checks"]:
             m = "✓" if c["ok"] else "✗"
             lines.append(f"    {m} {c['check']:22s} {c['detail']}")
-    lines += ["",
-              "  advisory / observe-only: the journal hook is fail-open and never blocks or "
-              "rewrites a tool call."]
+    if rep.enforcing:
+        lines += ["",
+                  "  reduction ENFORCED: recognized search/listing tool outputs are transparently "
+                  "compacted (fail-open, recoverable via result://). All other tool calls — native "
+                  "Read, file/git_blob, execution, mixed/unknown Bash — pass through unchanged."]
+    else:
+        lines += ["",
+                  "  advisory / observe-only: the journal hook is fail-open and never blocks or "
+                  "rewrites a tool call."]
     return "\n".join(lines)

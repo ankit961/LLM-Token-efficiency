@@ -64,6 +64,21 @@ class Recovered:
     note: str = ""
 
 
+@dataclass
+class Stored:
+    """Outcome of a live-CAS write. `persisted` = the payload is verifiably in the CAS
+    (read back after commit); `exact` = the COMPLETE payload is recoverable (not truncated).
+    The reducer must replace model-visible output ONLY when BOTH hold — otherwise the
+    result:// handle would be dead or partial, breaking the B1 recovery invariant."""
+    handle: str
+    persisted: bool
+    exact: bool
+    truncated: bool = False
+    full_bytes: int = 0
+    stored_bytes: int = 0
+    note: str = ""
+
+
 def decision_log_path() -> str:
     """CR_DECISION_LOG if set, else ~/.contextruntime/decisions.jsonl. This is the durable,
     append-only record the offline replay (B1 step 4) reads to measure what the reducer actually
@@ -122,14 +137,16 @@ def _evict(conn: sqlite3.Connection, now: float) -> None:
             (over,))
 
 
-def put(raw: str, *, reducer: str = "", representation: str = "",
-        now: Optional[float] = None, path: Optional[str] = None) -> str:
-    """Store the (redacted, bounded) raw payload and return its `result://<hash>` handle.
+def put_confirmed(raw: str, *, reducer: str = "", representation: str = "",
+                  now: Optional[float] = None, path: Optional[str] = None) -> Stored:
+    """Store the (redacted, bounded) raw payload and CONFIRM the write by reading the row
+    back after commit. Returns a `Stored` whose `persisted`/`exact` flags the caller must
+    check before replacing model-visible output.
 
     The hash is `content_hash(raw)` — identical to `reducers.base.make_handle`, so the
-    handle the reducer already embeds in its summary resolves here by construction.
-    Fail-open: on any error the handle is still returned (unrecoverable, same degradation
-    the reducer already tolerates)."""
+    handle the reducer already embeds in its summary resolves here by construction. Every
+    failure path returns `persisted=False` (never raises), so the strict caller degrades to
+    passing the raw output through — the safe direction."""
     handle = f"result://{content_hash(raw)}"
     now = time.time() if now is None else now
     try:
@@ -138,21 +155,39 @@ def put(raw: str, *, reducer: str = "", representation: str = "",
         # Cap the raw generously BEFORE redacting (avoid redacting multi-MB), then hard-cap.
         sample = redact(raw[: MAX_SAMPLE_BYTES * 2])[:MAX_SAMPLE_BYTES]
         stored_bytes = len(sample.encode("utf-8", "replace"))
-        truncated = 1 if stored_bytes < full_bytes else 0
+        truncated = stored_bytes < full_bytes
         conn = _connect(path)
         try:
             conn.execute(
                 "INSERT OR REPLACE INTO live_blobs "
                 "(content_hash, reducer, representation, stored_bytes, full_bytes, "
                 " truncated, sample, created_at) VALUES (?,?,?,?,?,?,?,?)",
-                (h, reducer, representation, stored_bytes, full_bytes, truncated, sample, now))
+                (h, reducer, representation, stored_bytes, full_bytes, int(truncated), sample, now))
             _evict(conn, now)
             conn.commit()
+            # Verify the payload is actually retrievable — a swallowed write error must NOT
+            # look like a successful persist (this is the fix for the dead-handle blocker).
+            row = conn.execute(
+                "SELECT 1 FROM live_blobs WHERE content_hash=?", (h,)).fetchone()
         finally:
             conn.close()
-    except Exception:                       # noqa: BLE001 — fail open; handle stays unrecoverable
-        pass
-    return handle
+        persisted = row is not None
+        note = ("stored" if persisted else "write not confirmed")
+        if persisted and truncated:
+            note = f"stored but BOUNDED ({stored_bytes} of {full_bytes} bytes) — not exact"
+        return Stored(handle=handle, persisted=persisted, exact=persisted and not truncated,
+                      truncated=truncated, full_bytes=full_bytes, stored_bytes=stored_bytes,
+                      note=note)
+    except Exception as e:                  # noqa: BLE001 — fail closed on recovery: report failure
+        return Stored(handle=handle, persisted=False, exact=False, note=f"CAS write failed: {e}")
+
+
+def put(raw: str, *, reducer: str = "", representation: str = "",
+        now: Optional[float] = None, path: Optional[str] = None) -> str:
+    """Back-compat wrapper: store and return just the handle (see `put_confirmed` for the
+    persistence/exactness status the strict reducer path requires)."""
+    return put_confirmed(raw, reducer=reducer, representation=representation,
+                         now=now, path=path).handle
 
 
 def resolve(handle: str, *, now: Optional[float] = None,
