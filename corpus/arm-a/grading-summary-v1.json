@@ -1,0 +1,541 @@
+{
+  "by_stratum": {
+    "fs1_oneline_1f_le3": {
+      "grader_errors": 0,
+      "n": 10,
+      "resolved": 10,
+      "success_rate": 1.0
+    },
+    "fs2_small_1f_4_6": {
+      "grader_errors": 0,
+      "n": 10,
+      "resolved": 8,
+      "success_rate": 0.8
+    },
+    "fs3_medium_1f_7_15": {
+      "grader_errors": 0,
+      "n": 10,
+      "resolved": 10,
+      "success_rate": 1.0
+    },
+    "fs4_large_1f_16_60": {
+      "grader_errors": 0,
+      "n": 10,
+      "resolved": 7,
+      "success_rate": 0.7
+    },
+    "fs5_multi_ge2f": {
+      "grader_errors": 0,
+      "n": 10,
+      "resolved": 5,
+      "success_rate": 0.5
+    }
+  },
+  "n_grader_errors": 0,
+  "n_resolved": 40,
+  "n_tasks": 50,
+  "schema": "arm-a-grading-summary-v1",
+  "success_rate": 0.8,
+  "tasks": [
+    {
+      "empty_patch": false,
+      "fail_to_pass_passed": false,
+      "grader_error": false,
+      "pass_to_pass_passed": true,
+      "patch_successfully_applied": true,
+      "resolved": false,
+      "stratum": "fs5_multi_ge2f",
+      "task_id": "django__django-10554"
+    },
+    {
+      "empty_patch": false,
+      "fail_to_pass_passed": true,
+      "grader_error": false,
+      "pass_to_pass_passed": true,
+      "patch_successfully_applied": true,
+      "resolved": true,
+      "stratum": "fs5_multi_ge2f",
+      "task_id": "django__django-11138"
+    },
+    {
+      "empty_patch": false,
+      "fail_to_pass_passed": true,
+      "grader_error": false,
+      "pass_to_pass_passed": true,
+      "patch_successfully_applied": true,
+      "resolved": true,
+      "stratum": "fs3_medium_1f_7_15",
+      "task_id": "django__django-11239"
+    },
+    {
+      "empty_patch": false,
+      "fail_to_pass_passed": true,
+      "grader_error": false,
+      "pass_to_pass_passed": true,
+      "patch_successfully_applied": true,
+      "resolved": true,
+      "stratum": "fs1_oneline_1f_le3",
+      "task_id": "django__django-11299"
+    },
+    {
+      "empty_patch": false,
+      "fail_to_pass_passed": true,
+      "grader_error": false,
+      "pass_to_pass_passed": true,
+      "patch_successfully_applied": true,
+      "resolved": true,
+      "stratum": "fs5_multi_ge2f",
+      "task_id": "django__django-11333"
+    },
+    {
+      "empty_patch": false,
+      "fail_to_pass_passed": true,
+      "grader_error": false,
+      "pass_to_pass_passed": true,
+      "patch_successfully_applied": true,
+      "resolved": true,
+      "stratum": "fs1_oneline_1f_le3",
+      "task_id": "django__django-11477"
+    },
+    {
+      "empty_patch": false,
+      "fail_to_pass_passed": false,
+      "grader_error": false,
+      "pass_to_pass_passed": false,
+      "patch_successfully_applied": true,
+      "resolved": false,
+      "stratum": "fs4_large_1f_16_60",
+      "task_id": "django__django-11728"
+    },
+    {
+      "empty_patch": false,
+      "fail_to_pass_passed": true,
+      "grader_error": false,
+      "pass_to_pass_passed": true,
+      "patch_successfully_applied": true,
+      "resolved": true,
+      "stratum": "fs2_small_1f_4_6",
+      "task_id": "django__django-11740"
+    },
+    {
+      "empty_patch": false,
+      "fail_to_pass_passed": true,
+      "grader_error": false,
+      "pass_to_pass_passed": true,
+      "patch_successfully_applied": true,
+      "resolved": true,
+      "stratum": "fs1_oneline_1f_le3",
+      "task_id": "django__django-11951"
+    },
+    {
+      "empty_patch": false,
+      "fail_to_pass_passed": true,
+      "grader_error": false,
+      "pass_to_pass_passed": true,
+      "patch_successfully_applied": true,
+      "resolved": true,
+      "stratum": "fs3_medium_1f_7_15",
+      "task_id": "django__django-11964"
+    },
+    {
+      "empty_patch": false,
+      "fail_to_pass_passed": true,
+      "grader_error": false,
+      "pass_to_pass_passed": true,
+      "patch_successfully_applied": true,
+      "resolved": true,
+      "stratum": "fs3_medium_1f_7_15",
+      "task_id": "django__django-12039"
+    },
+    {
+      "empty_patch": false,
+      "fail_to_pass_passed": true,
+      "grader_error": false,
+      "pass_to_pass_passed": true,
+      "patch_successfully_applied": true,
+      "resolved": true,
+      "stratum": "fs2_small_1f_4_6",
+      "task_id": "django__django-12143"
+    },
+    {
+      "empty_patch": false,
+      "fail_to_pass_passed": false,
+      "grader_error": false,
+      "pass_to_pass_passed": true,
+      "patch_successfully_applied": true,
+      "resolved": false,
+      "stratum": "fs2_small_1f_4_6",
+      "task_id": "django__django-12193"
+    },
+    {
+      "empty_patch": false,
+      "fail_to_pass_passed": true,
+      "grader_error": false,
+      "pass_to_pass_passed": true,
+      "patch_successfully_applied": true,
+      "resolved": true,
+      "stratum": "fs2_small_1f_4_6",
+      "task_id": "django__django-12276"
+    },
+    {
+      "empty_patch": false,
+      "fail_to_pass_passed": true,
+      "grader_error": false,
+      "pass_to_pass_passed": true,
+      "patch_successfully_applied": true,
+      "resolved": true,
+      "stratum": "fs2_small_1f_4_6",
+      "task_id": "django__django-12308"
+    },
+    {
+      "empty_patch": false,
+      "fail_to_pass_passed": true,
+      "grader_error": false,
+      "pass_to_pass_passed": true,
+      "patch_successfully_applied": true,
+      "resolved": true,
+      "stratum": "fs5_multi_ge2f",
+      "task_id": "django__django-12406"
+    },
+    {
+      "empty_patch": false,
+      "fail_to_pass_passed": true,
+      "grader_error": false,
+      "pass_to_pass_passed": true,
+      "patch_successfully_applied": true,
+      "resolved": true,
+      "stratum": "fs1_oneline_1f_le3",
+      "task_id": "django__django-12419"
+    },
+    {
+      "empty_patch": false,
+      "fail_to_pass_passed": true,
+      "grader_error": false,
+      "pass_to_pass_passed": true,
+      "patch_successfully_applied": true,
+      "resolved": true,
+      "stratum": "fs4_large_1f_16_60",
+      "task_id": "django__django-12713"
+    },
+    {
+      "empty_patch": false,
+      "fail_to_pass_passed": true,
+      "grader_error": false,
+      "pass_to_pass_passed": true,
+      "patch_successfully_applied": true,
+      "resolved": true,
+      "stratum": "fs1_oneline_1f_le3",
+      "task_id": "django__django-13012"
+    },
+    {
+      "empty_patch": false,
+      "fail_to_pass_passed": true,
+      "grader_error": false,
+      "pass_to_pass_passed": true,
+      "patch_successfully_applied": true,
+      "resolved": true,
+      "stratum": "fs4_large_1f_16_60",
+      "task_id": "django__django-13128"
+    },
+    {
+      "empty_patch": false,
+      "fail_to_pass_passed": false,
+      "grader_error": false,
+      "pass_to_pass_passed": true,
+      "patch_successfully_applied": true,
+      "resolved": false,
+      "stratum": "fs5_multi_ge2f",
+      "task_id": "django__django-13195"
+    },
+    {
+      "empty_patch": false,
+      "fail_to_pass_passed": false,
+      "grader_error": false,
+      "pass_to_pass_passed": true,
+      "patch_successfully_applied": true,
+      "resolved": false,
+      "stratum": "fs5_multi_ge2f",
+      "task_id": "django__django-13212"
+    },
+    {
+      "empty_patch": false,
+      "fail_to_pass_passed": true,
+      "grader_error": false,
+      "pass_to_pass_passed": true,
+      "patch_successfully_applied": true,
+      "resolved": true,
+      "stratum": "fs5_multi_ge2f",
+      "task_id": "django__django-13344"
+    },
+    {
+      "empty_patch": false,
+      "fail_to_pass_passed": false,
+      "grader_error": false,
+      "pass_to_pass_passed": true,
+      "patch_successfully_applied": true,
+      "resolved": false,
+      "stratum": "fs4_large_1f_16_60",
+      "task_id": "django__django-13401"
+    },
+    {
+      "empty_patch": false,
+      "fail_to_pass_passed": true,
+      "grader_error": false,
+      "pass_to_pass_passed": true,
+      "patch_successfully_applied": true,
+      "resolved": true,
+      "stratum": "fs1_oneline_1f_le3",
+      "task_id": "django__django-13406"
+    },
+    {
+      "empty_patch": false,
+      "fail_to_pass_passed": true,
+      "grader_error": false,
+      "pass_to_pass_passed": true,
+      "patch_successfully_applied": true,
+      "resolved": true,
+      "stratum": "fs3_medium_1f_7_15",
+      "task_id": "django__django-13449"
+    },
+    {
+      "empty_patch": true,
+      "fail_to_pass_passed": false,
+      "grader_error": false,
+      "note": "empty patch -- harness did not grade it, counted unresolved",
+      "pass_to_pass_passed": null,
+      "resolved": false,
+      "stratum": "fs4_large_1f_16_60",
+      "task_id": "django__django-13513"
+    },
+    {
+      "empty_patch": false,
+      "fail_to_pass_passed": true,
+      "grader_error": false,
+      "pass_to_pass_passed": true,
+      "patch_successfully_applied": true,
+      "resolved": true,
+      "stratum": "fs2_small_1f_4_6",
+      "task_id": "django__django-13590"
+    },
+    {
+      "empty_patch": false,
+      "fail_to_pass_passed": true,
+      "grader_error": false,
+      "pass_to_pass_passed": true,
+      "patch_successfully_applied": true,
+      "resolved": true,
+      "stratum": "fs3_medium_1f_7_15",
+      "task_id": "django__django-13658"
+    },
+    {
+      "empty_patch": false,
+      "fail_to_pass_passed": true,
+      "grader_error": false,
+      "pass_to_pass_passed": true,
+      "patch_successfully_applied": true,
+      "resolved": true,
+      "stratum": "fs3_medium_1f_7_15",
+      "task_id": "django__django-13809"
+    },
+    {
+      "empty_patch": false,
+      "fail_to_pass_passed": true,
+      "grader_error": false,
+      "pass_to_pass_passed": true,
+      "patch_successfully_applied": true,
+      "resolved": true,
+      "stratum": "fs2_small_1f_4_6",
+      "task_id": "django__django-13821"
+    },
+    {
+      "empty_patch": false,
+      "fail_to_pass_passed": true,
+      "grader_error": false,
+      "pass_to_pass_passed": true,
+      "patch_successfully_applied": true,
+      "resolved": true,
+      "stratum": "fs4_large_1f_16_60",
+      "task_id": "django__django-14053"
+    },
+    {
+      "empty_patch": false,
+      "fail_to_pass_passed": false,
+      "grader_error": false,
+      "pass_to_pass_passed": true,
+      "patch_successfully_applied": true,
+      "resolved": false,
+      "stratum": "fs5_multi_ge2f",
+      "task_id": "django__django-14315"
+    },
+    {
+      "empty_patch": false,
+      "fail_to_pass_passed": true,
+      "grader_error": false,
+      "pass_to_pass_passed": true,
+      "patch_successfully_applied": true,
+      "resolved": true,
+      "stratum": "fs3_medium_1f_7_15",
+      "task_id": "django__django-14608"
+    },
+    {
+      "empty_patch": false,
+      "fail_to_pass_passed": true,
+      "grader_error": false,
+      "pass_to_pass_passed": true,
+      "patch_successfully_applied": true,
+      "resolved": true,
+      "stratum": "fs1_oneline_1f_le3",
+      "task_id": "django__django-14672"
+    },
+    {
+      "empty_patch": false,
+      "fail_to_pass_passed": true,
+      "grader_error": false,
+      "pass_to_pass_passed": true,
+      "patch_successfully_applied": true,
+      "resolved": true,
+      "stratum": "fs3_medium_1f_7_15",
+      "task_id": "django__django-14765"
+    },
+    {
+      "empty_patch": false,
+      "fail_to_pass_passed": true,
+      "grader_error": false,
+      "pass_to_pass_passed": true,
+      "patch_successfully_applied": true,
+      "resolved": true,
+      "stratum": "fs2_small_1f_4_6",
+      "task_id": "django__django-14771"
+    },
+    {
+      "empty_patch": false,
+      "fail_to_pass_passed": false,
+      "grader_error": false,
+      "pass_to_pass_passed": true,
+      "patch_successfully_applied": true,
+      "resolved": false,
+      "stratum": "fs2_small_1f_4_6",
+      "task_id": "django__django-15022"
+    },
+    {
+      "empty_patch": false,
+      "fail_to_pass_passed": true,
+      "grader_error": false,
+      "pass_to_pass_passed": true,
+      "patch_successfully_applied": true,
+      "resolved": true,
+      "stratum": "fs1_oneline_1f_le3",
+      "task_id": "django__django-15277"
+    },
+    {
+      "empty_patch": false,
+      "fail_to_pass_passed": true,
+      "grader_error": false,
+      "pass_to_pass_passed": true,
+      "patch_successfully_applied": true,
+      "resolved": true,
+      "stratum": "fs2_small_1f_4_6",
+      "task_id": "django__django-15368"
+    },
+    {
+      "empty_patch": false,
+      "fail_to_pass_passed": true,
+      "grader_error": false,
+      "pass_to_pass_passed": true,
+      "patch_successfully_applied": true,
+      "resolved": true,
+      "stratum": "fs4_large_1f_16_60",
+      "task_id": "django__django-15382"
+    },
+    {
+      "empty_patch": false,
+      "fail_to_pass_passed": true,
+      "grader_error": false,
+      "pass_to_pass_passed": true,
+      "patch_successfully_applied": true,
+      "resolved": true,
+      "stratum": "fs4_large_1f_16_60",
+      "task_id": "django__django-15503"
+    },
+    {
+      "empty_patch": false,
+      "fail_to_pass_passed": true,
+      "grader_error": false,
+      "pass_to_pass_passed": true,
+      "patch_successfully_applied": true,
+      "resolved": true,
+      "stratum": "fs4_large_1f_16_60",
+      "task_id": "django__django-15554"
+    },
+    {
+      "empty_patch": false,
+      "fail_to_pass_passed": true,
+      "grader_error": false,
+      "pass_to_pass_passed": true,
+      "patch_successfully_applied": true,
+      "resolved": true,
+      "stratum": "fs5_multi_ge2f",
+      "task_id": "django__django-15561"
+    },
+    {
+      "empty_patch": false,
+      "fail_to_pass_passed": true,
+      "grader_error": false,
+      "pass_to_pass_passed": true,
+      "patch_successfully_applied": true,
+      "resolved": true,
+      "stratum": "fs3_medium_1f_7_15",
+      "task_id": "django__django-16136"
+    },
+    {
+      "empty_patch": false,
+      "fail_to_pass_passed": false,
+      "grader_error": false,
+      "pass_to_pass_passed": true,
+      "patch_successfully_applied": true,
+      "resolved": false,
+      "stratum": "fs5_multi_ge2f",
+      "task_id": "django__django-16256"
+    },
+    {
+      "empty_patch": false,
+      "fail_to_pass_passed": true,
+      "grader_error": false,
+      "pass_to_pass_passed": true,
+      "patch_successfully_applied": true,
+      "resolved": true,
+      "stratum": "fs1_oneline_1f_le3",
+      "task_id": "django__django-16429"
+    },
+    {
+      "empty_patch": false,
+      "fail_to_pass_passed": true,
+      "grader_error": false,
+      "pass_to_pass_passed": true,
+      "patch_successfully_applied": true,
+      "resolved": true,
+      "stratum": "fs4_large_1f_16_60",
+      "task_id": "django__django-16502"
+    },
+    {
+      "empty_patch": false,
+      "fail_to_pass_passed": true,
+      "grader_error": false,
+      "pass_to_pass_passed": true,
+      "patch_successfully_applied": true,
+      "resolved": true,
+      "stratum": "fs1_oneline_1f_le3",
+      "task_id": "django__django-16527"
+    },
+    {
+      "empty_patch": false,
+      "fail_to_pass_passed": true,
+      "grader_error": false,
+      "pass_to_pass_passed": true,
+      "patch_successfully_applied": true,
+      "resolved": true,
+      "stratum": "fs3_medium_1f_7_15",
+      "task_id": "django__django-16901"
+    }
+  ]
+}
