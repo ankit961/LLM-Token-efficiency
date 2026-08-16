@@ -1,21 +1,33 @@
-name: SWE-bench Arm A grading
+name: SWE-bench grading
 
-# Manual only -- this grades a fixed, already-produced set of 50 patches (corpus/arm-a/predictions.jsonl)
-# against the official SWE-bench_Verified harness. It is not meant to run on every push.
+# Manual only -- grades a fixed, already-produced set of patches (predictions.jsonl) against the
+# official SWE-bench_Verified harness. Generic across arms of the Semantic Admission Experiment v1
+# (Arm A: corpus/arm-a/, Arm B: corpus/arm-b/, ...) -- pass predictions_path/run_index_path/artifact_prefix
+# per invocation. Not meant to run on every push.
 #
 # Privacy: only public patch content + SWE-bench_Verified instance_ids are used. No HookJournal
 # databases, prompts, or local paths are ever read or uploaded by this workflow.
 #
-# Reference: docs/semantic-admission-experiment-v1.md (S6 -- grading), Semantic Admission
-# Experiment v1. Grades the FROZEN, unmodified Observation Corpus v2.1 patches -- this workflow
-# never touches that corpus, it only reads corpus/arm-a/predictions.jsonl (derived, committed).
+# Reference: docs/semantic-admission-experiment-v1.md (S6 -- grading).
 on:
   workflow_dispatch:
     inputs:
       run_id:
-        description: "harness run_id (artifact name prefix; keep short, no spaces)"
+        description: "harness run_id (keep short, no spaces)"
         required: true
-        default: "arm-a-native-v1"
+        default: "native-v1"
+      predictions_path:
+        description: "path to the predictions.jsonl to grade"
+        required: true
+        default: "corpus/arm-a/predictions.jsonl"
+      run_index_path:
+        description: "path to the matching run_index.json (task_id -> stratum)"
+        required: true
+        default: "corpus/arm-a/run_index.json"
+      artifact_prefix:
+        description: "prefix for uploaded artifact names (keep short, no spaces)"
+        required: true
+        default: "arm-a"
 
 env:
   # pinned: `main` has an unreleased rewrite of run_evaluation's CLI (see corpus research notes) --
@@ -44,7 +56,7 @@ jobs:
       - name: Build this shard's predictions + instance-id list
         id: shard
         run: |
-          IDS=$(python3 corpus/shard_predictions.py corpus/arm-a/predictions.jsonl \
+          IDS=$(python3 corpus/shard_predictions.py "${{ inputs.predictions_path }}" \
                 ${{ matrix.shard }} ${{ env.N_SHARDS }} shard.jsonl)
           echo "ids=$IDS" >> "$GITHUB_OUTPUT"
           echo "shard ${{ matrix.shard }} instances: $IDS"
@@ -63,19 +75,19 @@ jobs:
       - name: Collect this shard's results
         if: always()
         run: |
-          mkdir -p arm-a-results
+          mkdir -p results
           # run summary (--report_dir is ignored by the harness; it always writes to cwd)
-          cp *".${{ inputs.run_id }}-shard${{ matrix.shard }}.json" arm-a-results/ 2>/dev/null || true
+          cp *".${{ inputs.run_id }}-shard${{ matrix.shard }}.json" results/ 2>/dev/null || true
           # per-instance report.json + logs (the source of truth for aggregation)
           if [ -d "logs/run_evaluation/${{ inputs.run_id }}-shard${{ matrix.shard }}" ]; then
-            cp -r "logs/run_evaluation/${{ inputs.run_id }}-shard${{ matrix.shard }}" arm-a-results/logs
+            cp -r "logs/run_evaluation/${{ inputs.run_id }}-shard${{ matrix.shard }}" results/logs
           fi
 
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: arm-a-shard-${{ matrix.shard }}
-          path: arm-a-results
+          name: "${{ inputs.artifact_prefix }}-shard-${{ matrix.shard }}"
+          path: results
           retention-days: 30
           if-no-files-found: warn
 
@@ -88,20 +100,20 @@ jobs:
 
       - uses: actions/download-artifact@v4
         with:
-          pattern: arm-a-shard-*
-          path: arm-a-results
+          pattern: "${{ inputs.artifact_prefix }}-shard-*"
+          path: results
 
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      - name: Aggregate S_A overall + per fix-shape stratum
+      - name: Aggregate success rate overall + per fix-shape stratum
         run: |
-          python3 corpus/aggregate_grading.py arm-a-results corpus/arm-a/run_index.json \
-                  arm-a-results/summary.json
+          python3 corpus/aggregate_grading.py results "${{ inputs.run_index_path }}" \
+                  results/summary.json
 
       - uses: actions/upload-artifact@v4
         with:
-          name: arm-a-summary
-          path: arm-a-results/summary.json
+          name: "${{ inputs.artifact_prefix }}-summary"
+          path: results/summary.json
           retention-days: 90

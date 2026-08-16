@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Package the 50 Arm-A (native) agent patches into the official SWE-bench predictions format.
+"""Package a run set's agent patches into the official SWE-bench predictions format.
 
 Reads ONLY agent.patch + manifest.json from each frozen run-NN directory. Never touches
 journal.sqlite, cr-hook-settings.json, or any prompt/telemetry file — those stay local. Output
@@ -7,8 +7,11 @@ is exactly what the official `swebench` harness consumes:
 
     predictions.jsonl   one JSON object per line: {instance_id, model_patch, model_name_or_path}
 
-and a side index (run_index.json, NOT sent anywhere — used locally to join grading results back
-to fix-shape strata) mapping instance_id -> {run, stratum, termination_reason}.
+model_name_or_path is derived PER RUN from its manifest's `arm` field (native/semantic_directive/...),
+so a run set is never mislabeled with a different arm's name.
+
+A side index (run_index.json, NOT sent anywhere — used locally to join grading results back to
+fix-shape strata) maps instance_id -> {run, stratum, termination_reason, arm}.
 
 Usage: python3 corpus/pack_predictions.py <runs_dir> <out_dir>
 """
@@ -19,7 +22,9 @@ import json
 import os
 import sys
 
-MODEL_NAME = "contextruntime-arm-a-native-scaffold-v1"
+
+def _model_name(arm: str) -> str:
+    return f"contextruntime-{arm}-scaffold-v1"
 
 
 def pack(runs_dir: str, out_dir: str) -> dict:
@@ -36,10 +41,11 @@ def pack(runs_dir: str, out_dir: str) -> dict:
             man = json.load(open(man_path))
             patch = open(patch_path).read()
             tid = man["task_id"]
+            arm = man.get("arm", "native")
             pf.write(json.dumps({
                 "instance_id": tid,
                 "model_patch": patch,
-                "model_name_or_path": MODEL_NAME,
+                "model_name_or_path": _model_name(arm),
             }) + "\n")
             index[tid] = {
                 "run": os.path.basename(run_dir),
@@ -47,6 +53,7 @@ def pack(runs_dir: str, out_dir: str) -> dict:
                 "termination_reason": man.get("termination_reason"),
                 "empty_patch": patch.strip() == "",
                 "patch_sha256": man.get("patch_sha256"),
+                "arm": arm,
             }
             n += 1
     json.dump(index, open(os.path.join(out_dir, "run_index.json"), "w"), indent=2)
