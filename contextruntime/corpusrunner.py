@@ -222,7 +222,18 @@ class ClaudeBackend(AgentBackend):
     def _mcp_config_path(self, run_dir: str, repo_id: str) -> str:
         from .install import cli_argv
         argv = cli_argv() + ["mcp", "--db", self.codegraph_db, "--repo", repo_id]
-        cfg = {"mcpServers": {"contextruntime": {"command": argv[0], "args": argv[1:]}}}
+        # The agent runs with cwd=<target-repo worktree> (e.g. the django mirror), NOT this
+        # package's own repo -- `python3 -m contextruntime.cli` only resolves via cwd-adds-to-
+        # sys.path IF cwd happens to be this repo's root. contextruntime is not pip-installed, so
+        # without this, the MCP server subprocess fails ModuleNotFoundError and silently never
+        # starts -- the agent gets no read_symbol/etc and falls back to 100% native, invisibly.
+        # Verified live: `python3 -c "import contextruntime"` from a foreign cwd fails without
+        # PYTHONPATH, succeeds with it. Set explicitly rather than relying on the invoking shell's
+        # environment, which the corpus batch script does not set.
+        pkg_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        cfg = {"mcpServers": {"contextruntime": {
+            "command": argv[0], "args": argv[1:], "env": {"PYTHONPATH": pkg_root},
+        }}}
         path = os.path.join(run_dir, "mcp-config.json")
         _write(path, json.dumps(cfg, indent=2))
         return path

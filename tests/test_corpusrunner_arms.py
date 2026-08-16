@@ -105,6 +105,33 @@ def test_semantic_directive_adds_mcp_config_and_directive_brief(monkeypatch, tmp
     cfg = json.load(open(mcp_path))
     assert "contextruntime" in cfg["mcpServers"]
 
+
+def test_mcp_config_sets_pythonpath_so_it_resolves_from_a_foreign_cwd(monkeypatch, tmp_path):
+    """Regression: the agent runs with cwd=<target-repo worktree>, not this package's own repo.
+    `python3 -m contextruntime.cli` only resolves via the cwd-adds-to-sys.path trick when cwd
+    happens to be this repo's root -- contextruntime is not pip-installed. Without an explicit
+    PYTHONPATH, the MCP server subprocess fails ModuleNotFoundError and silently never starts,
+    so the agent falls back to 100% native with no visible error (this is exactly what happened
+    to the first real Arm B collection -- 0 semantic_reads across all 50 runs)."""
+    graph = str(tmp_path / "graph.db")
+    _indexed_graph(graph)
+    backend, calls = _capturing_backend(monkeypatch, arm="semantic_directive",
+                                        codegraph_db=graph, repo_id="demo")
+    run_dir = tmp_path / "run-01"; run_dir.mkdir()
+    backend.run(str(tmp_path / "wt"), _spec(), str(tmp_path / "j.db"), str(run_dir / "s.json"))
+    argv = _claude_call(calls)
+    mcp_path = argv[argv.index("--mcp-config") + 1]
+    cfg = json.load(open(mcp_path))
+    server = cfg["mcpServers"]["contextruntime"]
+    assert "env" in server and "PYTHONPATH" in server["env"]
+    # the configured PYTHONPATH must actually make `import contextruntime` work
+    import subprocess
+    pkg_root = server["env"]["PYTHONPATH"]
+    r = subprocess.run(["python3", "-c", "import contextruntime"],
+                       cwd=str(tmp_path), env={"PYTHONPATH": pkg_root, "PATH": os.environ["PATH"]},
+                       capture_output=True)
+    assert r.returncode == 0, r.stderr
+
     assert "--append-system-prompt" in argv
     brief = argv[argv.index("--append-system-prompt") + 1]
     assert "read_symbol" in brief and brief.strip() != ""
