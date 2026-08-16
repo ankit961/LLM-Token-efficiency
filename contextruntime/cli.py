@@ -294,6 +294,16 @@ def cmd_cr_policy(args) -> int:
     return run(sys.stdin.read(), args.graph, args.repo)
 
 
+def cmd_policy_brief(args) -> int:
+    """Print the advisory brief for reliable headless delivery, e.g.
+    claude --append-system-prompt \"$(contextruntime policy-brief --graph G --repo R)\"."""
+    from .policybrief import build_brief
+    brief = build_brief(args.graph, args.repo)
+    if brief:
+        print(brief)
+    return 0
+
+
 def cmd_policy_dashboard(args) -> int:
     """Per-session ContextPolicy advisory dashboard: native source reads, semantic opportunities,
     adoption, and estimated avoided tokens — observe-only over the journal + code-graph."""
@@ -389,6 +399,12 @@ def main(argv=None) -> int:
     p.add_argument("--graph", required=True, help="code-graph sqlite (from index-code)")
     p.add_argument("--repo", required=True, help="repo_id used at index time")
     p.set_defaults(func=cmd_cr_policy)
+
+    p = sub.add_parser("policy-brief",
+                       help="print the advisory brief (for headless --append-system-prompt steering)")
+    p.add_argument("--graph", required=True)
+    p.add_argument("--repo", required=True)
+    p.set_defaults(func=cmd_policy_brief)
 
     p = sub.add_parser("policy-dashboard",
                        help="per-session ContextPolicy advisory dashboard (observe-only)")

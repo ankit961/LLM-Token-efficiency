@@ -132,8 +132,33 @@ def _serialize(sections: list, ambiguity_hints: list) -> str:
     return "\n\n".join(parts)
 
 
+_RESOLVE_DEF_KINDS = ("class", "function", "method", "interface", "type", "constant", "test")
+
+
+def _resolve_candidates(store, symbol, repo_id=None):
+    """Forgiving symbol resolution, so an agent can ask by a NATURAL name and get a hit instead of
+    a 'symbol not found' that bounces it back to a raw Read. Order:
+      1. exact symbol_id, then exact qualified_name (unchanged, highest precedence);
+      2. otherwise every symbol whose qualified_name IS `symbol` or ends with '.'+symbol
+         (a bare class/function/method name), definitions ranked above modules, then the most
+         top-level (shortest qualified_name), then stable by id.
+    Returns the ranked candidate list (empty if nothing matches)."""
+    exact = store.symbol_row(symbol) or store.find_symbol(symbol, repo_id)
+    if exact is not None:
+        return [exact]
+    suffix = "." + symbol
+    q = "SELECT * FROM symbols WHERE repo_id=?" if repo_id else "SELECT * FROM symbols"
+    args = (repo_id,) if repo_id else ()
+    rows = [r for r in store.conn.execute(q, args)
+            if r["qualified_name"] == symbol or r["qualified_name"].endswith(suffix)]
+    rows.sort(key=lambda r: (0 if r["kind"] in _RESOLVE_DEF_KINDS else 1,
+                             len(r["qualified_name"]), r["symbol_id"]))
+    return rows
+
+
 def _resolve(store, symbol, repo_id=None):
-    return store.symbol_row(symbol) or store.find_symbol(symbol, repo_id)
+    cands = _resolve_candidates(store, symbol, repo_id)
+    return cands[0] if cands else None
 
 
 def read_symbol(store: GraphStore, symbol: str, budget: int = 2048,

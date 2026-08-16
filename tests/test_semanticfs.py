@@ -53,6 +53,22 @@ def test_read_symbol_returns_real_source():
     s.close()
 
 
+# forgiving resolution — an agent can ask by a NATURAL (bare) name, so a steered read_symbol
+# call succeeds instead of erroring back to a raw Read (the adoption blocker for ContextPolicy).
+def test_forgiving_resolution_by_bare_name():
+    s = _store()
+    assert read_symbol(s, "service.process", budget=2048).ok        # exact qname still works
+    rr = read_symbol(s, "process", budget=2048)                     # bare name -> qualified suffix
+    assert rr.ok and "def process" in rr.to_text()
+    s.close()
+
+
+def test_forgiving_resolution_still_misses_the_truly_absent():
+    s = _store()
+    assert not read_symbol(s, "does_not_exist_anywhere", budget=512).ok
+    s.close()
+
+
 # SERIALIZED budget invariant — the model-visible payload (headers + handles +
 # annotations + bodies), not merely the source bodies (2.3.1 P0).
 def test_rendered_budget_respected():

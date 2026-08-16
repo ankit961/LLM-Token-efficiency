@@ -37,15 +37,16 @@ def build_brief(graph_db: str, repo_id: str) -> str:
     if n <= 0:
         return ""
     return (
-        "[ContextRuntime — advisory, observe-only]\n"
-        f"This repository is indexed ({n} symbols) with a semantic read surface exposed as MCP "
-        "tools (server: contextruntime):\n"
-        "  • read_symbol(symbol, budget) — a symbol plus its budgeted dependency neighborhood, as source\n"
+        "[ContextRuntime — advisory]\n"
+        f"This repository is indexed ({n} symbols) with a semantic read surface exposed as MCP tools "
+        "(server: contextruntime):\n"
+        "  • read_symbol(name) — a symbol (accepts a bare class/function/method name) plus its budgeted "
+        "dependency neighborhood, as source\n"
         "  • read_slice / context_search / find_callers — targeted views that return handles, not full dumps\n"
-        "When you need to UNDERSTAND source, prefer these over a raw Read of a whole file or a broad "
-        "grep: they materialize a smaller, budgeted bundle for the same understanding. For files you "
-        "intend to EDIT, read them natively as usual. This is advisory — native Read/Grep/Bash always "
-        "work and are never blocked."
+        "POLICY: to UNDERSTAND a named symbol, call read_symbol(name) FIRST and rely on its output; read "
+        "a whole file natively only when the symbol tools don't cover what you need, or when you are about "
+        "to EDIT that file. Native Read/Grep/Bash always work and are never blocked — this is advisory, "
+        "not a gate."
     )
 
 
