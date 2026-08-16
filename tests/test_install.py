@@ -77,10 +77,20 @@ def test_install_writes_settings_manifest_and_verifies(tmp_path):
     scope = I.resolve_scope("claude", str(proj), False)
     s = json.loads((proj / ".claude" / "settings.json").read_text())
     assert I.hooks_wired(s) == [ev for ev, _ in I.HOOK_EVENTS]                 # all 7 wired
+    assert I.policy_wired(s)                                                    # cr-policy on SessionStart
     assert json.loads((proj / ".mcp.json").read_text())["mcpServers"]["contextruntime"]
     man = json.loads(open(scope.config_path).read())
-    assert man["mode"] == "advisory" and man["hook_schema"] == "0.4.1"
+    assert man["mode"] == "advisory" and man["hook_schema"] == "0.4.1" and man["with_policy"] is True
     assert rep.verify["checks"] and any(c["check"] == "cr-hook-wired" and c["ok"] for c in rep.verify["checks"])
+
+
+def test_no_policy_wires_crhook_but_not_the_brief(tmp_path):
+    proj = tmp_path / "repo"
+    proj.mkdir()
+    I.install("claude", project=str(proj), with_index=False, with_policy=False)
+    s = json.loads((proj / ".claude" / "settings.json").read_text())
+    assert I.hooks_wired(s) == [ev for ev, _ in I.HOOK_EVENTS]                  # observation still fully wired
+    assert not I.policy_wired(s)                                                # but no advisory steering
 
 
 def test_dry_run_touches_nothing(tmp_path):

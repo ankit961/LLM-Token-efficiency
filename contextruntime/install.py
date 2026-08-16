@@ -46,7 +46,7 @@ HOOK_EVENTS = [
     ("PostToolBatch", False),
 ]
 
-CR_HOOK_TOKEN = "cr-hook"  # how we recognize our own hook groups on re-install / uninstall
+CR_TOKENS = ("cr-hook", "cr-policy")  # how we recognize our own hook groups on re-install / uninstall
 
 
 # --------------------------------------------------------------------------- paths / detection
@@ -118,6 +118,11 @@ def default_crhook_cmd(scope: Scope) -> str:
     return " ".join(shlex.quote(a) for a in argv)
 
 
+def default_crpolicy_cmd(scope: Scope) -> str:
+    argv = cli_argv() + ["cr-policy", "--graph", scope.codegraph_db, "--repo", scope.repo_id]
+    return " ".join(shlex.quote(a) for a in argv)
+
+
 # --------------------------------------------------------------------------- settings merge
 def _group(command: str, matcher: bool) -> dict:
     g: dict = {}
@@ -128,9 +133,10 @@ def _group(command: str, matcher: bool) -> dict:
 
 
 def _is_cr_group(group: dict) -> bool:
-    """True if this hook group is one we own (any command references cr-hook)."""
+    """True if this hook group is one we own (any command references a cr- entrypoint)."""
     for h in group.get("hooks", []) or []:
-        if CR_HOOK_TOKEN in str(h.get("command", "")):
+        cmd = str(h.get("command", ""))
+        if any(t in cmd for t in CR_TOKENS):
             return True
     return False
 
@@ -139,13 +145,17 @@ def build_hook_block(crhook_cmd: str) -> dict:
     return {ev: [_group(crhook_cmd, matcher)] for ev, matcher in HOOK_EVENTS}
 
 
-def merge_hooks(settings: dict, crhook_cmd: str) -> dict:
-    """Idempotently add our 7-event block, replacing any prior cr-hook groups in place."""
+def merge_hooks(settings: dict, crhook_cmd: str, crpolicy_cmd: str | None = None) -> dict:
+    """Idempotently add our 7-event cr-hook block (+ the cr-policy SessionStart brief when given),
+    replacing any prior cr-hook/cr-policy groups in place."""
     settings = dict(settings)
     hooks = dict(settings.get("hooks") or {})
     for ev, matcher in HOOK_EVENTS:
         existing = [g for g in (hooks.get(ev) or []) if not _is_cr_group(g)]
-        hooks[ev] = existing + [_group(crhook_cmd, matcher)]
+        groups = [_group(crhook_cmd, matcher)]
+        if crpolicy_cmd and ev == "SessionStart":
+            groups.append(_group(crpolicy_cmd, False))   # advisory brief, SessionStart carries no matcher
+        hooks[ev] = existing + groups
     settings["hooks"] = hooks
     return settings
 
@@ -171,6 +181,15 @@ def hooks_wired(settings: dict) -> list[str]:
     """Which of our 7 events currently carry a cr-hook group."""
     hooks = settings.get("hooks") or {}
     return [ev for ev, _ in HOOK_EVENTS if any(_is_cr_group(g) for g in (hooks.get(ev) or []))]
+
+
+def policy_wired(settings: dict) -> bool:
+    """True if the cr-policy advisory brief is registered on SessionStart."""
+    hooks = settings.get("hooks") or {}
+    for g in (hooks.get("SessionStart") or []):
+        if any("cr-policy" in str(h.get("command", "")) for h in (g.get("hooks", []) or [])):
+            return True
+    return False
 
 
 # --------------------------------------------------------------------------- mcp merge
@@ -252,10 +271,11 @@ class Report:
 
 
 def install(client: str, *, project: str | None = None, use_global: bool = False,
-            with_mcp: bool = True, with_index: bool = True, crhook_cmd: str | None = None,
-            dry_run: bool = False, force: bool = False) -> Report:
+            with_mcp: bool = True, with_index: bool = True, with_policy: bool = True,
+            crhook_cmd: str | None = None, dry_run: bool = False, force: bool = False) -> Report:
     scope = resolve_scope(client, project, use_global)
     crhook_cmd = crhook_cmd or default_crhook_cmd(scope)
+    crpolicy_cmd = default_crpolicy_cmd(scope) if with_policy else None
     rep = Report(action="install", scope=scope.name, dry_run=dry_run)
 
     det = detect_claude()
@@ -276,12 +296,14 @@ def install(client: str, *, project: str | None = None, use_global: bool = False
         rep.add(Step("register-cr-hook", scope.settings_path, changed=False, ok=False, note=str(e)))
         settings = None
     if settings is not None:
-        merged = merge_hooks(settings, crhook_cmd)
+        merged = merge_hooks(settings, crhook_cmd, crpolicy_cmd)
         changed = merged != settings
+        note = "7 events; idempotent; backup -> settings.json.crbak"
+        if crpolicy_cmd:
+            note += "; + cr-policy advisory brief on SessionStart"
         rep.add(Step("register-cr-hook",
                      f"{scope.settings_path}  ({crhook_cmd})",
-                     changed=changed,
-                     note="7 events; idempotent; backup -> settings.json.crbak" if changed else "already wired"))
+                     changed=changed, note=note if changed else "already wired"))
         if not dry_run and changed:
             _write_json(scope.settings_path, merged, backup=True)
 
@@ -317,7 +339,8 @@ def install(client: str, *, project: str | None = None, use_global: bool = False
         "journal_db": scope.journal_db, "codegraph_db": scope.codegraph_db,
         "repo_path": scope.repo_path, "repo_id": scope.repo_id,
         "settings_path": scope.settings_path, "mcp_path": scope.mcp_path,
-        "crhook_cmd": crhook_cmd, "with_mcp": with_mcp, "with_index": with_index,
+        "crhook_cmd": crhook_cmd, "crpolicy_cmd": crpolicy_cmd,
+        "with_mcp": with_mcp, "with_index": with_index, "with_policy": with_policy,
     }
     rep.add(Step("write-manifest", scope.config_path, changed=True))
     if not dry_run:
@@ -403,6 +426,8 @@ def verify_install(scope: Scope, det: dict | None = None) -> dict:
         chk("settings-parses", True, scope.settings_path)
         chk("cr-hook-wired", len(wired) == len(HOOK_EVENTS),
             f"{len(wired)}/{len(HOOK_EVENTS)} events: {','.join(wired) or 'none'}")
+        chk("cr-policy-wired", policy_wired(s),
+            "SessionStart advisory brief" if policy_wired(s) else "not wired (advisory steering off)")
 
     parent = os.path.dirname(scope.journal_db)
     chk("journal-dir-writable", os.path.isdir(parent) and os.access(parent, os.W_OK),
@@ -424,7 +449,8 @@ def verify_install(scope: Scope, det: dict | None = None) -> dict:
         "mode": MODE,
         "hook_schema": HOOK_SCHEMA,
         "runtime_tag": RUNTIME_TAG,
-        "healthy": all(c["ok"] for c in checks if c["check"] not in ("code-graph-indexed",)),
+        "healthy": all(c["ok"] for c in checks
+                       if c["check"] not in ("code-graph-indexed", "cr-policy-wired")),
         "checks": checks,
     }
 

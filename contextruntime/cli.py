@@ -272,7 +272,7 @@ def cmd_install(args) -> int:
     from . import install as install_mod
     rep = install_mod.install(
         args.client, project=args.project, use_global=args.use_global,
-        with_mcp=not args.no_mcp, with_index=not args.no_index,
+        with_mcp=not args.no_mcp, with_index=not args.no_index, with_policy=not args.no_policy,
         crhook_cmd=args.crhook_cmd, dry_run=args.dry_run, force=args.force)
     print(install_mod.format_report(rep))
     return 0 if rep.ok else 1
@@ -286,6 +286,12 @@ def cmd_uninstall(args) -> int:
         purge=args.purge, dry_run=args.dry_run)
     print(install_mod.format_report(rep))
     return 0 if rep.ok else 1
+
+
+def cmd_cr_policy(args) -> int:
+    """SessionStart advisory-brief hook: steer toward the semantic read surface (fail-open, exit 0)."""
+    from .policybrief import run
+    return run(sys.stdin.read(), args.graph, args.repo)
 
 
 def cmd_policy_dashboard(args) -> int:
@@ -363,6 +369,8 @@ def main(argv=None) -> int:
                    help="wire ~/.claude for all projects instead of this repo's .claude/")
     p.add_argument("--no-mcp", action="store_true", help="skip the observe-only read-surface MCP")
     p.add_argument("--no-index", action="store_true", help="skip the initial code-graph index")
+    p.add_argument("--no-policy", action="store_true",
+                   help="skip the cr-policy SessionStart advisory brief (observe-only, no steering)")
     p.add_argument("--crhook-cmd", help="override the cr-hook command written into settings.json")
     p.add_argument("--dry-run", action="store_true", help="print the plan; touch nothing")
     p.add_argument("--force", action="store_true", help="(reserved) proceed despite soft warnings")
@@ -375,6 +383,12 @@ def main(argv=None) -> int:
     p.add_argument("--purge", action="store_true", help="also delete the local state dir (journal + graph)")
     p.add_argument("--dry-run", action="store_true")
     p.set_defaults(func=cmd_uninstall)
+
+    p = sub.add_parser("cr-policy",
+                       help="SessionStart advisory brief: steer toward the semantic read surface (fail-open)")
+    p.add_argument("--graph", required=True, help="code-graph sqlite (from index-code)")
+    p.add_argument("--repo", required=True, help="repo_id used at index time")
+    p.set_defaults(func=cmd_cr_policy)
 
     p = sub.add_parser("policy-dashboard",
                        help="per-session ContextPolicy advisory dashboard (observe-only)")
