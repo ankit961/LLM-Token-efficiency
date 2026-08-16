@@ -24,3 +24,7 @@ venv/
 *.db
 *.sqlite
 .pytest_cache/
+
+# ContextRuntime local install (`contextruntime install claude`) — local dev state, not source
+.claude/
+.mcp.json
