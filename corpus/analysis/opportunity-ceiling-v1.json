@@ -1338,6 +1338,29 @@
     }
   ],
   "primary_window": 16,
+  "robustness": {
+    "c_safe": {
+      "macro_mean": 0.1732,
+      "macro_median": 0.096,
+      "n": 50,
+      "n_tasks_gt_10pct": 25,
+      "n_tasks_gt_20pct": 16,
+      "p25": 0.0,
+      "p75": 0.2561,
+      "stratum_standardized_mean": 0.2043
+    },
+    "c_upper": {
+      "macro_mean": 0.4739,
+      "macro_median": 0.4472,
+      "n": 50,
+      "n_tasks_gt_10pct": 47,
+      "n_tasks_gt_20pct": 42,
+      "p25": 0.2803,
+      "p75": 0.6777,
+      "stratum_standardized_mean": 0.513
+    },
+    "note": "macro/stratum-standardized are independent robustness checks on the micro (token-weighted) headline, not corrections to it -- all three are reported, none is asserted as more 'true' than the others."
+  },
   "schema": "opportunity-ceiling-v1",
   "total_fully_measured_tokens": 246686
 }

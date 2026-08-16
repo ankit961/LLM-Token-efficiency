@@ -7,7 +7,7 @@ import sqlite3
 
 from contextruntime.hookjournal import HookJournal
 
-from corpus.opportunity_ceiling import _bucket_of, _tok_cat, aggregate, analyze_journal
+from corpus.opportunity_ceiling import _bucket_of, _tok_cat, aggregate, analyze_journal, compute_robustness
 
 _SENTINEL = object()
 
@@ -39,6 +39,11 @@ def _mk(tmp_path, name, fn):
 
 # --------------------------------------------------------------------------- pure functions
 def test_tok_cat_matches_labelreport_semantics():
+    """Regression: an earlier version checked token_status for the CATEGORY names
+    ('partial_multimodal'/'multimodal_unmeasured') as if they were raw journal values -- the real
+    raw values are 'text_partial_multimodal'/'multimodal'. The bug was latent (this corpus has zero
+    such rows) but would have silently misrouted any real multimodal row to 'unmeasured_other'.
+    Every case here uses the ACTUAL raw token_status strings the journal writes."""
     assert _tok_cat({"token_attribution": "attributed", "model_visible_tokens": 40,
                      "token_status": "text"}) == "fully_attributed_text"
     assert _tok_cat({"token_attribution": "ambiguous_composite", "model_visible_tokens": 40,
@@ -47,8 +52,20 @@ def test_tok_cat_matches_labelreport_semantics():
                      "token_status": "text"}) == "ambiguous_multipath"
     assert _tok_cat({"token_attribution": "attributed", "model_visible_tokens": None,
                      "token_status": "text"}) == "unmeasured_other"          # NULL weight never zero-cost
+    # raw value 'text_partial_multimodal' -> category 'partial_multimodal'
     assert _tok_cat({"token_attribution": "attributed", "model_visible_tokens": 5,
-                     "token_status": "multimodal_unmeasured"}) == "multimodal_unmeasured"
+                     "token_status": "text_partial_multimodal"}) == "partial_multimodal"
+    # raw value 'multimodal' -> category 'multimodal_unmeasured'
+    assert _tok_cat({"token_attribution": None, "model_visible_tokens": None,
+                     "token_status": "multimodal"}) == "multimodal_unmeasured"
+    # raw value 'unsupported' -> category 'unsupported' (the one case where raw == category)
+    assert _tok_cat({"token_attribution": None, "model_visible_tokens": None,
+                     "token_status": "unsupported"}) == "unsupported"
+    # the CATEGORY names themselves are never valid raw token_status values -- must NOT match
+    assert _tok_cat({"token_attribution": "attributed", "model_visible_tokens": 5,
+                     "token_status": "partial_multimodal"}) == "unmeasured_other"
+    assert _tok_cat({"token_attribution": "attributed", "model_visible_tokens": 5,
+                     "token_status": "multimodal_unmeasured"}) == "unmeasured_other"
 
 
 def test_bucket_of_is_conservative_never_upgrades_unknown():
@@ -121,3 +138,37 @@ def test_aggregate_computes_c_safe_and_c_upper_across_runs(tmp_path):
     assert result["c_upper"]["ratio"] >= result["c_safe"]["ratio"]     # upper is never below safe
     assert set(result["by_stratum"]) == {"fs1", "fs2"}
     assert result["by_stratum"]["fs2"]["c_safe"] == 1.0                # run2 is pure exploration
+
+
+# --------------------------------------------------------------------------- robustness
+def test_robustness_micro_macro_and_stratum_standardized_are_independent_reweightings():
+    """4 tasks, 2 strata, one task with a MUCH larger token volume than the other 3 -- deliberately
+    constructed so micro (token-weighted), macro (task-weighted), and stratum-standardized (equal
+    weight per stratum) all land on genuinely DIFFERENT numbers, proving they're independent
+    reweightings and not three views of the same arithmetic. Expected values precomputed exactly
+    (not approximated) via the same formulas this function implements, verified independently."""
+    per_run = [
+        {"stratum": "A", "tokens": {"required": 85, "verification": 0, "exploration_reducible": 15,
+                                    "search_listing_reducible": 0, "unresolved_other": 0, "config_required": 0}},
+        {"stratum": "A", "tokens": {"required": 10, "verification": 0, "exploration_reducible": 90,
+                                    "search_listing_reducible": 0, "unresolved_other": 0, "config_required": 0}},
+        {"stratum": "A", "tokens": {"required": 50, "verification": 0, "exploration_reducible": 50,
+                                    "search_listing_reducible": 0, "unresolved_other": 0, "config_required": 0}},
+        {"stratum": "B", "tokens": {"required": 100, "verification": 0, "exploration_reducible": 900,
+                                    "search_listing_reducible": 0, "unresolved_other": 0, "config_required": 0}},
+    ]
+    by_stratum = {
+        "A": {"c_safe": round((15 + 90 + 50) / 300, 4), "c_upper": round((15 + 90 + 50) / 300, 4)},
+        "B": {"c_safe": round(900 / 1000, 4), "c_upper": round(900 / 1000, 4)},
+    }
+    rob = compute_robustness(per_run, by_stratum)
+
+    micro_c_safe = round((15 + 90 + 50 + 900) / (100 + 100 + 100 + 1000), 4)
+    assert rob["c_safe"]["macro_mean"] == 0.6125
+    assert rob["c_safe"]["macro_median"] == 0.7
+    assert rob["c_safe"]["n"] == 4
+    assert rob["c_safe"]["n_tasks_gt_10pct"] == 4          # 0.15,0.90,0.50,0.90 all > 0.10
+    assert rob["c_safe"]["n_tasks_gt_20pct"] == 3          # 0.15 excluded
+    assert rob["c_safe"]["stratum_standardized_mean"] == 0.7084   # mean(0.5167, 0.9), rounded
+    # the three reweightings must be genuinely distinct here -- that's the point of the fixture
+    assert len({micro_c_safe, rob["c_safe"]["macro_mean"], rob["c_safe"]["stratum_standardized_mean"]}) == 3

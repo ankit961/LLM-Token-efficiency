@@ -92,14 +92,14 @@ delivered); the *interpretation* (why) is reasoned from the evidence, not indepe
 ## 4. The opportunity ceiling — how much is there to gain, if adoption weren't voluntary
 
 §3 established that asking the agent to opt in doesn't work. That reframes the question: if a
-runtime could safely substitute or reduce reads on the agent's behalf — never asking, never
-depending on cooperation — how much of the corpus's actual read-token volume is even a plausible
-candidate? This is answered entirely offline, at zero cost, over the 50 already-classified
-Observation Corpus v2.1 journals (`corpus/opportunity_ceiling.py`, output committed at
-`corpus/analysis/opportunity-ceiling-v1.json`). It reuses the frozen classifier exactly as the
-label-report does; it adds no new classification, only a bucketing of the existing labels/reasons
-by reduction candidacy, deliberately as conservative as the classifier itself — an `UNKNOWN` read
-is never optimistically counted as reducible just to raise the number.
+runtime could reduce reads on the agent's behalf — never asking, never depending on cooperation —
+how much of the corpus's actual read-token volume is even a plausible candidate? Answered entirely
+offline, at zero cost, over the 50 already-classified Observation Corpus v2.1 journals
+(`corpus/opportunity_ceiling.py`, output committed at `corpus/analysis/opportunity-ceiling-v1.json`).
+It reuses the frozen classifier exactly as the label-report does; it adds no new classification,
+only a bucketing of the existing labels/reasons by reduction candidacy, deliberately as
+conservative as the classifier itself — an `UNKNOWN` read is never optimistically counted as
+reducible just to raise the number.
 
 Of **246,686 fully-measured read tokens** across all 50 runs (cross-checked exactly against §1's
 91.3%/589-read figures — 538 fully-attributed + 29 `ambiguous_composite` + 22 `ambiguous_multipath`
@@ -109,26 +109,64 @@ Of **246,686 fully-measured read tokens** across all 50 runs (cross-checked exac
 |---|---:|---:|---|
 | `required` (edit precondition) | 70,726 | 28.7% | must remain exact, never a candidate |
 | `search_listing_reducible` | 73,360 | 29.7% | grep/find/listing output — a *different* mechanism (output compaction, i.e. Phase-1 `ContextReduce`), not semantic substitution |
-| `exploration_reducible` | 52,535 | 21.3% | confidently no future mutation — the classic semantic-substitution candidate |
+| `exploration_reducible` | 52,535 | 21.3% | confidently no future mutation of that path — see the retrospective-vs-prospective caveat below |
 | `unresolved_other` | 44,610 | 18.1% | classifier is correctly uncertain — not counted as reducible |
 | `verification` | 5,455 | 2.2% | post-edit re-check, reported separately |
 
 ```
-C_safe  = exploration_reducible / all                         = 52,535 / 246,686 = 21.3%
-C_upper = (exploration_reducible + search_listing_reducible) / all = 125,895 / 246,686 = 51.0%
+21.3% = exploration_reducible / all                              = 52,535 / 246,686
+51.0% = (exploration_reducible + search_listing_reducible) / all = 125,895 / 246,686
 ```
 
-**Read as: even before touching the adoption problem, 21–51% of context materialized in these
-tasks is a plausible reduction candidate under runtime-mediated control** — the conservative
-number counts only confident-exploration reads; the optimistic number also counts search/listing
-output, which is a different and already-partially-built mechanism (the Phase-1 `ContextReduce`
-reducer library), not a new one. Per-stratum, the ceiling doesn't collapse anywhere: `C_safe` stays
-in a 15–26% band across all 5 fix-shape strata, and `C_upper` in a 39–62% band — the opportunity
-isn't concentrated in one easy stratum and absent elsewhere.
+**Precise interpretation — read as candidate mass, not guaranteed savings.** "No future mutation of
+this path" is not the same claim as "removing or compressing this read would have preserved the
+agent's reasoning." A read of `parser.py` that's never itself edited can still be causally necessary
+for correctly editing `validator.py` later — the classifier's retrospective label is honest about
+what it observed (no later write to *this* path), not about causal necessity for task success. So
+**21.3% and 51.0% are reduction-*candidate* mass, an upper bound on opportunity, not a proven-safe
+saving** — this distinction matters enough to protect in any external write-up.
+
+**A more useful distinction than "safe vs broad" turns out to be retrospective vs. prospective.**
+The two components of the 51.0% are not equally capturable *today*:
+
+- `exploration_reducible` (21.3%) is retrospective — at the moment the agent executes `Read foo.py`,
+  the runtime cannot yet know whether `foo.py` will later be edited; the classifier only knows after
+  seeing the future. This is an **oracle ceiling** for a future prediction/admission policy, not
+  something interceptable without one.
+- `search_listing_reducible` (29.7%) is prospective — a `grep`/`rg`/`find`/`ls`/`tree`-style
+  representation is known **at runtime, before execution**, with zero prediction required. This is
+  the larger of the two buckets and the one a transparent reducer (Phase-1 `ContextReduce`, already
+  built, currently observe-mode only) can act on immediately, with no classifier/predictor in the
+  loop at all.
+
+This reorders the natural next engineering step: **search/listing output compaction is more
+immediately actionable than exploration-read substitution**, even though exploration is the
+smaller number.
+
+**Robustness — three independent reweightings of the same data**, since the headline is
+token-weighted (micro) and a few heavy runs could in principle dominate it:
+
+| | micro (headline) | macro (task-weighted mean) | macro median | stratum-standardized |
+|---|---:|---:|---:|---:|
+| exploration_reducible | 21.3% | 17.3% | 9.6% | 20.4% |
+| broad (+ search/listing) | 51.0% | 47.4% | 44.7% | 51.3% |
+
+Stratum-standardized (equal weight per fix-shape stratum, removing the fact that heavier strata —
+e.g. fs5 at 68,846 tokens vs. fs1 at 33,418 — otherwise get more say in the micro number even though
+task *count* is balanced 10-per-stratum) lands within ~1 point of the micro headline for both
+ceilings — **the headline is not an artifact of the sampling design.** The exploration bucket is
+notably right-skewed, though: macro median (9.6%) sits well below macro mean (17.3%), and a full
+quarter of the 50 tasks (p25 = 0.0) have **zero** confidently-exploration-reducible tokens at all —
+only half the tasks (25/50) clear 10% exploration-reducible share. The broad ceiling is far more
+evenly present: 47/50 tasks (94%) clear 10%, median 44.7%. Per fix-shape stratum, neither ceiling
+collapses anywhere (exploration-only stays in a 15–26% band, broad in a 39–62% band across all 5
+strata) — full detail in `corpus/analysis/opportunity-ceiling-v1.json`'s `robustness`/`by_stratum` keys.
 
 **Evidence grade**: A (pure arithmetic over already-classified, already-verified data; the
-bucketing logic is unit-tested and the sanity totals reconcile exactly with §1's independently
-reported figures).
+bucketing logic is unit-tested — including a regression test for a latent `_tok_cat` parity bug
+found during review, fixed before this became "reusable infrastructure," zero effect on the
+reported numbers since this corpus has no multimodal reads — and the sanity totals reconcile
+exactly with §1's independently reported figures).
 
 ## 5. What remains open
 

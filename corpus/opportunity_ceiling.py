@@ -62,8 +62,15 @@ BUCKETS = ("required", "verification", "exploration_reducible", "search_listing_
 
 
 def _tok_cat(row: dict) -> str:
-    """Exact port of labelreport.build_report's inner _tok_cat -- a read is fully measured only
-    when attribution=='attributed' AND a non-NULL weight AND token_status=='text'."""
+    """Line-for-line port of labelreport.build_report's inner _tok_cat (row-dict form instead of
+    an eid lookup) -- a read is fully measured only when attribution=='attributed' AND a non-NULL
+    weight AND token_status=='text'. The RAW token_status values from the journal are 'text',
+    'text_partial_multimodal', 'multimodal', 'unsupported' -- 'partial_multimodal' and
+    'multimodal_unmeasured' are labelreport's CATEGORY NAMES, never raw field values; an earlier
+    version of this function checked for the category names as if they were raw values, which
+    would have silently misclassified any real partial-multimodal/multimodal row as
+    'unmeasured_other' (this corpus has zero such rows, so the bug was latent, not yet wrong in
+    its output -- fixed before treating this as reusable infrastructure)."""
     attr, tok, st = row.get("token_attribution"), row.get("model_visible_tokens"), row.get("token_status")
     if attr == "ambiguous_composite":
         return "ambiguous_composite"
@@ -71,10 +78,12 @@ def _tok_cat(row: dict) -> str:
         return "ambiguous_multipath"
     if attr == "attributed" and tok is not None and st == "text":
         return "fully_attributed_text"
-    if attr == "attributed" and tok is not None and st == "partial_multimodal":
+    if st == "text_partial_multimodal":
         return "partial_multimodal"
-    if st in ("multimodal_unmeasured", "unsupported"):
-        return st
+    if st == "multimodal":
+        return "multimodal_unmeasured"
+    if st == "unsupported":
+        return "unsupported"
     return "unmeasured_other"
 
 
@@ -121,6 +130,62 @@ def analyze_journal(db_path: str) -> dict:
 
     return {"tokens": tokens, "counts": counts,
            "excluded_tokens": dict(excluded_tokens), "excluded_counts": dict(excluded_counts)}
+
+
+def _task_ratio(run: dict, numerator_buckets: tuple) -> "float | None":
+    total = sum(run["tokens"][b] for b in BUCKETS)
+    if not total:
+        return None
+    return sum(run["tokens"][b] for b in numerator_buckets) / total
+
+
+def compute_robustness(per_run: list, by_stratum: dict) -> dict:
+    """The headline c_safe/c_upper are MICRO (token-weighted) -- a large run's tokens count more
+    than a small run's. This checks the headline isn't an artifact of a few heavy runs or of the
+    (already-balanced 10-per-stratum) sampling design, via two INDEPENDENT reweightings:
+
+      macro (task-weighted)   -- one ratio per TASK, all 50 tasks equal weight regardless of size.
+      stratum-standardized    -- one ratio per STRATUM (5 of them, already token-weighted within
+                                 the stratum), all 5 strata equal weight -- removes the fact that
+                                 heavier strata (e.g. fs5 at 68,846 tokens vs fs1 at 33,418) get
+                                 more say in the micro number even though task COUNT is balanced.
+
+    These are genuinely different reweightings, not two views of the same number -- reported
+    separately, no single number is asserted as "the" corrected estimate."""
+    import statistics
+
+    safe_ratios = [r for r in (_task_ratio(run, ("exploration_reducible",)) for run in per_run)
+                  if r is not None]
+    upper_ratios = [r for r in (_task_ratio(run, ("exploration_reducible", "search_listing_reducible"))
+                               for run in per_run) if r is not None]
+
+    def summary(ratios: list) -> dict:
+        if not ratios:
+            return {"n": 0}
+        ratios_sorted = sorted(ratios)
+        q1, med, q3 = statistics.quantiles(ratios_sorted, n=4, method="inclusive")
+        return {
+            "n": len(ratios),
+            "macro_mean": round(statistics.fmean(ratios), 4),
+            "macro_median": round(med, 4),
+            "p25": round(q1, 4),
+            "p75": round(q3, 4),
+            "n_tasks_gt_10pct": sum(1 for r in ratios if r > 0.10),
+            "n_tasks_gt_20pct": sum(1 for r in ratios if r > 0.20),
+        }
+
+    stratum_safe = [v["c_safe"] for v in by_stratum.values() if v["c_safe"] is not None]
+    stratum_upper = [v["c_upper"] for v in by_stratum.values() if v["c_upper"] is not None]
+
+    return {
+        "note": "macro/stratum-standardized are independent robustness checks on the micro "
+               "(token-weighted) headline, not corrections to it -- all three are reported, "
+               "none is asserted as more 'true' than the others.",
+        "c_safe": {**summary(safe_ratios),
+                  "stratum_standardized_mean": round(statistics.fmean(stratum_safe), 4) if stratum_safe else None},
+        "c_upper": {**summary(upper_ratios),
+                   "stratum_standardized_mean": round(statistics.fmean(stratum_upper), 4) if stratum_upper else None},
+    }
 
 
 def aggregate(runs_dir: str) -> dict:
@@ -184,6 +249,7 @@ def aggregate(runs_dir: str) -> dict:
                                   "all_fully_measured_read_tokens",
                    "tokens": c_upper_tokens, "ratio": ratio(c_upper_tokens)},
         "by_stratum": by_stratum,
+        "robustness": compute_robustness(per_run, by_stratum),
         "per_run": per_run,
     }
 
