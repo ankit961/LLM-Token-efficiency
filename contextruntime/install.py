@@ -25,11 +25,14 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import shlex
 import shutil
 import subprocess
 import sys
 from dataclasses import dataclass, field
+
+from . import doctor
 
 HOOK_SCHEMA = "0.4.1"
 RUNTIME_TAG = "obs-runtime-3a-v2.1"
@@ -46,7 +49,10 @@ HOOK_EVENTS = [
     ("PostToolBatch", False),
 ]
 
-CR_TOKENS = ("cr-hook", "cr-policy")  # how we recognize our own hook groups on re-install / uninstall
+# how we recognize our own hook groups on re-install / uninstall. The reducer group is
+# recognized by its module path (it is NOT a cr- console subcommand).
+REDUCE_TOKEN = "contextruntime.reducers.hook"
+CR_TOKENS = ("cr-hook", "cr-policy", REDUCE_TOKEN)
 
 
 # --------------------------------------------------------------------------- paths / detection
@@ -62,6 +68,8 @@ class Scope:
     config_path: str
     repo_path: str        # the code root to index / observe
     repo_id: str
+    live_cas_db: str = ""   # B1.0: dedicated live reducer CAS (CR_DB) — makes result:// recoverable
+    decisions_log: str = ""  # B1.0: append-only reducer decision log (CR_DECISION_LOG)
 
 
 def resolve_scope(client: str, project: str | None, use_global: bool) -> Scope:
@@ -87,7 +95,18 @@ def resolve_scope(client: str, project: str | None, use_global: bool) -> Scope:
         config_path=os.path.join(state, "install.json"),
         repo_path=repo_path,
         repo_id=os.path.basename(repo_path.rstrip("/")) or "repo",
+        live_cas_db=os.path.join(state, "live_cas.db"),
+        decisions_log=os.path.join(state, "reduce_decisions.jsonl"),
     )
+
+
+def _parse_version(raw: str | None) -> str | None:
+    """Extract a semver token (e.g. '2.1.229') from a `claude --version` string, which may
+    carry extra text. Returns None if no version-shaped token is present."""
+    if not raw:
+        return None
+    m = re.search(r"\d+\.\d+\.\d+", raw)
+    return m.group(0) if m else None
 
 
 def detect_claude() -> dict:
@@ -123,6 +142,31 @@ def default_crpolicy_cmd(scope: Scope) -> str:
     return " ".join(shlex.quote(a) for a in argv)
 
 
+def _pkg_root() -> str:
+    """Parent of the ``contextruntime`` package dir. Put on PYTHONPATH in the reducer hook
+    command so ``python -m contextruntime.reducers.hook`` resolves from ANY project cwd,
+    even in a bare (non-pip-installed) checkout — the foreign-cwd startup fix (B1.0 §3.4)."""
+    return str(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+
+def default_reducer_cmd(scope: Scope, *, enforce: bool = False,
+                        client_version: str | None = None) -> str:
+    """The PostToolUse transparent-reducer command. Absolute CR_DB / CR_DECISION_LOG paths and
+    an explicit PYTHONPATH make it cwd-independent. Enforcement is baked in ONLY when explicitly
+    enabled AND the detected client version is confirmed — otherwise it ships observe-only."""
+    env = {
+        "PYTHONPATH": _pkg_root(),
+        "CR_DB": scope.live_cas_db,
+        "CR_DECISION_LOG": scope.decisions_log,
+    }
+    if enforce and client_version:
+        env["CR_REDUCE_MODE"] = "enforce"
+        env["CR_CLIENT_VERSION"] = client_version
+    prefix = " ".join(f"{k}={shlex.quote(v)}" for k, v in env.items())
+    argv = [sys.executable, "-m", "contextruntime.reducers.hook"]
+    return prefix + " " + " ".join(shlex.quote(a) for a in argv)
+
+
 # --------------------------------------------------------------------------- settings merge
 def _group(command: str, matcher: bool) -> dict:
     g: dict = {}
@@ -145,9 +189,12 @@ def build_hook_block(crhook_cmd: str) -> dict:
     return {ev: [_group(crhook_cmd, matcher)] for ev, matcher in HOOK_EVENTS}
 
 
-def merge_hooks(settings: dict, crhook_cmd: str, crpolicy_cmd: str | None = None) -> dict:
-    """Idempotently add our 7-event cr-hook block (+ the cr-policy SessionStart brief when given),
-    replacing any prior cr-hook/cr-policy groups in place."""
+def merge_hooks(settings: dict, crhook_cmd: str, crpolicy_cmd: str | None = None,
+                reducer_cmd: str | None = None) -> dict:
+    """Idempotently add our 7-event cr-hook block (+ the cr-policy SessionStart brief, + the
+    B1.0 PostToolUse transparent reducer when given), replacing any prior cr-* groups in place.
+    The reducer group COEXISTS with the observation cr-hook group on PostToolUse — the journal
+    still records the raw event; the reducer independently decides output replacement."""
     settings = dict(settings)
     hooks = dict(settings.get("hooks") or {})
     for ev, matcher in HOOK_EVENTS:
@@ -155,6 +202,8 @@ def merge_hooks(settings: dict, crhook_cmd: str, crpolicy_cmd: str | None = None
         groups = [_group(crhook_cmd, matcher)]
         if crpolicy_cmd and ev == "SessionStart":
             groups.append(_group(crpolicy_cmd, False))   # advisory brief, SessionStart carries no matcher
+        if reducer_cmd and ev == "PostToolUse":
+            groups.append(_group(reducer_cmd, True))     # matcher present — same PostToolUse events
         hooks[ev] = existing + groups
     settings["hooks"] = hooks
     return settings
@@ -198,6 +247,9 @@ def mcp_entry(scope: Scope) -> dict:
     return {
         "command": argv[0],
         "args": argv[1:] + ["mcp", "--db", scope.codegraph_db, "--repo", scope.repo_id],
+        # B1.0: the MCP server resolves context_expand(result://…). Point it at the SAME live
+        # CAS the reducer hook writes, so a reducer-emitted handle is recoverable through MCP.
+        "env": {"CR_DB": scope.live_cas_db},
     }
 
 
@@ -272,6 +324,7 @@ class Report:
 
 def install(client: str, *, project: str | None = None, use_global: bool = False,
             with_mcp: bool = True, with_index: bool = True, with_policy: bool = True,
+            with_reducer: bool = True, enable_reduction: bool = False,
             crhook_cmd: str | None = None, dry_run: bool = False, force: bool = False) -> Report:
     scope = resolve_scope(client, project, use_global)
     crhook_cmd = crhook_cmd or default_crhook_cmd(scope)
@@ -283,6 +336,30 @@ def install(client: str, *, project: str | None = None, use_global: bool = False
                  f"claude {det['version'] or '(version unknown)'} at {det['cli'] or 'NOT ON PATH'}",
                  changed=False, ok=True,
                  note="" if det["detected"] else "claude CLI not found — hook installs but stays dormant"))
+
+    # B1.0 transparent reducer posture. Enforcement requires BOTH the explicit opt-in flag AND a
+    # client version confirmed for output replacement (doctor allowlist). An unconfirmed version
+    # fails safe to observe-only — never a hard install failure, matching the fail-open posture.
+    client_version = _parse_version(det.get("version"))
+    confirmed = doctor.output_replacement_confirmed(client_version)
+    enforce = bool(enable_reduction and confirmed)
+    reducer_cmd = None
+    if with_reducer:
+        reducer_cmd = default_reducer_cmd(
+            scope, enforce=enforce, client_version=client_version if enforce else None)
+        if enforce:
+            posture = (f"ENFORCE on confirmed client {client_version} — search/listing outputs "
+                       f"reduced; result:// recoverable from {scope.live_cas_db}")
+        elif enable_reduction and not confirmed:
+            posture = (f"--enable-reduction requested but client version "
+                       f"{client_version or 'unknown'} is NOT confirmed for output replacement "
+                       f"(allowlist: {sorted(doctor.CONFIRMED_OUTPUT_REPLACEMENT_VERSIONS)}) — "
+                       f"wired OBSERVE-ONLY (fail-safe)")
+        else:
+            posture = ("observe-only — reports would-be savings on stderr, no output replacement; "
+                       "pass --enable-reduction on a confirmed client to enforce")
+        rep.add(Step("cr-reduce-posture", "PostToolUse transparent reducer (search/listing only)",
+                     changed=False, ok=True, note=posture))
 
     # 1) state dir
     rep.add(Step("state-dir", scope.state_dir, changed=not os.path.isdir(scope.state_dir)))
@@ -296,11 +373,13 @@ def install(client: str, *, project: str | None = None, use_global: bool = False
         rep.add(Step("register-cr-hook", scope.settings_path, changed=False, ok=False, note=str(e)))
         settings = None
     if settings is not None:
-        merged = merge_hooks(settings, crhook_cmd, crpolicy_cmd)
+        merged = merge_hooks(settings, crhook_cmd, crpolicy_cmd, reducer_cmd)
         changed = merged != settings
         note = "7 events; idempotent; backup -> settings.json.crbak"
         if crpolicy_cmd:
             note += "; + cr-policy advisory brief on SessionStart"
+        if reducer_cmd:
+            note += f"; + PostToolUse reducer ({'enforce' if enforce else 'observe'})"
         rep.add(Step("register-cr-hook",
                      f"{scope.settings_path}  ({crhook_cmd})",
                      changed=changed, note=note if changed else "already wired"))
@@ -341,6 +420,10 @@ def install(client: str, *, project: str | None = None, use_global: bool = False
         "settings_path": scope.settings_path, "mcp_path": scope.mcp_path,
         "crhook_cmd": crhook_cmd, "crpolicy_cmd": crpolicy_cmd,
         "with_mcp": with_mcp, "with_index": with_index, "with_policy": with_policy,
+        "with_reducer": with_reducer, "reducer_cmd": reducer_cmd,
+        "reduction_mode": "enforce" if enforce else "observe",
+        "reduction_confirmed_version": client_version if confirmed else None,
+        "live_cas_db": scope.live_cas_db, "decisions_log": scope.decisions_log,
     }
     rep.add(Step("write-manifest", scope.config_path, changed=True))
     if not dry_run:

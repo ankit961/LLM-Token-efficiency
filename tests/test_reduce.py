@@ -86,31 +86,67 @@ def _run_hook(event, env, monkeypatch, capsys):
     return rc, capsys.readouterr()
 
 
-def test_hook_fail_open_observe_by_default(monkeypatch, capsys):
-    event = {"tool_name": "Bash", "tool_input": {"command": "pytest"},
-             "tool_response": {"stdout": PYTEST_RAW, "exitCode": 1}}
-    rc, out = _run_hook(event, {}, monkeypatch, capsys)
-    assert rc == 0
-    assert out.out.strip() == "{}"                      # no replacement in observe mode
-    assert "would save" in out.err                      # but it reports the saving
+# A search/listing payload above the reduce floor — the ONLY thing B1.0's gate touches.
+GREP_RAW = "\n".join(f"src/f{i}.py:{i}: def handler_{i}(): match" for i in range(200))
+CONFIRMED = "2.1.229"       # a client version in doctor's output-replacement allowlist
 
 
-def test_hook_enforce_replaces_preserving_shape(monkeypatch, capsys):
+def test_hook_observe_by_default_on_search(monkeypatch, capsys):
+    event = {"tool_name": "Grep", "tool_input": {"pattern": "handler"},
+             "tool_response": GREP_RAW}
+    rc, out = _run_hook(event, {}, monkeypatch, capsys)      # observe: no enforce
+    assert rc == 0
+    assert out.out.strip() == "{}"                          # nothing replaced in observe mode
+    assert "would save" in out.err                          # but it reports the saving
+
+
+def test_hook_enforce_replaces_and_handle_recovers(monkeypatch, capsys, tmp_path):
+    """Enforce on a confirmed version replaces the output AND the emitted handle is
+    genuinely recoverable from the live CAS (safety invariant #2)."""
+    from contextruntime.reducers import livecas
+    db = str(tmp_path / "live.db")
+    event = {"tool_name": "Bash", "tool_input": {"command": "grep -rn handler src/"},
+             "tool_response": {"stdout": GREP_RAW, "exitCode": 0}}
+    rc, out = _run_hook(event, {"CR_REDUCE_MODE": "enforce", "CR_CLIENT_VERSION": CONFIRMED,
+                                "CR_DB": db, "CR_DECISION_LOG": str(tmp_path / "d.jsonl")},
+                        monkeypatch, capsys)
+    assert rc == 0
+    new = json.loads(out.out)["hookSpecificOutput"]["updatedToolOutput"]
+    assert isinstance(new, dict) and new["exitCode"] == 0            # shape preserved
+    assert len(new["stdout"]) < len(GREP_RAW)                        # actually shrank
+    handle = new["stdout"].splitlines()[-1]
+    assert "result://" in handle
+    # the handle the model was handed resolves back to the full raw payload
+    h = handle.split("result://")[1].strip(" []")
+    rec = livecas.resolve(f"result://{h}", path=db)
+    assert rec.found and "handler_199" in rec.text                   # tail of raw recovered
+
+
+def test_hook_version_gate_fails_safe_on_unknown_version(monkeypatch, capsys, tmp_path):
+    event = {"tool_name": "Grep", "tool_input": {"pattern": "handler"},
+             "tool_response": GREP_RAW}
+    rc, out = _run_hook(event, {"CR_REDUCE_MODE": "enforce", "CR_CLIENT_VERSION": "9.9.9-unconfirmed",
+                                "CR_DB": str(tmp_path / "live.db"),
+                                "CR_DECISION_LOG": str(tmp_path / "d.jsonl")}, monkeypatch, capsys)
+    assert rc == 0
+    assert out.out.strip() == "{}"                          # unknown version → pass through raw
+    assert "not confirmed" in out.err
+
+
+def test_hook_execution_bash_passes_through(monkeypatch, capsys):
+    """v0.1 narrowing: a test/execution Bash line is NOT a search/listing read — untouched."""
     event = {"tool_name": "Bash", "tool_input": {"command": "pytest"},
              "tool_response": {"stdout": PYTEST_RAW, "exitCode": 1}}
-    rc, out = _run_hook(event, {"CR_REDUCE_MODE": "enforce",
-                                "CR_OUTPUT_REPLACEMENT": "1"}, monkeypatch, capsys)
+    rc, out = _run_hook(event, {"CR_REDUCE_MODE": "enforce", "CR_CLIENT_VERSION": CONFIRMED},
+                        monkeypatch, capsys)
     assert rc == 0
-    payload = json.loads(out.out)
-    new = payload["hookSpecificOutput"]["updatedToolOutput"]
-    assert isinstance(new, dict) and new["exitCode"] == 1        # shape preserved
-    assert "FAILED" in new["stdout"] and len(new["stdout"]) < len(PYTEST_RAW)
+    assert out.out.strip() == "{}"                          # execution passes through
 
 
 def test_hook_never_touches_source_read(monkeypatch, capsys):
     event = {"tool_name": "Read", "tool_input": {"file_path": "/x.py"},
              "tool_response": "def f():\n    pass\n" * 500}
-    rc, out = _run_hook(event, {"CR_REDUCE_MODE": "enforce",
-                                "CR_OUTPUT_REPLACEMENT": "1"}, monkeypatch, capsys)
+    rc, out = _run_hook(event, {"CR_REDUCE_MODE": "enforce", "CR_CLIENT_VERSION": CONFIRMED},
+                        monkeypatch, capsys)
     assert rc == 0
     assert out.out.strip() == "{}"                      # Read left native (C10)

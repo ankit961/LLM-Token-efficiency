@@ -274,6 +274,7 @@ def cmd_install(args) -> int:
     rep = install_mod.install(
         args.client, project=args.project, use_global=args.use_global,
         with_mcp=not args.no_mcp, with_index=not args.no_index, with_policy=not args.no_policy,
+        with_reducer=not args.no_reducer, enable_reduction=args.enable_reduction,
         crhook_cmd=args.crhook_cmd, dry_run=args.dry_run, force=args.force)
     print(install_mod.format_report(rep))
     return 0 if rep.ok else 1
@@ -382,6 +383,11 @@ def main(argv=None) -> int:
     p.add_argument("--no-index", action="store_true", help="skip the initial code-graph index")
     p.add_argument("--no-policy", action="store_true",
                    help="skip the cr-policy SessionStart advisory brief (observe-only, no steering)")
+    p.add_argument("--no-reducer", action="store_true",
+                   help="skip the B1.0 PostToolUse transparent reducer entirely")
+    p.add_argument("--enable-reduction", action="store_true",
+                   help="actually replace search/listing outputs (enforce) — only takes effect on a "
+                        "client version confirmed for output replacement; otherwise stays observe-only")
     p.add_argument("--crhook-cmd", help="override the cr-hook command written into settings.json")
     p.add_argument("--dry-run", action="store_true", help="print the plan; touch nothing")
     p.add_argument("--force", action="store_true", help="(reserved) proceed despite soft warnings")

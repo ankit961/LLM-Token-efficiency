@@ -17,6 +17,19 @@ import shutil
 
 from .model import CapabilityProfile
 
+# Client versions on which post_tool_use_output_replacement has been LIVE-VERIFIED (see the
+# capability note below). Transparent-reduction ENFORCEMENT is permitted ONLY on a version in
+# this set; every other version fails safe to pass-through (Transparent Reduction Contract v0.1
+# §4.4, and the user-chosen "does nothing when uncertain" posture). Extend this set only after a
+# fresh live verification on the new version — never speculatively.
+CONFIRMED_OUTPUT_REPLACEMENT_VERSIONS = frozenset({"2.1.229"})
+
+
+def output_replacement_confirmed(client_version: str | None) -> bool:
+    """True only for a client version where output replacement was live-verified. An unknown or
+    missing version is NOT confirmed — the caller must pass the tool output through unchanged."""
+    return bool(client_version) and client_version in CONFIRMED_OUTPUT_REPLACEMENT_VERSIONS
+
 # name -> (assumed_state, note). "?" means unverified until the adapters exist.
 _ASSUMPTIONS = {
     # verified against Claude Code's hook docs (primary source, agent-checked): PreToolUse stdout
