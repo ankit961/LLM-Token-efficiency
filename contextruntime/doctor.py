@@ -4,11 +4,12 @@ Emits a CapabilityProfile + evidence grade that is stamped on every ledger/bench
 report, so numbers from a full-reduction client are not compared with numbers from
 one without it.
 
-Phase 0b status: this is a STRUCTURED STUB. The capability values below are the
-design's working assumptions (Appendix B), each marked "?" = verify-at-runtime.
-Live probing (does PostToolUse `updatedToolOutput` apply? does the MCP path carry a
-session id? what is the effective cache window?) requires the hook/MCP adapters,
-which land in Phase 2 — so nothing here is asserted as confirmed.
+Phase 0b status: mostly a STRUCTURED STUB -- the capability values below are the design's
+working assumptions (Appendix B), each marked "?" = unverified until live-tested. Two have
+since been confirmed by live/primary-source verification (`pre_tool_use_hook`,
+`post_tool_use_output_replacement` -- see their notes for method + scope) and are stamped
+"yes"; the rest remain "?" until probed the same way. `evidence_grade` stays C until enough
+of the table is confirmed to warrant moving it, not just the two verified so far.
 """
 from __future__ import annotations
 
@@ -18,8 +19,23 @@ from .model import CapabilityProfile
 
 # name -> (assumed_state, note). "?" means unverified until the adapters exist.
 _ASSUMPTIONS = {
-    "pre_tool_use_hook": ("?", "allow/deny/ask only; cannot rewrite/substitute a tool"),
-    "post_tool_use_output_replacement": ("?", "updatedToolOutput — version-gated"),
+    # verified against Claude Code's hook docs (primary source, agent-checked): PreToolUse stdout
+    # is NOT shown to the model -- allow/deny/escalate only, cannot inject visible content or
+    # rewrite/substitute a tool call. Confirmed contract, not a live-client probe.
+    "pre_tool_use_hook": ("yes", "confirmed allow/deny/escalate only; cannot rewrite/substitute "
+                                  "a tool or inject model-visible content (PreToolUse stdout is "
+                                  "not shown to the model)"),
+    # LIVE-VERIFIED on Claude Code 2.1.229: a controlled test (grep returning 200 real matching
+    # lines; PostToolUse wired to contextruntime.reducers.hook with CR_OUTPUT_REPLACEMENT=1 +
+    # CR_REDUCE_MODE=enforce) showed the model receiving 15 lines + a result:// handle -- the
+    # reducer's OWN handle scheme, not any native Claude Code truncation. A no-hook control on the
+    # identical prompt/data showed the full 200 raw lines, no handle. This is real output
+    # replacement working end to end, not a documentation claim. Version-gated: re-verify on other
+    # client versions before relying on it there.
+    "post_tool_use_output_replacement": ("yes", "updatedToolOutput confirmed live on Claude Code "
+                                                "2.1.229 -- grep output genuinely replaced with a "
+                                                "result:// handle, verified against a no-hook "
+                                                "control; version-gated for other clients"),
     "mcp_output_replacement": ("?", "updatedMCPToolOutput"),
     "raw_payload_visibility": ("?", "large outputs may be pre-truncated to a file ref"),
     "tool_identity_rewrite": ("no", "not supported — reduction is output-side only"),
@@ -59,7 +75,7 @@ def stamp(profile: CapabilityProfile) -> str:
 def format_report(profile: CapabilityProfile) -> str:
     lines = ["ContextRuntime Doctor — capability probe (Phase 0b stub)",
              f"  client: {profile.client}  grade: {profile.evidence_grade}",
-             "  (values are design assumptions; '?' = verify-at-runtime once adapters land)",
+             "  ('yes'/'no' = verified; '?' = unverified design assumption, not yet live-tested)",
              ""]
     for name, (state, note) in _ASSUMPTIONS.items():
         mark = {"yes": "✓", "no": "✗", "?": "?", "best_effort": "~"}.get(state, "?")
