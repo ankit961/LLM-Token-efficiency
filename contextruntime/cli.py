@@ -288,6 +288,19 @@ def cmd_uninstall(args) -> int:
     return 0 if rep.ok else 1
 
 
+def cmd_policy_dashboard(args) -> int:
+    """Per-session ContextPolicy advisory dashboard: native source reads, semantic opportunities,
+    adoption, and estimated avoided tokens — observe-only over the journal + code-graph."""
+    from dataclasses import asdict
+    from .policydash import build_dashboard, format_dashboard
+    d = build_dashboard(args.journal, args.graph, args.repo,
+                        repo_root=args.repo_root, session_id=args.session)
+    print(format_dashboard(d))
+    if args.json:
+        json.dump(asdict(d), open(args.json, "w"), indent=2)
+    return 0
+
+
 def cmd_expand(args) -> int:
     """Resolve a result:// or ctx://symbol handle back to its payload (SemanticFS)."""
     from .semanticfs import context_expand
@@ -362,6 +375,16 @@ def main(argv=None) -> int:
     p.add_argument("--purge", action="store_true", help="also delete the local state dir (journal + graph)")
     p.add_argument("--dry-run", action="store_true")
     p.set_defaults(func=cmd_uninstall)
+
+    p = sub.add_parser("policy-dashboard",
+                       help="per-session ContextPolicy advisory dashboard (observe-only)")
+    p.add_argument("--journal", required=True, help="HookJournal sqlite (from cr-hook)")
+    p.add_argument("--graph", required=True, help="code-graph sqlite (from index-code; holds MCP telemetry)")
+    p.add_argument("--repo", required=True, help="repo_id used at index time")
+    p.add_argument("--repo-root", help="repo root, to derive repo-relative paths when the journal lacks them")
+    p.add_argument("--session", help="restrict to one session_id")
+    p.add_argument("--json", help="also write the dashboard as JSON")
+    p.set_defaults(func=cmd_policy_dashboard)
 
     p = sub.add_parser("read-symbol", help="SemanticFS: rendered source-derived context under a budget")
     p.add_argument("symbol")
