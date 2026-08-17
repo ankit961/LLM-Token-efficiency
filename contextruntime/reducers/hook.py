@@ -25,6 +25,7 @@ Wire in settings.json:  "PostToolUse": [{ "matcher": "Grep|Glob|Bash",
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import sys
@@ -92,6 +93,14 @@ def _graph_scores(event: dict, raw: str, decision) -> dict:
         return {}
 
 
+def _fingerprint(tool, representation, args: dict) -> str:
+    """Privacy-safe identity of a search/listing CALL — hash of (tool, representation, the tool
+    input i.e. pattern/command + scope). Lets Step-5 count genuine re-searches (same query re-run)
+    distinctly from merely repeated scopes. A hash, so no raw pattern text is stored."""
+    payload = f"{tool}|{representation}|{json.dumps(args, sort_keys=True, default=str)}"
+    return hashlib.sha1(payload.encode("utf-8", "replace")).hexdigest()[:16]
+
+
 def _passthrough(note: str = "") -> int:
     if note:
         print(note, file=sys.stderr)
@@ -155,6 +164,7 @@ def handle(event: dict) -> int:
             "raw_tokens": red.raw_tokens, "reduced_tokens": red.reduced_tokens,
             "effective_tokens": raw_tok, "saved_tokens": 0, "enforced": False,
             "graph_ranked": bool(scores), "graph_scored_paths": len(scores),
+            "fingerprint": _fingerprint(decision.tool, decision.representation, args),
         })
         return _passthrough(f"[contextreduce] reduction not beneficial "
                             f"({red.reduced_tokens} >= {raw_tok} tok) — passing through")
@@ -198,6 +208,7 @@ def handle(event: dict) -> int:
         "cas_redacted": bool(cas and cas.redacted),
         "graph_ranked": bool(scores),
         "graph_scored_paths": len(scores),
+        "fingerprint": _fingerprint(decision.tool, decision.representation, args),
     })
 
     if not will_replace:

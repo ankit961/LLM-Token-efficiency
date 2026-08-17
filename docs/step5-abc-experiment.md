@@ -8,14 +8,23 @@ spends Claude quota, and it is deliberately small: **4 search-heavy tasks × the
 
 | arm | wiring | isolates |
 |---|---|---|
-| **A_native** | no reduction (observe only) | baseline context |
-| **B_shipped** | reducer enforce, simple, budget 256 / floor 400 | the deployed default |
-| **B_tuned** | reducer enforce, simple, budget 64 / floor 400 | the budget lever (Step-4: +4.4pp) |
-| **C_graph** | reducer enforce, **graph-ranked**, budget 256 / floor 400 | graph vs simple at equal budget |
+| **A_native** | native output + reducer hook in **observe** (CR_REDUCE_MODE unset) | baseline context, equal instrumentation |
+| **B_shipped** | reducer enforce, simple (**graph off**), budget 256 / floor 400 | the deployed default |
+| **B_tuned** | reducer enforce, simple (**graph off**), budget 64 / floor 400 | the budget lever (Step-4: +4.4pp) |
+| **C_graph** | reducer enforce, **graph on**, budget 256 / floor 400 | graph vs simple at equal budget |
 
-Each arm is a reducer-hook env (`ARMS[...].env(...)`); a run is `claude -p --settings <arm-settings>`
-via `corpusrunner.ClaudeBackend` (arm-agnostic). The observation cr-hook + journal are wired in all
-arms, so tokens and reads are captured identically.
+`A_native` is **not** a hook-free run — it carries the observation cr-hook AND the reducer hook (in
+observe), so instrumentation overhead is equal across arms. For a pure *latency* baseline, add a
+genuinely hook-free arm separately.
+
+An arm is realized as an **arm-specific settings file** (`build_arm_settings`) whose PostToolUse
+reducer hook command carries that arm's env **inline** — the reducer runs as its own process, so its
+env must come from the hook command, not the outer `claude -p` env. This is also what makes B/C
+isolation real: **B's reducer command omits `CR_GRAPH_DB` entirely**, so graph ranking cannot engage
+(the installer's default command always embeds the graph vars — omitting them from the outer env
+alone would not disable graph). A run goes through `run_arm(arm, backend, …)` → `ClaudeBackend`.
+The harness **never** sets `CR_LIVE_CLIENT_VERSION`: enforcement stays gated on the real
+`claude --version` probe (B1.0.4 fail-safe) — the experiment must not enforce on an unverified binary.
 
 ## Tasks
 
@@ -25,18 +34,24 @@ These are where a reducer has the most to move (the concentration is here, not s
 
 ## Metrics (`run_metrics` per arm-run → `compare`)
 
-- **Δtokens(B − A)** — the REDUCTION effect. The journal records the *model-visible* text, so under
-  an enforcing arm `total_read_tokens` already reflects the reduction; `token_reduction = A − B`.
-  Report retry-inclusive (a re-search's tokens are counted, so savings aren't faked by dropping
-  work onto later turns).
-- **Δquality(C − B)** — the GRAPH effect. NOT tokens (C and B share a budget → token-neutral by
-  construction; the harness surfaces `token_delta ≈ 0` as a check). It is retention QUALITY:
-  `re_search_delta` (fewer = graph kept the matches the agent needed) at equal **task success**.
-  Expansion/CED plugs in from the `semantic_reads` telemetry once the MCP recovery path is
-  instrumented in the live run.
-- Hygiene: the decision log now records `reason=non_beneficial` passes (raw≥reduced), so
-  `candidates_seen` distinguishes "seen but not worth it" from "never seen" — admission and
-  benefit rates are both measurable.
+- **Δtokens(B − A)** — the REDUCTION effect on **effective** model-visible tokens. The observation
+  journal records the **raw** event (the reducer replaces output independently — `install.py`), so we
+  do NOT read reduced sizes from the journal. Instead:
+  `effective_read_tokens = journal_raw_read_tokens − reducer_saved_tokens` (saved comes from the
+  decision log, the authoritative source of reduced sizes); `token_reduction = A_eff − B_eff`.
+  Retry-inclusive — a re-search's tokens are counted, so savings aren't faked by pushing work later.
+- **Δquality(C − B)** — the GRAPH effect. **Total tokens are an OUTCOME, not an invariant**: graph
+  ranking changes *which* evidence Claude sees, which can change the whole trajectory, so C and B
+  total tokens need not be equal (the harness reports `effective_token_delta` as an outcome). The
+  retention signal is fewer **re-searches** at equal **task success** — `re_search_fingerprint_delta`
+  (same tool+pattern+scope hash re-run; the precise signal) alongside a broader `re_search_scope`
+  proxy. Expansion/CED plugs in from `semantic_reads` once the MCP recovery path is instrumented live.
+- **C validity:** `compare` flags `c_graph_engaged=false` (with a warning) if C enforced reductions
+  but `graph_ranked==0` — a broken/stale graph silently collapses C into B, and any C−B signal would
+  be meaningless.
+- Hygiene: the decision log records `reason=non_beneficial` passes (raw≥reduced) and a privacy-safe
+  search `fingerprint`, so `candidates_seen` distinguishes "seen but not worth it" from "never seen",
+  and wall-time (`budget_walltime`) is read for the ≤1.2× gate.
 
 ## Interpretation
 
