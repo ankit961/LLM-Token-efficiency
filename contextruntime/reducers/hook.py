@@ -147,6 +147,15 @@ def handle(event: dict) -> int:
     # Invariant: replace ⇒ T_replacement < T_native. (saved_tokens' max(0,..) would otherwise
     # report 0 while the context actually grew.)
     if red.reduced_tokens >= raw_tok:
+        # Record the decision so Step-5 metrics can distinguish "candidate seen but non-beneficial"
+        # from "candidate never seen" — this passthrough is otherwise invisible in the log.
+        livecas.log_decision({
+            "tool": decision.tool, "representation": decision.representation,
+            "reducer": red.reducer, "reason": "non_beneficial",
+            "raw_tokens": red.raw_tokens, "reduced_tokens": red.reduced_tokens,
+            "effective_tokens": raw_tok, "saved_tokens": 0, "enforced": False,
+            "graph_ranked": bool(scores), "graph_scored_paths": len(scores),
+        })
         return _passthrough(f"[contextreduce] reduction not beneficial "
                             f"({red.reduced_tokens} >= {raw_tok} tok) — passing through")
 
