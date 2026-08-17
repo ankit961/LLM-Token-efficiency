@@ -78,9 +78,16 @@ def _match_path(line: str) -> str:
     return m.group(1) if m else line
 
 
+def search_matched_paths(raw: str) -> list:
+    """The file path of every non-diagnostic line in a search/listing output (order-preserving,
+    may repeat). Feeds graphrank.path_scores so ranking keys line up with `_match_path`."""
+    return [_match_path(ln) for ln in raw.splitlines()
+            if ln.strip() and not _SEARCH_DIAG.search(ln)]
+
+
 def reduce_search(raw: str, args: dict, *, budget_tokens: int = SEARCH_BUDGET_TOKENS,
-                  representation: str = "search") -> ReducedOutput:
-    """B1.1 — budget-aware compaction for a search/listing output.
+                  representation: str = "search", path_scores: dict | None = None) -> ReducedOutput:
+    """B1.1/B1.2 — budget-aware compaction for a search/listing output.
 
     Deterministic guarantees (all testable):
       * every kept match keeps its `path:lineno:` prefix VERBATIM — filenames and line
@@ -91,6 +98,11 @@ def reduce_search(raw: str, args: dict, *, budget_tokens: int = SEARCH_BUDGET_TO
         meet it, a per-file rollup names the highest-hit files so the *shape* of the
         result survives even when individual lines don't;
       * a `result://` recovery handle is always appended — full expansion is one call away.
+
+    B1.2 — when `path_scores` is given (path → graph relevance, from graphrank), the matches
+    RETAINED within budget are the highest-relevance ones (not merely the first), and the
+    per-file rollup is ordered by relevance. `path_scores=None` is the B1.1 behavior exactly,
+    so simple-vs-graph is a clean A/B on the same code path.
     """
     lines = [ln for ln in raw.splitlines() if ln.strip()]
     diags, matches = [], []
@@ -126,25 +138,40 @@ def reduce_search(raw: str, args: dict, *, budget_tokens: int = SEARCH_BUDGET_TO
         footer_reserve = tokens(rollup) + tokens(f"... 0 more match(es) across 0 file(s) — full: {handle}")
     room = max(0, budget_tokens - reserved - footer_reserve)
 
-    kept_matches, used = [], 0
-    for m in matches:
-        t = tokens(m) + 1                         # +1 for the newline join
+    # B1.2: retain the highest-relevance matches within budget. Ranked order is stable —
+    # ties (and the no-scores case) fall back to original file order, so path_scores=None is
+    # byte-identical to B1.1.
+    order = list(range(len(matches)))
+    if path_scores:
+        order.sort(key=lambda i: (-path_scores.get(_match_path(matches[i]), 0.0), i))
+    kept_idx, used = [], 0
+    for i in order:
+        t = tokens(matches[i]) + 1                # +1 for the newline join
         if used + t > room:
             break
-        kept_matches.append(m)
+        kept_idx.append(i)
         used += t
-    dropped = matches[len(kept_matches):]
+    kept_set = set(kept_idx)
+    kept_matches = [matches[i] for i in kept_idx]
+    dropped = [matches[i] for i in range(len(matches)) if i not in kept_set]
 
     body = list(must_keep) + kept_matches
     if dropped:                                   # footer only when we actually truncated
         if listing:
             body.append(f"... {len(dropped)} more path(s) — full listing: {handle}")
         else:
+            if path_scores:                       # rollup ordered by relevance, then count
+                files_ranked = sorted(by_file, key=lambda p: (-path_scores.get(p, 0.0), -by_file[p], p))
+                top = [(p, by_file[p]) for p in files_ranked[:FILE_TABLE_MAX]]
+                rollup = "matches by file: " + ", ".join(f"{p}×{c}" for p, c in top)
+                if len(by_file) > FILE_TABLE_MAX:
+                    rollup += f", +{len(by_file) - FILE_TABLE_MAX} more file(s)"
             files_with_dropped = len({_match_path(m) for m in dropped})
             body.append(rollup)
             body.append(f"... {len(dropped)} more match(es) across {files_with_dropped} file(s) — full: {handle}")
 
     note = (f"{len(matches)} {noun}, kept {len(kept_matches)}, budget {budget_tokens} tok"
+            + (", graph-ranked" if path_scores else "")
             + (f", {len(diags)} diagnostic(s) preserved" if diags else ""))
     # Preserved evidence = the diagnostics (checked by _wrap before redaction). Filenames
     # of kept lines ride along in the kept lines themselves.
