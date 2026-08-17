@@ -1,9 +1,13 @@
 """Step-6.1 tests — prove the in-memory proximity is faithful to gr._proximity, and check the
 line-retention primitives. Zero quota, no GraphStore needed (fake store over identical edges)."""
+import json
 from collections import defaultdict
 
+import pytest
+
 from contextruntime.reducers import graphrank as gr
-from corpus.graph_evidence_replay import _first_line_rank, _has_line, _proximity_inmemory
+from corpus.graph_evidence_replay import (_first_line_rank, _has_line, _proximity_inmemory,
+                                          load_task_graphs)
 
 
 class _FakeStore:
@@ -56,3 +60,20 @@ def test_line_primitives_are_component_aware():
     assert not _has_line(kept, "django/db/models/other.py")     # different file, not conflated
     assert _first_line_rank(kept, "a/b/c.py") == 1
     assert _first_line_rank(kept, "z/z.py") == 10 ** 6           # absent ⇒ large sentinel
+
+
+def test_load_task_graphs_fails_loud_on_provenance_mismatch(tmp_path):
+    # graph provenance says base_commit X, but the independent manifest says Y ⇒ REFUSE (fail loud),
+    # never rank against an unverified graph. Deterministic: no real GraphStore needed.
+    task = "9999"
+    cg = tmp_path / f"django__django-{task}" / "C_graph"
+    cg.mkdir(parents=True)
+    db = cg / "codegraph.db"
+    db.write_text("not-a-real-db")
+    json.dump({"base_commit": "X" * 40, "graph_db_sha256": "unmatched"},
+              open(str(db) + ".provenance.json", "w"))
+    arm = tmp_path / f"django__django-{task}" / "A_native"
+    arm.mkdir(parents=True)
+    json.dump({"base_commit": "Y" * 40}, open(arm / "manifest.json", "w"))
+    with pytest.raises(RuntimeError, match="provenance FAILED"):
+        load_task_graphs(str(tmp_path), [task])
