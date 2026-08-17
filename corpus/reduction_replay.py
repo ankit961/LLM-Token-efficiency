@@ -244,7 +244,9 @@ def measured_reduction(raw: str, tool_name: str, tool_input: dict, *, budget: in
         return raw_tok, False
     red = reduce_search(raw, tool_input or {}, budget_tokens=budget,
                         representation=d.representation or "search")
-    return (red.reduced_tokens if red.invariants_ok else raw_tok), red.invariants_ok
+    if not red.invariants_ok or red.reduced_tokens >= raw_tok:
+        return raw_tok, False                     # invariant fail OR not beneficial → hook passes through
+    return red.reduced_tokens, True
 
 
 def true_replay_search(reads, *, budget: int = 256, floor: int = MIN_REDUCE_TOKENS) -> dict:

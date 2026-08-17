@@ -193,3 +193,12 @@ def test_true_replay_honors_recovery_eligibility_like_live_hook():
     assert not eligible and red_tok == tokens(raw)                        # secret → live hook passes through
     res = true_replay_search([(raw, "Grep", {"pattern": "key"})], budget=256)
     assert res["reduced_reads"] == 0 and res["R_search_measured"] == 0.0
+
+
+def test_measured_reduction_rejects_non_beneficial():
+    """B1.0.5: a diagnostic-heavy output reduces to something larger — the live hook passes it
+    through, so measured_reduction must count it unchanged (not as a reduction)."""
+    from contextruntime.reducers.base import tokens
+    raw = "\n".join(f"grep: src/very/long/path/to/module_{i}.py: Permission denied" for i in range(45))
+    red_tok, eligible = measured_reduction(raw, "Grep", {"pattern": "x"}, budget=256)
+    assert not eligible and red_tok == tokens(raw)

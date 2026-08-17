@@ -142,6 +142,13 @@ def handle(event: dict) -> int:
                         path_scores=scores or None)
     if not red.invariants_ok:
         return _passthrough("[contextreduce] invariant check failed — passing raw through")
+    # Never replace with something at least as large: reduce_search preserves ALL diagnostics
+    # + header + rollup + handle, so a diagnostic-heavy output can end up BIGGER than the raw.
+    # Invariant: replace ⇒ T_replacement < T_native. (saved_tokens' max(0,..) would otherwise
+    # report 0 while the context actually grew.)
+    if red.reduced_tokens >= raw_tok:
+        return _passthrough(f"[contextreduce] reduction not beneficial "
+                            f"({red.reduced_tokens} >= {raw_tok} tok) — passing through")
 
     # (3) Version gate + (5) enforce gate. Both must hold to replace what the model sees.
     # RUNTIME-gated and FAIL-SAFE: enforcement requires a CONFIRMED LIVE `claude --version` (cached
