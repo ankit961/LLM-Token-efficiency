@@ -2,33 +2,57 @@
 
 **Status: harness built + fixture-tested (`corpus/reduction_replay.py`), awaiting a run over the
 frozen journals.** Zero LLM cost. This is the deterministic gate before any live experiment
-(step 5): measure what the B1 transparent reducer *actually captures* before spending quota.
+(step 5): estimate — and, given raw payloads, measure — how much the B1 transparent reducer
+captures, before spending quota.
 
 ## The question
 
 The opportunity-ceiling analysis (`docs/FINDINGS.md` §4) found the `search_listing_reducible`
-bucket is **73,360 tok = 29.7%** of fully-measured read tokens — *candidate mass*. Step 4 asks
-the realized-savings question: under the reducer's **actual** behavior, what fraction of that
-bucket becomes real token savings?
+bucket is **73,360 tok = 29.7%** of fully-measured read tokens — *candidate mass*. Step 4 asks the
+capture question: what fraction of that bucket becomes real token savings — estimated from token
+counts (cap model), or measured on raw payloads when they're available?
 
     R_search = saved_tokens / search_bucket_tokens
     R_direct = saved_tokens / all_fully_measured_read_tokens   ( = R_search × 0.297 )
 
-## Why no raw payload text is needed (and none exists)
+## Two modes: a metadata-only estimate, and a true replay
 
 The frozen journals are **metadata-only** — per-read `model_visible_tokens`, `representation`,
-`path_normalized`, `session_id`; no raw grep/find output. That's fine, because the reducer's
-output size is a *contract*, not content-dependent:
+`path_normalized`, `session_id`; **no raw grep/find output**. So there are two ways to get a number,
+and the harness supports both:
 
-> **Calibrated fact:** above the `MIN_REDUCE` floor, `reduce_search` compacts any search/listing
-> output to a **near-constant CAP(budget)** — measured flat at ~244 tok (budget 256) from 800-tok
-> to 100k-tok inputs. `cap_calibration` in the output records CAP per budget (e.g. 64→62,
-> 128→128, 256→244), measured from the real reducer, not assumed.
-
-So `reduced_i` is a function of `raw_i` alone:
+**(a) Metadata-only ESTIMATE (default, no raw text).** Above the `MIN_REDUCE` floor, `reduce_search`
+compacts a search/listing output to *roughly* a constant CAP(budget) — calibrated from the real
+reducer (flat ~244 tok at budget 256 across 800-tok..100k-tok *uniform* inputs; `cap_calibration`
+records CAP per budget, e.g. 64→62, 128→128, 256→244). Modeled:
 
     saved_i = raw_i − CAP(budget)   for raw_i ≥ threshold ;   0 otherwise
     threshold = max(floor, CAP(budget))     # you only save on reads LARGER than the cap
+
+> ⚠️ **This is an ESTIMATE, not a measured replay, and it is an OPTIMISTIC UPPER BOUND.** CAP is
+> *not* a content-independent contract: the real `reduce_search` output also grows with preserved
+> diagnostics (`must_keep = [header] + diags`), the rollup's real filenames/counts, and line
+> lengths. So actual reduced size ≥ CAP → actual savings ≤ the estimate. The output is labeled
+> `method: metadata_only_calibrated_cap_estimate` and carries the bias note; never quote it as
+> "actual" or "realized" savings.
+
+**(b) True MEASURED replay (preferred, when raw text is available).** If the original tool outputs
+can be reconstructed (e.g. from transcripts), `measured_reduction()` / `true_replay_search()` run
+the **real gate + real `reduce_search`** on each payload and return the exact reduction —
+
+    R_search = Σ (T_i_raw − T_i_reduced) / Σ T_i_raw     # measured, no cap model
+
+This mirrors the hook's decision path exactly (gate pass-through and the MIN_REDUCE floor included),
+so it is a genuine reducer result, not an approximation. Use this whenever the raw payloads exist.
+
+## Only what B1 actually reduces is counted (derived excluded)
+
+The ceiling's `search_listing_reducible` bucket groups `search` + `path_listing` + **`derived`**
+(all `non_file_materialization_role_unresolved`). But B1's gate reduces **only** `search` and
+`path_listing` (`gate.REDUCIBLE_REPRESENTATIONS`) — it deliberately leaves `derived` (a `| wc -l`
+summary) untouched. The replay filters to B1's eligible set per-read via the journal's
+`representation` column, and reports the excluded `derived` reads/tokens separately
+(`derived_excluded`). Counting them would systematically **overestimate** B1 capture.
 
 ## ⚠️ The caveat that governs the result
 
@@ -87,7 +111,7 @@ verbatim, so a search/listing read is defined identically to the ceiling analysi
   budget-scaled; the cap savings model (only reads above threshold reduce, never negative); the
   floor-tuning behavior; search-bucket isolation via the frozen classifier; the concentration
   report; empty-bucket → `None`, no crash.
-- **Needs the frozen journals** (author's machine): the actual `R_search`/`R_direct` numbers and
+- **Needs the frozen journals** (author's machine): the estimated `R_search`/`R_direct` numbers and
   the real concentration — the harness is ready; only the data is remote.
 
 ## Decision this feeds

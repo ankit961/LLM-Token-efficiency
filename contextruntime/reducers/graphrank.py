@@ -21,6 +21,7 @@ which the reducer treats as "rank by file order" (i.e. identical to the B1.1 sim
 """
 from __future__ import annotations
 
+import heapq
 import re
 from dataclasses import dataclass
 from typing import Iterable, Optional
@@ -57,12 +58,18 @@ def _norm(p: str) -> str:
     return p.rstrip("/")
 
 
+def _suffix_match(a: str, b: str) -> bool:
+    """Path match at COMPONENT boundaries: equal, or one is the other prefixed by a '/'-delimited
+    path. So `src/notfoo.py` does NOT match `foo.py` (the earlier bare `endswith` did), but an
+    absolute `/repo/src/a.py` still matches a repo-relative `src/a.py`."""
+    if not a or not b:
+        return False
+    return a == b or a.endswith("/" + b) or b.endswith("/" + a)
+
+
 def _path_matches(symbol_path: str, touched: frozenset) -> bool:
     sp = _norm(symbol_path)
-    if sp in touched:
-        return True
-    # forgiving suffix match — an absolute journal path vs a repo-relative symbol path
-    return any(sp.endswith(t) or t.endswith(sp) for t in touched if t and sp)
+    return any(_suffix_match(sp, t) for t in touched if t)
 
 
 def build_working_set(store: GraphStore, repo_id: str, *,
@@ -103,20 +110,34 @@ def _anchor_symbols(store: GraphStore, repo_id: str, ws: WorkingSet) -> set:
 
 
 def _proximity(store: GraphStore, anchors: set) -> dict:
-    """Multi-source relaxation BFS. score[sid] = best over anchors of the product of
-    (decay · relation_weight · confidence) along the shortest strong path. Anchors score 1.0."""
+    """Multi-source best-first relaxation (Dijkstra with a max-heap on score). Every edge factor
+    is in (0, 1], so score decreases monotonically along a path — the first time a node is POPPED
+    it carries its maximum achievable score and is settled. `depth` is the hop count of that
+    best-score path, so the MAX_DEPTH cap is exact: a node is expanded only within MAX_DEPTH hops
+    of an anchor. (The earlier plain-FIFO version kept `best[sid]` separate from the queued depth,
+    so a node whose score improved via a different-depth route could propagate on a stale depth.)"""
     best = {a: 1.0 for a in anchors}
-    frontier = [(a, 0) for a in anchors]
-    while frontier:
-        sid, depth = frontier.pop(0)
+    heap = [(-1.0, a) for a in anchors]      # (-score, sid); depth is implicit in pop order
+    heapq.heapify(heap)
+    depth_of = {a: 0 for a in anchors}
+    settled: set = set()
+    while heap:
+        neg, sid = heapq.heappop(heap)
+        if sid in settled:
+            continue
+        settled.add(sid)
+        depth = depth_of[sid]
         if depth >= MAX_DEPTH:
             continue
-        base = best[sid]
+        score = -neg
         for nb, etype, conf in _edges_both(store, sid):
-            cand = base * DISTANCE_DECAY * RELATION_WEIGHT.get(etype, 0.5) * (conf or 0.0)
+            if nb in settled:
+                continue
+            cand = score * DISTANCE_DECAY * RELATION_WEIGHT.get(etype, 0.5) * (conf or 0.0)
             if cand > best.get(nb, 0.0):
                 best[nb] = cand
-                frontier.append((nb, depth + 1))
+                depth_of[nb] = depth + 1
+                heapq.heappush(heap, (-cand, nb))
     return best
 
 

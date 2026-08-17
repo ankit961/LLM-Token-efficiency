@@ -67,13 +67,17 @@ class Recovered:
 @dataclass
 class Stored:
     """Outcome of a live-CAS write. `persisted` = the payload is verifiably in the CAS
-    (read back after commit); `exact` = the COMPLETE payload is recoverable (not truncated).
-    The reducer must replace model-visible output ONLY when BOTH hold — otherwise the
-    result:// handle would be dead or partial, breaking the B1 recovery invariant."""
+    (read back after commit); `exact` = recovery returns the raw payload VERBATIM — i.e. it
+    was neither truncated NOR altered by redaction. The reducer must replace model-visible
+    output ONLY when BOTH persisted AND exact hold; a truncated or redacted store is a bounded/
+    sanitized recovery, not the "full output" the summary claims, so it passes through instead.
+    (`redacted` is surfaced so a future `sanitized://` scheme can be distinguished from
+    `result://` without conflating them in B1.)"""
     handle: str
     persisted: bool
     exact: bool
     truncated: bool = False
+    redacted: bool = False
     full_bytes: int = 0
     stored_bytes: int = 0
     note: str = ""
@@ -151,11 +155,21 @@ def put_confirmed(raw: str, *, reducer: str = "", representation: str = "",
     now = time.time() if now is None else now
     try:
         h = content_hash(raw)
-        full_bytes = len(raw.encode("utf-8", "replace"))
-        # Cap the raw generously BEFORE redacting (avoid redacting multi-MB), then hard-cap.
-        sample = redact(raw[: MAX_SAMPLE_BYTES * 2])[:MAX_SAMPLE_BYTES]
+        raw_bytes = raw.encode("utf-8", "replace")
+        full_bytes = len(raw_bytes)
+        # BYTE-accurate cap (not a char slice): bound the stored bytes, on a valid char boundary.
+        if full_bytes > MAX_SAMPLE_BYTES:
+            truncated = True
+            capped = raw_bytes[:MAX_SAMPLE_BYTES].decode("utf-8", "ignore")
+            sample = redact(capped)
+        else:
+            truncated = False
+            sample = redact(raw)
+        # EXACT recovery ⟺ the stored sample equals the raw payload verbatim: not truncated AND
+        # redaction was a no-op. If redaction rewrote a secret, recovery returns modified text, so
+        # the "[+ full output]" claim would be false — the reducer must then pass through.
+        redacted = (sample != raw)
         stored_bytes = len(sample.encode("utf-8", "replace"))
-        truncated = stored_bytes < full_bytes
         conn = _connect(path)
         try:
             conn.execute(
@@ -172,12 +186,12 @@ def put_confirmed(raw: str, *, reducer: str = "", representation: str = "",
         finally:
             conn.close()
         persisted = row is not None
-        note = ("stored" if persisted else "write not confirmed")
-        if persisted and truncated:
-            note = f"stored but BOUNDED ({stored_bytes} of {full_bytes} bytes) — not exact"
-        return Stored(handle=handle, persisted=persisted, exact=persisted and not truncated,
-                      truncated=truncated, full_bytes=full_bytes, stored_bytes=stored_bytes,
-                      note=note)
+        exact = persisted and not truncated and not redacted
+        note = "stored (exact)" if exact else (
+            "not persisted" if not persisted else
+            f"stored but {'BOUNDED' if truncated else 'REDACTED'} — recovery not verbatim, not exact")
+        return Stored(handle=handle, persisted=persisted, exact=exact, truncated=truncated,
+                      redacted=redacted, full_bytes=full_bytes, stored_bytes=stored_bytes, note=note)
     except Exception as e:                  # noqa: BLE001 — fail closed on recovery: report failure
         return Stored(handle=handle, persisted=False, exact=False, note=f"CAS write failed: {e}")
 

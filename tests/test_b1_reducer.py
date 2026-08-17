@@ -284,6 +284,48 @@ def test_hook_passes_through_when_cas_would_truncate(tmp_path, monkeypatch, caps
     assert rec["enforced"] is False and rec["cas_exact"] is False and rec["cas_truncated"] is True
 
 
+def test_put_confirmed_not_exact_when_redaction_rewrites_secret(tmp_path):
+    db = str(tmp_path / "live.db")
+    raw = "cfg.py:1: AKIAIOSFODNN7EXAMPLE\n" + "\n".join(f"f.py:{i}: hit" for i in range(60))
+    s = livecas.put_confirmed(raw, path=db)
+    assert s.persisted and s.redacted and not s.exact          # stored, but recovery != raw verbatim
+    rec = livecas.resolve(s.handle, path=db)
+    assert "AKIA" not in rec.text                               # secret scrubbed at rest
+
+
+def test_hook_passes_through_when_recovery_would_be_redacted(tmp_path, monkeypatch, capsys):
+    """Enforce + confirmed version, but the payload holds a secret redaction rewrites → recovery
+    would not be verbatim → the '[+ full output]' claim would be false → pass the raw through."""
+    for k, val in _enforce_env(tmp_path).items():
+        monkeypatch.setenv(k, val)
+    raw = ("src/x.py:1: export GITHUB_TOKEN=ghp_" + "a" * 36 + "\n"
+           + "\n".join(f"src/f{i}.py:{i}: handler_{i}" for i in range(400)))
+    monkeypatch.setattr("sys.stdin", io.StringIO(json.dumps(
+        {"tool_name": "Grep", "tool_input": {"pattern": "x"}, "tool_response": raw})))
+    assert hook_mod.main() == 0
+    assert capsys.readouterr().out.strip() == "{}"             # NOT replaced
+    rec = json.loads(open(tmp_path / "d.jsonl").read().splitlines()[-1])
+    assert rec["cas_redacted"] is True and rec["cas_exact"] is False and rec["enforced"] is False
+
+
+def test_put_confirmed_cap_is_byte_accurate(tmp_path, monkeypatch):
+    monkeypatch.setattr(livecas, "MAX_SAMPLE_BYTES", 100)
+    raw = "€" * 200                                            # 3 bytes each → 600 bytes, 200 chars
+    s = livecas.put_confirmed(raw, path=str(tmp_path / "live.db"))
+    assert s.truncated and s.stored_bytes <= 100 and not s.exact   # capped in BYTES, not chars
+
+
+def test_hook_passes_through_unknown_response_shape(tmp_path, monkeypatch, capsys):
+    for k, val in _enforce_env(tmp_path).items():
+        monkeypatch.setenv(k, val)
+    # a content-block LIST is not a supported shape — must never be json.dumps'd and substituted
+    resp = {"content": [{"type": "text", "text": "src/f.py:1: hit\n" * 400}]}
+    monkeypatch.setattr("sys.stdin", io.StringIO(json.dumps(
+        {"tool_name": "Grep", "tool_input": {"pattern": "x"}, "tool_response": resp})))
+    assert hook_mod.main() == 0
+    assert capsys.readouterr().out.strip() == "{}"             # unknown schema → pass through
+
+
 def test_all_launch_commands_carry_pythonpath(tmp_path):
     scope = I.resolve_scope("claude", str(tmp_path), False)
     assert I.default_crhook_cmd(scope).startswith("PYTHONPATH=")
