@@ -18,9 +18,12 @@
 1. **The mechanism is correct and safe in live sessions.** 14 reductions fired across the 16
    sessions; the canary (separately) confirmed the journal's `model_visible_tokens` equals the
    reduced size. No crashes, no safety incidents, tasks ran and produced patches in every arm.
-2. **The clean, trajectory-independent number: when it fires, it removes ~80%.** Summed over the 14
-   fired reductions (from the decision logs, so unconfounded by trajectory): **raw 14,364 →
-   reduced 2,861 tokens, i.e. 11,503 tokens removed (80%)**; mean per reduction 1,026 → 204.
+2. **The clean, within-call, trajectory-unconfounded compression measurement: when it fires, it
+   removes ~80%.** This is a per-call measurement of the reducer's compression on the exact outputs
+   it saw — it does NOT claim the whole session shrank 80% (the trajectory can shift; see §3).
+   Summed over the 14 fired reductions (from the decision logs, so unconfounded by which reads the
+   agent happened to issue): **raw 14,364 → reduced 2,861 tokens, i.e. 11,503 tokens removed
+   (80%)**; mean per reduction 1,026 → 204.
 3. **Whole-session Δtokens(B−A) is NOT measurable at n=1.** It spans −1% … +70% and tracks
    **session length** (wall ratio 0.58 … 1.66), not reduction count — `B_tuned` with the *same* 4
    reductions as `B_shipped` on 11138 went the *opposite* direction (+col). Trajectory variance
