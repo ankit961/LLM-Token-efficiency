@@ -31,7 +31,7 @@ The bucket is small-read-dominated — exactly Step-4's warning, now confirmed o
   Step-4's 12.1% metadata estimate.** The cap model was right.
 - **The floor is the dominant lever, not the budget.** At floor 400 only 7/184 events clear it;
   lowering the floor to 125 fires 78 and takes `R_paired` to **53.9%**. Because outputs are small
-  (p50 = 90), the shipped floor is far too high.
+  (p50 = 93), the shipped floor is far too high.
 
 ## 2. Path-recall — is aggressive reduction SAFE?
 
@@ -49,27 +49,60 @@ full-path counts below are slightly higher and still fully retained.)
 | (64, 244) | 10 | 16 | 16 | **1.00** | 0 |
 | (64, 125) | 20 | 31 | 31 | **1.00** | 0 |
 
-**Recall is 100% at every config, including the aggressive `(64,125)`.** Even reducing the small
-greps, the compact output still names every file the agent went on to touch (the per-file rollup
-carries them), and the recovery handle backstops the rest. Lowering the floor 4× loses no evidence
-in this data.
+**Path-NAME recall is 100% at every config, including the aggressive `(64,125)`.** Even reducing
+the small greps, the compact output still *names* every file the agent went on to touch, and the
+recovery handle backstops the rest.
 
-## 3. The graph question — answered
+Two honest limits on what this proves — it is **not** "lossless":
 
-Because **simple reduction already achieves 100% path-recall**, there is **no room for graph
-ranking to improve retention quality** here — its entire value proposition (keep the *right*
-matches) is already satisfied by the count-ranked rollup + budget on this workload. On this data
-**graph ranking is not justified**: it adds machinery (a per-task code graph, working-set state)
-for a retention metric that is already maxed out. (The graph arm would only earn its keep on a
-dataset where simple reduction *drops* subsequently-needed paths — not observed here.)
+- **Named ≠ useful line retained.** `path_recall` asks only whether a subsequently-touched file's
+  path *string* still appears in the compact output. But when the reducer truncates it emits a
+  per-file rollup that *names* up to 12 matched files **even when their actual match lines were
+  dropped**. So a path can score as "retained" while the specific useful line is gone (recoverable
+  only by expanding `result://`). Whether the useful *line* survives is a stronger metric —
+  measured in §3 (Step 6.1), not here.
+- **The future-touch proxy misses direct use.** `needed` counts only files the agent later
+  `Read`/`Edit`/`Write`. A grep line can be useful *in place* — the agent reads the matched line,
+  infers the answer, and never opens the file — and such evidence is not scored as needed at all.
+
+The defensible statement is therefore: **floor 125 achieved 100% observed future-path-NAME recall
+on these 16 traces, with exact `result://` recovery available for any omitted content** — not
+"floor 125 is lossless".
+
+## 3. The graph question — SUPERSEDED by Step 6.1 (see docs/step6.1-evidence-retention-findings.md)
+
+> **Correction.** An earlier version of this section argued: "simple reduction already achieves 100%
+> path-recall ⇒ no room for graph ranking to improve." **That inference is wrong.** `path_recall`
+> only asks whether a subsequently-touched file's *name* still appears — and the reducer's per-file
+> rollup names up to 12 files even when their match lines were dropped. `named ≠ useful line
+> retained`, and graph ranking changes exactly which *lines* survive. Name-recall is therefore
+> blind to graph's value proposition and cannot settle the question either way.
+
+The correct, direct test is **Step 6.1** (line-level evidence-retention replay: real per-task graph,
+working set from preceding events, LINE-retained vs Named). Its finding: **no detectable graph
+advantage at the evidence-line level** — where the test is powered (budget 256, graph active on 7
+events, 74 lines to reorder) graph moved 1 line, rescued 0 needed lines, identical line-recall;
+where budget is 64 the test is underpowered (2–3 lines survive, nothing to reorder); on the shipped
+`(256,400)` graph never engaged. `promoted_needed = 0` in every config. Verdict: **deprioritize
+graph on the evidence — NOT "graph disproven".**
+
+Step 6.1 also overturns this doc's "lossless" wording: name-recall is 100% but **LINE-recall is only
+0.40 (shipped) → ~0.10 (aggressive)** — the compact output keeps file names but moves most
+subsequently-needed match *lines* behind the `result://` handle.
 
 ## Verdict
 
 - **Reduction is real and measured, not estimated:** shipped `R_paired = 12.1%` on live outputs.
-- **The tuning lever is the FLOOR:** `floor ≈ 125` roughly **quadruples** capture (12% → 54%) and,
-  in this data, is **lossless for future-needed paths** (100% recall). Recommend evaluating a lower
-  default floor.
-- **Graph ranking is not justified on this workload** — simple is already lossless.
+- **Two levers, not one.** The **floor** sets how *often* reduction fires (floor 400 → 7/184 events,
+  floor 125 → 78/184, `R_paired` 12% → 54%). The **budget** sets how much real evidence survives
+  *inside* each reduced result (Step 6.1: budget 256 keeps ~74 match lines / line-recall 0.56;
+  budget 64 keeps 2–3 / line-recall ~0.10). Big token capture at `(64,125)` comes precisely from
+  dropping inline lines, so it is **not "lossless"** — 100% file-*name* recall but most needed
+  *lines* move behind the `result://` handle. Pick the operating point by the **live cost of
+  `result://` expansions**, not by token-capture alone.
+- **Graph ranking: no detectable line-level advantage (Step 6.1, now run).** Directly tested with a
+  real per-task graph: `promoted_needed = 0` in every config; identical line-recall where powered.
+  Deprioritize on the evidence — not "disproven". See docs/step6.1-evidence-retention-findings.md.
 
 ## Caveats
 
