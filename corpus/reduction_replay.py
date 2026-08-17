@@ -63,8 +63,9 @@ from contextruntime.reducers import livecas
 from corpus.opportunity_ceiling import PRIMARY_WINDOW, _bucket_of, _tok_cat
 
 DEFAULT_BUDGETS = (64, 128, 256)
-DEFAULT_FLOORS = (244, 400)          # 400 = the shipped hook floor; 244 ~= CAP(256), the tuned option
+DEFAULT_FLOORS = (244, 400)          # 400 = the shipped hook default; 244 ~= CAP(256), a tuned option
 SEARCH_BUCKET = "search_listing_reducible"
+LIVE_DEFAULT_FLOOR = MIN_REDUCE_TOKENS   # what the live hook uses unless CR_REDUCE_FLOOR is set
 
 # B1's gate reduces ONLY these representations. The ceiling's search_listing bucket also folds in
 # `derived` (a `| wc -l`-style summary) under the same classifier reason — but B1 deliberately
@@ -76,9 +77,11 @@ _CAP_CACHE: dict = {}
 
 
 def calibrate_cap(budget: int) -> int:
-    """The reducer's output size on an arbitrarily large search output at `budget` — measured
-    from the real `reduce_search`, memoized. This IS the reduced-token count for any read above
-    the cap, because the reducer saturates (verified flat across 800..100k-tok inputs)."""
+    """The reducer's output size on ONE large, uniform search output at `budget` — measured from
+    the real `reduce_search`, memoized. This is the MODELED reduced size used by the estimate; the
+    REAL output is content-dependent (diagnostics, path/line lengths) and the reducer breaks on the
+    first non-fitting line, so actual reduced size may be below or above this cap (see method_note).
+    Not a guaranteed bound — a calibration point."""
     if budget not in _CAP_CACHE:
         line = "src/pkg/module.py:{i}: def some_function_{i}(arg): return helper(arg)"
         big = "\n".join(line.format(i=i) for i in range(4000))     # ~60k tokens, well past any cap
@@ -179,6 +182,9 @@ def aggregate(runs_dir: str, budgets=DEFAULT_BUDGETS, floors=DEFAULT_FLOORS) -> 
             grid.append({
                 "budget": budget, "floor": floor, "cap": cap,
                 "effective_threshold": max(floor, cap),
+                # the live hook uses budget via CR_REDUCE_BUDGET and floor via CR_REDUCE_FLOOR, so
+                # every grid point IS deployable; this flags which one is the shipped DEFAULT.
+                "deployable": "default" if floor == LIVE_DEFAULT_FLOOR else "requires CR_REDUCE_FLOOR",
                 "saved_tokens": saved,
                 "reads_reduced": sum(1 for s in all_sizes if s >= max(floor, cap)),
                 "R_search_micro": round(saved / bucket_total, 4) if bucket_total else None,
@@ -187,7 +193,7 @@ def aggregate(runs_dir: str, budgets=DEFAULT_BUDGETS, floors=DEFAULT_FLOORS) -> 
             })
 
     return {
-        "schema": "reduction-replay-v1.1",
+        "schema": "reduction-replay-v1.2",
         "method": "metadata_only_calibrated_cap_estimate",
         "method_note": "ESTIMATE, not a measured replay: reduced size is modeled as CAP(budget) "
                        "above the floor. Real reduce_search output is content-dependent (diagnostics, "
@@ -222,7 +228,8 @@ def aggregate(runs_dir: str, budgets=DEFAULT_BUDGETS, floors=DEFAULT_FLOORS) -> 
 
 
 # ------------------------------------------------------------------ true replay (needs raw text)
-def measured_reduction(raw: str, tool_name: str, tool_input: dict, *, budget: int = 256):
+def measured_reduction(raw: str, tool_name: str, tool_input: dict, *, budget: int = 256,
+                       floor: int = MIN_REDUCE_TOKENS):
     """TRUE replay for when the raw payload IS available (e.g. reconstructed from transcripts):
     run the REAL gate + reducer and return (reduced_tokens, eligible). Mirrors the hook's decision
     path exactly — a call the gate passes through, a payload below MIN_REDUCE, OR one whose recovery
@@ -231,7 +238,7 @@ def measured_reduction(raw: str, tool_name: str, tool_input: dict, *, budget: in
     Unlike the cap estimate, this is content-exact, not an approximation."""
     d = route(tool_name, tool_input or {})
     raw_tok = _tok(raw)
-    if d.passthrough or raw_tok < MIN_REDUCE_TOKENS:
+    if d.passthrough or raw_tok < floor:
         return raw_tok, False
     if not livecas.recovery_is_exact(raw):        # live hook would pass through (redacted / > byte cap)
         return raw_tok, False
@@ -240,14 +247,14 @@ def measured_reduction(raw: str, tool_name: str, tool_input: dict, *, budget: in
     return (red.reduced_tokens if red.invariants_ok else raw_tok), red.invariants_ok
 
 
-def true_replay_search(reads, *, budget: int = 256) -> dict:
+def true_replay_search(reads, *, budget: int = 256, floor: int = MIN_REDUCE_TOKENS) -> dict:
     """Aggregate a true replay over reads with raw text. `reads` = iterable of
     (raw, tool_name, tool_input). Returns MEASURED R_search — the real reducer, no cap model."""
     t_raw = t_reduced = 0
     reduced_count = 0
     for raw, tool_name, tool_input in reads:
         rt = _tok(raw)
-        red_tok, eligible = measured_reduction(raw, tool_name, tool_input, budget=budget)
+        red_tok, eligible = measured_reduction(raw, tool_name, tool_input, budget=budget, floor=floor)
         t_raw += rt
         t_reduced += red_tok
         reduced_count += 1 if (eligible and red_tok < rt) else 0

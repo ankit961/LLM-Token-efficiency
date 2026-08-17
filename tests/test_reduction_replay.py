@@ -158,10 +158,12 @@ def test_aggregate_reports_derived_and_labels_estimate(tmp_path):
     _run(runs, "run-01", lambda j: (_search(j, "s1", 5000), _derived(j, "d", 9000)))
     res = aggregate(str(runs), budgets=(256,), floors=(400,))
     assert res["method"] == "metadata_only_calibrated_cap_estimate"       # honest terminology
-    assert res["schema"] == "reduction-replay-v1.1"
+    assert res["schema"] == "reduction-replay-v1.2"
     assert res["eligible_representations"] == ["path_listing", "search"]
     assert res["search_bucket_tokens"] == 5000                            # derived NOT folded in
     assert res["derived_excluded"]["tokens"] == 9000
+    # grid rows are tagged by deployability (shipped default floor vs a CR_REDUCE_FLOOR override)
+    assert {g["deployable"] for g in res["grid"]} == {"default"}          # only floor 400 here
 
 
 def test_true_replay_measures_real_reduction():

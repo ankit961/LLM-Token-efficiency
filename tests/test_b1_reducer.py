@@ -341,6 +341,40 @@ def test_hook_gates_on_live_version_not_stale_baked(tmp_path, monkeypatch, capsy
     assert rec["baked_version"] in doctor.CONFIRMED_OUTPUT_REPLACEMENT_VERSIONS
 
 
+def test_hook_fails_safe_when_live_version_unknown(tmp_path, monkeypatch, capsys):
+    """P1 (insisted): if the live probe can't determine the version, DO NOT enforce — never fall
+    back to the possibly-stale baked value, even though it is a confirmed version."""
+    for k, val in _enforce_env(tmp_path).items():
+        monkeypatch.setenv(k, val)                            # baked CR_CLIENT_VERSION = confirmed
+    monkeypatch.setattr(hook_mod.doctor, "live_client_version", lambda **k: None)  # probe unavailable
+    monkeypatch.setattr("sys.stdin", io.StringIO(json.dumps(_grep_event())))
+    assert hook_mod.main() == 0
+    out = capsys.readouterr()
+    assert out.out.strip() == "{}"                            # unknown live version → do not enforce
+    assert "could not be determined" in out.err
+    rec = json.loads(open(tmp_path / "d.jsonl").read().splitlines()[-1])
+    assert rec["enforced"] is False and rec["live_version"] is None
+    assert rec["baked_version"] in doctor.CONFIRMED_OUTPUT_REPLACEMENT_VERSIONS   # confirmed, but ignored
+
+
+def test_hook_reduce_floor_env_makes_lower_floor_deployable(tmp_path, monkeypatch, capsys):
+    """A ~300-tok search output: passed through at the default 400 floor, but reduced once
+    CR_REDUCE_FLOOR lowers the floor (with a small budget so its CAP is below the read)."""
+    raw = "\n".join(f"src/pkg/mod{i}.py:{i}: def matched_symbol_{i}(): pass" for i in range(28))
+    assert 120 < tokens(raw) < 400                            # between the lowered floor and the default
+    ev = json.dumps({"tool_name": "Grep", "tool_input": {"pattern": "matched"}, "tool_response": raw})
+    for k, val in _enforce_env(tmp_path).items():
+        monkeypatch.setenv(k, val)
+    monkeypatch.setattr("sys.stdin", io.StringIO(ev))
+    assert hook_mod.main() == 0
+    assert capsys.readouterr().out.strip() == "{}"            # default floor 400 → pass through
+    monkeypatch.setenv("CR_REDUCE_FLOOR", "120")
+    monkeypatch.setenv("CR_REDUCE_BUDGET", "64")              # CAP(64) well below the read
+    monkeypatch.setattr("sys.stdin", io.StringIO(ev))
+    assert hook_mod.main() == 0
+    assert "hookSpecificOutput" in capsys.readouterr().out    # lowered floor → reduced
+
+
 def test_hook_live_version_confirms_despite_stale_baked(tmp_path, monkeypatch, capsys):
     """The reverse: a stale/unconfirmed BAKED value doesn't block enforcement when the live
     version is confirmed (autouse pins CR_LIVE_CLIENT_VERSION = confirmed)."""

@@ -48,6 +48,18 @@ def _budget() -> int:
         return SEARCH_BUDGET_TOKENS
 
 
+def _floor() -> int:
+    """Min raw tokens before a search/listing output is worth reducing (CR_REDUCE_FLOOR override,
+    default MIN_REDUCE_TOKENS). Mirrors CR_REDUCE_BUDGET so the offline replay's floor grid maps to
+    real, deployable configs — a lower floor is still subject to the recovery invariant (replace
+    only when the CAS confirms exact recovery)."""
+    try:
+        f = int(os.environ.get("CR_REDUCE_FLOOR", ""))
+        return f if f > 0 else MIN_REDUCE_TOKENS
+    except (TypeError, ValueError):
+        return MIN_REDUCE_TOKENS
+
+
 def _graph_scores(event: dict, raw: str, decision) -> dict:
     """B1.2 — best-effort graph relevance per matched path, for ranking retention. TOTALLY
     fail-open: any missing piece (no CR_GRAPH_DB, no session TOUCHED anchors, schema mismatch,
@@ -120,7 +132,7 @@ def handle(event: dict) -> int:
     if shape == "unsupported":
         return _passthrough()          # unknown response schema — never rewrite (uncertain ⇒ pass through)
     raw_tok = tokens(raw)
-    if raw_tok < MIN_REDUCE_TOKENS:
+    if raw_tok < _floor():
         return _passthrough()          # too small to be worth an envelope
 
     # (1b) B1.2 graph-informed ranking (best-effort, fail-open → simple order).
@@ -132,14 +144,15 @@ def handle(event: dict) -> int:
         return _passthrough("[contextreduce] invariant check failed — passing raw through")
 
     # (3) Version gate + (5) enforce gate. Both must hold to replace what the model sees.
-    # RUNTIME-gated: the authoritative version is the LIVE `claude --version` (cached), not the value
-    # baked into the hook command at install time — otherwise a client auto-update from a confirmed
-    # version to an unverified one would keep enforcing on the stale baked value. Fall back to the
-    # baked env only when the live probe is unavailable (e.g. claude not on the hook's PATH).
-    baked_version = os.environ.get("CR_CLIENT_VERSION")
+    # RUNTIME-gated and FAIL-SAFE: enforcement requires a CONFIRMED LIVE `claude --version` (cached
+    # probe). If the live version can't be determined, we are uncertain, so we DO NOT enforce — the
+    # value baked into the hook command at install time may be stale after a client auto-update, and
+    # "does nothing when uncertain" forbids trusting it. Where the probe can't reach claude but the
+    # operator can vouch for the version, they assert it deliberately via CR_LIVE_CLIENT_VERSION.
+    baked_version = os.environ.get("CR_CLIENT_VERSION")     # install-time; informational only now
     live_version = doctor.live_client_version()
-    client_version = live_version if live_version is not None else baked_version
-    version_ok = doctor.output_replacement_confirmed(client_version)
+    client_version = live_version
+    version_ok = live_version is not None and doctor.output_replacement_confirmed(live_version)
     enforce = os.environ.get("CR_REDUCE_MODE") == "enforce"
     will_replace = enforce and version_ok
 
@@ -175,7 +188,10 @@ def handle(event: dict) -> int:
         if not enforce:
             why = "observe mode (CR_REDUCE_MODE≠enforce)"
         elif not version_ok:
-            why = f"client version {client_version!r} not confirmed for output replacement"
+            why = (f"live client version {live_version!r} not confirmed for output replacement"
+                   if live_version is not None
+                   else "live client version could not be determined — refusing to enforce on a "
+                        "possibly-stale baked value (set CR_LIVE_CLIENT_VERSION to assert it)")
         else:
             why = (f"live CAS could not confirm complete recovery "
                    f"({cas.note if cas else 'no write'}) — passing raw through")
