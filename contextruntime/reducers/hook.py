@@ -72,6 +72,8 @@ def _graph_scores(event: dict, raw: str, decision) -> dict:
     anchors come from TOUCHED alone. Ranking therefore only engages once the session has read/
     edited some files — before that, simple order, honestly."""
     try:
+        if os.environ.get("CR_GRAPH_MODE") == "off":
+            return {}                           # explicit kill-switch (robust to an inherited CR_GRAPH_DB)
         graph_db = os.environ.get("CR_GRAPH_DB")
         repo_id = os.environ.get("CR_REPO_ID")
         if not (graph_db and repo_id and os.path.exists(graph_db)):
@@ -165,6 +167,7 @@ def handle(event: dict) -> int:
             "effective_tokens": raw_tok, "saved_tokens": 0, "enforced": False,
             "graph_ranked": bool(scores), "graph_scored_paths": len(scores),
             "fingerprint": _fingerprint(decision.tool, decision.representation, args),
+            "tool_use_id": event.get("tool_use_id"),
         })
         return _passthrough(f"[contextreduce] reduction not beneficial "
                             f"({red.reduced_tokens} >= {raw_tok} tok) — passing through")
@@ -209,6 +212,7 @@ def handle(event: dict) -> int:
         "graph_ranked": bool(scores),
         "graph_scored_paths": len(scores),
         "fingerprint": _fingerprint(decision.tool, decision.representation, args),
+        "tool_use_id": event.get("tool_use_id"),
     })
 
     if not will_replace:
