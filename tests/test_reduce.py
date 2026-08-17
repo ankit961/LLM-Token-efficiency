@@ -125,11 +125,14 @@ def test_hook_enforce_replaces_and_handle_recovers(monkeypatch, capsys, tmp_path
 def test_hook_version_gate_fails_safe_on_unknown_version(monkeypatch, capsys, tmp_path):
     event = {"tool_name": "Grep", "tool_input": {"pattern": "handler"},
              "tool_response": GREP_RAW}
-    rc, out = _run_hook(event, {"CR_REDUCE_MODE": "enforce", "CR_CLIENT_VERSION": "9.9.9-unconfirmed",
+    # the LIVE version (authoritative) is unconfirmed — overrides the confirmed autouse default
+    rc, out = _run_hook(event, {"CR_REDUCE_MODE": "enforce",
+                                "CR_LIVE_CLIENT_VERSION": "9.9.9-unconfirmed",
+                                "CR_CLIENT_VERSION": "9.9.9-unconfirmed",
                                 "CR_DB": str(tmp_path / "live.db"),
                                 "CR_DECISION_LOG": str(tmp_path / "d.jsonl")}, monkeypatch, capsys)
     assert rc == 0
-    assert out.out.strip() == "{}"                          # unknown version → pass through raw
+    assert out.out.strip() == "{}"                          # unknown live version → pass through raw
     assert "not confirmed" in out.err
 
 

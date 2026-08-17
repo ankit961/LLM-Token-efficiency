@@ -83,6 +83,16 @@ class Stored:
     note: str = ""
 
 
+def recovery_is_exact(raw: str) -> bool:
+    """True iff `put_confirmed(raw)` would store the payload recoverably VERBATIM: it fits the
+    byte cap (not truncated) AND redaction is a no-op (no secret rewritten). This is the SINGLE
+    source of truth for the recovery-exactness gate — shared by the live CAS (which only lets the
+    hook replace when exact) and by the offline true-replay (so it counts a read as reduced ONLY
+    when the live hook actually would). The length check short-circuits, so a multi-MB payload is
+    never redacted just to answer this."""
+    return len(raw.encode("utf-8", "replace")) <= MAX_SAMPLE_BYTES and redact(raw) == raw
+
+
 def decision_log_path() -> str:
     """CR_DECISION_LOG if set, else ~/.contextruntime/decisions.jsonl. This is the durable,
     append-only record the offline replay (B1 step 4) reads to measure what the reducer actually

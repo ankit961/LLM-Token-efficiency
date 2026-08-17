@@ -26,8 +26,11 @@ harness reports ONE token number for both arms. Graph's value — keeping the RE
 within that cap — is a retention-QUALITY question needing raw text + a ground truth, measured
 in the live step-5 A/B/C, not here. That separation is deliberate, not an omission.
 
-Because the real reduced size ALSO grows with preserved diagnostics, rollup path lengths, and line
-lengths, actual reduced size is >= CAP — so this estimate is an OPTIMISTIC UPPER BOUND on savings.
+The real reduced size is content-dependent (preserved diagnostics, rollup path lengths, retained
+line lengths) AND the reducer BREAKS on the first line that doesn't fit — so a single huge match can
+yield only header+rollup+handle (< CAP), while long diagnostics/paths can push it > CAP. The
+cap estimate's bias direction is therefore NOT GUARANTEED (T_real may be below or above CAP); treat
+it as a rough calibrated estimate, not a bound.
 
 Only representations B1 actually reduces are counted — `search` and `path_listing`
 (== `gate.REDUCIBLE_REPRESENTATIONS`). The ceiling's `search_listing_reducible` bucket also folds
@@ -56,6 +59,7 @@ from contextruntime.reducers.library import reduce_search
 from contextruntime.reducers.base import tokens as _tok
 from contextruntime.reducers.gate import route, REDUCIBLE_REPRESENTATIONS
 from contextruntime.reducers.hook import MIN_REDUCE_TOKENS
+from contextruntime.reducers import livecas
 from corpus.opportunity_ceiling import PRIMARY_WINDOW, _bucket_of, _tok_cat
 
 DEFAULT_BUDGETS = (64, 128, 256)
@@ -186,11 +190,13 @@ def aggregate(runs_dir: str, budgets=DEFAULT_BUDGETS, floors=DEFAULT_FLOORS) -> 
         "schema": "reduction-replay-v1.1",
         "method": "metadata_only_calibrated_cap_estimate",
         "method_note": "ESTIMATE, not a measured replay: reduced size is modeled as CAP(budget) "
-                       "above the floor. The real reduce_search output also depends on preserved "
-                       "diagnostics, rollup path lengths, and line lengths, so actual reduced size "
-                       "is >= CAP — i.e. these savings are an OPTIMISTIC UPPER BOUND. For a true "
-                       "measurement, run measured_reduction()/true_replay_search() on the raw "
-                       "payloads (from transcripts), not on token counts alone.",
+                       "above the floor. Real reduce_search output is content-dependent (diagnostics, "
+                       "rollup path lengths, line lengths) AND breaks on the first non-fitting line, "
+                       "so T_real may be BELOW CAP (one huge match → header+rollup+handle only) or "
+                       "ABOVE it (long diagnostics/paths) — the bias direction is NOT guaranteed. "
+                       "R_direct uses the derived-EXCLUDED search_bucket_share (see field), not the "
+                       "29.7% ceiling constant (which included derived). For a real number, run "
+                       "measured_reduction()/true_replay_search() on raw payloads, not token counts.",
         "n_runs": len(per_run),
         "primary_window": PRIMARY_WINDOW,
         "eligible_representations": sorted(ELIGIBLE_REPRESENTATIONS),
@@ -219,11 +225,15 @@ def aggregate(runs_dir: str, budgets=DEFAULT_BUDGETS, floors=DEFAULT_FLOORS) -> 
 def measured_reduction(raw: str, tool_name: str, tool_input: dict, *, budget: int = 256):
     """TRUE replay for when the raw payload IS available (e.g. reconstructed from transcripts):
     run the REAL gate + reducer and return (reduced_tokens, eligible). Mirrors the hook's decision
-    path exactly — a call the gate passes through, or a payload below MIN_REDUCE, is left unchanged
-    (reduced == raw tokens). Unlike the cap estimate, this is content-exact, not an approximation."""
+    path exactly — a call the gate passes through, a payload below MIN_REDUCE, OR one whose recovery
+    would not be exact (a recognized secret, or over the CAS byte cap) is left UNCHANGED
+    (reduced == raw tokens), because the live hook refuses to replace unless persisted AND exact.
+    Unlike the cap estimate, this is content-exact, not an approximation."""
     d = route(tool_name, tool_input or {})
     raw_tok = _tok(raw)
     if d.passthrough or raw_tok < MIN_REDUCE_TOKENS:
+        return raw_tok, False
+    if not livecas.recovery_is_exact(raw):        # live hook would pass through (redacted / > byte cap)
         return raw_tok, False
     red = reduce_search(raw, tool_input or {}, budget_tokens=budget,
                         representation=d.representation or "search")

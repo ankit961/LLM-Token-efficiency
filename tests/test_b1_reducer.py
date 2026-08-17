@@ -326,6 +326,50 @@ def test_hook_passes_through_unknown_response_shape(tmp_path, monkeypatch, capsy
     assert capsys.readouterr().out.strip() == "{}"             # unknown schema → pass through
 
 
+def test_hook_gates_on_live_version_not_stale_baked(tmp_path, monkeypatch, capsys):
+    """P1: a client auto-update from confirmed → unverified must STOP enforcement, even though the
+    installer baked CR_CLIENT_VERSION=confirmed into the hook command. The LIVE probe is
+    authoritative."""
+    for k, val in _enforce_env(tmp_path).items():
+        monkeypatch.setenv(k, val)                            # CR_CLIENT_VERSION (baked) = confirmed
+    monkeypatch.setenv("CR_LIVE_CLIENT_VERSION", "2.9.9-autoupdated")   # live != baked, unverified
+    monkeypatch.setattr("sys.stdin", io.StringIO(json.dumps(_grep_event())))
+    assert hook_mod.main() == 0
+    assert capsys.readouterr().out.strip() == "{}"           # live version wins → pass through
+    rec = json.loads(open(tmp_path / "d.jsonl").read().splitlines()[-1])
+    assert rec["enforced"] is False and rec["live_version"] == "2.9.9"
+    assert rec["baked_version"] in doctor.CONFIRMED_OUTPUT_REPLACEMENT_VERSIONS
+
+
+def test_hook_live_version_confirms_despite_stale_baked(tmp_path, monkeypatch, capsys):
+    """The reverse: a stale/unconfirmed BAKED value doesn't block enforcement when the live
+    version is confirmed (autouse pins CR_LIVE_CLIENT_VERSION = confirmed)."""
+    for k, val in _enforce_env(tmp_path).items():
+        monkeypatch.setenv(k, val)
+    monkeypatch.setenv("CR_CLIENT_VERSION", "1.0.0-stale-baked")
+    monkeypatch.setattr("sys.stdin", io.StringIO(json.dumps(_grep_event())))
+    assert hook_mod.main() == 0
+    assert "hookSpecificOutput" in capsys.readouterr().out    # live confirmed → replaced
+
+
+def test_live_client_version_override_cache_and_failopen(tmp_path, monkeypatch):
+    monkeypatch.setenv("CR_LIVE_CLIENT_VERSION", "2.1.229 (Claude Code)")
+    assert doctor.live_client_version() == "2.1.229"          # override, semver-parsed
+    monkeypatch.delenv("CR_LIVE_CLIENT_VERSION", raising=False)
+    cache = str(tmp_path / "v.json")
+    monkeypatch.setenv("CR_VERSION_CACHE", cache)
+    json.dump({"version": "2.1.229", "ts": 1000.0}, open(cache, "w"))
+    assert doctor.live_client_version(now=1100.0) == "2.1.229"   # fresh cache, no probe
+    monkeypatch.setattr(doctor.shutil, "which", lambda _x: None)  # no claude → probe fails open
+    assert doctor.live_client_version(now=1000.0 + doctor.LIVE_VERSION_TTL + 1) is None
+
+
+def test_recovery_is_exact_matches_put_confirmed(tmp_path):
+    db = str(tmp_path / "l.db")
+    for raw in ["clean.py:1: hit\n" * 50, "x.py:1: AKIAIOSFODNN7EXAMPLE\n"]:
+        assert livecas.recovery_is_exact(raw) == livecas.put_confirmed(raw, path=db).exact
+
+
 def test_all_launch_commands_carry_pythonpath(tmp_path):
     scope = I.resolve_scope("claude", str(tmp_path), False)
     assert I.default_crhook_cmd(scope).startswith("PYTHONPATH=")
