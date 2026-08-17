@@ -1,9 +1,44 @@
 # Step 4 — Offline Reduction Replay: scope & method
 
-**Status: harness built + fixture-tested (`corpus/reduction_replay.py`), awaiting a run over the
-frozen journals.** Zero LLM cost. This is the deterministic gate before any live experiment
-(step 5): estimate — and, given raw payloads, measure — how much the B1 transparent reducer
-captures, before spending quota.
+**Status: RUN COMPLETE (2026-08-17) over the 50-run Observation Corpus v2.1 →
+`corpus/analysis/reduction-replay-v1.2.json`.** Zero LLM cost. This is the deterministic gate
+before any live experiment (step 5): estimate how much the B1 transparent reducer captures.
+
+## Result — the gate is cleared
+
+| metric | value |
+|---|---|
+| n_runs | 50 (48 have a search bucket) |
+| S_B1 — B1-eligible search share of all read tokens | **0.2966** (73,161 tok / 303 reads; `derived` excluded: 3 reads / 199 tok) |
+| **R_search(256,400)** | **0.408 micro** / 0.219 macro |
+| **R_direct(256,400)** | **0.121 micro** — the *shipped-default* capture of all read tokens |
+| concentration — mass in reads ≥400 tok | **0.605** (60% of bucket mass in 59/303 = 19.5% of reads) |
+| read sizes | median 125, mean 242, p90 568, max 2883 |
+
+The distribution is **skewed, not uniformly small** — the mean-240 didn't tell the story; a heavy
+tail carries the mass, and that concentration is a direct measurement (independent of the cap model).
+
+Tuning grid (every point deployable via `CR_REDUCE_BUDGET` / `CR_REDUCE_FLOOR`):
+
+```
+ budget floor  cap  deployable                Rd_micro   note
+    256   400  244  default                     0.121    shipped
+     64   400   62  default (CR_REDUCE_BUDGET)   0.165    budget-only, +4.4pp
+     64   244   62  requires CR_REDUCE_FLOOR     0.204    best
+```
+
+Budget is the big lever; the floor adds ~4pp more. **Method caveat:** this is the metadata-only
+calibrated-cap ESTIMATE (bias direction not guaranteed); a measured `true_replay_search` run was
+not possible — the corpus journals are metadata-only (no raw tool outputs). The concentration
+signal makes the "material" conclusion robust regardless.
+
+**Verdict:** `R_direct(256,400) = 12.1% ≫ 8%` → the small live step-5 A/B/C is warranted.
+
+---
+
+Zero LLM cost. This is the deterministic gate before any live experiment (step 5): estimate —
+and, given raw payloads, measure — how much the B1 transparent reducer captures, before spending
+quota.
 
 ## The question
 

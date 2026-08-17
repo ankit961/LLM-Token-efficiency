@@ -1,0 +1,544 @@
+{
+  "cap_calibration": {
+    "64": 62,
+    "128": 128,
+    "256": 244
+  },
+  "concentration": {
+    "histogram": [
+      {
+        "range": "0-120",
+        "reads": 150,
+        "tokens": 6602
+      },
+      {
+        "range": "120-244",
+        "reads": 56,
+        "tokens": 10197
+      },
+      {
+        "range": "244-400",
+        "reads": 38,
+        "tokens": 12105
+      },
+      {
+        "range": "400-800",
+        "reads": 43,
+        "tokens": 23256
+      },
+      {
+        "range": "800-2000",
+        "reads": 15,
+        "tokens": 18118
+      },
+      {
+        "range": "2000-inf",
+        "reads": 1,
+        "tokens": 2883
+      }
+    ],
+    "mass_share_above_ref_floor": 0.6049,
+    "max": 2883,
+    "mean": 241.5,
+    "median": 125,
+    "p90": 568,
+    "reads": 303,
+    "ref_floor": 400,
+    "tokens": 73161
+  },
+  "derived_excluded": {
+    "note": "in the ceiling's search_listing bucket but representation is not B1-eligible (e.g. `| wc -l` derived summaries) \u2014 B1 leaves these untouched, so they are excluded from the estimate.",
+    "reads": 3,
+    "tokens": 199
+  },
+  "eligible_representations": [
+    "path_listing",
+    "search"
+  ],
+  "graph_note": "TOKEN-NEUTRAL: simple and graph reducers both cap at CAP(budget); these numbers hold for both arms. Graph's retention-quality benefit is measured live in step 5, not here.",
+  "grid": [
+    {
+      "R_direct_micro": 0.2041,
+      "R_search_macro": 0.4665,
+      "R_search_micro": 0.6882,
+      "budget": 64,
+      "cap": 62,
+      "deployable": "requires CR_REDUCE_FLOOR",
+      "effective_threshold": 244,
+      "floor": 244,
+      "reads_reduced": 97,
+      "saved_tokens": 50348
+    },
+    {
+      "R_direct_micro": 0.1646,
+      "R_search_macro": 0.3295,
+      "R_search_micro": 0.5549,
+      "budget": 64,
+      "cap": 62,
+      "deployable": "default",
+      "effective_threshold": 400,
+      "floor": 400,
+      "reads_reduced": 59,
+      "saved_tokens": 40599
+    },
+    {
+      "R_direct_micro": 0.1781,
+      "R_search_macro": 0.3901,
+      "R_search_micro": 0.6007,
+      "budget": 128,
+      "cap": 128,
+      "deployable": "requires CR_REDUCE_FLOOR",
+      "effective_threshold": 244,
+      "floor": 244,
+      "reads_reduced": 97,
+      "saved_tokens": 43946
+    },
+    {
+      "R_direct_micro": 0.1488,
+      "R_search_macro": 0.2893,
+      "R_search_micro": 0.5017,
+      "budget": 128,
+      "cap": 128,
+      "deployable": "default",
+      "effective_threshold": 400,
+      "floor": 400,
+      "reads_reduced": 59,
+      "saved_tokens": 36705
+    },
+    {
+      "R_direct_micro": 0.1325,
+      "R_search_macro": 0.2557,
+      "R_search_micro": 0.4469,
+      "budget": 256,
+      "cap": 244,
+      "deployable": "requires CR_REDUCE_FLOOR",
+      "effective_threshold": 244,
+      "floor": 244,
+      "reads_reduced": 97,
+      "saved_tokens": 32694
+    },
+    {
+      "R_direct_micro": 0.121,
+      "R_search_macro": 0.2186,
+      "R_search_micro": 0.4082,
+      "budget": 256,
+      "cap": 244,
+      "deployable": "default",
+      "effective_threshold": 400,
+      "floor": 400,
+      "reads_reduced": 59,
+      "saved_tokens": 29861
+    }
+  ],
+  "method": "metadata_only_calibrated_cap_estimate",
+  "method_note": "ESTIMATE, not a measured replay: reduced size is modeled as CAP(budget) above the floor. Real reduce_search output is content-dependent (diagnostics, rollup path lengths, line lengths) AND breaks on the first non-fitting line, so T_real may be BELOW CAP (one huge match \u2192 header+rollup+handle only) or ABOVE it (long diagnostics/paths) \u2014 the bias direction is NOT guaranteed. R_direct uses the derived-EXCLUDED search_bucket_share (see field), not the 29.7% ceiling constant (which included derived). For a real number, run measured_reduction()/true_replay_search() on raw payloads, not token counts.",
+  "n_runs": 50,
+  "per_run": [
+    {
+      "derived_excluded_reads": 0,
+      "run": "run-01",
+      "search_bucket_tokens": 0,
+      "search_reads": 0,
+      "stratum": "fs4_large_1f_16_60",
+      "task_id": "django__django-13513"
+    },
+    {
+      "derived_excluded_reads": 0,
+      "run": "run-02",
+      "search_bucket_tokens": 245,
+      "search_reads": 4,
+      "stratum": "fs5_multi_ge2f",
+      "task_id": "django__django-15561"
+    },
+    {
+      "derived_excluded_reads": 0,
+      "run": "run-03",
+      "search_bucket_tokens": 2328,
+      "search_reads": 8,
+      "stratum": "fs2_small_1f_4_6",
+      "task_id": "django__django-15022"
+    },
+    {
+      "derived_excluded_reads": 0,
+      "run": "run-04",
+      "search_bucket_tokens": 1738,
+      "search_reads": 4,
+      "stratum": "fs1_oneline_1f_le3",
+      "task_id": "django__django-14672"
+    },
+    {
+      "derived_excluded_reads": 0,
+      "run": "run-05",
+      "search_bucket_tokens": 252,
+      "search_reads": 2,
+      "stratum": "fs3_medium_1f_7_15",
+      "task_id": "django__django-13658"
+    },
+    {
+      "derived_excluded_reads": 0,
+      "run": "run-06",
+      "search_bucket_tokens": 1737,
+      "search_reads": 7,
+      "stratum": "fs2_small_1f_4_6",
+      "task_id": "django__django-12193"
+    },
+    {
+      "derived_excluded_reads": 0,
+      "run": "run-07",
+      "search_bucket_tokens": 1588,
+      "search_reads": 9,
+      "stratum": "fs5_multi_ge2f",
+      "task_id": "django__django-12406"
+    },
+    {
+      "derived_excluded_reads": 0,
+      "run": "run-08",
+      "search_bucket_tokens": 6,
+      "search_reads": 1,
+      "stratum": "fs3_medium_1f_7_15",
+      "task_id": "django__django-11964"
+    },
+    {
+      "derived_excluded_reads": 0,
+      "run": "run-09",
+      "search_bucket_tokens": 506,
+      "search_reads": 3,
+      "stratum": "fs1_oneline_1f_le3",
+      "task_id": "django__django-11299"
+    },
+    {
+      "derived_excluded_reads": 0,
+      "run": "run-10",
+      "search_bucket_tokens": 51,
+      "search_reads": 1,
+      "stratum": "fs4_large_1f_16_60",
+      "task_id": "django__django-14053"
+    },
+    {
+      "derived_excluded_reads": 0,
+      "run": "run-11",
+      "search_bucket_tokens": 872,
+      "search_reads": 6,
+      "stratum": "fs3_medium_1f_7_15",
+      "task_id": "django__django-11239"
+    },
+    {
+      "derived_excluded_reads": 0,
+      "run": "run-12",
+      "search_bucket_tokens": 1444,
+      "search_reads": 9,
+      "stratum": "fs2_small_1f_4_6",
+      "task_id": "django__django-13590"
+    },
+    {
+      "derived_excluded_reads": 0,
+      "run": "run-13",
+      "search_bucket_tokens": 1343,
+      "search_reads": 6,
+      "stratum": "fs4_large_1f_16_60",
+      "task_id": "django__django-15382"
+    },
+    {
+      "derived_excluded_reads": 0,
+      "run": "run-14",
+      "search_bucket_tokens": 6081,
+      "search_reads": 14,
+      "stratum": "fs5_multi_ge2f",
+      "task_id": "django__django-11138"
+    },
+    {
+      "derived_excluded_reads": 0,
+      "run": "run-15",
+      "search_bucket_tokens": 5862,
+      "search_reads": 16,
+      "stratum": "fs1_oneline_1f_le3",
+      "task_id": "django__django-12419"
+    },
+    {
+      "derived_excluded_reads": 0,
+      "run": "run-16",
+      "search_bucket_tokens": 273,
+      "search_reads": 2,
+      "stratum": "fs2_small_1f_4_6",
+      "task_id": "django__django-14771"
+    },
+    {
+      "derived_excluded_reads": 0,
+      "run": "run-17",
+      "search_bucket_tokens": 251,
+      "search_reads": 3,
+      "stratum": "fs4_large_1f_16_60",
+      "task_id": "django__django-16502"
+    },
+    {
+      "derived_excluded_reads": 0,
+      "run": "run-18",
+      "search_bucket_tokens": 1046,
+      "search_reads": 7,
+      "stratum": "fs3_medium_1f_7_15",
+      "task_id": "django__django-13809"
+    },
+    {
+      "derived_excluded_reads": 0,
+      "run": "run-19",
+      "search_bucket_tokens": 0,
+      "search_reads": 0,
+      "stratum": "fs5_multi_ge2f",
+      "task_id": "django__django-14315"
+    },
+    {
+      "derived_excluded_reads": 0,
+      "run": "run-20",
+      "search_bucket_tokens": 314,
+      "search_reads": 1,
+      "stratum": "fs1_oneline_1f_le3",
+      "task_id": "django__django-11951"
+    },
+    {
+      "derived_excluded_reads": 0,
+      "run": "run-21",
+      "search_bucket_tokens": 525,
+      "search_reads": 3,
+      "stratum": "fs1_oneline_1f_le3",
+      "task_id": "django__django-15277"
+    },
+    {
+      "derived_excluded_reads": 0,
+      "run": "run-22",
+      "search_bucket_tokens": 1448,
+      "search_reads": 8,
+      "stratum": "fs5_multi_ge2f",
+      "task_id": "django__django-13195"
+    },
+    {
+      "derived_excluded_reads": 0,
+      "run": "run-23",
+      "search_bucket_tokens": 1250,
+      "search_reads": 6,
+      "stratum": "fs2_small_1f_4_6",
+      "task_id": "django__django-13821"
+    },
+    {
+      "derived_excluded_reads": 0,
+      "run": "run-24",
+      "search_bucket_tokens": 5102,
+      "search_reads": 14,
+      "stratum": "fs3_medium_1f_7_15",
+      "task_id": "django__django-14608"
+    },
+    {
+      "derived_excluded_reads": 0,
+      "run": "run-25",
+      "search_bucket_tokens": 1728,
+      "search_reads": 6,
+      "stratum": "fs4_large_1f_16_60",
+      "task_id": "django__django-15503"
+    },
+    {
+      "derived_excluded_reads": 1,
+      "run": "run-26",
+      "search_bucket_tokens": 2805,
+      "search_reads": 6,
+      "stratum": "fs4_large_1f_16_60",
+      "task_id": "django__django-13128"
+    },
+    {
+      "derived_excluded_reads": 0,
+      "run": "run-27",
+      "search_bucket_tokens": 265,
+      "search_reads": 1,
+      "stratum": "fs3_medium_1f_7_15",
+      "task_id": "django__django-12039"
+    },
+    {
+      "derived_excluded_reads": 0,
+      "run": "run-28",
+      "search_bucket_tokens": 3391,
+      "search_reads": 9,
+      "stratum": "fs2_small_1f_4_6",
+      "task_id": "django__django-11740"
+    },
+    {
+      "derived_excluded_reads": 0,
+      "run": "run-29",
+      "search_bucket_tokens": 11663,
+      "search_reads": 31,
+      "stratum": "fs5_multi_ge2f",
+      "task_id": "django__django-10554"
+    },
+    {
+      "derived_excluded_reads": 0,
+      "run": "run-30",
+      "search_bucket_tokens": 104,
+      "search_reads": 2,
+      "stratum": "fs1_oneline_1f_le3",
+      "task_id": "django__django-16429"
+    },
+    {
+      "derived_excluded_reads": 0,
+      "run": "run-31",
+      "search_bucket_tokens": 541,
+      "search_reads": 4,
+      "stratum": "fs3_medium_1f_7_15",
+      "task_id": "django__django-14765"
+    },
+    {
+      "derived_excluded_reads": 0,
+      "run": "run-32",
+      "search_bucket_tokens": 3025,
+      "search_reads": 8,
+      "stratum": "fs1_oneline_1f_le3",
+      "task_id": "django__django-13012"
+    },
+    {
+      "derived_excluded_reads": 0,
+      "run": "run-33",
+      "search_bucket_tokens": 628,
+      "search_reads": 4,
+      "stratum": "fs2_small_1f_4_6",
+      "task_id": "django__django-12308"
+    },
+    {
+      "derived_excluded_reads": 0,
+      "run": "run-34",
+      "search_bucket_tokens": 486,
+      "search_reads": 3,
+      "stratum": "fs5_multi_ge2f",
+      "task_id": "django__django-11333"
+    },
+    {
+      "derived_excluded_reads": 0,
+      "run": "run-35",
+      "search_bucket_tokens": 192,
+      "search_reads": 4,
+      "stratum": "fs4_large_1f_16_60",
+      "task_id": "django__django-11728"
+    },
+    {
+      "derived_excluded_reads": 0,
+      "run": "run-36",
+      "search_bucket_tokens": 451,
+      "search_reads": 1,
+      "stratum": "fs5_multi_ge2f",
+      "task_id": "django__django-13212"
+    },
+    {
+      "derived_excluded_reads": 0,
+      "run": "run-37",
+      "search_bucket_tokens": 193,
+      "search_reads": 3,
+      "stratum": "fs4_large_1f_16_60",
+      "task_id": "django__django-13401"
+    },
+    {
+      "derived_excluded_reads": 0,
+      "run": "run-38",
+      "search_bucket_tokens": 1315,
+      "search_reads": 11,
+      "stratum": "fs3_medium_1f_7_15",
+      "task_id": "django__django-16901"
+    },
+    {
+      "derived_excluded_reads": 0,
+      "run": "run-39",
+      "search_bucket_tokens": 241,
+      "search_reads": 2,
+      "stratum": "fs2_small_1f_4_6",
+      "task_id": "django__django-12276"
+    },
+    {
+      "derived_excluded_reads": 2,
+      "run": "run-40",
+      "search_bucket_tokens": 1791,
+      "search_reads": 6,
+      "stratum": "fs1_oneline_1f_le3",
+      "task_id": "django__django-11477"
+    },
+    {
+      "derived_excluded_reads": 0,
+      "run": "run-41",
+      "search_bucket_tokens": 515,
+      "search_reads": 3,
+      "stratum": "fs1_oneline_1f_le3",
+      "task_id": "django__django-16527"
+    },
+    {
+      "derived_excluded_reads": 0,
+      "run": "run-42",
+      "search_bucket_tokens": 691,
+      "search_reads": 5,
+      "stratum": "fs2_small_1f_4_6",
+      "task_id": "django__django-15368"
+    },
+    {
+      "derived_excluded_reads": 0,
+      "run": "run-43",
+      "search_bucket_tokens": 1853,
+      "search_reads": 18,
+      "stratum": "fs5_multi_ge2f",
+      "task_id": "django__django-16256"
+    },
+    {
+      "derived_excluded_reads": 0,
+      "run": "run-44",
+      "search_bucket_tokens": 809,
+      "search_reads": 8,
+      "stratum": "fs4_large_1f_16_60",
+      "task_id": "django__django-12713"
+    },
+    {
+      "derived_excluded_reads": 0,
+      "run": "run-45",
+      "search_bucket_tokens": 203,
+      "search_reads": 3,
+      "stratum": "fs3_medium_1f_7_15",
+      "task_id": "django__django-16136"
+    },
+    {
+      "derived_excluded_reads": 0,
+      "run": "run-46",
+      "search_bucket_tokens": 1116,
+      "search_reads": 6,
+      "stratum": "fs1_oneline_1f_le3",
+      "task_id": "django__django-13406"
+    },
+    {
+      "derived_excluded_reads": 0,
+      "run": "run-47",
+      "search_bucket_tokens": 1692,
+      "search_reads": 8,
+      "stratum": "fs3_medium_1f_7_15",
+      "task_id": "django__django-13449"
+    },
+    {
+      "derived_excluded_reads": 0,
+      "run": "run-48",
+      "search_bucket_tokens": 2448,
+      "search_reads": 13,
+      "stratum": "fs4_large_1f_16_60",
+      "task_id": "django__django-15554"
+    },
+    {
+      "derived_excluded_reads": 0,
+      "run": "run-49",
+      "search_bucket_tokens": 269,
+      "search_reads": 2,
+      "stratum": "fs2_small_1f_4_6",
+      "task_id": "django__django-12143"
+    },
+    {
+      "derived_excluded_reads": 0,
+      "run": "run-50",
+      "search_bucket_tokens": 484,
+      "search_reads": 2,
+      "stratum": "fs5_multi_ge2f",
+      "task_id": "django__django-13344"
+    }
+  ],
+  "primary_window": 16,
+  "schema": "reduction-replay-v1.2",
+  "search_bucket_reads": 303,
+  "search_bucket_share": 0.2966,
+  "search_bucket_tokens": 73161,
+  "total_fully_measured_read_tokens": 246686
+}
