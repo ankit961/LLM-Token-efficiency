@@ -85,10 +85,14 @@ pass.
 
 Because CAP is the binding constraint, **budget is the real lever**: a smaller budget lowers the
 cap, so more reads clear it. The `floor` only blocks reads beneath it — set `floor ≈ CAP` and
-mid-size reads (currently passed through by the shipped `floor=400`) get captured. The
-`--budgets`/`--floors` grid quantifies this: e.g. the shipped `(256, 400)` vs a tuned `(64, ~62)`.
-Any budget change is subject to the B1 recovery invariant — reduction still only fires when the
-CAS confirms complete recovery (a smaller budget does not change that).
+mid-size reads (passed through by the default `floor=400`) get captured. The `--budgets`/`--floors`
+grid quantifies this: e.g. the default `(256, 400)` vs a tuned `(64, ~62)`.
+
+**Every grid point is DEPLOYABLE**, not hypothetical: the live hook reads the budget from
+`CR_REDUCE_BUDGET` and the floor from `CR_REDUCE_FLOOR`, both defaulting to the shipped values
+(256 / 400). Each grid row is tagged `deployable: "default"` (the shipped `floor=400`) or
+`"requires CR_REDUCE_FLOOR"`. Any budget/floor change is still subject to the B1 recovery invariant
+— reduction only fires when the CAS confirms exact recovery, regardless of budget or floor.
 
 ## Micro vs macro (read the robustness, not just the headline)
 
