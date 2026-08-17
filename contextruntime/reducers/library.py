@@ -122,11 +122,18 @@ def reduce_search(raw: str, args: dict, *, budget_tokens: int = SEARCH_BUDGET_TO
     must_keep = [header] + diags
     reserved = tokens("\n".join(must_keep)) + handle_tokens
 
-    # Pre-build the truncation footer so its cost is RESERVED exactly (not guessed): the
-    # per-file rollup is fully determined by by_file; only the integer counts vary.
+    # Pre-build the truncation footer so its cost is RESERVED exactly (not guessed). Build the
+    # rollup with the FINAL ordering up front — relevance-ranked when path_scores is given, else
+    # count-ranked — so the reserved cost matches the footer actually emitted (a graph-ranked
+    # rollup can list longer paths than the count-ranked one; reserving on the wrong ordering
+    # could overshoot the budget).
     rollup = None
     if matches and not listing:
-        top = by_file.most_common(FILE_TABLE_MAX)
+        if path_scores:
+            order_files = sorted(by_file, key=lambda p: (-path_scores.get(p, 0.0), -by_file[p], p))
+        else:
+            order_files = [p for p, _ in by_file.most_common()]
+        top = [(p, by_file[p]) for p in order_files[:FILE_TABLE_MAX]]
         rollup = "matches by file: " + ", ".join(f"{p}×{c}" for p, c in top)
         if len(by_file) > FILE_TABLE_MAX:
             rollup += f", +{len(by_file) - FILE_TABLE_MAX} more file(s)"
@@ -159,13 +166,7 @@ def reduce_search(raw: str, args: dict, *, budget_tokens: int = SEARCH_BUDGET_TO
     if dropped:                                   # footer only when we actually truncated
         if listing:
             body.append(f"... {len(dropped)} more path(s) — full listing: {handle}")
-        else:
-            if path_scores:                       # rollup ordered by relevance, then count
-                files_ranked = sorted(by_file, key=lambda p: (-path_scores.get(p, 0.0), -by_file[p], p))
-                top = [(p, by_file[p]) for p in files_ranked[:FILE_TABLE_MAX]]
-                rollup = "matches by file: " + ", ".join(f"{p}×{c}" for p, c in top)
-                if len(by_file) > FILE_TABLE_MAX:
-                    rollup += f", +{len(by_file) - FILE_TABLE_MAX} more file(s)"
+        else:                                     # `rollup` was already built in final order (reserved)
             files_with_dropped = len({_match_path(m) for m in dropped})
             body.append(rollup)
             body.append(f"... {len(dropped)} more match(es) across {files_with_dropped} file(s) — full: {handle}")

@@ -132,7 +132,13 @@ def handle(event: dict) -> int:
         return _passthrough("[contextreduce] invariant check failed — passing raw through")
 
     # (3) Version gate + (5) enforce gate. Both must hold to replace what the model sees.
-    client_version = os.environ.get("CR_CLIENT_VERSION")
+    # RUNTIME-gated: the authoritative version is the LIVE `claude --version` (cached), not the value
+    # baked into the hook command at install time — otherwise a client auto-update from a confirmed
+    # version to an unverified one would keep enforcing on the stale baked value. Fall back to the
+    # baked env only when the live probe is unavailable (e.g. claude not on the hook's PATH).
+    baked_version = os.environ.get("CR_CLIENT_VERSION")
+    live_version = doctor.live_client_version()
+    client_version = live_version if live_version is not None else baked_version
     version_ok = doctor.output_replacement_confirmed(client_version)
     enforce = os.environ.get("CR_REDUCE_MODE") == "enforce"
     will_replace = enforce and version_ok
@@ -155,7 +161,8 @@ def handle(event: dict) -> int:
         "raw_tokens": red.raw_tokens, "reduced_tokens": red.reduced_tokens,
         "saved_tokens": red.saved_tokens, "ratio": round(red.ratio, 4),
         "handle": red.handle, "enforced": will_replace, "version_ok": version_ok,
-        "client_version": client_version, "invariants_ok": red.invariants_ok,
+        "client_version": client_version, "live_version": live_version,
+        "baked_version": baked_version, "invariants_ok": red.invariants_ok,
         "cas_persisted": bool(cas and cas.persisted),
         "cas_exact": bool(cas and cas.exact),
         "cas_truncated": bool(cas and cas.truncated),

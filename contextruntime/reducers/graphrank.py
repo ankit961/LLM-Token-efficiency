@@ -166,9 +166,9 @@ def path_scores(store: GraphStore, repo_id: str, matched_paths: Iterable[str],
     for mp in matched:
         nmp = _norm(mp)
         sc = by_file.get(nmp)
-        if sc is None:                               # forgiving suffix alignment
+        if sc is None:                               # forgiving alignment — at path-component boundaries
             for p, s in by_file.items():
-                if p.endswith(nmp) or nmp.endswith(p):
+                if _suffix_match(p, nmp):
                     sc = max(sc or 0.0, s)
         if sc:
             out[mp] = sc

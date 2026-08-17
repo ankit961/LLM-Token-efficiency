@@ -13,9 +13,65 @@ of the table is confirmed to warrant moving it, not just the two verified so far
 """
 from __future__ import annotations
 
+import json
+import os
+import re
 import shutil
+import subprocess
+import time
+from pathlib import Path
 
 from .model import CapabilityProfile
+
+_SEMVER = re.compile(r"\d+\.\d+\.\d+")
+LIVE_VERSION_TTL = 300          # seconds a cached `claude --version` probe stays fresh
+
+
+def _parse_semver(raw: str | None) -> str | None:
+    if not raw:
+        return None
+    m = _SEMVER.search(raw)
+    return m.group(0) if m else None
+
+
+def _version_cache_path() -> str:
+    return str(Path(os.environ.get("CR_VERSION_CACHE")
+                    or (Path.home() / ".contextruntime" / "client_version.json")))
+
+
+def live_client_version(*, ttl: int = LIVE_VERSION_TTL, now: float | None = None) -> str | None:
+    """The ACTUAL running client version, so the allowlist gate is runtime — not the value baked
+    into the hook command at install time (which a client auto-update would silently outdate).
+    A short-TTL file cache keeps this to ~one `claude --version` per window during a burst of
+    reductions. `CR_LIVE_CLIENT_VERSION` short-circuits the probe (deterministic tests/CI). Returns
+    None (⇒ caller falls back to the baked value) on any failure; never raises."""
+    override = os.environ.get("CR_LIVE_CLIENT_VERSION")
+    if override is not None:
+        return _parse_semver(override)
+    now = time.time() if now is None else now
+    path = _version_cache_path()
+    try:
+        with open(path) as f:
+            cached = json.load(f)
+        if now - cached.get("ts", 0) < ttl:
+            return cached.get("version")
+    except Exception:                       # noqa: BLE001 — no/at stale cache: re-probe
+        pass
+    version = None
+    try:
+        cli = shutil.which("claude")
+        if cli:
+            out = subprocess.run([cli, "--version"], capture_output=True, text=True, timeout=10)
+            version = _parse_semver((out.stdout or out.stderr).strip())
+    except Exception:                       # noqa: BLE001 — probe failure ⇒ None (fall back to baked)
+        version = None
+    try:
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, "w") as f:
+            json.dump({"version": version, "ts": now}, f)
+    except Exception:                       # noqa: BLE001 — caching is best-effort
+        pass
+    return version
 
 # Client versions on which post_tool_use_output_replacement has been LIVE-VERIFIED (see the
 # capability note below). Transparent-reduction ENFORCEMENT is permitted ONLY on a version in

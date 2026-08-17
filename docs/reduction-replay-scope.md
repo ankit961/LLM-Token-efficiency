@@ -13,7 +13,11 @@ capture question: what fraction of that bucket becomes real token savings — es
 counts (cap model), or measured on raw payloads when they're available?
 
     R_search = saved_tokens / search_bucket_tokens
-    R_direct = saved_tokens / all_fully_measured_read_tokens   ( = R_search × 0.297 )
+    R_direct = saved_tokens / all_fully_measured_read_tokens   ( = R_search × search_bucket_share )
+
+Note: `search_bucket_share` is the **B1-eligible** share (search + path_listing, `derived` excluded)
+and is computed by the replay — it is SMALLER than the ceiling's 29.7%, which included `derived`.
+Do not multiply by 0.297.
 
 ## Two modes: a metadata-only estimate, and a true replay
 
@@ -29,12 +33,14 @@ records CAP per budget, e.g. 64→62, 128→128, 256→244). Modeled:
     saved_i = raw_i − CAP(budget)   for raw_i ≥ threshold ;   0 otherwise
     threshold = max(floor, CAP(budget))     # you only save on reads LARGER than the cap
 
-> ⚠️ **This is an ESTIMATE, not a measured replay, and it is an OPTIMISTIC UPPER BOUND.** CAP is
-> *not* a content-independent contract: the real `reduce_search` output also grows with preserved
-> diagnostics (`must_keep = [header] + diags`), the rollup's real filenames/counts, and line
-> lengths. So actual reduced size ≥ CAP → actual savings ≤ the estimate. The output is labeled
-> `method: metadata_only_calibrated_cap_estimate` and carries the bias note; never quote it as
-> "actual" or "realized" savings.
+> ⚠️ **This is an ESTIMATE, not a measured replay, and its bias direction is NOT guaranteed.** CAP is
+> *not* a content-independent contract. The real `reduce_search` output is content-dependent
+> (preserved diagnostics `must_keep = [header] + diags`, the rollup's real filenames/counts, retained
+> line lengths) **and it breaks on the first line that doesn't fit** — so a single huge match yields
+> only header+rollup+handle (T_real **< CAP**), while long diagnostics/paths push T_real **> CAP**.
+> The estimate can therefore err in either direction. The output is labeled
+> `method: metadata_only_calibrated_cap_estimate`; never quote it as "actual"/"realized" savings, and
+> prefer the measured true-replay path whenever raw payloads exist.
 
 **(b) True MEASURED replay (preferred, when raw text is available).** If the original tool outputs
 can be reconstructed (e.g. from transcripts), `measured_reduction()` / `true_replay_search()` run

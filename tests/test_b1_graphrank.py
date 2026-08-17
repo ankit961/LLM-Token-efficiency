@@ -181,6 +181,38 @@ def test_path_matching_respects_component_boundaries():
     assert _path_matches("src/a.py", frozenset({"src/a.py"}))
 
 
+def test_path_scores_fallback_no_spurious_component_match():
+    """The path_scores suffix-alignment fallback must also respect component boundaries — a matched
+    `notfoo.py` must NOT inherit an anchor `foo.py`'s score (the earlier bare endswith bug)."""
+    s = GraphStore(":memory:")
+    s.put_symbol(_sym("foo.py", "foo.run"))
+    s.commit()
+    ws = WorkingSet(frozenset({"foo.py"}), frozenset())
+    sc = path_scores(s, REPO, ["notfoo.py"], ws)
+    assert "notfoo.py" not in sc
+    assert path_scores(s, REPO, ["src/foo.py"], ws)["src/foo.py"] > 0     # real component-suffix still aligns
+    s.close()
+
+
+def test_graph_mode_stays_within_budget_with_long_relevant_paths():
+    """The footer reserve must use the graph-RANKED rollup (long relevant paths), not the
+    count-ranked one — otherwise a long promoted path overshoots the budget."""
+    from contextruntime.reducers.library import reduce_search, search_matched_paths
+    from contextruntime.reducers.base import tokens
+    s = _build_graph()
+    long = "src/very/deeply/nested/subsystem/module_with_a_long_name.py"
+    s.put_symbol(_sym(long, "deep.fn"))
+    s.add_code_edge(REPO, f"{REPO}::{long}::deep.fn", f"{REPO}::src/core.py::core.run",
+                    "CALLS", 0.9, "exact", match_kind="exact")            # 1-hop from touched core
+    s.commit()
+    ws = WorkingSet(frozenset({"src/core.py"}), frozenset())
+    raw = "\n".join(f"src/f{i}.py:{i}: x" for i in range(60)) + "\n" + f"{long}:1: relevant"
+    sc = path_scores(s, REPO, search_matched_paths(raw), ws)
+    out = reduce_search(raw, {}, budget_tokens=96, path_scores=sc)
+    assert tokens(out.reduced_text) <= 96 + 8                             # reserve honored despite long rollup
+    s.close()
+
+
 def test_proximity_max_depth_is_exact():
     """Chain a→b→c→d→e (each CALLS the next), anchor a, MAX_DEPTH=3: d (3 hops) is scored, e
     (4 hops) is NOT — the best-first relaxation caps expansion at exactly MAX_DEPTH."""

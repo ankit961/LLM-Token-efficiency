@@ -179,3 +179,15 @@ def test_true_replay_leaves_passthrough_calls_unchanged():
     raw = "print('hello')\n" * 3                                          # a file read via cat
     red_tok, eligible = measured_reduction(raw, "Bash", {"command": "cat a.py"}, budget=256)
     assert not eligible and red_tok == tokens(raw)                        # gate passes it through
+
+
+def test_true_replay_honors_recovery_eligibility_like_live_hook():
+    """P1: a payload with a recognized secret is left UNCHANGED by true replay, because the live
+    hook refuses to replace it (recovery would not be exact) — 'true replay' must not count it."""
+    from contextruntime.reducers.base import tokens
+    raw = ("src/x.py:1: AKIAIOSFODNN7EXAMPLE\n"
+           + "\n".join(f"f{i}.py:{i}: hit" for i in range(500)))
+    red_tok, eligible = measured_reduction(raw, "Grep", {"pattern": "key"}, budget=256)
+    assert not eligible and red_tok == tokens(raw)                        # secret → live hook passes through
+    res = true_replay_search([(raw, "Grep", {"pattern": "key"})], budget=256)
+    assert res["reduced_reads"] == 0 and res["R_search_measured"] == 0.0
