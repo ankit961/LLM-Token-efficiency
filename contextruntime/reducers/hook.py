@@ -48,6 +48,38 @@ def _budget() -> int:
         return SEARCH_BUDGET_TOKENS
 
 
+def _graph_scores(event: dict, raw: str, decision) -> dict:
+    """B1.2 — best-effort graph relevance per matched path, for ranking retention. TOTALLY
+    fail-open: any missing piece (no CR_GRAPH_DB, no session TOUCHED anchors, schema mismatch,
+    any error) returns {} and the reducer falls back to plain file order (== B1.1). Graph
+    ranking NEVER changes which representations are reduced or whether recovery is required —
+    it only reorders which matches are kept within the same budget, so it cannot affect safety.
+
+    Live MENTIONS are intentionally empty: the journal is metadata-only (no prompt text), so
+    anchors come from TOUCHED alone. Ranking therefore only engages once the session has read/
+    edited some files — before that, simple order, honestly."""
+    try:
+        graph_db = os.environ.get("CR_GRAPH_DB")
+        repo_id = os.environ.get("CR_REPO_ID")
+        if not (graph_db and repo_id and os.path.exists(graph_db)):
+            return {}
+        from ..store import GraphStore
+        from . import graphrank
+        from .library import search_matched_paths
+        touched = graphrank.touched_from_journal(
+            os.environ.get("CR_JOURNAL_DB"), event.get("session_id"))
+        ws = graphrank.WorkingSet(touched, frozenset())
+        if ws.empty:
+            return {}
+        store = GraphStore(graph_db)
+        try:
+            return graphrank.path_scores(store, repo_id, search_matched_paths(raw), ws)
+        finally:
+            store.close()
+    except Exception:                       # noqa: BLE001 — ranking is best-effort, never blocks
+        return {}
+
+
 def _passthrough(note: str = "") -> int:
     if note:
         print(note, file=sys.stderr)
@@ -84,8 +116,11 @@ def handle(event: dict) -> int:
     if raw_tok < MIN_REDUCE_TOKENS:
         return _passthrough()          # too small to be worth an envelope
 
+    # (1b) B1.2 graph-informed ranking (best-effort, fail-open → simple order).
+    scores = _graph_scores(event, raw, decision)
     red = reduce_search(raw, args, budget_tokens=_budget(),
-                        representation=decision.representation or "search")
+                        representation=decision.representation or "search",
+                        path_scores=scores or None)
     if not red.invariants_ok:
         return _passthrough("[contextreduce] invariant check failed — passing raw through")
 
@@ -117,6 +152,8 @@ def handle(event: dict) -> int:
         "cas_persisted": bool(cas and cas.persisted),
         "cas_exact": bool(cas and cas.exact),
         "cas_truncated": bool(cas and cas.truncated),
+        "graph_ranked": bool(scores),
+        "graph_scored_paths": len(scores),
     })
 
     if not will_replace:
