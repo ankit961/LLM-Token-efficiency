@@ -404,6 +404,27 @@ def test_recovery_is_exact_matches_put_confirmed(tmp_path):
         assert livecas.recovery_is_exact(raw) == livecas.put_confirmed(raw, path=db).exact
 
 
+def test_hook_passes_through_when_reduction_not_beneficial(tmp_path, monkeypatch, capsys):
+    """B1.0.5: a diagnostic-heavy search output (all diagnostics preserved) reduces to something
+    LARGER than the raw — the hook must not replace (replace ⇒ T_replacement < T_native)."""
+    raw = "\n".join(f"grep: src/very/long/path/to/module_{i}.py: Permission denied" for i in range(45))
+    assert reduce_search_bigger(raw)                          # sanity: this input actually inverts
+    for k, val in _enforce_env(tmp_path).items():
+        monkeypatch.setenv(k, val)
+    monkeypatch.setattr("sys.stdin", io.StringIO(json.dumps(
+        {"tool_name": "Grep", "tool_input": {"pattern": "x"}, "tool_response": raw})))
+    assert hook_mod.main() == 0
+    out = capsys.readouterr()
+    assert out.out.strip() == "{}"                            # not beneficial → pass through
+    assert "not beneficial" in out.err
+
+
+def reduce_search_bigger(raw):
+    from contextruntime.reducers.library import reduce_search
+    from contextruntime.reducers.base import tokens
+    return reduce_search(raw, {}, budget_tokens=256).reduced_tokens >= tokens(raw)
+
+
 def test_all_launch_commands_carry_pythonpath(tmp_path):
     scope = I.resolve_scope("claude", str(tmp_path), False)
     assert I.default_crhook_cmd(scope).startswith("PYTHONPATH=")
