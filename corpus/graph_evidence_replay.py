@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import glob
 import heapq
+import json
 import os
 import re
 from collections import defaultdict
@@ -215,13 +216,18 @@ def line_retention_analysis(task_transcripts, task_graphs, *, budget: int, floor
         "budget": budget, "floor": floor, "needed_paths": needed,
         "graph_active_events": graph_active_events,
         "kept_lines_simple": kept_s_tot, "kept_lines_graph": kept_g_tot,
-        "graph_reordered_any_lines": promoted_any,         # >0 ⇒ graph COULD act (test has power)
+        "graph_reordered_any_lines": promoted_any,         # realized treatment intensity: how many
+        #   kept lines graph actually moved vs simple. Near-0 ⇒ graph ranking is ~indistinguishable
+        #   from simple order on these traces (low treatment intensity), NOT a high-powered negative.
         "name_recall_simple": round(named_s / needed, 4) if needed else None,
         "name_recall_graph": round(named_g / needed, 4) if needed else None,
         "line_recall_simple": round(line_s / needed, 4) if needed else None,
         "line_recall_graph": round(line_g / needed, 4) if needed else None,
-        "expansion_pressure_simple": named_s - line_s,     # named but no line ⇒ forced result:// expand
-        "expansion_pressure_graph": named_g - line_g,
+        # named but NO inline match line. NOT a measured recovery cost: the omitted text is one of
+        # several routes away (native Read, re-search, exact result:// expand) IF it were needed at
+        # all — and since `needed` paths are ones the trajectory opened anyway, many incur no extra op.
+        "inline_evidence_deficit_simple": named_s - line_s,
+        "inline_evidence_deficit_graph": named_g - line_g,
         "graph_promoted_needed_lines": promoted,           # needed line graph kept that simple dropped
         "graph_demoted_needed_lines": demoted,             # needed line simple kept that graph dropped
         "mean_rank_gain": round(rank_gain_sum / rank_gain_n, 3) if rank_gain_n else None,
@@ -238,13 +244,37 @@ def map_transcripts_to_tasks(transcript_glob: str) -> dict:
     return dict(out)
 
 
-def load_task_graphs(pilot_dir: str, task_ids, repo_id: str = "django") -> dict:
-    """Open each task's prebuilt C-arm code graph (built at that task's base_commit)."""
+def _expected_base_commit(pilot_dir: str, tid: str):
+    """A task's base_commit from a run MANIFEST (the RunSpec that drove the pilot) — an independent
+    source of truth, NOT the graph's own provenance file, so the check below can't be self-fulfilling."""
+    for arm in ("A_native", "B_shipped", "B_tuned", "C_graph"):
+        mf = os.path.join(pilot_dir, f"django__django-{tid}", arm, "manifest.json")
+        if os.path.exists(mf):
+            bc = json.load(open(mf)).get("base_commit")
+            if bc:
+                return bc
+    return None
+
+
+def load_task_graphs(pilot_dir: str, task_ids, repo_id: str = "django", *, verify: bool = True) -> dict:
+    """Open each task's prebuilt C-arm code graph. Evidence-grade: by default REFUSE to rank against
+    a graph whose provenance does not match the task's independently-recorded base_commit AND whose
+    stored DB hash does not match the file — a fail-loud precondition, not directory-name trust."""
+    from corpus.step5_experiment import verify_graph_provenance
     graphs = {}
     for tid in task_ids:
         db = os.path.join(pilot_dir, f"django__django-{tid}", "C_graph", "codegraph.db")
-        if os.path.exists(db):
-            graphs[tid] = TaskGraph(db, repo_id)
+        if not os.path.exists(db):
+            continue
+        if verify:
+            expected = _expected_base_commit(pilot_dir, tid)
+            if not expected:
+                raise RuntimeError(f"task {tid}: no independent base_commit (manifest) to verify the graph")
+            if not verify_graph_provenance(db, expected):
+                raise RuntimeError(
+                    f"task {tid}: graph provenance FAILED — provenance base_commit / DB-hash do not "
+                    f"match the manifest base_commit {expected[:12]}; refusing to rank against it")
+        graphs[tid] = TaskGraph(db, repo_id)
     return graphs
 
 
@@ -264,7 +294,8 @@ def _main(argv) -> None:
               f"graph_reordered_any={r['graph_reordered_any_lines']}")
         print(f"  name_recall  simple={r['name_recall_simple']}  graph={r['name_recall_graph']}")
         print(f"  LINE_recall  simple={r['line_recall_simple']}  graph={r['line_recall_graph']}")
-        print(f"  expansion_pressure  simple={r['expansion_pressure_simple']}  graph={r['expansion_pressure_graph']}")
+        print(f"  inline_evidence_deficit  simple={r['inline_evidence_deficit_simple']}"
+              f"  graph={r['inline_evidence_deficit_graph']}")
         print(f"  graph promoted_needed={r['graph_promoted_needed_lines']}  "
               f"demoted_needed={r['graph_demoted_needed_lines']}  mean_rank_gain={r['mean_rank_gain']}")
 
