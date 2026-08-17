@@ -18,13 +18,19 @@ observe), so instrumentation overhead is equal across arms. For a pure *latency*
 genuinely hook-free arm separately.
 
 An arm is realized as an **arm-specific settings file** (`build_arm_settings`) whose PostToolUse
-reducer hook command carries that arm's env **inline** — the reducer runs as its own process, so its
-env must come from the hook command, not the outer `claude -p` env. This is also what makes B/C
-isolation real: **B's reducer command omits `CR_GRAPH_DB` entirely**, so graph ranking cannot engage
-(the installer's default command always embeds the graph vars — omitting them from the outer env
-alone would not disable graph). A run goes through `run_arm(arm, backend, …)` → `ClaudeBackend`.
-The harness **never** sets `CR_LIVE_CLIENT_VERSION`: enforcement stays gated on the real
-`claude --version` probe (B1.0.4 fail-safe) — the experiment must not enforce on an unverified binary.
+reducer command carries that arm's env **inline** — the reducer is its own process. **Isolation is
+explicit** (a subprocess inherits the parent env): every arm sets `CR_REDUCE_MODE` (observe/enforce)
+and `CR_GRAPH_MODE` (off/on) explicitly, and the command begins `env -u CR_LIVE_CLIENT_VERSION …` to
+clear any inherited version override. **B cannot graph-rank** (`CR_GRAPH_MODE=off`, no `CR_GRAPH_DB`)
+even if the parent env has them; C sets `CR_GRAPH_MODE=on` + `CR_GRAPH_DB`. The harness **never** sets
+`CR_LIVE_CLIENT_VERSION` — enforcement stays on the real `claude --version` probe (B1.0.4 fail-safe).
+
+`run_arm` **preflights** the live version (`preflight_or_raise`) and refuses to spend quota if an
+enforcing arm couldn't reduce, and wires a **recovery MCP** (`context_expand` over the arm's live
+CAS) so a `result://` handle is actually callable. `Step5Runner` owns the whole controlled run: a
+fresh worktree, (for C) a graph **built from that exact worktree** and provenance-stamped to the
+base commit, the run, and immutable artifacts (`agent.patch`, `agent-result.json`, `manifest.json`
+with `budget_walltime` + graph provenance, `hashes.json`, `evaluation.json`).
 
 ## Tasks
 
@@ -34,24 +40,27 @@ These are where a reducer has the most to move (the concentration is here, not s
 
 ## Metrics (`run_metrics` per arm-run → `compare`)
 
-- **Δtokens(B − A)** — the REDUCTION effect on **effective** model-visible tokens. The observation
-  journal records the **raw** event (the reducer replaces output independently — `install.py`), so we
-  do NOT read reduced sizes from the journal. Instead:
-  `effective_read_tokens = journal_raw_read_tokens − reducer_saved_tokens` (saved comes from the
-  decision log, the authoritative source of reduced sizes); `token_reduction = A_eff − B_eff`.
-  Retry-inclusive — a re-search's tokens are counted, so savings aren't faked by pushing work later.
+- **Δtokens(B − A)** — the REDUCTION effect on **effective** model-visible tokens. HookJournal stamps
+  `model_visible_tokens` at PostToolBatch time from the **model-visible** payload
+  (`measure_model_visible_response`) — i.e. AFTER `updatedToolOutput` replacement — so the journal
+  **already reflects the reduction**. Effective tokens are therefore the journal total **directly**;
+  `effective_read_tokens = Σ journal model_visible_tokens`, `token_reduction = A_eff − B_eff`. The
+  reducer's own `saved_tokens` is a **cross-check, never a second subtraction** (that double-counts).
+  Retry-inclusive — a re-search's tokens are counted.
+- **CANARY first:** before the real 4-task run, `verify_token_accounting` joins enforced reductions to
+  the journal by `tool_use_id` and checks `journal model_visible ≈ reducer reduced`. If they diverge,
+  PostToolBatch didn't see the replacement on this client and the accounting must be revisited.
 - **Δquality(C − B)** — the GRAPH effect. **Total tokens are an OUTCOME, not an invariant**: graph
-  ranking changes *which* evidence Claude sees, which can change the whole trajectory, so C and B
-  total tokens need not be equal (the harness reports `effective_token_delta` as an outcome). The
-  retention signal is fewer **re-searches** at equal **task success** — `re_search_fingerprint_delta`
-  (same tool+pattern+scope hash re-run; the precise signal) alongside a broader `re_search_scope`
-  proxy. Expansion/CED plugs in from `semantic_reads` once the MCP recovery path is instrumented live.
-- **C validity:** `compare` flags `c_graph_engaged=false` (with a warning) if C enforced reductions
-  but `graph_ranked==0` — a broken/stale graph silently collapses C into B, and any C−B signal would
-  be meaningless.
-- Hygiene: the decision log records `reason=non_beneficial` passes (raw≥reduced) and a privacy-safe
-  search `fingerprint`, so `candidates_seen` distinguishes "seen but not worth it" from "never seen",
-  and wall-time (`budget_walltime`) is read for the ≤1.2× gate.
+  ranking changes *which* evidence Claude sees, so C and B totals need not match (`effective_token_delta`
+  is reported as an outcome). The signal is fewer **re-searches** at equal **task success** —
+  `exact_search_repeat_delta` (same tool+pattern+scope fingerprint re-run; precise) alongside a broader
+  `repeated_scope_delta`. Expansion/CED plugs in from `semantic_reads` once instrumented live.
+- **C validity:** `compare` sets `c_valid = (reductions_enforced>0 AND graph_ranked>0)` — C must have
+  actually TESTED graph-ranked reduction. Zero reductions, or a stale graph that never engaged, is an
+  **invalid** C (with a warning), not a pass.
+- Hygiene: the decision log records `reason=non_beneficial` passes and a privacy-safe `fingerprint`
+  (+ `tool_use_id`), so `candidates_seen` distinguishes "seen but not worth it" from "never seen";
+  wall-time (`budget_walltime`, from the manifest) feeds the ≤1.2× gate.
 
 ## Interpretation
 

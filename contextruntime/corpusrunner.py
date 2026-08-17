@@ -135,7 +135,8 @@ class AgentBackend(ABC):
     name = "abstract"
 
     @abstractmethod
-    def run(self, worktree: str, spec: RunSpec, journal_db: str, settings_path: str) -> AgentResult:
+    def run(self, worktree: str, spec: RunSpec, journal_db: str, settings_path: str,
+            mcp_config_path=None) -> AgentResult:
         """Run the agent in `worktree` on spec.problem_statement, with cr-hook (settings_path) capturing
         to journal_db. Returns the patch + metadata. MUST NOT run any evaluation."""
 
@@ -148,7 +149,7 @@ class MockAgentBackend(AgentBackend):
     def __init__(self, model: str = "mock-model-1"):
         self.model = model
 
-    def run(self, worktree, spec, journal_db, settings_path) -> AgentResult:
+    def run(self, worktree, spec, journal_db, settings_path, mcp_config_path=None) -> AgentResult:
         # fixed clock + a deterministic hasher (v1 until the edit's post-hash -> v2, so the edit is a
         # verified_change, the read stays stable) make the journal bytes reproducible across runs.
         clock = iter(range(1, 10_000))
@@ -245,7 +246,7 @@ class ClaudeBackend(AgentBackend):
         except Exception:      # noqa: BLE001 -- steering is advisory; never break the run
             return ""
 
-    def run(self, worktree, spec, journal_db, settings_path) -> AgentResult:
+    def run(self, worktree, spec, journal_db, settings_path, mcp_config_path=None) -> AgentResult:
         if self.arm == "semantic_enforced":
             raise NotImplementedError(
                 "arm='semantic_enforced' is RESERVED -- hard/enforced semantic admission is not "
@@ -257,6 +258,10 @@ class ClaudeBackend(AgentBackend):
                   "implement a fix for the issue above. Reply DONE when finished.")
         argv = ["claude", "-p", prompt, "--settings", settings_path, "--model", self.model,
                 "--permission-mode", "bypassPermissions"]
+        # A caller-supplied MCP config (e.g. Step-5's result:// recovery surface) is added for ANY
+        # arm; distinct from the semantic-admission arm's own MCP wiring below.
+        if mcp_config_path:
+            argv += ["--mcp-config", mcp_config_path]
 
         steering = {"mcp_enabled": False, "brief_included": False, "brief_chars": 0, "brief_version": None}
         if self.arm == "semantic_directive":
