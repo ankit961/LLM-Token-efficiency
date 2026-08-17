@@ -10,7 +10,8 @@ import json
 from contextruntime.hookjournal import HookJournal
 
 from corpus.reduction_replay import (aggregate, calibrate_cap, concentration,
-                                      saved_tokens, scan_journal)
+                                      measured_reduction, saved_tokens, scan_journal,
+                                      true_replay_search)
 
 _SENTINEL = object()
 
@@ -132,3 +133,49 @@ def test_empty_search_bucket_is_none_not_crash(tmp_path):
     assert res["search_bucket_reads"] == 0
     assert res["grid"][0]["R_search_micro"] is None                       # no divide-by-zero
     assert res["concentration"]["reads"] == 0
+
+
+# --------------------------------------------------------------------- Replay-v1.1 repairs
+def _derived(j, eid, tok, step=0):
+    _ev(j, eid=eid, kind="read", step=step, stream="s1", path="/x.py", tok=tok,
+        tok_attr="attributed", representation="derived")
+
+
+def test_derived_reads_excluded_from_estimate(tmp_path):
+    """A `derived` materialization is in the ceiling's search_listing bucket but is NOT B1-eligible
+    — the replay must exclude it (counting it would overestimate B1 capture)."""
+    def build(j):
+        _search(j, "s1", 5000)                                # search → eligible
+        _derived(j, "d1", 4000)                               # derived → excluded
+    scan = scan_journal(_mk(tmp_path, "j.db", build))
+    assert scan["search_sizes"] == [5000]
+    assert scan["derived_excluded_tokens"] == 4000 and scan["search_bucket_tokens"] == 5000
+
+
+def test_aggregate_reports_derived_and_labels_estimate(tmp_path):
+    runs = tmp_path / "runs"
+    runs.mkdir()
+    _run(runs, "run-01", lambda j: (_search(j, "s1", 5000), _derived(j, "d", 9000)))
+    res = aggregate(str(runs), budgets=(256,), floors=(400,))
+    assert res["method"] == "metadata_only_calibrated_cap_estimate"       # honest terminology
+    assert res["schema"] == "reduction-replay-v1.1"
+    assert res["eligible_representations"] == ["path_listing", "search"]
+    assert res["search_bucket_tokens"] == 5000                            # derived NOT folded in
+    assert res["derived_excluded"]["tokens"] == 9000
+
+
+def test_true_replay_measures_real_reduction():
+    """The measured path: real gate + real reduce_search on raw text — not the cap model."""
+    raw = "\n".join(f"src/f{i}.py:{i}: def handler_{i}(): pass" for i in range(500))
+    red_tok, eligible = measured_reduction(raw, "Grep", {"pattern": "handler"}, budget=256)
+    assert eligible and red_tok < 260                                     # actually capped by the reducer
+    res = true_replay_search([(raw, "Grep", {"pattern": "handler"})], budget=256)
+    assert res["method"] == "measured_true_replay"
+    assert 0.9 < res["R_search_measured"] < 1.0 and res["reduced_reads"] == 1
+
+
+def test_true_replay_leaves_passthrough_calls_unchanged():
+    from contextruntime.reducers.base import tokens
+    raw = "print('hello')\n" * 3                                          # a file read via cat
+    red_tok, eligible = measured_reduction(raw, "Bash", {"command": "cat a.py"}, budget=256)
+    assert not eligible and red_tok == tokens(raw)                        # gate passes it through

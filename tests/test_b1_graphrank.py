@@ -170,3 +170,30 @@ def test_hook_fails_open_to_simple_when_no_graph(tmp_path, monkeypatch, capsys):
     assert "RELEVANT_CORE" not in stdout                    # simple order — relevant match dropped
     rec = json.loads(open(tmp_path / "d.jsonl").read().splitlines()[-1])
     assert rec["graph_ranked"] is False
+
+
+# --------------------------------------------------------------------- graph-quality repairs
+def test_path_matching_respects_component_boundaries():
+    from contextruntime.reducers.graphrank import _path_matches, _suffix_match
+    assert not _path_matches("src/notfoo.py", frozenset({"foo.py"}))   # the old bare-endswith bug
+    assert not _suffix_match("bar.py", "foobar.py")
+    assert _path_matches("/repo/src/a.py", frozenset({"src/a.py"}))     # abs vs repo-relative still OK
+    assert _path_matches("src/a.py", frozenset({"src/a.py"}))
+
+
+def test_proximity_max_depth_is_exact():
+    """Chain a→b→c→d→e (each CALLS the next), anchor a, MAX_DEPTH=3: d (3 hops) is scored, e
+    (4 hops) is NOT — the best-first relaxation caps expansion at exactly MAX_DEPTH."""
+    s = _build_graph()   # reuse the 4-symbol graph, then extend into a chain
+    names = ["a", "b", "c", "d", "e"]
+    for nm in names:
+        s.put_symbol(_sym(f"src/{nm}.py", f"{nm}.fn"))
+    for src, dst in zip(names, names[1:]):
+        s.add_code_edge(REPO, f"{REPO}::src/{src}.py::{src}.fn",
+                        f"{REPO}::src/{dst}.py::{dst}.fn", "CALLS", 0.9, "exact", match_kind="exact")
+    s.commit()
+    ws = WorkingSet(frozenset({"src/a.py"}), frozenset())
+    sc = path_scores(s, REPO, [f"src/{nm}.py" for nm in names], ws)
+    assert "src/d.py" in sc and "src/e.py" not in sc          # 3 hops in, 4 hops out
+    assert sc["src/a.py"] > sc["src/b.py"] > sc["src/c.py"] > sc["src/d.py"]   # monotone decay
+    s.close()

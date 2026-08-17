@@ -87,8 +87,13 @@ def _passthrough(note: str = "") -> int:
     return 0
 
 
-def _raw_text(resp) -> tuple[str, str]:
-    """Return (raw_text, shape) where shape in {'str','stdout','content'}."""
+def _raw_text(resp):
+    """Return (raw_text, shape). ONLY three shapes are supported for replacement:
+      str · dict with a string `stdout` · dict with a string `content`.
+    Anything else (e.g. a content-block LIST, or an unfamiliar schema) returns
+    ('unsupported') so the caller passes through UNCHANGED — never json.dumps a live
+    response and substitute it (that would violate both schema-perfection and
+    uncertain⇒pass-through)."""
     if isinstance(resp, str):
         return resp, "str"
     if isinstance(resp, dict):
@@ -96,7 +101,7 @@ def _raw_text(resp) -> tuple[str, str]:
             return resp["stdout"], "stdout"
         if isinstance(resp.get("content"), str):
             return resp["content"], "content"
-    return json.dumps(resp, default=str), "str"
+    return None, "unsupported"
 
 
 def handle(event: dict) -> int:
@@ -112,6 +117,8 @@ def handle(event: dict) -> int:
         return _passthrough()          # silent: passthrough is the frequent, expected case
 
     raw, shape = _raw_text(resp)
+    if shape == "unsupported":
+        return _passthrough()          # unknown response schema — never rewrite (uncertain ⇒ pass through)
     raw_tok = tokens(raw)
     if raw_tok < MIN_REDUCE_TOKENS:
         return _passthrough()          # too small to be worth an envelope
@@ -152,6 +159,7 @@ def handle(event: dict) -> int:
         "cas_persisted": bool(cas and cas.persisted),
         "cas_exact": bool(cas and cas.exact),
         "cas_truncated": bool(cas and cas.truncated),
+        "cas_redacted": bool(cas and cas.redacted),
         "graph_ranked": bool(scores),
         "graph_scored_paths": len(scores),
     })

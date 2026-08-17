@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 """Offline B1 reduction replay over the frozen Observation Corpus v2.1 journals — step 4.
 
-Zero LLM cost. Answers the question the opportunity-ceiling analysis left open: of the
-`search_listing_reducible` bucket (FINDINGS §4 — 29.7% of fully-measured read tokens), how
-much does the B1 transparent reducer ACTUALLY capture? The ceiling is candidate MASS; this is
-realized SAVINGS under the reducer's real behavior.
+Zero LLM cost. Estimates — from token counts alone — how much of the `search_listing_reducible`
+bucket (FINDINGS §4, 29.7% of fully-measured read tokens) the B1 transparent reducer would
+capture. This is a METADATA-ONLY ESTIMATE under a calibrated-cap approximation, NOT a measured
+replay: the journals are metadata-only (no raw payload text exists to reduce). For a genuine
+measurement, `measured_reduction()` / `true_replay_search()` run the real reducer on raw payloads
+(reconstructed from transcripts) — prefer those whenever the raw text is available.
 
-No raw payload text is needed — and none exists in the metadata-only journals. Instead this
-uses the reducer's *measured output contract*: above the MIN_REDUCE floor, `reduce_search`
-compacts any search/listing output to a near-constant CAP(budget) (calibrated here from the
-real reducer, not assumed — e.g. ~244 tok at budget 256, flat from 800 to 100k tok input).
-So the reduced size of a read is a function of its raw token count alone:
+The approximation: above the MIN_REDUCE floor, `reduce_search` compacts a search/listing output
+to roughly a constant CAP(budget) (calibrated here from the real reducer — ~244 tok at budget 256,
+flat from 800 to 100k tok input). Modeled reduced size is then a function of raw token count alone:
 
     saved_i = raw_i - CAP(budget)   for raw_i >= threshold ;   0 otherwise
     threshold = max(floor, CAP(budget))     # you only save on reads LARGER than the cap
@@ -25,6 +25,14 @@ reads clear it. The floor only blocks reads below it; set floor <= CAP and it st
 harness reports ONE token number for both arms. Graph's value — keeping the RELEVANT matches
 within that cap — is a retention-QUALITY question needing raw text + a ground truth, measured
 in the live step-5 A/B/C, not here. That separation is deliberate, not an omission.
+
+Because the real reduced size ALSO grows with preserved diagnostics, rollup path lengths, and line
+lengths, actual reduced size is >= CAP — so this estimate is an OPTIMISTIC UPPER BOUND on savings.
+
+Only representations B1 actually reduces are counted — `search` and `path_listing`
+(== `gate.REDUCIBLE_REPRESENTATIONS`). The ceiling's `search_listing_reducible` bucket also folds
+in `derived` (`| wc -l`-style summaries) under the same classifier reason, but B1 leaves `derived`
+untouched; counting it would overestimate capture, so it is reported separately and excluded.
 
 Reuses the FROZEN classifier + bucketing from `opportunity_ceiling` verbatim (single source of
 truth for what counts as a search/listing read); adds only arithmetic on the per-read tokens it
@@ -46,11 +54,19 @@ from contextruntime.normalize import to_events
 from contextruntime.classify import classify_reads
 from contextruntime.reducers.library import reduce_search
 from contextruntime.reducers.base import tokens as _tok
+from contextruntime.reducers.gate import route, REDUCIBLE_REPRESENTATIONS
+from contextruntime.reducers.hook import MIN_REDUCE_TOKENS
 from corpus.opportunity_ceiling import PRIMARY_WINDOW, _bucket_of, _tok_cat
 
 DEFAULT_BUDGETS = (64, 128, 256)
 DEFAULT_FLOORS = (244, 400)          # 400 = the shipped hook floor; 244 ~= CAP(256), the tuned option
 SEARCH_BUCKET = "search_listing_reducible"
+
+# B1's gate reduces ONLY these representations. The ceiling's search_listing bucket also folds in
+# `derived` (a `| wc -l`-style summary) under the same classifier reason — but B1 deliberately
+# leaves `derived` untouched (it is already a summary). Counting it here would overestimate B1
+# capture, so the replay filters to exactly B1's eligible set (imported, never re-listed).
+ELIGIBLE_REPRESENTATIONS = REDUCIBLE_REPRESENTATIONS
 
 _CAP_CACHE: dict = {}
 
@@ -77,7 +93,8 @@ def scan_journal(db_path: str) -> dict:
     labels = classify_reads(to_events(rows), window=PRIMARY_WINDOW, distance_key="step")
     row_by_id = {r["event_id"]: r for r in rows}
 
-    search_sizes: list = []
+    search_sizes: list = []          # B1-ELIGIBLE: representation ∈ {search, path_listing}
+    derived_excluded: list = []      # same classifier bucket but NOT B1-eligible (derived/other)
     total_fully_measured = 0
     for eid, label in labels.items():
         row = row_by_id.get(eid)
@@ -86,9 +103,14 @@ def scan_journal(db_path: str) -> dict:
         tok = row["model_visible_tokens"] or 0
         total_fully_measured += tok
         if _bucket_of(label) == SEARCH_BUCKET:
-            search_sizes.append(tok)
-    return {"search_sizes": search_sizes, "total_fully_measured_tokens": total_fully_measured,
-            "search_bucket_tokens": sum(search_sizes)}
+            if row.get("representation") in ELIGIBLE_REPRESENTATIONS:
+                search_sizes.append(tok)
+            else:
+                derived_excluded.append(tok)      # e.g. a `| wc -l` derived summary — B1 leaves it
+    return {"search_sizes": search_sizes, "derived_excluded_sizes": derived_excluded,
+            "total_fully_measured_tokens": total_fully_measured,
+            "search_bucket_tokens": sum(search_sizes),
+            "derived_excluded_tokens": sum(derived_excluded)}
 
 
 def saved_tokens(sizes, budget: int, floor: int) -> int:
@@ -139,6 +161,8 @@ def aggregate(runs_dir: str, budgets=DEFAULT_BUDGETS, floors=DEFAULT_FLOORS) -> 
     all_sizes = [s for r in per_run for s in r["search_sizes"]]
     total_all = sum(r["total_fully_measured_tokens"] for r in per_run)
     bucket_total = sum(all_sizes)
+    derived_reads = sum(len(r["derived_excluded_sizes"]) for r in per_run)
+    derived_tokens = sum(r["derived_excluded_tokens"] for r in per_run)
 
     grid = []
     for budget in budgets:
@@ -159,9 +183,17 @@ def aggregate(runs_dir: str, budgets=DEFAULT_BUDGETS, floors=DEFAULT_FLOORS) -> 
             })
 
     return {
-        "schema": "reduction-replay-v1",
+        "schema": "reduction-replay-v1.1",
+        "method": "metadata_only_calibrated_cap_estimate",
+        "method_note": "ESTIMATE, not a measured replay: reduced size is modeled as CAP(budget) "
+                       "above the floor. The real reduce_search output also depends on preserved "
+                       "diagnostics, rollup path lengths, and line lengths, so actual reduced size "
+                       "is >= CAP — i.e. these savings are an OPTIMISTIC UPPER BOUND. For a true "
+                       "measurement, run measured_reduction()/true_replay_search() on the raw "
+                       "payloads (from transcripts), not on token counts alone.",
         "n_runs": len(per_run),
         "primary_window": PRIMARY_WINDOW,
+        "eligible_representations": sorted(ELIGIBLE_REPRESENTATIONS),
         "graph_note": "TOKEN-NEUTRAL: simple and graph reducers both cap at CAP(budget); these "
                       "numbers hold for both arms. Graph's retention-quality benefit is measured "
                       "live in step 5, not here.",
@@ -169,13 +201,49 @@ def aggregate(runs_dir: str, budgets=DEFAULT_BUDGETS, floors=DEFAULT_FLOORS) -> 
         "search_bucket_tokens": bucket_total,
         "search_bucket_reads": len(all_sizes),
         "search_bucket_share": round(bucket_total / total_all, 4) if total_all else None,
+        "derived_excluded": {"reads": derived_reads, "tokens": derived_tokens,
+                             "note": "in the ceiling's search_listing bucket but representation is "
+                                     "not B1-eligible (e.g. `| wc -l` derived summaries) — B1 leaves "
+                                     "these untouched, so they are excluded from the estimate."},
         "cap_calibration": {b: calibrate_cap(b) for b in budgets},
         "concentration": concentration(all_sizes),
         "grid": grid,
-        "per_run": [{k: r[k] for k in ("run", "task_id", "stratum",
-                                       "search_bucket_tokens")} | {"search_reads": len(r["search_sizes"])}
+        "per_run": [{k: r[k] for k in ("run", "task_id", "stratum", "search_bucket_tokens")}
+                    | {"search_reads": len(r["search_sizes"]),
+                       "derived_excluded_reads": len(r["derived_excluded_sizes"])}
                     for r in per_run],
     }
+
+
+# ------------------------------------------------------------------ true replay (needs raw text)
+def measured_reduction(raw: str, tool_name: str, tool_input: dict, *, budget: int = 256):
+    """TRUE replay for when the raw payload IS available (e.g. reconstructed from transcripts):
+    run the REAL gate + reducer and return (reduced_tokens, eligible). Mirrors the hook's decision
+    path exactly — a call the gate passes through, or a payload below MIN_REDUCE, is left unchanged
+    (reduced == raw tokens). Unlike the cap estimate, this is content-exact, not an approximation."""
+    d = route(tool_name, tool_input or {})
+    raw_tok = _tok(raw)
+    if d.passthrough or raw_tok < MIN_REDUCE_TOKENS:
+        return raw_tok, False
+    red = reduce_search(raw, tool_input or {}, budget_tokens=budget,
+                        representation=d.representation or "search")
+    return (red.reduced_tokens if red.invariants_ok else raw_tok), red.invariants_ok
+
+
+def true_replay_search(reads, *, budget: int = 256) -> dict:
+    """Aggregate a true replay over reads with raw text. `reads` = iterable of
+    (raw, tool_name, tool_input). Returns MEASURED R_search — the real reducer, no cap model."""
+    t_raw = t_reduced = 0
+    reduced_count = 0
+    for raw, tool_name, tool_input in reads:
+        rt = _tok(raw)
+        red_tok, eligible = measured_reduction(raw, tool_name, tool_input, budget=budget)
+        t_raw += rt
+        t_reduced += red_tok
+        reduced_count += 1 if (eligible and red_tok < rt) else 0
+    return {"method": "measured_true_replay", "budget": budget, "reads": None,
+            "raw_tokens": t_raw, "reduced_tokens": t_reduced, "reduced_reads": reduced_count,
+            "R_search_measured": round(1 - t_reduced / t_raw, 4) if t_raw else None}
 
 
 def _headline(result: dict) -> dict:
