@@ -1,0 +1,3178 @@
+{
+  "django__django-10554|A_native|rep0": {
+    "effective_read_tokens": 10667,
+    "reducer_saved_tokens": 0,
+    "search_reads": 23,
+    "exact_search_repeat_count": 0,
+    "repeated_scope_count": 7,
+    "candidates_seen": 1,
+    "reductions_enforced": 0,
+    "non_beneficial": 0,
+    "graph_ranked": 0,
+    "wall_time_s": 620.185,
+    "task_resolved": null,
+    "T_total": 5690119,
+    "usage": {
+      "input_tokens": 142,
+      "cache_creation_input_tokens": 74269,
+      "cache_read_input_tokens": 5581469,
+      "output_tokens": 34239,
+      "output_tokens_details": {
+        "thinking_tokens": 18537
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 74269,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 673,
+          "cache_read_input_tokens": 104174,
+          "cache_creation_input_tokens": 116,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 116
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "num_turns": 71,
+    "total_cost_usd": 2.634065700000001,
+    "termination_reason": "completed",
+    "completed": true,
+    "native_rereads": 5,
+    "result_expansions": 0,
+    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-10554-A-native-rep0-worktree/e66c5a33-7111-4a52-8781-cb618e402ca0.jsonl"
+  },
+  "django__django-10554|D1_b256_f125|rep0": {
+    "effective_read_tokens": 6417,
+    "reducer_saved_tokens": 132,
+    "search_reads": 10,
+    "exact_search_repeat_count": 0,
+    "repeated_scope_count": 3,
+    "candidates_seen": 4,
+    "reductions_enforced": 2,
+    "non_beneficial": 2,
+    "graph_ranked": 0,
+    "wall_time_s": 454.008,
+    "task_resolved": null,
+    "T_total": 3830926,
+    "usage": {
+      "input_tokens": 108,
+      "cache_creation_input_tokens": 66388,
+      "cache_read_input_tokens": 3733923,
+      "output_tokens": 30507,
+      "output_tokens_details": {
+        "thinking_tokens": 17861
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 66388,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 446,
+          "cache_read_input_tokens": 95996,
+          "cache_creation_input_tokens": 413,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 413
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "num_turns": 54,
+    "total_cost_usd": 1.9764339,
+    "termination_reason": "completed",
+    "completed": true,
+    "native_rereads": 5,
+    "result_expansions": 0,
+    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-10554-D1-b256-f125-rep0-worktree/99b1aa76-d438-458b-913c-012ed0aa2223.jsonl"
+  },
+  "django__django-10554|D2_b128_f125|rep0": {
+    "effective_read_tokens": 5599,
+    "reducer_saved_tokens": 138,
+    "search_reads": 14,
+    "exact_search_repeat_count": 0,
+    "repeated_scope_count": 2,
+    "candidates_seen": 3,
+    "reductions_enforced": 3,
+    "non_beneficial": 0,
+    "graph_ranked": 0,
+    "wall_time_s": 513.291,
+    "task_resolved": null,
+    "T_total": 3558061,
+    "usage": {
+      "input_tokens": 104,
+      "cache_creation_input_tokens": 58917,
+      "cache_read_input_tokens": 3474822,
+      "output_tokens": 24218,
+      "output_tokens_details": {
+        "thinking_tokens": 12718
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 58917,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 449,
+          "cache_read_input_tokens": 88671,
+          "cache_creation_input_tokens": 267,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 267
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "num_turns": 52,
+    "total_cost_usd": 1.7595306000000002,
+    "termination_reason": "completed",
+    "completed": true,
+    "native_rereads": 4,
+    "result_expansions": 0,
+    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-10554-D2-b128-f125-rep0-worktree/9a9612b9-2a32-42d7-b1ca-b86edb5a1aeb.jsonl"
+  },
+  "django__django-11138|A_native|rep0": {
+    "effective_read_tokens": 16312,
+    "reducer_saved_tokens": 0,
+    "search_reads": 20,
+    "exact_search_repeat_count": 0,
+    "repeated_scope_count": 3,
+    "candidates_seen": 3,
+    "reductions_enforced": 0,
+    "non_beneficial": 0,
+    "graph_ranked": 0,
+    "wall_time_s": 633.945,
+    "task_resolved": null,
+    "T_total": 5503674,
+    "usage": {
+      "input_tokens": 132,
+      "cache_creation_input_tokens": 97157,
+      "cache_read_input_tokens": 5368873,
+      "output_tokens": 37512,
+      "output_tokens_details": {
+        "thinking_tokens": 20989
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 97157,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 729,
+          "cache_read_input_tokens": 124092,
+          "cache_creation_input_tokens": 3086,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 3086
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "num_turns": 66,
+    "total_cost_usd": 2.756679900000001,
+    "termination_reason": "completed",
+    "completed": true,
+    "native_rereads": 9,
+    "result_expansions": 0,
+    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-11138-A-native-rep0-worktree/da5e16af-8802-4ca6-9d14-d27df2ffc96f.jsonl"
+  },
+  "django__django-11138|D1_b256_f125|rep0": {
+    "effective_read_tokens": 25580,
+    "reducer_saved_tokens": 1686,
+    "search_reads": 31,
+    "exact_search_repeat_count": 0,
+    "repeated_scope_count": 11,
+    "candidates_seen": 15,
+    "reductions_enforced": 7,
+    "non_beneficial": 8,
+    "graph_ranked": 0,
+    "wall_time_s": 781.028,
+    "task_resolved": null,
+    "T_total": 8067464,
+    "usage": {
+      "input_tokens": 162,
+      "cache_creation_input_tokens": 118929,
+      "cache_read_input_tokens": 7896808,
+      "output_tokens": 51565,
+      "output_tokens_details": {
+        "thinking_tokens": 32112
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 118929,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 138,
+          "cache_read_input_tokens": 148825,
+          "cache_creation_input_tokens": 125,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 125
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "num_turns": 83,
+    "total_cost_usd": 3.856577399999999,
+    "termination_reason": "completed",
+    "completed": true,
+    "native_rereads": 8,
+    "result_expansions": 0,
+    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-11138-D1-b256-f125-rep0-worktree/5d38daa4-142b-49d6-b34b-eb2170c18ce3.jsonl"
+  },
+  "django__django-11138|D2_b128_f125|rep0": {
+    "effective_read_tokens": 18978,
+    "reducer_saved_tokens": 4530,
+    "search_reads": 33,
+    "exact_search_repeat_count": 0,
+    "repeated_scope_count": 14,
+    "candidates_seen": 18,
+    "reductions_enforced": 18,
+    "non_beneficial": 0,
+    "graph_ranked": 0,
+    "wall_time_s": 786.562,
+    "task_resolved": null,
+    "T_total": 7384915,
+    "usage": {
+      "input_tokens": 162,
+      "cache_creation_input_tokens": 111139,
+      "cache_read_input_tokens": 7227335,
+      "output_tokens": 46279,
+      "output_tokens_details": {
+        "thinking_tokens": 27231
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 111139,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 168,
+          "cache_read_input_tokens": 137536,
+          "cache_creation_input_tokens": 3624,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 3624
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "num_turns": 81,
+    "total_cost_usd": 3.529705499999999,
+    "termination_reason": "completed",
+    "completed": true,
+    "native_rereads": 9,
+    "result_expansions": 0,
+    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-11138-D2-b128-f125-rep0-worktree/9af46e45-aea1-41de-b8c3-382de76e54bf.jsonl"
+  },
+  "django__django-12419|A_native|rep0": {
+    "effective_read_tokens": 1720,
+    "reducer_saved_tokens": 0,
+    "search_reads": 2,
+    "exact_search_repeat_count": 0,
+    "repeated_scope_count": 0,
+    "candidates_seen": 0,
+    "reductions_enforced": 0,
+    "non_beneficial": 0,
+    "graph_ranked": 0,
+    "wall_time_s": 131.379,
+    "task_resolved": null,
+    "T_total": 1410091,
+    "usage": {
+      "input_tokens": 52,
+      "cache_creation_input_tokens": 33753,
+      "cache_read_input_tokens": 1369755,
+      "output_tokens": 6531,
+      "output_tokens_details": {
+        "thinking_tokens": 524
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 33753,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 92,
+          "cache_read_input_tokens": 63450,
+          "cache_creation_input_tokens": 324,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 324
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "num_turns": 26,
+    "total_cost_usd": 0.7115654999999999,
+    "termination_reason": "completed",
+    "completed": true,
+    "native_rereads": 0,
+    "result_expansions": 0,
+    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-12419-A-native-rep0-worktree/de5544ab-9a4c-45a5-b4f3-226ee8d4489a.jsonl"
+  },
+  "django__django-12419|D1_b256_f125|rep0": {
+    "effective_read_tokens": 3810,
+    "reducer_saved_tokens": 85,
+    "search_reads": 12,
+    "exact_search_repeat_count": 0,
+    "repeated_scope_count": 2,
+    "candidates_seen": 3,
+    "reductions_enforced": 2,
+    "non_beneficial": 1,
+    "graph_ranked": 0,
+    "wall_time_s": 122.088,
+    "task_resolved": null,
+    "T_total": 1321929,
+    "usage": {
+      "input_tokens": 54,
+      "cache_creation_input_tokens": 26598,
+      "cache_read_input_tokens": 1289878,
+      "output_tokens": 5399,
+      "output_tokens_details": {
+        "thinking_tokens": 295
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 26598,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 241,
+          "cache_read_input_tokens": 56448,
+          "cache_creation_input_tokens": 171,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 171
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "num_turns": 27,
+    "total_cost_usd": 0.6276984,
+    "termination_reason": "completed",
+    "completed": true,
+    "native_rereads": 3,
+    "result_expansions": 0,
+    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-12419-D1-b256-f125-rep0-worktree/e6779acc-8421-4ca4-b980-c8db7df0ba28.jsonl"
+  },
+  "django__django-12419|D2_b128_f125|rep0": {
+    "effective_read_tokens": 2982,
+    "reducer_saved_tokens": 149,
+    "search_reads": 14,
+    "exact_search_repeat_count": 0,
+    "repeated_scope_count": 4,
+    "candidates_seen": 2,
+    "reductions_enforced": 2,
+    "non_beneficial": 0,
+    "graph_ranked": 0,
+    "wall_time_s": 180.158,
+    "task_resolved": null,
+    "T_total": 2145188,
+    "usage": {
+      "input_tokens": 82,
+      "cache_creation_input_tokens": 36547,
+      "cache_read_input_tokens": 2099630,
+      "output_tokens": 8929,
+      "output_tokens_details": {
+        "thinking_tokens": 1610
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 36547,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 141,
+          "cache_read_input_tokens": 65235,
+          "cache_creation_input_tokens": 1333,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 1333
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "num_turns": 41,
+    "total_cost_usd": 0.9833519999999998,
+    "termination_reason": "completed",
+    "completed": true,
+    "native_rereads": 4,
+    "result_expansions": 0,
+    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-12419-D2-b128-f125-rep0-worktree/8821140e-81a8-417c-8223-d5a9f9bf2789.jsonl"
+  },
+  "django__django-14608|A_native|rep0": {
+    "effective_read_tokens": 3017,
+    "reducer_saved_tokens": 0,
+    "search_reads": 7,
+    "exact_search_repeat_count": 0,
+    "repeated_scope_count": 0,
+    "candidates_seen": 0,
+    "reductions_enforced": 0,
+    "non_beneficial": 0,
+    "graph_ranked": 0,
+    "wall_time_s": 147.079,
+    "task_resolved": null,
+    "T_total": 1573521,
+    "usage": {
+      "input_tokens": 62,
+      "cache_creation_input_tokens": 29812,
+      "cache_read_input_tokens": 1537357,
+      "output_tokens": 6290,
+      "output_tokens_details": {
+        "thinking_tokens": 375
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 29812,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 5,
+          "cache_read_input_tokens": 58723,
+          "cache_creation_input_tokens": 1110,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 1110
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "num_turns": 31,
+    "total_cost_usd": 0.7346151000000002,
+    "termination_reason": "completed",
+    "completed": true,
+    "native_rereads": 1,
+    "result_expansions": 0,
+    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-14608-A-native-rep0-worktree/37fbdfe9-9872-47d8-b9e1-aa4aab4303c9.jsonl"
+  },
+  "django__django-14608|D1_b256_f125|rep0": {
+    "effective_read_tokens": 3846,
+    "reducer_saved_tokens": 0,
+    "search_reads": 10,
+    "exact_search_repeat_count": 0,
+    "repeated_scope_count": 0,
+    "candidates_seen": 3,
+    "reductions_enforced": 0,
+    "non_beneficial": 3,
+    "graph_ranked": 0,
+    "wall_time_s": 148.292,
+    "task_resolved": null,
+    "T_total": 1614586,
+    "usage": {
+      "input_tokens": 62,
+      "cache_creation_input_tokens": 30518,
+      "cache_read_input_tokens": 1576662,
+      "output_tokens": 7344,
+      "output_tokens_details": {
+        "thinking_tokens": 744
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 30518,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 205,
+          "cache_read_input_tokens": 59727,
+          "cache_creation_input_tokens": 812,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 812
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "num_turns": 31,
+    "total_cost_usd": 0.7664526000000002,
+    "termination_reason": "completed",
+    "completed": true,
+    "native_rereads": 1,
+    "result_expansions": 0,
+    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-14608-D1-b256-f125-rep0-worktree/6b5fa5c3-2127-4c23-a01e-944ac4aa8104.jsonl"
+  },
+  "django__django-14608|D2_b128_f125|rep0": {
+    "effective_read_tokens": 9366,
+    "reducer_saved_tokens": 1585,
+    "search_reads": 15,
+    "exact_search_repeat_count": 0,
+    "repeated_scope_count": 3,
+    "candidates_seen": 7,
+    "reductions_enforced": 7,
+    "non_beneficial": 0,
+    "graph_ranked": 0,
+    "wall_time_s": 189.96,
+    "task_resolved": null,
+    "T_total": 2512473,
+    "usage": {
+      "input_tokens": 84,
+      "cache_creation_input_tokens": 47792,
+      "cache_read_input_tokens": 2453939,
+      "output_tokens": 10658,
+      "output_tokens_details": {
+        "thinking_tokens": 941
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 47792,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 161,
+          "cache_read_input_tokens": 77551,
+          "cache_creation_input_tokens": 262,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 262
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "num_turns": 42,
+    "total_cost_usd": 1.1830557000000002,
+    "termination_reason": "completed",
+    "completed": true,
+    "native_rereads": 4,
+    "result_expansions": 0,
+    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-14608-D2-b128-f125-rep0-worktree/6e26bdfd-8d0f-4056-841b-97dbdfa094b6.jsonl"
+  },
+  "django__django-10554|A_native|rep1": {
+    "effective_read_tokens": 10115,
+    "reducer_saved_tokens": 0,
+    "search_reads": 10,
+    "exact_search_repeat_count": 0,
+    "repeated_scope_count": 5,
+    "candidates_seen": 0,
+    "reductions_enforced": 0,
+    "non_beneficial": 0,
+    "graph_ranked": 0,
+    "wall_time_s": 374.154,
+    "task_resolved": null,
+    "T_total": 3279367,
+    "usage": {
+      "input_tokens": 92,
+      "cache_creation_input_tokens": 63488,
+      "cache_read_input_tokens": 3190018,
+      "output_tokens": 25769,
+      "output_tokens_details": {
+        "thinking_tokens": 15504
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 63488,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 450,
+          "cache_read_input_tokens": 93198,
+          "cache_creation_input_tokens": 311,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 311
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "num_turns": 46,
+    "total_cost_usd": 1.7247443999999996,
+    "termination_reason": "completed",
+    "completed": true,
+    "native_rereads": 6,
+    "result_expansions": 0,
+    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-10554-A-native-rep1-worktree/c98f6b8a-504f-42b8-9a27-596bbec50f21.jsonl"
+  },
+  "django__django-10554|D1_b256_f125|rep1": {
+    "effective_read_tokens": 10799,
+    "reducer_saved_tokens": 181,
+    "search_reads": 12,
+    "exact_search_repeat_count": 0,
+    "repeated_scope_count": 4,
+    "candidates_seen": 4,
+    "reductions_enforced": 3,
+    "non_beneficial": 1,
+    "graph_ranked": 0,
+    "wall_time_s": 520.33,
+    "task_resolved": null,
+    "T_total": 4550452,
+    "usage": {
+      "input_tokens": 118,
+      "cache_creation_input_tokens": 79117,
+      "cache_read_input_tokens": 4434914,
+      "output_tokens": 36303,
+      "output_tokens_details": {
+        "thinking_tokens": 21446
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 79117,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 401,
+          "cache_read_input_tokens": 108699,
+          "cache_creation_input_tokens": 439,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 439
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "num_turns": 60,
+    "total_cost_usd": 2.4186281999999992,
+    "termination_reason": "completed",
+    "completed": true,
+    "native_rereads": 5,
+    "result_expansions": 0,
+    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-10554-D1-b256-f125-rep1-worktree/92113311-9605-462d-87bc-ca37f7e185b8.jsonl"
+  },
+  "django__django-10554|D2_b128_f125|rep1": {
+    "effective_read_tokens": 13920,
+    "reducer_saved_tokens": 1220,
+    "search_reads": 23,
+    "exact_search_repeat_count": 0,
+    "repeated_scope_count": 12,
+    "candidates_seen": 9,
+    "reductions_enforced": 8,
+    "non_beneficial": 1,
+    "graph_ranked": 0,
+    "wall_time_s": 648.291,
+    "task_resolved": null,
+    "T_total": 7928700,
+    "usage": {
+      "input_tokens": 180,
+      "cache_creation_input_tokens": 98975,
+      "cache_read_input_tokens": 7786204,
+      "output_tokens": 43341,
+      "output_tokens_details": {
+        "thinking_tokens": 26881
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 98975,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 304,
+          "cache_read_input_tokens": 127381,
+          "cache_creation_input_tokens": 1615,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 1615
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "num_turns": 91,
+    "total_cost_usd": 3.5803662000000003,
+    "termination_reason": "completed",
+    "completed": true,
+    "native_rereads": 14,
+    "result_expansions": 0,
+    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-10554-D2-b128-f125-rep1-worktree/56baef51-245f-4f92-b62e-32f216310ee9.jsonl"
+  },
+  "django__django-11138|A_native|rep1": {
+    "effective_read_tokens": 17677,
+    "reducer_saved_tokens": 0,
+    "search_reads": 36,
+    "exact_search_repeat_count": 0,
+    "repeated_scope_count": 9,
+    "candidates_seen": 3,
+    "reductions_enforced": 0,
+    "non_beneficial": 0,
+    "graph_ranked": 0,
+    "wall_time_s": 811.839,
+    "task_resolved": null,
+    "T_total": 7382228,
+    "usage": {
+      "input_tokens": 162,
+      "cache_creation_input_tokens": 110688,
+      "cache_read_input_tokens": 7224526,
+      "output_tokens": 46852,
+      "output_tokens_details": {
+        "thinking_tokens": 27458
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 110688,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 709,
+          "cache_read_input_tokens": 139187,
+          "cache_creation_input_tokens": 1522,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 1522
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "num_turns": 81,
+    "total_cost_usd": 3.534751800000001,
+    "termination_reason": "completed",
+    "completed": true,
+    "native_rereads": 11,
+    "result_expansions": 0,
+    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-11138-A-native-rep1-worktree/4b623f52-ade2-4b86-ab48-15ac20f6f2cb.jsonl"
+  },
+  "django__django-11138|D1_b256_f125|rep1": {
+    "effective_read_tokens": 16643,
+    "reducer_saved_tokens": 2166,
+    "search_reads": 27,
+    "exact_search_repeat_count": 0,
+    "repeated_scope_count": 10,
+    "candidates_seen": 14,
+    "reductions_enforced": 11,
+    "non_beneficial": 3,
+    "graph_ranked": 0,
+    "wall_time_s": 638.725,
+    "task_resolved": null,
+    "T_total": 6974158,
+    "usage": {
+      "input_tokens": 160,
+      "cache_creation_input_tokens": 95380,
+      "cache_read_input_tokens": 6841778,
+      "output_tokens": 36840,
+      "output_tokens_details": {
+        "thinking_tokens": 19277
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 95380,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 23,
+          "cache_read_input_tokens": 125279,
+          "cache_creation_input_tokens": 122,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 122
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "num_turns": 80,
+    "total_cost_usd": 3.1778934000000008,
+    "termination_reason": "completed",
+    "completed": true,
+    "native_rereads": 10,
+    "result_expansions": 0,
+    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-11138-D1-b256-f125-rep1-worktree/ab9c8975-7f6e-4a40-a8dc-ae1bb269146a.jsonl"
+  },
+  "django__django-11138|D2_b128_f125|rep1": {
+    "effective_read_tokens": 15259,
+    "reducer_saved_tokens": 2686,
+    "search_reads": 18,
+    "exact_search_repeat_count": 0,
+    "repeated_scope_count": 6,
+    "candidates_seen": 11,
+    "reductions_enforced": 11,
+    "non_beneficial": 0,
+    "graph_ranked": 0,
+    "wall_time_s": 295.754,
+    "task_resolved": null,
+    "T_total": 4226094,
+    "usage": {
+      "input_tokens": 108,
+      "cache_creation_input_tokens": 78212,
+      "cache_read_input_tokens": 4128556,
+      "output_tokens": 19218,
+      "output_tokens_details": {
+        "thinking_tokens": 5016
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 78212,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 444,
+          "cache_read_input_tokens": 107742,
+          "cache_creation_input_tokens": 491,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 491
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "num_turns": 54,
+    "total_cost_usd": 2.0254927999999994,
+    "termination_reason": "completed",
+    "completed": true,
+    "native_rereads": 4,
+    "result_expansions": 0,
+    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-11138-D2-b128-f125-rep1-worktree/3207842c-0025-411d-95e8-0ef4c00792a3.jsonl"
+  },
+  "django__django-12419|A_native|rep1": {
+    "effective_read_tokens": 3380,
+    "reducer_saved_tokens": 0,
+    "search_reads": 14,
+    "exact_search_repeat_count": 0,
+    "repeated_scope_count": 3,
+    "candidates_seen": 1,
+    "reductions_enforced": 0,
+    "non_beneficial": 0,
+    "graph_ranked": 0,
+    "wall_time_s": 118.073,
+    "task_resolved": null,
+    "T_total": 1354755,
+    "usage": {
+      "input_tokens": 56,
+      "cache_creation_input_tokens": 25369,
+      "cache_read_input_tokens": 1324307,
+      "output_tokens": 5023,
+      "output_tokens_details": {
+        "thinking_tokens": 584
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 25369,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 161,
+          "cache_read_input_tokens": 54446,
+          "cache_creation_input_tokens": 944,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 944
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "num_turns": 28,
+    "total_cost_usd": 0.6250190999999998,
+    "termination_reason": "completed",
+    "completed": true,
+    "native_rereads": 2,
+    "result_expansions": 0,
+    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-12419-A-native-rep1-worktree/838f646a-df67-41b6-a89a-2553d6f52e52.jsonl"
+  },
+  "django__django-12419|D1_b256_f125|rep1": {
+    "effective_read_tokens": 6920,
+    "reducer_saved_tokens": 152,
+    "search_reads": 12,
+    "exact_search_repeat_count": 0,
+    "repeated_scope_count": 3,
+    "candidates_seen": 5,
+    "reductions_enforced": 2,
+    "non_beneficial": 3,
+    "graph_ranked": 0,
+    "wall_time_s": 127.774,
+    "task_resolved": null,
+    "T_total": 1482776,
+    "usage": {
+      "input_tokens": 56,
+      "cache_creation_input_tokens": 33565,
+      "cache_read_input_tokens": 1443183,
+      "output_tokens": 5972,
+      "output_tokens_details": {
+        "thinking_tokens": 458
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 33565,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 114,
+          "cache_read_input_tokens": 62375,
+          "cache_creation_input_tokens": 1211,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 1211
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "num_turns": 28,
+    "total_cost_usd": 0.7240929,
+    "termination_reason": "completed",
+    "completed": true,
+    "native_rereads": 1,
+    "result_expansions": 0,
+    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-12419-D1-b256-f125-rep1-worktree/e18f3044-747b-43ba-af5b-9a2b22587c9e.jsonl"
+  },
+  "django__django-12419|D2_b128_f125|rep1": {
+    "effective_read_tokens": 6981,
+    "reducer_saved_tokens": 1255,
+    "search_reads": 13,
+    "exact_search_repeat_count": 0,
+    "repeated_scope_count": 3,
+    "candidates_seen": 6,
+    "reductions_enforced": 6,
+    "non_beneficial": 0,
+    "graph_ranked": 0,
+    "wall_time_s": 157.293,
+    "task_resolved": null,
+    "T_total": 1964815,
+    "usage": {
+      "input_tokens": 74,
+      "cache_creation_input_tokens": 38293,
+      "cache_read_input_tokens": 1919136,
+      "output_tokens": 7312,
+      "output_tokens_details": {
+        "thinking_tokens": 543
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 38293,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 120,
+          "cache_read_input_tokens": 67061,
+          "cache_creation_input_tokens": 1253,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 1253
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "num_turns": 37,
+    "total_cost_usd": 0.9154007999999999,
+    "termination_reason": "completed",
+    "completed": true,
+    "native_rereads": 2,
+    "result_expansions": 0,
+    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-12419-D2-b128-f125-rep1-worktree/f21dd4f6-99b3-4563-a145-4d6227df2e8e.jsonl"
+  },
+  "django__django-14608|A_native|rep1": {
+    "effective_read_tokens": 3716,
+    "reducer_saved_tokens": 0,
+    "search_reads": 10,
+    "exact_search_repeat_count": 0,
+    "repeated_scope_count": 1,
+    "candidates_seen": 1,
+    "reductions_enforced": 0,
+    "non_beneficial": 0,
+    "graph_ranked": 0,
+    "wall_time_s": 169.199,
+    "task_resolved": null,
+    "T_total": 1733468,
+    "usage": {
+      "input_tokens": 64,
+      "cache_creation_input_tokens": 35740,
+      "cache_read_input_tokens": 1687660,
+      "output_tokens": 10004,
+      "output_tokens_details": {
+        "thinking_tokens": 247
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 35740,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 224,
+          "cache_read_input_tokens": 65306,
+          "cache_creation_input_tokens": 455,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 455
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "num_turns": 32,
+    "total_cost_usd": 0.87099,
+    "termination_reason": "completed",
+    "completed": true,
+    "native_rereads": 1,
+    "result_expansions": 0,
+    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-14608-A-native-rep1-worktree/fba2b988-fdab-433c-9dc6-15a2326ee256.jsonl"
+  },
+  "django__django-14608|D1_b256_f125|rep1": {
+    "effective_read_tokens": 2995,
+    "reducer_saved_tokens": 1207,
+    "search_reads": 11,
+    "exact_search_repeat_count": 0,
+    "repeated_scope_count": 1,
+    "candidates_seen": 5,
+    "reductions_enforced": 3,
+    "non_beneficial": 2,
+    "graph_ranked": 0,
+    "wall_time_s": 169.666,
+    "task_resolved": null,
+    "T_total": 1670459,
+    "usage": {
+      "input_tokens": 64,
+      "cache_creation_input_tokens": 33974,
+      "cache_read_input_tokens": 1627444,
+      "output_tokens": 8977,
+      "output_tokens_details": {
+        "thinking_tokens": 295
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 33974,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 199,
+          "cache_read_input_tokens": 62897,
+          "cache_creation_input_tokens": 1098,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 1098
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "num_turns": 32,
+    "total_cost_usd": 0.8269242,
+    "termination_reason": "completed",
+    "completed": true,
+    "native_rereads": 0,
+    "result_expansions": 0,
+    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-14608-D1-b256-f125-rep1-worktree/a5881b90-d3e8-4847-8945-c80a26879262.jsonl"
+  },
+  "django__django-14608|D2_b128_f125|rep1": {
+    "effective_read_tokens": 10017,
+    "reducer_saved_tokens": 1824,
+    "search_reads": 16,
+    "exact_search_repeat_count": 0,
+    "repeated_scope_count": 6,
+    "candidates_seen": 10,
+    "reductions_enforced": 10,
+    "non_beneficial": 0,
+    "graph_ranked": 0,
+    "wall_time_s": 211.21,
+    "task_resolved": null,
+    "T_total": 2788742,
+    "usage": {
+      "input_tokens": 92,
+      "cache_creation_input_tokens": 46531,
+      "cache_read_input_tokens": 2730016,
+      "output_tokens": 12103,
+      "output_tokens_details": {
+        "thinking_tokens": 988
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 46531,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 301,
+          "cache_read_input_tokens": 75907,
+          "cache_creation_input_tokens": 645,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 645
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "num_turns": 46,
+    "total_cost_usd": 1.2800117999999996,
+    "termination_reason": "completed",
+    "completed": true,
+    "native_rereads": 3,
+    "result_expansions": 0,
+    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-14608-D2-b128-f125-rep1-worktree/75fd73ea-2c71-48ae-aa56-1cdb04152c2f.jsonl"
+  },
+  "django__django-10554|A_native|rep2": {
+    "effective_read_tokens": 6978,
+    "reducer_saved_tokens": 0,
+    "search_reads": 5,
+    "exact_search_repeat_count": 0,
+    "repeated_scope_count": 2,
+    "candidates_seen": 3,
+    "reductions_enforced": 0,
+    "non_beneficial": 0,
+    "graph_ranked": 0,
+    "wall_time_s": 252.801,
+    "task_resolved": null,
+    "T_total": 2565467,
+    "usage": {
+      "input_tokens": 80,
+      "cache_creation_input_tokens": 52294,
+      "cache_read_input_tokens": 2497108,
+      "output_tokens": 15985,
+      "output_tokens_details": {
+        "thinking_tokens": 6054
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 52294,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 178,
+          "cache_read_input_tokens": 80635,
+          "cache_creation_input_tokens": 1680,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 1680
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "num_turns": 40,
+    "total_cost_usd": 1.3029114,
+    "termination_reason": "completed",
+    "completed": true,
+    "native_rereads": 1,
+    "result_expansions": 0,
+    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-10554-A-native-rep2-worktree/81118660-69b2-4539-82d3-bfa9a46c8a11.jsonl"
+  },
+  "django__django-10554|D1_b256_f125|rep2": {
+    "effective_read_tokens": 7787,
+    "reducer_saved_tokens": 0,
+    "search_reads": 5,
+    "exact_search_repeat_count": 0,
+    "repeated_scope_count": 0,
+    "candidates_seen": 2,
+    "reductions_enforced": 0,
+    "non_beneficial": 2,
+    "graph_ranked": 0,
+    "wall_time_s": 277.343,
+    "task_resolved": null,
+    "T_total": 2110350,
+    "usage": {
+      "input_tokens": 66,
+      "cache_creation_input_tokens": 50332,
+      "cache_read_input_tokens": 2042191,
+      "output_tokens": 17761,
+      "output_tokens_details": {
+        "thinking_tokens": 9578
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 50332,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 436,
+          "cache_read_input_tokens": 80006,
+          "cache_creation_input_tokens": 347,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 347
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "num_turns": 33,
+    "total_cost_usd": 1.1812623,
+    "termination_reason": "completed",
+    "completed": true,
+    "native_rereads": 3,
+    "result_expansions": 0,
+    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-10554-D1-b256-f125-rep2-worktree/6da7fcb1-cf72-4690-be96-75c19205d1f2.jsonl"
+  },
+  "django__django-10554|D2_b128_f125|rep2": {
+    "effective_read_tokens": 10647,
+    "reducer_saved_tokens": 265,
+    "search_reads": 12,
+    "exact_search_repeat_count": 0,
+    "repeated_scope_count": 5,
+    "candidates_seen": 4,
+    "reductions_enforced": 4,
+    "non_beneficial": 0,
+    "graph_ranked": 0,
+    "wall_time_s": 415.783,
+    "task_resolved": null,
+    "T_total": 3644023,
+    "usage": {
+      "input_tokens": 100,
+      "cache_creation_input_tokens": 69341,
+      "cache_read_input_tokens": 3546552,
+      "output_tokens": 28030,
+      "output_tokens_details": {
+        "thinking_tokens": 17217
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 69341,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 202,
+          "cache_read_input_tokens": 97885,
+          "cache_creation_input_tokens": 1477,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 1477
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "num_turns": 50,
+    "total_cost_usd": 1.9007616,
+    "termination_reason": "completed",
+    "completed": true,
+    "native_rereads": 7,
+    "result_expansions": 0,
+    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-10554-D2-b128-f125-rep2-worktree/78057506-ffba-437b-b9c9-f3abb8999b28.jsonl"
+  },
+  "django__django-11138|A_native|rep2": {
+    "effective_read_tokens": 15661,
+    "reducer_saved_tokens": 0,
+    "search_reads": 26,
+    "exact_search_repeat_count": 0,
+    "repeated_scope_count": 10,
+    "candidates_seen": 4,
+    "reductions_enforced": 0,
+    "non_beneficial": 0,
+    "graph_ranked": 0,
+    "wall_time_s": 721.939,
+    "task_resolved": null,
+    "T_total": 7099841,
+    "usage": {
+      "input_tokens": 166,
+      "cache_creation_input_tokens": 90854,
+      "cache_read_input_tokens": 6966845,
+      "output_tokens": 41976,
+      "output_tokens_details": {
+        "thinking_tokens": 25239
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 90854,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 61,
+          "cache_read_input_tokens": 120339,
+          "cache_creation_input_tokens": 536,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 536
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "num_turns": 83,
+    "total_cost_usd": 3.2653155000000007,
+    "termination_reason": "completed",
+    "completed": true,
+    "native_rereads": 13,
+    "result_expansions": 0,
+    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-11138-A-native-rep2-worktree/58d74b9e-659e-4350-aef4-626991f798ba.jsonl"
+  },
+  "django__django-11138|D1_b256_f125|rep2": {
+    "effective_read_tokens": 15190,
+    "reducer_saved_tokens": 2301,
+    "search_reads": 39,
+    "exact_search_repeat_count": 0,
+    "repeated_scope_count": 21,
+    "candidates_seen": 16,
+    "reductions_enforced": 9,
+    "non_beneficial": 7,
+    "graph_ranked": 0,
+    "wall_time_s": 900.08,
+    "task_resolved": null,
+    "T_total": null,
+    "usage": null,
+    "num_turns": null,
+    "total_cost_usd": null,
+    "termination_reason": "budget_walltime",
+    "completed": false,
+    "native_rereads": 8,
+    "result_expansions": 0,
+    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-11138-D1-b256-f125-rep2-worktree/1d95a860-cae5-4fbc-b99a-1b37c152c8f5.jsonl"
+  },
+  "django__django-11138|D2_b128_f125|rep2": {
+    "effective_read_tokens": 14815,
+    "reducer_saved_tokens": 4068,
+    "search_reads": 21,
+    "exact_search_repeat_count": 0,
+    "repeated_scope_count": 8,
+    "candidates_seen": 12,
+    "reductions_enforced": 12,
+    "non_beneficial": 0,
+    "graph_ranked": 0,
+    "wall_time_s": 374.273,
+    "task_resolved": null,
+    "T_total": 3614102,
+    "usage": {
+      "input_tokens": 100,
+      "cache_creation_input_tokens": 69121,
+      "cache_read_input_tokens": 3519978,
+      "output_tokens": 24903,
+      "output_tokens_details": {
+        "thinking_tokens": 11790
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 69121,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 545,
+          "cache_read_input_tokens": 98826,
+          "cache_creation_input_tokens": 316,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 316
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "num_turns": 50,
+    "total_cost_usd": 1.8445643999999999,
+    "termination_reason": "completed",
+    "completed": true,
+    "native_rereads": 6,
+    "result_expansions": 0,
+    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-11138-D2-b128-f125-rep2-worktree/c2a781b2-b410-49a8-9f38-7d0f1db104ea.jsonl"
+  },
+  "django__django-12419|A_native|rep2": {
+    "effective_read_tokens": 5534,
+    "reducer_saved_tokens": 0,
+    "search_reads": 13,
+    "exact_search_repeat_count": 0,
+    "repeated_scope_count": 0,
+    "candidates_seen": 2,
+    "reductions_enforced": 0,
+    "non_beneficial": 0,
+    "graph_ranked": 0,
+    "wall_time_s": 185.049,
+    "task_resolved": null,
+    "T_total": 2186811,
+    "usage": {
+      "input_tokens": 82,
+      "cache_creation_input_tokens": 35885,
+      "cache_read_input_tokens": 2142633,
+      "output_tokens": 8211,
+      "output_tokens_details": {
+        "thinking_tokens": 855
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 35885,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 161,
+          "cache_read_input_tokens": 65792,
+          "cache_creation_input_tokens": 114,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 114
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "num_turns": 41,
+    "total_cost_usd": 0.9815108999999997,
+    "termination_reason": "completed",
+    "completed": true,
+    "native_rereads": 2,
+    "result_expansions": 0,
+    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-12419-A-native-rep2-worktree/f66ac593-121c-41ec-ac74-c8f928bbd770.jsonl"
+  },
+  "django__django-12419|D1_b256_f125|rep2": {
+    "effective_read_tokens": 3650,
+    "reducer_saved_tokens": 1462,
+    "search_reads": 14,
+    "exact_search_repeat_count": 0,
+    "repeated_scope_count": 2,
+    "candidates_seen": 7,
+    "reductions_enforced": 4,
+    "non_beneficial": 3,
+    "graph_ranked": 0,
+    "wall_time_s": 171.988,
+    "task_resolved": null,
+    "T_total": 1924277,
+    "usage": {
+      "input_tokens": 74,
+      "cache_creation_input_tokens": 31593,
+      "cache_read_input_tokens": 1885012,
+      "output_tokens": 7598,
+      "output_tokens_details": {
+        "thinking_tokens": 1372
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 31593,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 5,
+          "cache_read_input_tokens": 61361,
+          "cache_creation_input_tokens": 253,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 253
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "num_turns": 37,
+    "total_cost_usd": 0.8692536,
+    "termination_reason": "completed",
+    "completed": true,
+    "native_rereads": 1,
+    "result_expansions": 0,
+    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-12419-D1-b256-f125-rep2-worktree/6b731ade-5757-4773-9a8b-943deceabfe3.jsonl"
+  },
+  "django__django-12419|D2_b128_f125|rep2": {
+    "effective_read_tokens": 5306,
+    "reducer_saved_tokens": 340,
+    "search_reads": 21,
+    "exact_search_repeat_count": 0,
+    "repeated_scope_count": 10,
+    "candidates_seen": 5,
+    "reductions_enforced": 5,
+    "non_beneficial": 0,
+    "graph_ranked": 0,
+    "wall_time_s": 157.364,
+    "task_resolved": null,
+    "T_total": 1659644,
+    "usage": {
+      "input_tokens": 64,
+      "cache_creation_input_tokens": 32335,
+      "cache_read_input_tokens": 1620813,
+      "output_tokens": 6432,
+      "output_tokens_details": {
+        "thinking_tokens": 438
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 32335,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 242,
+          "cache_read_input_tokens": 61907,
+          "cache_creation_input_tokens": 449,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 449
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "num_turns": 32,
+    "total_cost_usd": 0.7769259000000001,
+    "termination_reason": "completed",
+    "completed": true,
+    "native_rereads": 3,
+    "result_expansions": 0,
+    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-12419-D2-b128-f125-rep2-worktree/854cd9cf-55c4-4916-98a0-6ea5f33ae7c1.jsonl"
+  },
+  "django__django-14608|A_native|rep2": {
+    "effective_read_tokens": 4919,
+    "reducer_saved_tokens": 0,
+    "search_reads": 5,
+    "exact_search_repeat_count": 0,
+    "repeated_scope_count": 0,
+    "candidates_seen": 0,
+    "reductions_enforced": 0,
+    "non_beneficial": 0,
+    "graph_ranked": 0,
+    "wall_time_s": 179.179,
+    "task_resolved": null,
+    "T_total": 1625872,
+    "usage": {
+      "input_tokens": 60,
+      "cache_creation_input_tokens": 36762,
+      "cache_read_input_tokens": 1580196,
+      "output_tokens": 8854,
+      "output_tokens_details": {
+        "thinking_tokens": 945
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 36762,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 313,
+          "cache_read_input_tokens": 66193,
+          "cache_creation_input_tokens": 590,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 590
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "num_turns": 30,
+    "total_cost_usd": 0.8276207999999998,
+    "termination_reason": "completed",
+    "completed": true,
+    "native_rereads": 2,
+    "result_expansions": 0,
+    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-14608-A-native-rep2-worktree/00b47ae8-238b-4896-a16f-454d09fc5685.jsonl"
+  },
+  "django__django-14608|D1_b256_f125|rep2": {
+    "effective_read_tokens": 7655,
+    "reducer_saved_tokens": 863,
+    "search_reads": 11,
+    "exact_search_repeat_count": 0,
+    "repeated_scope_count": 0,
+    "candidates_seen": 3,
+    "reductions_enforced": 2,
+    "non_beneficial": 1,
+    "graph_ranked": 0,
+    "wall_time_s": 200.534,
+    "task_resolved": null,
+    "T_total": 2274358,
+    "usage": {
+      "input_tokens": 76,
+      "cache_creation_input_tokens": 42231,
+      "cache_read_input_tokens": 2220859,
+      "output_tokens": 11192,
+      "output_tokens_details": {
+        "thinking_tokens": 675
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 42231,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 5,
+          "cache_read_input_tokens": 71109,
+          "cache_creation_input_tokens": 1143,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 1143
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "num_turns": 38,
+    "total_cost_usd": 1.0877516999999999,
+    "termination_reason": "completed",
+    "completed": true,
+    "native_rereads": 0,
+    "result_expansions": 0,
+    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-14608-D1-b256-f125-rep2-worktree/98d9df04-fb97-41ea-b320-4e819d12db67.jsonl"
+  },
+  "django__django-14608|D2_b128_f125|rep2": {
+    "effective_read_tokens": 9932,
+    "reducer_saved_tokens": 1933,
+    "search_reads": 11,
+    "exact_search_repeat_count": 0,
+    "repeated_scope_count": 2,
+    "candidates_seen": 6,
+    "reductions_enforced": 6,
+    "non_beneficial": 0,
+    "graph_ranked": 0,
+    "wall_time_s": 223.392,
+    "task_resolved": null,
+    "T_total": 2057327,
+    "usage": {
+      "input_tokens": 70,
+      "cache_creation_input_tokens": 41934,
+      "cache_read_input_tokens": 2006878,
+      "output_tokens": 8445,
+      "output_tokens_details": {
+        "thinking_tokens": 419
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 41934,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 260,
+          "cache_read_input_tokens": 70992,
+          "cache_creation_input_tokens": 963,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 963
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "num_turns": 35,
+    "total_cost_usd": 0.9805524000000003,
+    "termination_reason": "completed",
+    "completed": true,
+    "native_rereads": 2,
+    "result_expansions": 0,
+    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-14608-D2-b128-f125-rep2-worktree/fafb5311-7a93-46b5-b0b1-c22df7833978.jsonl"
+  },
+  "django__django-10554|A_native|rep3": {
+    "effective_read_tokens": 8685,
+    "reducer_saved_tokens": 0,
+    "search_reads": 9,
+    "exact_search_repeat_count": 0,
+    "repeated_scope_count": 4,
+    "candidates_seen": 1,
+    "reductions_enforced": 0,
+    "non_beneficial": 0,
+    "graph_ranked": 0,
+    "wall_time_s": 259.08,
+    "task_resolved": null,
+    "T_total": 2304443,
+    "usage": {
+      "input_tokens": 72,
+      "cache_creation_input_tokens": 53385,
+      "cache_read_input_tokens": 2236079,
+      "output_tokens": 14907,
+      "output_tokens_details": {
+        "thinking_tokens": 4946
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 53385,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 460,
+          "cache_read_input_tokens": 81659,
+          "cache_creation_input_tokens": 1747,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 1747
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "num_turns": 36,
+    "total_cost_usd": 1.2435106999999999,
+    "termination_reason": "completed",
+    "completed": true,
+    "native_rereads": 4,
+    "result_expansions": 0,
+    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-10554-A-native-rep3-worktree/063596c6-f020-41f9-be7a-3b77b55bb8ef.jsonl"
+  },
+  "django__django-10554|D1_b256_f125|rep3": {
+    "effective_read_tokens": 11611,
+    "reducer_saved_tokens": 3190,
+    "search_reads": 24,
+    "exact_search_repeat_count": 0,
+    "repeated_scope_count": 12,
+    "candidates_seen": 12,
+    "reductions_enforced": 8,
+    "non_beneficial": 4,
+    "graph_ranked": 0,
+    "wall_time_s": 494.685,
+    "task_resolved": null,
+    "T_total": 4922111,
+    "usage": {
+      "input_tokens": 130,
+      "cache_creation_input_tokens": 78157,
+      "cache_read_input_tokens": 4811131,
+      "output_tokens": 32693,
+      "output_tokens_details": {
+        "thinking_tokens": 18181
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 78157,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 549,
+          "cache_read_input_tokens": 107990,
+          "cache_creation_input_tokens": 188,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 188
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "num_turns": 65,
+    "total_cost_usd": 2.4030663,
+    "termination_reason": "completed",
+    "completed": true,
+    "native_rereads": 7,
+    "result_expansions": 0,
+    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-10554-D1-b256-f125-rep3-worktree/e4ebb923-6fd9-42a2-b072-8a1f7f083616.jsonl"
+  },
+  "django__django-10554|D2_b128_f125|rep3": {
+    "effective_read_tokens": 6816,
+    "reducer_saved_tokens": 966,
+    "search_reads": 11,
+    "exact_search_repeat_count": 0,
+    "repeated_scope_count": 2,
+    "candidates_seen": 2,
+    "reductions_enforced": 2,
+    "non_beneficial": 0,
+    "graph_ranked": 0,
+    "wall_time_s": 344.08,
+    "task_resolved": null,
+    "T_total": 3440742,
+    "usage": {
+      "input_tokens": 102,
+      "cache_creation_input_tokens": 58351,
+      "cache_read_input_tokens": 3361471,
+      "output_tokens": 20818,
+      "output_tokens_details": {
+        "thinking_tokens": 9186
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 58351,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 561,
+          "cache_read_input_tokens": 87894,
+          "cache_creation_input_tokens": 478,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 478
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "num_turns": 51,
+    "total_cost_usd": 1.6984503000000004,
+    "termination_reason": "completed",
+    "completed": true,
+    "native_rereads": 5,
+    "result_expansions": 0,
+    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-10554-D2-b128-f125-rep3-worktree/8281395b-7956-4e39-b1b4-f00152b59cd8.jsonl"
+  },
+  "django__django-11138|A_native|rep3": {
+    "effective_read_tokens": 14650,
+    "reducer_saved_tokens": 0,
+    "search_reads": 18,
+    "exact_search_repeat_count": 0,
+    "repeated_scope_count": 3,
+    "candidates_seen": 5,
+    "reductions_enforced": 0,
+    "non_beneficial": 0,
+    "graph_ranked": 0,
+    "wall_time_s": 544.456,
+    "task_resolved": null,
+    "T_total": 5343875,
+    "usage": {
+      "input_tokens": 130,
+      "cache_creation_input_tokens": 80152,
+      "cache_read_input_tokens": 5232789,
+      "output_tokens": 30804,
+      "output_tokens_details": {
+        "thinking_tokens": 13172
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 80152,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 28,
+          "cache_read_input_tokens": 109957,
+          "cache_creation_input_tokens": 216,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 216
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "num_turns": 65,
+    "total_cost_usd": 2.5131987,
+    "termination_reason": "completed",
+    "completed": true,
+    "native_rereads": 7,
+    "result_expansions": 0,
+    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-11138-A-native-rep3-worktree/d7d03dd3-b8e1-46a4-bc90-d65d92fdba39.jsonl"
+  },
+  "django__django-11138|D1_b256_f125|rep3": {
+    "effective_read_tokens": 15461,
+    "reducer_saved_tokens": 1632,
+    "search_reads": 21,
+    "exact_search_repeat_count": 0,
+    "repeated_scope_count": 4,
+    "candidates_seen": 13,
+    "reductions_enforced": 7,
+    "non_beneficial": 6,
+    "graph_ranked": 0,
+    "wall_time_s": 391.589,
+    "task_resolved": null,
+    "T_total": 4902363,
+    "usage": {
+      "input_tokens": 124,
+      "cache_creation_input_tokens": 76177,
+      "cache_read_input_tokens": 4797535,
+      "output_tokens": 28527,
+      "output_tokens_details": {
+        "thinking_tokens": 12687
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 76177,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 788,
+          "cache_read_input_tokens": 106068,
+          "cache_creation_input_tokens": 130,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 130
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "num_turns": 62,
+    "total_cost_usd": 2.3245994999999993,
+    "termination_reason": "completed",
+    "completed": true,
+    "native_rereads": 7,
+    "result_expansions": 0,
+    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-11138-D1-b256-f125-rep3-worktree/21824764-4e65-46d1-a248-0d6c4fab9623.jsonl"
+  },
+  "django__django-11138|D2_b128_f125|rep3": {
+    "effective_read_tokens": 18064,
+    "reducer_saved_tokens": 5579,
+    "search_reads": 40,
+    "exact_search_repeat_count": 0,
+    "repeated_scope_count": 14,
+    "candidates_seen": 16,
+    "reductions_enforced": 14,
+    "non_beneficial": 2,
+    "graph_ranked": 0,
+    "wall_time_s": 704.782,
+    "task_resolved": null,
+    "T_total": 9073318,
+    "usage": {
+      "input_tokens": 182,
+      "cache_creation_input_tokens": 112593,
+      "cache_read_input_tokens": 8916817,
+      "output_tokens": 43726,
+      "output_tokens_details": {
+        "thinking_tokens": 23226
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 112593,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 868,
+          "cache_read_input_tokens": 142136,
+          "cache_creation_input_tokens": 478,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 478
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "num_turns": 91,
+    "total_cost_usd": 4.0070391,
+    "termination_reason": "completed",
+    "completed": true,
+    "native_rereads": 7,
+    "result_expansions": 0,
+    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-11138-D2-b128-f125-rep3-worktree/f083ea5a-9609-4cd5-9a0f-8d53fcf29d47.jsonl"
+  },
+  "django__django-12419|A_native|rep3": {
+    "effective_read_tokens": 2752,
+    "reducer_saved_tokens": 0,
+    "search_reads": 3,
+    "exact_search_repeat_count": 0,
+    "repeated_scope_count": 0,
+    "candidates_seen": 1,
+    "reductions_enforced": 0,
+    "non_beneficial": 1,
+    "graph_ranked": 0,
+    "wall_time_s": 132.743,
+    "task_resolved": null,
+    "T_total": 1231270,
+    "usage": {
+      "input_tokens": 48,
+      "cache_creation_input_tokens": 28833,
+      "cache_read_input_tokens": 1196112,
+      "output_tokens": 6277,
+      "output_tokens_details": {
+        "thinking_tokens": 544
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 28833,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 206,
+          "cache_read_input_tokens": 58427,
+          "cache_creation_input_tokens": 427,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 427
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "num_turns": 24,
+    "total_cost_usd": 0.6261306,
+    "termination_reason": "completed",
+    "completed": true,
+    "native_rereads": 1,
+    "result_expansions": 0,
+    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-12419-A-native-rep3-worktree/8281ca77-e559-44f1-a795-49df75ccddcd.jsonl"
+  },
+  "django__django-12419|D1_b256_f125|rep3": {
+    "effective_read_tokens": 4260,
+    "reducer_saved_tokens": 451,
+    "search_reads": 10,
+    "exact_search_repeat_count": 0,
+    "repeated_scope_count": 1,
+    "candidates_seen": 3,
+    "reductions_enforced": 1,
+    "non_beneficial": 2,
+    "graph_ranked": 0,
+    "wall_time_s": 133.814,
+    "task_resolved": null,
+    "T_total": 1484873,
+    "usage": {
+      "input_tokens": 58,
+      "cache_creation_input_tokens": 29066,
+      "cache_read_input_tokens": 1449626,
+      "output_tokens": 6123,
+      "output_tokens_details": {
+        "thinking_tokens": 318
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 29066,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 206,
+          "cache_read_input_tokens": 58596,
+          "cache_creation_input_tokens": 491,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 491
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "num_turns": 29,
+    "total_cost_usd": 0.7013028000000002,
+    "termination_reason": "completed",
+    "completed": true,
+    "native_rereads": 2,
+    "result_expansions": 0,
+    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-12419-D1-b256-f125-rep3-worktree/61cb8b49-66ca-49be-96ae-655914478c3a.jsonl"
+  },
+  "django__django-12419|D2_b128_f125|rep3": {
+    "effective_read_tokens": 6525,
+    "reducer_saved_tokens": 428,
+    "search_reads": 8,
+    "exact_search_repeat_count": 0,
+    "repeated_scope_count": 0,
+    "candidates_seen": 1,
+    "reductions_enforced": 1,
+    "non_beneficial": 0,
+    "graph_ranked": 0,
+    "wall_time_s": 134.591,
+    "task_resolved": null,
+    "T_total": 1391207,
+    "usage": {
+      "input_tokens": 54,
+      "cache_creation_input_tokens": 31291,
+      "cache_read_input_tokens": 1353911,
+      "output_tokens": 5951,
+      "output_tokens_details": {
+        "thinking_tokens": 221
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 31291,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 216,
+          "cache_read_input_tokens": 61193,
+          "cache_creation_input_tokens": 119,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 119
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "num_turns": 27,
+    "total_cost_usd": 0.6833463000000003,
+    "termination_reason": "completed",
+    "completed": true,
+    "native_rereads": 1,
+    "result_expansions": 0,
+    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-12419-D2-b128-f125-rep3-worktree/cb1d01a8-d0d0-49c4-9a39-7e0565aa50e3.jsonl"
+  },
+  "django__django-14608|A_native|rep3": {
+    "effective_read_tokens": 3796,
+    "reducer_saved_tokens": 0,
+    "search_reads": 8,
+    "exact_search_repeat_count": 0,
+    "repeated_scope_count": 0,
+    "candidates_seen": 0,
+    "reductions_enforced": 0,
+    "non_beneficial": 0,
+    "graph_ranked": 0,
+    "wall_time_s": 157.236,
+    "task_resolved": null,
+    "T_total": 1942125,
+    "usage": {
+      "input_tokens": 74,
+      "cache_creation_input_tokens": 32573,
+      "cache_read_input_tokens": 1901251,
+      "output_tokens": 8227,
+      "output_tokens_details": {
+        "thinking_tokens": 726
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 32573,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 312,
+          "cache_read_input_tokens": 62243,
+          "cache_creation_input_tokens": 351,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 351
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "num_turns": 37,
+    "total_cost_usd": 0.8894403,
+    "termination_reason": "completed",
+    "completed": true,
+    "native_rereads": 2,
+    "result_expansions": 0,
+    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-14608-A-native-rep3-worktree/92035fec-e21d-49be-a869-c82a36308ea0.jsonl"
+  },
+  "django__django-14608|D1_b256_f125|rep3": {
+    "effective_read_tokens": 3293,
+    "reducer_saved_tokens": 80,
+    "search_reads": 9,
+    "exact_search_repeat_count": 0,
+    "repeated_scope_count": 1,
+    "candidates_seen": 2,
+    "reductions_enforced": 1,
+    "non_beneficial": 1,
+    "graph_ranked": 0,
+    "wall_time_s": 239.328,
+    "task_resolved": null,
+    "T_total": 1938117,
+    "usage": {
+      "input_tokens": 72,
+      "cache_creation_input_tokens": 43344,
+      "cache_read_input_tokens": 1885330,
+      "output_tokens": 9371,
+      "output_tokens_details": {
+        "thinking_tokens": 525
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 43344,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 345,
+          "cache_read_input_tokens": 72108,
+          "cache_creation_input_tokens": 1257,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 1257
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "num_turns": 36,
+    "total_cost_usd": 0.9664440000000001,
+    "termination_reason": "completed",
+    "completed": true,
+    "native_rereads": 0,
+    "result_expansions": 0,
+    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-14608-D1-b256-f125-rep3-worktree/a55fd330-69a9-4dd6-a70a-52bd0096fff3.jsonl"
+  },
+  "django__django-14608|D2_b128_f125|rep3": {
+    "effective_read_tokens": 4831,
+    "reducer_saved_tokens": 479,
+    "search_reads": 10,
+    "exact_search_repeat_count": 0,
+    "repeated_scope_count": 2,
+    "candidates_seen": 2,
+    "reductions_enforced": 2,
+    "non_beneficial": 0,
+    "graph_ranked": 0,
+    "wall_time_s": 176.437,
+    "task_resolved": null,
+    "T_total": 2014252,
+    "usage": {
+      "input_tokens": 76,
+      "cache_creation_input_tokens": 36404,
+      "cache_read_input_tokens": 1968974,
+      "output_tokens": 8798,
+      "output_tokens_details": {
+        "thinking_tokens": 687
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 36404,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 129,
+          "cache_read_input_tokens": 64499,
+          "cache_creation_input_tokens": 1926,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 1926
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "num_turns": 38,
+    "total_cost_usd": 0.9413142000000001,
+    "termination_reason": "completed",
+    "completed": true,
+    "native_rereads": 4,
+    "result_expansions": 0,
+    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-14608-D2-b128-f125-rep3-worktree/be4ef5c0-349e-402c-bc39-20ea3fe84ca9.jsonl"
+  },
+  "django__django-10554|A_native|rep4": {
+    "effective_read_tokens": 6837,
+    "reducer_saved_tokens": 0,
+    "search_reads": 10,
+    "exact_search_repeat_count": 0,
+    "repeated_scope_count": 2,
+    "candidates_seen": 1,
+    "reductions_enforced": 0,
+    "non_beneficial": 0,
+    "graph_ranked": 0,
+    "wall_time_s": 358.056,
+    "task_resolved": null,
+    "T_total": 4086295,
+    "usage": {
+      "input_tokens": 118,
+      "cache_creation_input_tokens": 66944,
+      "cache_read_input_tokens": 3996735,
+      "output_tokens": 22498,
+      "output_tokens_details": {
+        "thinking_tokens": 12672
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 66944,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 558,
+          "cache_read_input_tokens": 95356,
+          "cache_creation_input_tokens": 1609,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 1609
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "num_turns": 59,
+    "total_cost_usd": 1.9385084999999997,
+    "termination_reason": "completed",
+    "completed": true,
+    "native_rereads": 6,
+    "result_expansions": 0,
+    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-10554-A-native-rep4-worktree/459fa559-5f5a-401e-a6a7-1ce41dc4dc0e.jsonl"
+  },
+  "django__django-10554|D1_b256_f125|rep4": {
+    "effective_read_tokens": 7130,
+    "reducer_saved_tokens": 187,
+    "search_reads": 13,
+    "exact_search_repeat_count": 0,
+    "repeated_scope_count": 8,
+    "candidates_seen": 6,
+    "reductions_enforced": 3,
+    "non_beneficial": 3,
+    "graph_ranked": 0,
+    "wall_time_s": 675.717,
+    "task_resolved": null,
+    "T_total": 4865912,
+    "usage": {
+      "input_tokens": 122,
+      "cache_creation_input_tokens": 81808,
+      "cache_read_input_tokens": 4744768,
+      "output_tokens": 39214,
+      "output_tokens_details": {
+        "thinking_tokens": 24354
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 81808,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 314,
+          "cache_read_input_tokens": 110099,
+          "cache_creation_input_tokens": 1730,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 1730
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "num_turns": 61,
+    "total_cost_usd": 2.5028544,
+    "termination_reason": "completed",
+    "completed": true,
+    "native_rereads": 5,
+    "result_expansions": 0,
+    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-10554-D1-b256-f125-rep4-worktree/ba110ea1-75f3-463f-8aa1-81726dd9fcbe.jsonl"
+  },
+  "django__django-10554|D2_b128_f125|rep4": {
+    "effective_read_tokens": 8609,
+    "reducer_saved_tokens": 1525,
+    "search_reads": 13,
+    "exact_search_repeat_count": 0,
+    "repeated_scope_count": 7,
+    "candidates_seen": 6,
+    "reductions_enforced": 6,
+    "non_beneficial": 0,
+    "graph_ranked": 0,
+    "wall_time_s": 631.48,
+    "task_resolved": null,
+    "T_total": 6864871,
+    "usage": {
+      "input_tokens": 162,
+      "cache_creation_input_tokens": 99536,
+      "cache_read_input_tokens": 6720384,
+      "output_tokens": 44789,
+      "output_tokens_details": {
+        "thinking_tokens": 26475
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 99536,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 347,
+          "cache_read_input_tokens": 127841,
+          "cache_creation_input_tokens": 1716,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 1716
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "num_turns": 81,
+    "total_cost_usd": 3.285652199999999,
+    "termination_reason": "completed",
+    "completed": true,
+    "native_rereads": 8,
+    "result_expansions": 0,
+    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-10554-D2-b128-f125-rep4-worktree/35989a95-cc02-4802-8574-e7390e3c48d3.jsonl"
+  },
+  "django__django-11138|A_native|rep4": {
+    "effective_read_tokens": 13682,
+    "reducer_saved_tokens": 0,
+    "search_reads": 22,
+    "exact_search_repeat_count": 0,
+    "repeated_scope_count": 5,
+    "candidates_seen": 3,
+    "reductions_enforced": 0,
+    "non_beneficial": 0,
+    "graph_ranked": 0,
+    "wall_time_s": 900.018,
+    "task_resolved": null,
+    "T_total": null,
+    "usage": null,
+    "num_turns": null,
+    "total_cost_usd": null,
+    "termination_reason": "budget_walltime",
+    "completed": false,
+    "native_rereads": 11,
+    "result_expansions": 0,
+    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-11138-A-native-rep4-worktree/205c5ed0-5b37-4bc6-8857-3f41084818f8.jsonl"
+  },
+  "django__django-11138|D1_b256_f125|rep4": {
+    "effective_read_tokens": 16317,
+    "reducer_saved_tokens": 1338,
+    "search_reads": 17,
+    "exact_search_repeat_count": 0,
+    "repeated_scope_count": 4,
+    "candidates_seen": 9,
+    "reductions_enforced": 6,
+    "non_beneficial": 3,
+    "graph_ranked": 0,
+    "wall_time_s": 342.342,
+    "task_resolved": null,
+    "T_total": 4207264,
+    "usage": {
+      "input_tokens": 106,
+      "cache_creation_input_tokens": 74136,
+      "cache_read_input_tokens": 4107474,
+      "output_tokens": 25548,
+      "output_tokens_details": {
+        "thinking_tokens": 9971
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 74136,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 608,
+          "cache_read_input_tokens": 103450,
+          "cache_creation_input_tokens": 707,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 707
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "num_turns": 53,
+    "total_cost_usd": 2.0605962000000004,
+    "termination_reason": "completed",
+    "completed": true,
+    "native_rereads": 5,
+    "result_expansions": 0,
+    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-11138-D1-b256-f125-rep4-worktree/d38674a2-f676-421b-a221-3918e81c35f0.jsonl"
+  },
+  "django__django-11138|D2_b128_f125|rep4": {
+    "effective_read_tokens": 11219,
+    "reducer_saved_tokens": 2986,
+    "search_reads": 23,
+    "exact_search_repeat_count": 0,
+    "repeated_scope_count": 5,
+    "candidates_seen": 12,
+    "reductions_enforced": 12,
+    "non_beneficial": 0,
+    "graph_ranked": 0,
+    "wall_time_s": 361.243,
+    "task_resolved": null,
+    "T_total": 4040480,
+    "usage": {
+      "input_tokens": 371,
+      "cache_creation_input_tokens": 62433,
+      "cache_read_input_tokens": 3952092,
+      "output_tokens": 25584,
+      "output_tokens_details": {
+        "thinking_tokens": 11695
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 62433,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 787,
+          "cache_read_input_tokens": 92346,
+          "cache_creation_input_tokens": 108,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 108
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "num_turns": 61,
+    "total_cost_usd": 1.9450985999999995,
+    "termination_reason": "completed",
+    "completed": true,
+    "native_rereads": 5,
+    "result_expansions": 0,
+    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-11138-D2-b128-f125-rep4-worktree/70ee7272-82e5-4bbc-9e5f-b256960cfdcc.jsonl"
+  },
+  "django__django-12419|A_native|rep4": {
+    "effective_read_tokens": 3750,
+    "reducer_saved_tokens": 0,
+    "search_reads": 2,
+    "exact_search_repeat_count": 0,
+    "repeated_scope_count": 0,
+    "candidates_seen": 1,
+    "reductions_enforced": 0,
+    "non_beneficial": 1,
+    "graph_ranked": 0,
+    "wall_time_s": 120.772,
+    "task_resolved": null,
+    "T_total": 1183864,
+    "usage": {
+      "input_tokens": 46,
+      "cache_creation_input_tokens": 32677,
+      "cache_read_input_tokens": 1145257,
+      "output_tokens": 5884,
+      "output_tokens_details": {
+        "thinking_tokens": 247
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 32677,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 96,
+          "cache_read_input_tokens": 62320,
+          "cache_creation_input_tokens": 378,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 378
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "num_turns": 23,
+    "total_cost_usd": 0.6280371,
+    "termination_reason": "completed",
+    "completed": true,
+    "native_rereads": 1,
+    "result_expansions": 0,
+    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-12419-A-native-rep4-worktree/fa55e3bc-8d6f-4f48-9e97-1f125a7ca349.jsonl"
+  },
+  "django__django-12419|D1_b256_f125|rep4": {
+    "effective_read_tokens": 7955,
+    "reducer_saved_tokens": 178,
+    "search_reads": 22,
+    "exact_search_repeat_count": 0,
+    "repeated_scope_count": 8,
+    "candidates_seen": 4,
+    "reductions_enforced": 1,
+    "non_beneficial": 3,
+    "graph_ranked": 0,
+    "wall_time_s": 208.912,
+    "task_resolved": null,
+    "T_total": 2706460,
+    "usage": {
+      "input_tokens": 94,
+      "cache_creation_input_tokens": 42431,
+      "cache_read_input_tokens": 2653154,
+      "output_tokens": 10781,
+      "output_tokens_details": {
+        "thinking_tokens": 1152
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 42431,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 268,
+          "cache_read_input_tokens": 70390,
+          "cache_creation_input_tokens": 2062,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 2062
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "num_turns": 47,
+    "total_cost_usd": 1.2125291999999999,
+    "termination_reason": "completed",
+    "completed": true,
+    "native_rereads": 2,
+    "result_expansions": 0,
+    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-12419-D1-b256-f125-rep4-worktree/0ee07a0f-1926-40f8-8f5e-37105d7a08e4.jsonl"
+  },
+  "django__django-12419|D2_b128_f125|rep4": {
+    "effective_read_tokens": 3501,
+    "reducer_saved_tokens": 1832,
+    "search_reads": 16,
+    "exact_search_repeat_count": 0,
+    "repeated_scope_count": 3,
+    "candidates_seen": 7,
+    "reductions_enforced": 7,
+    "non_beneficial": 0,
+    "graph_ranked": 0,
+    "wall_time_s": 147.95,
+    "task_resolved": null,
+    "T_total": 1626488,
+    "usage": {
+      "input_tokens": 64,
+      "cache_creation_input_tokens": 32545,
+      "cache_read_input_tokens": 1587458,
+      "output_tokens": 6421,
+      "output_tokens_details": {
+        "thinking_tokens": 367
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 32545,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 76,
+          "cache_read_input_tokens": 61038,
+          "cache_creation_input_tokens": 1528,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 1528
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "num_turns": 32,
+    "total_cost_usd": 0.7680144000000001,
+    "termination_reason": "completed",
+    "completed": true,
+    "native_rereads": 2,
+    "result_expansions": 0,
+    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-12419-D2-b128-f125-rep4-worktree/8c4b741e-23cf-4d3d-8669-4167dcc74a50.jsonl"
+  },
+  "django__django-14608|A_native|rep4": {
+    "effective_read_tokens": 5676,
+    "reducer_saved_tokens": 0,
+    "search_reads": 11,
+    "exact_search_repeat_count": 0,
+    "repeated_scope_count": 1,
+    "candidates_seen": 0,
+    "reductions_enforced": 0,
+    "non_beneficial": 0,
+    "graph_ranked": 0,
+    "wall_time_s": 222.708,
+    "task_resolved": null,
+    "T_total": 2076236,
+    "usage": {
+      "input_tokens": 76,
+      "cache_creation_input_tokens": 37151,
+      "cache_read_input_tokens": 2030052,
+      "output_tokens": 8957,
+      "output_tokens_details": {
+        "thinking_tokens": 1240
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 37151,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 193,
+          "cache_read_input_tokens": 66833,
+          "cache_creation_input_tokens": 339,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 339
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "num_turns": 38,
+    "total_cost_usd": 0.9665046,
+    "termination_reason": "completed",
+    "completed": true,
+    "native_rereads": 2,
+    "result_expansions": 0,
+    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-14608-A-native-rep4-worktree/c2976fc7-e278-46f6-b286-1a847da6aaec.jsonl"
+  },
+  "django__django-14608|D1_b256_f125|rep4": {
+    "effective_read_tokens": 5212,
+    "reducer_saved_tokens": 1416,
+    "search_reads": 9,
+    "exact_search_repeat_count": 0,
+    "repeated_scope_count": 0,
+    "candidates_seen": 4,
+    "reductions_enforced": 1,
+    "non_beneficial": 3,
+    "graph_ranked": 0,
+    "wall_time_s": 317.857,
+    "task_resolved": null,
+    "T_total": 2515447,
+    "usage": {
+      "input_tokens": 86,
+      "cache_creation_input_tokens": 45093,
+      "cache_read_input_tokens": 2455799,
+      "output_tokens": 14469,
+      "output_tokens_details": {
+        "thinking_tokens": 4226
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 45093,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 89,
+          "cache_read_input_tokens": 73949,
+          "cache_creation_input_tokens": 1165,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 1165
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "num_turns": 43,
+    "total_cost_usd": 1.2245906999999996,
+    "termination_reason": "completed",
+    "completed": true,
+    "native_rereads": 1,
+    "result_expansions": 0,
+    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-14608-D1-b256-f125-rep4-worktree/9d156ae8-b4e2-4fae-8630-937c0b2dd59d.jsonl"
+  },
+  "django__django-14608|D2_b128_f125|rep4": {
+    "effective_read_tokens": 12263,
+    "reducer_saved_tokens": 2349,
+    "search_reads": 13,
+    "exact_search_repeat_count": 0,
+    "repeated_scope_count": 2,
+    "candidates_seen": 7,
+    "reductions_enforced": 7,
+    "non_beneficial": 0,
+    "graph_ranked": 0,
+    "wall_time_s": 319.111,
+    "task_resolved": null,
+    "T_total": 3090665,
+    "usage": {
+      "input_tokens": 96,
+      "cache_creation_input_tokens": 49453,
+      "cache_read_input_tokens": 3030365,
+      "output_tokens": 10751,
+      "output_tokens_details": {
+        "thinking_tokens": 1905
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 49453,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 212,
+          "cache_read_input_tokens": 79117,
+          "cache_creation_input_tokens": 357,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 357
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard"
+    },
+    "num_turns": 49,
+    "total_cost_usd": 1.3673805,
+    "termination_reason": "error",
+    "completed": false,
+    "native_rereads": 2,
+    "result_expansions": 0,
+    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-14608-D2-b128-f125-rep4-worktree/f7547708-01dd-41e4-8377-9386579ce3f4.jsonl"
+  }
+}
