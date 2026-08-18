@@ -110,7 +110,7 @@ def session_reduction_ceiling(transcript_path: str, t_total, *, reduce_frac: flo
     (the edit needs exact context); only reads of never-edited files count as reducible. Reports the
     reducible saving as a fraction of the measured `t_total` (the go/no-go number)."""
     reads = []                 # (turn_at_read, tokens, path)
-    edited = set()
+    edit_turn = {}             # file_path -> FIRST turn it is Edited/Written
     uses = {}
     turn = 0
     for line in open(transcript_path, errors="replace"):
@@ -128,7 +128,7 @@ def session_reduction_ceiling(transcript_path: str, t_total, *, reduce_frac: flo
                     name, inp = b.get("name"), (b.get("input") or {})
                     uses[b.get("id")] = name
                     if name in _EDIT_TOOLS and inp.get("file_path"):
-                        edited.add(inp["file_path"])
+                        edit_turn.setdefault(inp["file_path"], turn)
         elif rec.get("type") == "user" and isinstance(content, list):
             for b in content:
                 if isinstance(b, dict) and b.get("type") == "tool_result":
@@ -146,23 +146,29 @@ def session_reduction_ceiling(transcript_path: str, t_total, *, reduce_frac: flo
             if isinstance(b, dict) and b.get("type") == "tool_use" and b.get("name") in ("Read", "NotebookRead"):
                 read_path[b.get("id")] = (b.get("input") or {}).get("file_path")
     total_turns = max(turn, 1)
-    saving_reducible = saving_raw = red_ev = spared_ev = 0
-    for (t, tokens, tid) in reads:
+    saving_reducible = saving_raw = saving_residency = red_ev = spared_ev = 0
+    for (t, ntok, tid) in reads:
         remaining = total_turns - t
-        contrib = reduce_frac * tokens * max(remaining, 0)
-        saving_raw += contrib
-        if read_path.get(tid) in edited:
-            spared_ev += 1                       # file later edited ⇒ spare it
-        else:
-            saving_reducible += contrib
+        saving_raw += reduce_frac * ntok * max(remaining, 0)     # reduce everything (unsafe upper bound)
+        e = edit_turn.get(read_path.get(tid))
+        if e is None:                            # reference-only file: compact the whole remaining session
+            saving_reducible += reduce_frac * ntok * max(remaining, 0)
+            saving_residency += reduce_frac * ntok * max(remaining, 0)
             red_ev += 1
+        else:                                    # file later edited
+            #   B2.0 SPARE policy: keep the whole file full for the session (window 0)
+            #   RESIDENCY policy: compact until the edit MATERIALIZES exact content (window e - t)
+            saving_residency += reduce_frac * ntok * max(e - t, 0)
+            spared_ev += 1
     tt = t_total or 0
     return {"t_total": tt, "total_turns": total_turns, "file_read_events": len(reads),
             "reducible_events": red_ev, "spared_events": spared_ev,
             "compounded_saving_reducible": round(saving_reducible),
             "compounded_saving_raw": round(saving_raw),
+            "compounded_saving_residency": round(saving_residency),
             "pct_reducible": round(saving_reducible / tt * 100, 2) if tt else None,
-            "pct_raw": round(saving_raw / tt * 100, 2) if tt else None}
+            "pct_raw": round(saving_raw / tt * 100, 2) if tt else None,
+            "pct_residency": round(saving_residency / tt * 100, 2) if tt else None}
 
 
 def reduction_ceiling_over_runs(results_json: str, *, arm: str = "A_native", reduce_frac: float = 0.8) -> dict:
@@ -179,13 +185,18 @@ def reduction_ceiling_over_runs(results_json: str, *, arm: str = "A_native", red
     def _mean(xs):
         xs = [x for x in xs if isinstance(x, (int, float))]
         return round(sum(xs) / len(xs), 2) if xs else None
+    def _max(xs):
+        xs = [x for x in xs if isinstance(x, (int, float))]
+        return round(max(xs), 2) if xs else None
     return {"n": len(rows), "reduce_frac": reduce_frac,
-            "mean_pct_reducible_of_T_total": _mean([r["pct_reducible"] for r in rows]),
+            "mean_pct_reducible_of_T_total": _mean([r["pct_reducible"] for r in rows]),   # B2.0 spare
+            "mean_pct_residency_of_T_total": _mean([r["pct_residency"] for r in rows]),   # compact-until-edit
+            "max_pct_residency_of_T_total": _max([r["pct_residency"] for r in rows]),
             "mean_pct_raw_of_T_total": _mean([r["pct_raw"] for r in rows]),
             "mean_file_read_events": _mean([r["file_read_events"] for r in rows]),
             "mean_reducible_events": _mean([r["reducible_events"] for r in rows]),
             "mean_spared_events": _mean([r["spared_events"] for r in rows]),
-            "per_session_pct_reducible": [r["pct_reducible"] for r in rows]}
+            "per_session_pct_residency": [r["pct_residency"] for r in rows]}
 
 
 def _main(argv) -> None:
@@ -215,9 +226,12 @@ def _main(argv) -> None:
         print(f"  native sessions analysed: {c['n']}  (reduce_frac={c['reduce_frac']})")
         print(f"  mean file-read events/session: {c['mean_file_read_events']}  "
               f"(reducible={c['mean_reducible_events']}, spared-as-edited={c['mean_spared_events']})")
-        print(f"  mean whole-session T_total saving — EDIT-SAFE reducible: "
-              f"{c['mean_pct_reducible_of_T_total']}%   (raw, ignoring edit-safety: {c['mean_pct_raw_of_T_total']}%)")
-        print(f"  per-session reducible %: {c['per_session_pct_reducible']}")
+        print(f"  whole-session T_total saving:")
+        print(f"    B2.0 spare (keep edited files whole)   : mean {c['mean_pct_reducible_of_T_total']}%")
+        print(f"    RESIDENCY (compact-until-edit)         : mean {c['mean_pct_residency_of_T_total']}%  "
+              f"max {c['max_pct_residency_of_T_total']}%")
+        print(f"    raw (unsafe, reduce everything)        : mean {c['mean_pct_raw_of_T_total']}%")
+        print(f"  per-session residency %: {c['per_session_pct_residency']}")
 
 
 if __name__ == "__main__":

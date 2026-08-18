@@ -110,21 +110,24 @@ compounding-aware (a read at turn *t* is cache-read every later turn; reducing i
 - **72% of file reads are EDIT TARGETS.** Mean 8.3 file reads/session, of which only **2.3 are
   reducible** (reference-only) and **6.0 must be spared** (the agent edits them). On coding tasks the
   agent reads mostly what it is about to change.
-- **Edit-safe reducible ceiling = ~2.0% of whole-session `T_total`** (compounding-aware, whole-file
-  sparing), highly variable: 0% on 5/19 sessions, up to 7.8%. The *unsafe* raw figure (reduce all
-  file reads, ignore edit-safety) is 7.5% — not shippable.
-- A line-level reducer (spare only the edited lines + read-around inside an edited file, reduce the
-  rest) could reclaim part of the 2.0% → 7.5% gap — realistically **~3–5%**, still below the bar and
-  requiring the full edit-safety machinery to earn it.
+- Three ceilings (compounding-aware, whole-session `T_total`), by how edited files are handled:
+  - **B2.0 spare** (keep any edited file full all session): **mean 2.0%**.
+  - **RESIDENCY / compact-until-edit** (compact a file from read until the edit materializes exact
+    content, then it re-enters — the model B2 actually implements): **mean 4.0%, max 12.5%**, highly
+    variable (near-0 on non-read-heavy sessions).
+  - **raw** (reduce everything, ignore edit-safety, not shippable): **mean 7.5%**.
+  The realistic, shippable number is the **residency ~4% mean / ~12.5% on read-heavy sessions**.
 
-**Verdict: transparent per-tool-output reduction has a structurally low whole-session ceiling** —
-search 0.03% (B1), edit-safe file reads ~2–5% (B2.0) — because the re-read prefix is dominated by
-content that is either **fixed** (the ~13k system+tools floor we do not own) or **must be preserved**
-(edit targets, and test *failures* in bash output). File-read reduction is real, safe, and compounds
-on long read-heavy sessions, but it is a **~2–5% lever, not a 10–15% one.** The next-highest
-untested lever is **bash/test-output** (not edit targets; largest category in the one test-heavy
-session, ~60%) under a "keep failures/errors, summarize the passing tail" model — it deserves its
-own go/no-go before committing to build B2.1–B2.4. This is a decision input, not a green light.
+**Verdict: residency control IS the right lever, but its magnitude scales with session length.** On
+these **45-turn** SWE-bench tasks the residency ceiling is **~4% mean / ~12.5% max** — already far
+above search (0.03%, B1) and whole-file sparing (2%), confirming the `Value = Tokens × RemainingTurns`
+thesis. The headline **25–40%** the product targets lives in **long (100s-of-turn) sessions**, where
+a file admitted early is carried for far more turns — an *extrapolation* our short-task corpus cannot
+prove, so the B2.4 live A/B should ultimately run a long-session workload to demonstrate it while
+these tasks validate **safety + direction**. Two hard limits remain regardless: the ~13k system+tools
+floor is fixed (not ours), and edit targets (72% of reads) plus test *failures* must be preserved.
+Proceeding to build B2.1–B2.4 (residency control for file reads) on this basis; **bash/test-output**
+reduction (keep-failures/summarize-passes) is a separate later lever.
 
 ## Non-goals for B2.v1
 

@@ -21,6 +21,17 @@ GENERIC_TAIL = 10
 SEARCH_BUDGET_TOKENS = 256
 FILE_TABLE_MAX = 12                  # named files in the "matches by file" rollup
 
+# B2.1 — file-read RESIDENCY reducer. A file read sits in the prefix and is re-read every later turn
+# (its cost = tokens × remaining turns), so B2 shapes what RESIDES: a signature skeleton + a head
+# window + an exact result:// handle, dropping function bodies. Files are bigger than searches, so a
+# larger default budget. NOT wired into the frozen B1 gate; B2 eligibility (edit-safety) is B2.2.
+FILE_BUDGET_TOKENS = 512
+# Structural lines worth keeping in residency: imports, def/class (incl. async/decorated), and
+# top-level CONSTANT assignments. Body lines (the bulk) are dropped and recoverable via the handle.
+_STRUCTURAL = re.compile(
+    r"^\s*(?:from\s+\S+\s+import|import\s+\S|@|(?:async\s+)?def\s+\w|class\s+\w)"
+    r"|^[A-Z_][A-Z0-9_]*\s*(?::[^=]+)?=")
+
 # Search-tool diagnostics that are decision-relevant and must always survive: a search
 # that could not read part of its scope is evidence, not verbosity.
 _SEARCH_DIAG = re.compile(
@@ -177,6 +188,48 @@ def reduce_search(raw: str, args: dict, *, budget_tokens: int = SEARCH_BUDGET_TO
     # Preserved evidence = the diagnostics (checked by _wrap before redaction). Filenames
     # of kept lines ride along in the kept lines themselves.
     return _wrap("search", raw, body, diags, note=note)
+
+
+_LINENO_PREFIX = re.compile(r"^\s*\d+[→\t]")     # Claude Read: "   123→…"  ·  cat -n: "123\t…"
+
+
+def _is_structural(line: str) -> bool:
+    """Structural (worth keeping in residency) after stripping any leading line-number prefix."""
+    return bool(_STRUCTURAL.search(_LINENO_PREFIX.sub("", line, count=1)))
+
+
+def reduce_file(raw: str, args: dict = None, *, budget_tokens: int = FILE_BUDGET_TOKENS,
+                head_lines: int = 6) -> ReducedOutput:
+    """B2.1 — structure-preserving file-read RESIDENCY reducer. Keeps a head window + the signature
+    skeleton (imports / def / class / decorators / top-level constants) within `budget_tokens`, drops
+    function bodies, and lets `_wrap` append the exact `result://` handle — so the full file is always
+    recoverable and this only shapes what RESIDES in the prefix. Line-number prefixes are preserved
+    verbatim. Beneficial-only is enforced by the caller (as in B1): a small file whose skeleton is not
+    smaller than the raw passes through unchanged."""
+    lines = raw.splitlines()
+    n = len(lines)
+    if n == 0:
+        return _wrap("file", raw, [], [], note="empty file")
+    handle = make_handle(raw)
+    header = f"file skeleton: {n} lines"
+    reserve = tokens(header) + tokens(f"[+ full output: {handle}]")   # _wrap appends the handle line
+    keep = set(range(min(head_lines, n))) | {i for i, l in enumerate(lines) if _is_structural(l)}
+    used, body, prev, cut = reserve, [], -1, 0
+    for i in sorted(keep):
+        t = tokens(lines[i]) + 1
+        if used + t > budget_tokens:
+            cut = n - i
+            break
+        if i > prev + 1:                                             # gap since last kept line
+            gap = f"… {i - prev - 1} lines …"
+            body.append(gap); used += tokens(gap) + 1
+        body.append(lines[i]); used += t; prev = i
+    if cut:
+        body.append(f"… {cut} more lines (full file recoverable) …")
+    elif 0 <= prev < n - 1:
+        body.append(f"… {n - 1 - prev} lines …")
+    kept = len([b for b in body if not b.startswith("…")])
+    return _wrap("file", raw, [header] + body, [], note=f"kept {kept}/{n} lines, budget {budget_tokens}")
 
 
 def reduce_git(raw: str, args: dict) -> ReducedOutput:
