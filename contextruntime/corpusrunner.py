@@ -45,6 +45,21 @@ def _sha_text(t: str) -> str:
     return _sha_bytes(t.encode("utf-8"))
 
 
+def _parse_usage_json(stdout: str):
+    """Parse `claude -p --output-format json` stdout → (usage, num_turns, total_cost_usd).
+    Returns (None, None, None) if it is not the expected single result object; tolerates a
+    stream-json array by taking the last `type==result` element."""
+    try:
+        data = json.loads((stdout or "").strip())
+    except Exception:      # noqa: BLE001
+        return None, None, None
+    if isinstance(data, list):
+        data = next((d for d in reversed(data) if isinstance(d, dict) and d.get("type") == "result"), {})
+    if not isinstance(data, dict):
+        return None, None, None
+    return data.get("usage"), data.get("num_turns"), data.get("total_cost_usd")
+
+
 # --------------------------------------------------------------------------- specs
 @dataclass
 class RunSpec:
@@ -198,7 +213,7 @@ class ClaudeBackend(AgentBackend):
     def __init__(self, model: str = "sonnet", walltime_limit_s: int = 1200,
                  client_version: Optional[str] = None, clock=None,
                  arm: str = "native", codegraph_db: Optional[str] = None,
-                 repo_id: Optional[str] = None):
+                 repo_id: Optional[str] = None, capture_usage: bool = False):
         if arm not in ARMS:
             raise ValueError(f"unknown arm {arm!r}; must be one of {ARMS}")
         if arm == "semantic_directive" and not codegraph_db:
@@ -211,6 +226,10 @@ class ClaudeBackend(AgentBackend):
         self.arm = arm
         self.codegraph_db = codegraph_db
         self.repo_id = repo_id
+        # OPT-IN (default off, so the frozen semantic-admission runs are byte-identical): request
+        # `--output-format json` and record the run's token usage + turn count on the result, for
+        # Step-7's T_total / turns-to-resolution. Never changes the prompt or any arm flag.
+        self.capture_usage = capture_usage
 
     @staticmethod
     def _version() -> str:
@@ -258,6 +277,8 @@ class ClaudeBackend(AgentBackend):
                   "implement a fix for the issue above. Reply DONE when finished.")
         argv = ["claude", "-p", prompt, "--settings", settings_path, "--model", self.model,
                 "--permission-mode", "bypassPermissions"]
+        if self.capture_usage:
+            argv += ["--output-format", "json"]      # emit one result JSON with usage + num_turns
         # A caller-supplied MCP config (e.g. Step-5's result:// recovery surface) is added for ANY
         # arm; distinct from the semantic-admission arm's own MCP wiring below.
         if mcp_config_path:
@@ -279,18 +300,21 @@ class ClaudeBackend(AgentBackend):
                 steering["brief_version"] = BRIEF_VERSION
 
         t0 = self.clock()
-        term, tail, rc = "completed", "", 0
+        term, tail, rc, stdout = "completed", "", 0, ""
         try:
             proc = subprocess.run(argv, cwd=worktree, capture_output=True, text=True, timeout=self.limit)
-            rc, tail = proc.returncode, (proc.stdout or "")[-2000:]
+            rc, stdout = proc.returncode, (proc.stdout or "")
+            tail = stdout[-2000:]
             term = "completed" if rc == 0 else "error"
         except subprocess.TimeoutExpired:
             term, rc = "budget_walltime", None
         walltime = round(self.clock() - t0, 3)
         diff = subprocess.run(["git", "-C", worktree, "diff"], capture_output=True, text=True).stdout
+        result = {"returncode": rc, "stdout_tail": tail, "arm": self.arm, "steering": steering}
+        if self.capture_usage:
+            result["usage"], result["num_turns"], result["total_cost_usd"] = _parse_usage_json(stdout)
         return AgentResult(agent=self.name, agent_version=self.client_version, model=self.model,
-                           patch=diff, result={"returncode": rc, "stdout_tail": tail, "arm": self.arm,
-                                               "steering": steering},
+                           patch=diff, result=result,
                            termination_reason=term, budget_turns=None, budget_walltime=walltime,
                            arm=self.arm)
 
