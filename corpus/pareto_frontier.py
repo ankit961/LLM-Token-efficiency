@@ -20,8 +20,8 @@ from corpus.graph_evidence_replay import (line_retention_analysis, load_task_gra
                                           map_transcripts_to_tasks)
 from corpus.paired_replay import paired_reduction, parse_transcript
 
-BUDGETS = (64, 128, 256)
-FLOORS = (125, 244, 400)
+BUDGETS = (64, 96, 128, 192, 256)
+FLOORS = (100, 125, 160, 200, 244, 300, 400)
 
 
 def mark_nondominated(rows: list, *, x: str = "R_paired", y: str = "line_recall") -> list:
@@ -50,19 +50,25 @@ def frontier(transcript_glob: str, pilot_dir: str, *, budgets=BUDGETS, floors=FL
             lr = line_retention_analysis(tmap, graphs, budget=b, floor=f)
             rows.append({"budget": b, "floor": f, "R_paired": pr["R_paired"],
                          "reductions_fired": pr["reductions_fired"],
-                         "line_recall": lr["line_recall_simple"], "needed_paths": lr["needed_paths"]})
+                         "line_recall": lr["line_recall_simple"], "needed_paths": lr["needed_paths"],
+                         "named_without_match_line": lr["named_without_match_line_simple"],
+                         "avg_retained_lines": lr["avg_retained_lines_simple"],
+                         "kept_lines": lr["kept_lines_simple"]})
     return mark_nondominated(rows)
 
 
 def _main(argv) -> None:
     rows = frontier(argv[1], argv[2])
-    print(f"{'B':>4} {'F':>4} {'R_paired':>9} {'line_recall':>12} {'fired':>6} {'needed':>7}  frontier")
-    for p in sorted(rows, key=lambda r: -r["R_paired"]):
+    print(f"{'B':>4} {'F':>4} {'R_paired':>9} {'lineRec':>8} {'fired':>6} {'nw/oLine':>9} "
+          f"{'avgLines':>9} {'':>3}frontier")
+    for p in sorted(rows, key=lambda r: (-r["R_paired"], r["floor"])):
         flag = "<== NON-DOMINATED" if p["non_dominated"] else ""
-        print(f"{p['budget']:>4} {p['floor']:>4} {p['R_paired']:>9.3f} {str(p['line_recall']):>12} "
-              f"{p['reductions_fired']:>6} {p['needed_paths']:>7}  {flag}")
+        print(f"{p['budget']:>4} {p['floor']:>4} {p['R_paired']:>9.3f} {str(p['line_recall']):>8} "
+              f"{p['reductions_fired']:>6} {p['named_without_match_line']:>9} "
+              f"{str(p['avg_retained_lines']):>9}  {flag}")
     nd = [p for p in rows if p["non_dominated"]]
-    print(f"\nnon-dominated settings: {[(p['budget'], p['floor']) for p in sorted(nd, key=lambda r:-r['R_paired'])]}")
+    print(f"\nnon-dominated settings (b,f): "
+          f"{[(p['budget'], p['floor']) for p in sorted(nd, key=lambda r:-r['R_paired'])]}")
 
 
 if __name__ == "__main__":

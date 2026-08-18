@@ -185,7 +185,7 @@ def line_retention_analysis(task_transcripts, task_graphs, *, budget: int, floor
     """Aggregate the line-level comparison over every reducible-and-firing event across tasks.
     `task_transcripts`: {task_id: [transcript_path,...]}; `task_graphs`: {task_id: TaskGraph}."""
     needed = named_s = named_g = line_s = line_g = 0
-    promoted = demoted = graph_active_events = 0
+    promoted = demoted = graph_active_events = scored_events = 0
     kept_s_tot = kept_g_tot = promoted_any = 0
     rank_gain_sum = rank_gain_n = 0
     for task_id, tpaths in task_transcripts.items():
@@ -200,6 +200,7 @@ def line_retention_analysis(task_transcripts, task_graphs, *, budget: int, floor
                 if out is None:
                     continue
                 stats, recs = out
+                scored_events += 1
                 kept_s_tot += stats["kept_lines_simple"]; kept_g_tot += stats["kept_lines_graph"]
                 if stats["graph_active"]:
                     graph_active_events += 1
@@ -213,9 +214,10 @@ def line_retention_analysis(task_transcripts, task_graphs, *, budget: int, floor
                     if r["line_simple"] and r["line_graph"]:
                         rank_gain_sum += r["rank_simple"] - r["rank_graph"]; rank_gain_n += 1
     return {
-        "budget": budget, "floor": floor, "needed_paths": needed,
+        "budget": budget, "floor": floor, "needed_paths": needed, "scored_events": scored_events,
         "graph_active_events": graph_active_events,
         "kept_lines_simple": kept_s_tot, "kept_lines_graph": kept_g_tot,
+        "avg_retained_lines_simple": round(kept_s_tot / scored_events, 2) if scored_events else None,
         "graph_reordered_any_lines": promoted_any,         # realized treatment intensity: how many
         #   kept lines graph actually moved vs simple. Near-0 ⇒ graph ranking is ~indistinguishable
         #   from simple order on these traces (low treatment intensity), NOT a high-powered negative.
@@ -223,11 +225,13 @@ def line_retention_analysis(task_transcripts, task_graphs, *, budget: int, floor
         "name_recall_graph": round(named_g / needed, 4) if needed else None,
         "line_recall_simple": round(line_s / needed, 4) if needed else None,
         "line_recall_graph": round(line_g / needed, 4) if needed else None,
-        # named but NO inline match line. NOT a measured recovery cost: the omitted text is one of
-        # several routes away (native Read, re-search, exact result:// expand) IF it were needed at
-        # all — and since `needed` paths are ones the trajectory opened anyway, many incur no extra op.
-        "inline_evidence_deficit_simple": named_s - line_s,
-        "inline_evidence_deficit_graph": named_g - line_g,
+        # needed paths NAMED (rollup/head) but with NO retained match line. Named
+        # `named_without_match_line` precisely because it does NOT prove an expansion occurred: the
+        # omitted text is one of several routes away (native Read, re-search, exact result:// expand)
+        # IF needed at all — and `needed` files are ones the trajectory opened anyway, so many incur
+        # no extra op. It is a representational deficit, not a measured recovery cost.
+        "named_without_match_line_simple": named_s - line_s,
+        "named_without_match_line_graph": named_g - line_g,
         "graph_promoted_needed_lines": promoted,           # needed line graph kept that simple dropped
         "graph_demoted_needed_lines": demoted,             # needed line simple kept that graph dropped
         "mean_rank_gain": round(rank_gain_sum / rank_gain_n, 3) if rank_gain_n else None,
@@ -294,8 +298,8 @@ def _main(argv) -> None:
               f"graph_reordered_any={r['graph_reordered_any_lines']}")
         print(f"  name_recall  simple={r['name_recall_simple']}  graph={r['name_recall_graph']}")
         print(f"  LINE_recall  simple={r['line_recall_simple']}  graph={r['line_recall_graph']}")
-        print(f"  inline_evidence_deficit  simple={r['inline_evidence_deficit_simple']}"
-              f"  graph={r['inline_evidence_deficit_graph']}")
+        print(f"  named_without_match_line  simple={r['named_without_match_line_simple']}"
+              f"  graph={r['named_without_match_line_graph']}")
         print(f"  graph promoted_needed={r['graph_promoted_needed_lines']}  "
               f"demoted_needed={r['graph_demoted_needed_lines']}  mean_rank_gain={r['mean_rank_gain']}")
 

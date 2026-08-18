@@ -29,7 +29,7 @@ match `graphrank._proximity` byte-for-byte on a fake store over identical edges
 
 ## Results
 
-| config (b,f) | needed | graph active events | kept match-lines S/G | graph reordered | **name-recall** | **LINE-recall S/G** | inline-evidence deficit | promoted-needed |
+| config (b,f) | needed | graph active events | kept match-lines S/G | graph reordered | **name-recall** | **LINE-recall S/G** | named_without_match_line | promoted-needed |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
 | (256,**400**) shipped | 5 | 0 | 7/7 | 0 | 1.00 | **0.40** | 3/5 | 0 |
 | (256,244) | 16 | 7 | 74/73 | 1 | 1.00 | **0.56** | 7/16 | 0 |
@@ -42,7 +42,7 @@ match `graphrank._proximity` byte-for-byte on a fake store over identical edges
 Name-recall is 100% everywhere (Step 6's number), but **LINE-recall is 0.40 at the shipped setting
 and falls to ~0.10 at the aggressive floor**. At `(64,125)`, **28 of 31** subsequently-needed paths
 survive as a rollup *name only* — their actual match line is absent from the compact output. I call
-that the **inline-evidence deficit** (`named − line-retained`), *not* "expansion pressure": it is
+that the **`named_without_match_line`** deficit (`named − line-retained`), *not* "expansion pressure": it is
 **not a measured recovery cost**. If that omitted match text were needed, the agent has several
 routes to it — a native `Read`, another search, or an exact `result://` expansion — and, crucially,
 `needed` is *defined* as files the original trajectory went on to open anyway, so many of these
