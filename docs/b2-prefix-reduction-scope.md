@@ -129,6 +129,31 @@ floor is fixed (not ours), and edit targets (72% of reads) plus test *failures* 
 Proceeding to build B2.1–B2.4 (residency control for file reads) on this basis; **bash/test-output**
 reduction (keep-failures/summarize-passes) is a separate later lever.
 
+## B2.3 RESULT (measured 2026-08-18) — PROSPECTIVE compaction FAILS the edit-recall gate
+
+`corpus/edit_recall_replay.py` over the 20 native Step-7 transcripts (agent saw FULL content, then
+edited): if B2 had compacted the read the agent used, would the edit's `old_string` still be in the
+skeleton? 96 real edits scored.
+
+- **Edit-recall (B2.2-gated, spare already-edited files): 21.9%** — **78% of edits force a re-read**.
+  Ungated (compact every read): 8.3%. **Budget-insensitive** (512/1024/2048 identical): the skeleton
+  keeps *signatures*, but edits target *bodies*, which drop regardless of budget.
+- **59% of edits are FIRST edits** of their file — the structural trap: the pre-edit read was
+  compacted, so the agent never saw the body it is about to change and must re-read first. Sparing
+  already-edited files (B2.2) cannot help the first edit, and every read of a not-yet-edited file is
+  compacted, so the agent cannot obtain the body prospectively at all (B1 also showed agents almost
+  never call `result://` — 0 expansions in 60 sessions).
+
+**Verdict: prospective signature-skeleton file compaction does not work for edit-heavy coding.** It
+is never a *correctness* break (exact raw in CAS; Edit matches disk), but it forces a re-read on the
+majority of edits — the re-read brings the full file back and adds the wasted compact read, so the
+~4% residency saving is negated (net likely *worse*, like B1 but with extra reads). Do **not** take
+this to a live A/B. **The residency lever survives only under a RETROACTIVE / stale-read model**:
+compact a file's residency AFTER the agent is *done* editing it (so bodies are present while
+editing, dropped only once the file goes reference-only). That is the deferred **B2.v2**, gated on
+the cache-write-vs-cache-read-saved economics and a history-transform mechanism (not PostToolUse).
+Its ceiling is bounded by how much of the session a file spends "done" — to be measured before build.
+
 ## Non-goals for B2.v1
 
 Retroactive stale-read compaction (cache-economics, B2.v2); bash/test-output reduction (high-risk,
