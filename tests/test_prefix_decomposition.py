@@ -70,3 +70,6 @@ def test_reduction_ceiling_spares_edited_files_and_compounds(tmp_path):
     assert r["reducible_events"] == 1 and r["spared_events"] == 1   # a.py reducible, b.py edited→spared
     # a.py read at turn 1 ⇒ present for 4 later turns; raw counts b.py too ⇒ raw saving > reducible
     assert r["compounded_saving_raw"] > r["compounded_saving_reducible"] > 0
+    # residency compacts b.py from read (turn 2) until its edit (turn 3) ⇒ between spare and raw
+    assert (r["compounded_saving_raw"] > r["compounded_saving_residency"]
+            > r["compounded_saving_reducible"])
