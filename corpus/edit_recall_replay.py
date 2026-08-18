@@ -5,8 +5,9 @@ The file analog of Step 6.1's line-recall, but the outcome is EDITS — what act
 retained native transcripts (agent saw FULL file content, then edited): if B2 had compacted the read
 the agent used, would the edit's `old_string` still be present in the skeleton? A HIT means the agent
 could have constructed the edit from residency (no extra work). A MISS means it would have re-read
-first (a forced re-read — the efficiency cost that eats the residency saving). It is NEVER a
-correctness break: the exact raw is in the CAS and Edit matches `old_string` against the file on disk.
+first (a forced re-read — the efficiency cost that eats the residency saving). A miss is never a
+MECHANICAL break (exact raw in CAS; Edit matches disk), but this metric does NOT establish SEMANTIC
+safety — whether reasoning from a skeleton yields a worse final patch is for B2.4 + SWE-bench grading.
 
     edit_recall = fraction of edits whose old_string lines ALL survive the compacted skeleton
 """
