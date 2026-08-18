@@ -15,6 +15,7 @@ def test_eligible_only_for_unedited_file_reads():
     assert not file_read_eligible("Grep", {"pattern": "x"})                          # not a file read
     assert not file_read_eligible("Read", {})                                        # no file_path
     assert not file_read_eligible("Edit", {"file_path": "a/b.py"})                   # the edit itself
+    assert not file_read_eligible("Read", {"file_path": "a/b.py"}, edited_paths=None)  # UNKNOWN ⇒ fail-open
 
 
 def test_edited_paths_from_journal_reads_mutations(tmp_path):
@@ -29,10 +30,11 @@ def test_edited_paths_from_journal_reads_mutations(tmp_path):
     ])
     conn.commit(); conn.close()
     got = edited_paths_from_journal(db, "s1")
-    assert got == frozenset({"a/edited.py"})
-    assert edited_paths_from_journal(db, None) == frozenset()          # no session ⇒ empty
-    assert edited_paths_from_journal(None, "s1") == frozenset()        # no journal ⇒ empty
-    assert edited_paths_from_journal(str(tmp_path / "missing.db"), "s1") == frozenset()  # fail-open
+    assert got == frozenset({"a/edited.py"})                           # KNOWN mutation set
+    # TRI-STATE: unknown/unreadable ⇒ None (fail-open), NOT an empty set
+    assert edited_paths_from_journal(db, None) is None                 # no session ⇒ unknown
+    assert edited_paths_from_journal(None, "s1") is None               # no journal ⇒ unknown
+    assert edited_paths_from_journal(str(tmp_path / "missing.db"), "s1") is None  # unreadable ⇒ unknown
 
 
 def test_measured_file_reduction_reduces_unedited_big_file():
