@@ -35,7 +35,7 @@ reusing `Step5Runner` + `ClaudeBackend(capture_usage=True)`.
 | **T_total** = input + output + cache-creation + cache-read | `claude -p --output-format json` usage | the real billed token cost — the headline |
 | **turns** (`num_turns`) | same | did reduction change how many steps resolution took |
 | **native_rereads** | journal (`file` Read of an already-read path) | did aggressive reduction make the agent re-open files |
-| **result_expansions** | transcript (`context_expand` calls) | the *direct* price of the inline-evidence deficit |
+| **result_expansions** | transcript (`context_expand` calls) | the *direct* price of the `named_without_match_line` deficit |
 | **re_searches** (`exact_search_repeat_count`) | decision-log fingerprints | same query re-run (recovery-by-research) |
 | effective_read_tokens, reductions_enforced, non_beneficial, wall_time_s | journal + decision log | mechanism sanity, as in the pilot |
 
