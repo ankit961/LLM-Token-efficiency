@@ -26,6 +26,7 @@ FILE_TABLE_MAX = 12                  # named files in the "matches by file" roll
 # window + an exact result:// handle, dropping function bodies. Files are bigger than searches, so a
 # larger default budget. NOT wired into the frozen B1 gate; B2 eligibility (edit-safety) is B2.2.
 FILE_BUDGET_TOKENS = 512
+FILE_REDUCE_FLOOR = 400              # a file under this many tokens isn't worth compacting (skeleton≈self)
 # Structural lines worth keeping in residency: imports, def/class (incl. async/decorated), and
 # top-level CONSTANT assignments. Body lines (the bulk) are dropped and recoverable via the handle.
 _STRUCTURAL = re.compile(
