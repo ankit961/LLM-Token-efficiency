@@ -98,6 +98,96 @@ def accumulated_composition(transcript_path: str) -> dict:
             "system_tools_floor_tokens": sys_floor, "tool_outputs_total": sum(cat.values())}
 
 
+_EDIT_TOOLS = {"Edit", "Write", "MultiEdit", "NotebookEdit"}
+
+
+def session_reduction_ceiling(transcript_path: str, t_total, *, reduce_frac: float = 0.8) -> dict:
+    """COMPOUNDING-aware upper bound on the whole-session T_total saving from file-read reduction.
+
+    A file read entering at turn t is cache-read on every later turn, so reducing it `reduce_frac`
+    saves `reduce_frac * tokens * (total_turns - t)` cache-read tokens over the session — the effect
+    B1's search reduction lacked. EDIT-SAFE: reads of files the agent ever Edits/Writes are SPARED
+    (the edit needs exact context); only reads of never-edited files count as reducible. Reports the
+    reducible saving as a fraction of the measured `t_total` (the go/no-go number)."""
+    reads = []                 # (turn_at_read, tokens, path)
+    edited = set()
+    uses = {}
+    turn = 0
+    for line in open(transcript_path, errors="replace"):
+        try:
+            rec = json.loads(line)
+        except Exception:      # noqa: BLE001
+            continue
+        msg = rec.get("message") or {}
+        content = msg.get("content")
+        if rec.get("type") == "assistant" and isinstance(content, list):
+            if msg.get("usage"):
+                turn += 1
+            for b in content:
+                if isinstance(b, dict) and b.get("type") == "tool_use":
+                    name, inp = b.get("name"), (b.get("input") or {})
+                    uses[b.get("id")] = name
+                    if name in _EDIT_TOOLS and inp.get("file_path"):
+                        edited.add(inp["file_path"])
+        elif rec.get("type") == "user" and isinstance(content, list):
+            for b in content:
+                if isinstance(b, dict) and b.get("type") == "tool_result":
+                    if category(uses.get(b.get("tool_use_id"))) == "file_read":
+                        # recover the read's file_path from the paired tool_use input if present
+                        reads.append((turn, _tok(_text(b.get("content"))), b.get("tool_use_id")))
+    # re-scan tool_use inputs to map read tool_use_id -> file_path (edit-safety join)
+    read_path = {}
+    for line in open(transcript_path, errors="replace"):
+        try:
+            rec = json.loads(line)
+        except Exception:      # noqa: BLE001
+            continue
+        for b in ((rec.get("message") or {}).get("content") or []):
+            if isinstance(b, dict) and b.get("type") == "tool_use" and b.get("name") in ("Read", "NotebookRead"):
+                read_path[b.get("id")] = (b.get("input") or {}).get("file_path")
+    total_turns = max(turn, 1)
+    saving_reducible = saving_raw = red_ev = spared_ev = 0
+    for (t, tokens, tid) in reads:
+        remaining = total_turns - t
+        contrib = reduce_frac * tokens * max(remaining, 0)
+        saving_raw += contrib
+        if read_path.get(tid) in edited:
+            spared_ev += 1                       # file later edited ⇒ spare it
+        else:
+            saving_reducible += contrib
+            red_ev += 1
+    tt = t_total or 0
+    return {"t_total": tt, "total_turns": total_turns, "file_read_events": len(reads),
+            "reducible_events": red_ev, "spared_events": spared_ev,
+            "compounded_saving_reducible": round(saving_reducible),
+            "compounded_saving_raw": round(saving_raw),
+            "pct_reducible": round(saving_reducible / tt * 100, 2) if tt else None,
+            "pct_raw": round(saving_raw / tt * 100, 2) if tt else None}
+
+
+def reduction_ceiling_over_runs(results_json: str, *, arm: str = "A_native", reduce_frac: float = 0.8) -> dict:
+    """Aggregate the compounding-aware ceiling across native runs (join each run's stored transcript
+    + measured T_total). Go/no-go: is edit-safe file-read reduction a material % of T_total?"""
+    res = json.load(open(results_json))
+    rows = []
+    for key, m in res.items():
+        if f"|{arm}|" not in key or not isinstance(m, dict) or "error" in m:
+            continue
+        tp, tt = m.get("transcript"), m.get("T_total")
+        if tp and tt and os.path.exists(tp):
+            rows.append(session_reduction_ceiling(tp, tt, reduce_frac=reduce_frac))
+    def _mean(xs):
+        xs = [x for x in xs if isinstance(x, (int, float))]
+        return round(sum(xs) / len(xs), 2) if xs else None
+    return {"n": len(rows), "reduce_frac": reduce_frac,
+            "mean_pct_reducible_of_T_total": _mean([r["pct_reducible"] for r in rows]),
+            "mean_pct_raw_of_T_total": _mean([r["pct_raw"] for r in rows]),
+            "mean_file_read_events": _mean([r["file_read_events"] for r in rows]),
+            "mean_reducible_events": _mean([r["reducible_events"] for r in rows]),
+            "mean_spared_events": _mean([r["spared_events"] for r in rows]),
+            "per_session_pct_reducible": [r["pct_reducible"] for r in rows]}
+
+
 def _main(argv) -> None:
     """python -m corpus.prefix_decomposition <step7_run_dir> [worktree_for_composition]"""
     run = argv[1]
@@ -118,6 +208,16 @@ def _main(argv) -> None:
             print(f"  {k:14} {v:>8} tok")
         print(f"  assistant_text {comp['assistant_text_tokens']:>8} tok")
         print(f"  ~system+tools floor ≈ {comp['system_tools_floor_tokens']} tok (fixed, not ours)")
+    rj = os.path.join(run, "step7-results.json")
+    if os.path.exists(rj):
+        c = reduction_ceiling_over_runs(rj)
+        print(f"\n=== B2.0 GO/NO-GO: compounding-aware, edit-safe file-read reduction ceiling ===")
+        print(f"  native sessions analysed: {c['n']}  (reduce_frac={c['reduce_frac']})")
+        print(f"  mean file-read events/session: {c['mean_file_read_events']}  "
+              f"(reducible={c['mean_reducible_events']}, spared-as-edited={c['mean_spared_events']})")
+        print(f"  mean whole-session T_total saving — EDIT-SAFE reducible: "
+              f"{c['mean_pct_reducible_of_T_total']}%   (raw, ignoring edit-safety: {c['mean_pct_raw_of_T_total']}%)")
+        print(f"  per-session reducible %: {c['per_session_pct_reducible']}")
 
 
 if __name__ == "__main__":
