@@ -101,6 +101,31 @@ aware) and reducer (structure-preserving), not a new framework.
 - The safety bar is stricter than B1: a dropped edit-relevant line is a *correctness* risk, not just a
   recovery cost. B2 must fail-open aggressively (when in doubt about edit-state, do not reduce).
 
+## B2.0 RESULT (measured 2026-08-18) — WEAK-GO, ceiling far below the 10–15% bar
+
+`corpus/prefix_decomposition.py` `reduction_ceiling_over_runs`, over the 19 native Step-7 sessions,
+compounding-aware (a read at turn *t* is cache-read every later turn; reducing it saves
+`0.8 × tokens × remaining_turns`), edit-safe (spare any file the agent later Edits/Writes):
+
+- **72% of file reads are EDIT TARGETS.** Mean 8.3 file reads/session, of which only **2.3 are
+  reducible** (reference-only) and **6.0 must be spared** (the agent edits them). On coding tasks the
+  agent reads mostly what it is about to change.
+- **Edit-safe reducible ceiling = ~2.0% of whole-session `T_total`** (compounding-aware, whole-file
+  sparing), highly variable: 0% on 5/19 sessions, up to 7.8%. The *unsafe* raw figure (reduce all
+  file reads, ignore edit-safety) is 7.5% — not shippable.
+- A line-level reducer (spare only the edited lines + read-around inside an edited file, reduce the
+  rest) could reclaim part of the 2.0% → 7.5% gap — realistically **~3–5%**, still below the bar and
+  requiring the full edit-safety machinery to earn it.
+
+**Verdict: transparent per-tool-output reduction has a structurally low whole-session ceiling** —
+search 0.03% (B1), edit-safe file reads ~2–5% (B2.0) — because the re-read prefix is dominated by
+content that is either **fixed** (the ~13k system+tools floor we do not own) or **must be preserved**
+(edit targets, and test *failures* in bash output). File-read reduction is real, safe, and compounds
+on long read-heavy sessions, but it is a **~2–5% lever, not a 10–15% one.** The next-highest
+untested lever is **bash/test-output** (not edit targets; largest category in the one test-heavy
+session, ~60%) under a "keep failures/errors, summarize the passing tail" model — it deserves its
+own go/no-go before committing to build B2.1–B2.4. This is a decision input, not a green light.
+
 ## Non-goals for B2.v1
 
 Retroactive stale-read compaction (cache-economics, B2.v2); bash/test-output reduction (high-risk,
