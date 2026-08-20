@@ -25,9 +25,15 @@ class GraphStore:
     def __init__(self, path: str | Path = ":memory:"):
         self.conn = sqlite3.connect(str(path))
         self.conn.row_factory = sqlite3.Row
-        # Multiple MCP processes may share one on-disk store; wait for a write lock instead of
-        # failing immediately (complements the AUTOINCREMENT seq — concurrency safety, C13).
+        # Multiple MCP processes / hook invocations may share one on-disk store, and concurrent
+        # PostToolUse writes race. busy_timeout makes a writer WAIT for a lock instead of failing;
+        # WAL makes readers not block the writer, so a writer never gets SQLITE_BUSY ("database is
+        # locked") just because another connection has an open read — the concurrency-safety fix
+        # (C13; complements the AUTOINCREMENT seq). busy_timeout is set BEFORE switching to WAL so the
+        # mode-switch itself waits for any lock. WAL is a no-op / ignored for :memory: stores.
         self.conn.execute("PRAGMA busy_timeout=5000")
+        self.conn.execute("PRAGMA journal_mode=WAL")
+        self.conn.execute("PRAGMA synchronous=NORMAL")
         self.conn.executescript(_SCHEMA)
         self._check_schema_version()
 
