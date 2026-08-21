@@ -1,0 +1,3906 @@
+{
+  "rows": [
+    {
+      "edit_symbol": "django.db.models.expressions.Star.__repr__",
+      "root_kind": "method",
+      "regime": "oracle",
+      "budget": 512,
+      "anchor_kind": "oracle_edited_symbol",
+      "resolved": true,
+      "root_is_edited": true,
+      "native_exploration_tokens": 996,
+      "B_lexical": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.1429,
+        "useful_symbol_recall": 0.0108,
+        "bundle_tokens": 50
+      },
+      "C_graph": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.1429,
+        "useful_symbol_recall": 0.0108,
+        "bundle_tokens": 50
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 85
+      },
+      "graph_increment_over_lexical": 0.0,
+      "task": "django__django-10554"
+    },
+    {
+      "edit_symbol": "django.db.models.expressions.Star.__repr__",
+      "root_kind": "method",
+      "regime": "problem",
+      "budget": 512,
+      "anchor_kind": "traceback",
+      "resolved": true,
+      "root_is_edited": false,
+      "native_exploration_tokens": 996,
+      "B_lexical": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 132
+      },
+      "C_graph": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 447
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 85
+      },
+      "graph_increment_over_lexical": 0,
+      "task": "django__django-10554"
+    },
+    {
+      "edit_symbol": "django.db.models.expressions.Star.__repr__",
+      "root_kind": "method",
+      "regime": "oracle",
+      "budget": 1024,
+      "anchor_kind": "oracle_edited_symbol",
+      "resolved": true,
+      "root_is_edited": true,
+      "native_exploration_tokens": 996,
+      "B_lexical": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.1429,
+        "useful_symbol_recall": 0.0108,
+        "bundle_tokens": 50
+      },
+      "C_graph": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.1429,
+        "useful_symbol_recall": 0.0108,
+        "bundle_tokens": 50
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 85
+      },
+      "graph_increment_over_lexical": 0.0,
+      "task": "django__django-10554"
+    },
+    {
+      "edit_symbol": "django.db.models.expressions.Star.__repr__",
+      "root_kind": "method",
+      "regime": "problem",
+      "budget": 1024,
+      "anchor_kind": "traceback",
+      "resolved": true,
+      "root_is_edited": false,
+      "native_exploration_tokens": 996,
+      "B_lexical": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 132
+      },
+      "C_graph": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 538
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 85
+      },
+      "graph_increment_over_lexical": 0,
+      "task": "django__django-10554"
+    },
+    {
+      "edit_symbol": "django.db.models.expressions.Star.__repr__",
+      "root_kind": "method",
+      "regime": "oracle",
+      "budget": 2048,
+      "anchor_kind": "oracle_edited_symbol",
+      "resolved": true,
+      "root_is_edited": true,
+      "native_exploration_tokens": 996,
+      "B_lexical": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.1429,
+        "useful_symbol_recall": 0.0108,
+        "bundle_tokens": 50
+      },
+      "C_graph": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.1429,
+        "useful_symbol_recall": 0.0108,
+        "bundle_tokens": 50
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 85
+      },
+      "graph_increment_over_lexical": 0.0,
+      "task": "django__django-10554"
+    },
+    {
+      "edit_symbol": "django.db.models.expressions.Star.__repr__",
+      "root_kind": "method",
+      "regime": "problem",
+      "budget": 2048,
+      "anchor_kind": "traceback",
+      "resolved": true,
+      "root_is_edited": false,
+      "native_exploration_tokens": 996,
+      "B_lexical": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 132
+      },
+      "C_graph": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 538
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 85
+      },
+      "graph_increment_over_lexical": 0,
+      "task": "django__django-10554"
+    },
+    {
+      "edit_symbol": "django.db.models.expressions.Star.__repr__",
+      "root_kind": "method",
+      "regime": "oracle",
+      "budget": 4096,
+      "anchor_kind": "oracle_edited_symbol",
+      "resolved": true,
+      "root_is_edited": true,
+      "native_exploration_tokens": 996,
+      "B_lexical": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.1429,
+        "useful_symbol_recall": 0.0108,
+        "bundle_tokens": 50
+      },
+      "C_graph": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.1429,
+        "useful_symbol_recall": 0.0108,
+        "bundle_tokens": 50
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 85
+      },
+      "graph_increment_over_lexical": 0.0,
+      "task": "django__django-10554"
+    },
+    {
+      "edit_symbol": "django.db.models.expressions.Star.__repr__",
+      "root_kind": "method",
+      "regime": "problem",
+      "budget": 4096,
+      "anchor_kind": "traceback",
+      "resolved": true,
+      "root_is_edited": false,
+      "native_exploration_tokens": 996,
+      "B_lexical": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 132
+      },
+      "C_graph": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 538
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 85
+      },
+      "graph_increment_over_lexical": 0,
+      "task": "django__django-10554"
+    },
+    {
+      "edit_symbol": "django.db.models.expressions.BaseExpression",
+      "root_kind": "class",
+      "regime": "oracle",
+      "budget": 512,
+      "anchor_kind": "oracle_edited_symbol",
+      "resolved": true,
+      "root_is_edited": true,
+      "native_exploration_tokens": 996,
+      "B_lexical": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0108,
+        "bundle_tokens": 53
+      },
+      "C_graph": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 0
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.25,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 85
+      },
+      "graph_increment_over_lexical": -0.0108,
+      "task": "django__django-10554"
+    },
+    {
+      "edit_symbol": "django.db.models.expressions.BaseExpression",
+      "root_kind": "class",
+      "regime": "problem",
+      "budget": 512,
+      "anchor_kind": "traceback",
+      "resolved": true,
+      "root_is_edited": false,
+      "native_exploration_tokens": 996,
+      "B_lexical": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 132
+      },
+      "C_graph": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 447
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.25,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 85
+      },
+      "graph_increment_over_lexical": 0,
+      "task": "django__django-10554"
+    },
+    {
+      "edit_symbol": "django.db.models.expressions.BaseExpression",
+      "root_kind": "class",
+      "regime": "oracle",
+      "budget": 1024,
+      "anchor_kind": "oracle_edited_symbol",
+      "resolved": true,
+      "root_is_edited": true,
+      "native_exploration_tokens": 996,
+      "B_lexical": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0108,
+        "bundle_tokens": 53
+      },
+      "C_graph": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 0
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.25,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 85
+      },
+      "graph_increment_over_lexical": -0.0108,
+      "task": "django__django-10554"
+    },
+    {
+      "edit_symbol": "django.db.models.expressions.BaseExpression",
+      "root_kind": "class",
+      "regime": "problem",
+      "budget": 1024,
+      "anchor_kind": "traceback",
+      "resolved": true,
+      "root_is_edited": false,
+      "native_exploration_tokens": 996,
+      "B_lexical": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 132
+      },
+      "C_graph": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 538
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.25,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 85
+      },
+      "graph_increment_over_lexical": 0,
+      "task": "django__django-10554"
+    },
+    {
+      "edit_symbol": "django.db.models.expressions.BaseExpression",
+      "root_kind": "class",
+      "regime": "oracle",
+      "budget": 2048,
+      "anchor_kind": "oracle_edited_symbol",
+      "resolved": true,
+      "root_is_edited": true,
+      "native_exploration_tokens": 996,
+      "B_lexical": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.125,
+        "useful_symbol_recall": 0.0108,
+        "bundle_tokens": 1776
+      },
+      "C_graph": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 0
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.25,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 85
+      },
+      "graph_increment_over_lexical": -0.0108,
+      "task": "django__django-10554"
+    },
+    {
+      "edit_symbol": "django.db.models.expressions.BaseExpression",
+      "root_kind": "class",
+      "regime": "problem",
+      "budget": 2048,
+      "anchor_kind": "traceback",
+      "resolved": true,
+      "root_is_edited": false,
+      "native_exploration_tokens": 996,
+      "B_lexical": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 132
+      },
+      "C_graph": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 538
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.25,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 85
+      },
+      "graph_increment_over_lexical": 0,
+      "task": "django__django-10554"
+    },
+    {
+      "edit_symbol": "django.db.models.expressions.BaseExpression",
+      "root_kind": "class",
+      "regime": "oracle",
+      "budget": 4096,
+      "anchor_kind": "oracle_edited_symbol",
+      "resolved": true,
+      "root_is_edited": true,
+      "native_exploration_tokens": 996,
+      "B_lexical": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.125,
+        "useful_symbol_recall": 0.0108,
+        "bundle_tokens": 2066
+      },
+      "C_graph": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.125,
+        "useful_symbol_recall": 0.0108,
+        "bundle_tokens": 2066
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.25,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 85
+      },
+      "graph_increment_over_lexical": 0.0,
+      "task": "django__django-10554"
+    },
+    {
+      "edit_symbol": "django.db.models.expressions.BaseExpression",
+      "root_kind": "class",
+      "regime": "problem",
+      "budget": 4096,
+      "anchor_kind": "traceback",
+      "resolved": true,
+      "root_is_edited": false,
+      "native_exploration_tokens": 996,
+      "B_lexical": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 132
+      },
+      "C_graph": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 538
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.25,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 85
+      },
+      "graph_increment_over_lexical": 0,
+      "task": "django__django-10554"
+    },
+    {
+      "edit_symbol": "tests.queries.models.Number",
+      "root_kind": "class",
+      "regime": "oracle",
+      "budget": 512,
+      "anchor_kind": "oracle_edited_symbol",
+      "resolved": true,
+      "root_is_edited": true,
+      "native_exploration_tokens": 269,
+      "B_lexical": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": true,
+        "edit_line_coverage": 1.0,
+        "useful_symbol_recall": 0.0108,
+        "bundle_tokens": 59
+      },
+      "C_graph": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": true,
+        "edit_line_coverage": 1.0,
+        "useful_symbol_recall": 0.0108,
+        "bundle_tokens": 143
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.75,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 63
+      },
+      "graph_increment_over_lexical": 0.0,
+      "task": "django__django-10554"
+    },
+    {
+      "edit_symbol": "tests.queries.models.Number",
+      "root_kind": "class",
+      "regime": "problem",
+      "budget": 512,
+      "anchor_kind": "traceback",
+      "resolved": true,
+      "root_is_edited": false,
+      "native_exploration_tokens": 269,
+      "B_lexical": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 132
+      },
+      "C_graph": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 447
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.75,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 63
+      },
+      "graph_increment_over_lexical": 0,
+      "task": "django__django-10554"
+    },
+    {
+      "edit_symbol": "tests.queries.models.Number",
+      "root_kind": "class",
+      "regime": "oracle",
+      "budget": 1024,
+      "anchor_kind": "oracle_edited_symbol",
+      "resolved": true,
+      "root_is_edited": true,
+      "native_exploration_tokens": 269,
+      "B_lexical": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": true,
+        "edit_line_coverage": 1.0,
+        "useful_symbol_recall": 0.0108,
+        "bundle_tokens": 59
+      },
+      "C_graph": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": true,
+        "edit_line_coverage": 1.0,
+        "useful_symbol_recall": 0.0108,
+        "bundle_tokens": 143
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.75,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 63
+      },
+      "graph_increment_over_lexical": 0.0,
+      "task": "django__django-10554"
+    },
+    {
+      "edit_symbol": "tests.queries.models.Number",
+      "root_kind": "class",
+      "regime": "problem",
+      "budget": 1024,
+      "anchor_kind": "traceback",
+      "resolved": true,
+      "root_is_edited": false,
+      "native_exploration_tokens": 269,
+      "B_lexical": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 132
+      },
+      "C_graph": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 538
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.75,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 63
+      },
+      "graph_increment_over_lexical": 0,
+      "task": "django__django-10554"
+    },
+    {
+      "edit_symbol": "tests.queries.models.Number",
+      "root_kind": "class",
+      "regime": "oracle",
+      "budget": 2048,
+      "anchor_kind": "oracle_edited_symbol",
+      "resolved": true,
+      "root_is_edited": true,
+      "native_exploration_tokens": 269,
+      "B_lexical": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": true,
+        "edit_line_coverage": 1.0,
+        "useful_symbol_recall": 0.0108,
+        "bundle_tokens": 59
+      },
+      "C_graph": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": true,
+        "edit_line_coverage": 1.0,
+        "useful_symbol_recall": 0.0108,
+        "bundle_tokens": 143
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.75,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 63
+      },
+      "graph_increment_over_lexical": 0.0,
+      "task": "django__django-10554"
+    },
+    {
+      "edit_symbol": "tests.queries.models.Number",
+      "root_kind": "class",
+      "regime": "problem",
+      "budget": 2048,
+      "anchor_kind": "traceback",
+      "resolved": true,
+      "root_is_edited": false,
+      "native_exploration_tokens": 269,
+      "B_lexical": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 132
+      },
+      "C_graph": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 538
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.75,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 63
+      },
+      "graph_increment_over_lexical": 0,
+      "task": "django__django-10554"
+    },
+    {
+      "edit_symbol": "tests.queries.models.Number",
+      "root_kind": "class",
+      "regime": "oracle",
+      "budget": 4096,
+      "anchor_kind": "oracle_edited_symbol",
+      "resolved": true,
+      "root_is_edited": true,
+      "native_exploration_tokens": 269,
+      "B_lexical": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": true,
+        "edit_line_coverage": 1.0,
+        "useful_symbol_recall": 0.0108,
+        "bundle_tokens": 59
+      },
+      "C_graph": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": true,
+        "edit_line_coverage": 1.0,
+        "useful_symbol_recall": 0.0108,
+        "bundle_tokens": 143
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.75,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 63
+      },
+      "graph_increment_over_lexical": 0.0,
+      "task": "django__django-10554"
+    },
+    {
+      "edit_symbol": "tests.queries.models.Number",
+      "root_kind": "class",
+      "regime": "problem",
+      "budget": 4096,
+      "anchor_kind": "traceback",
+      "resolved": true,
+      "root_is_edited": false,
+      "native_exploration_tokens": 269,
+      "B_lexical": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 132
+      },
+      "C_graph": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 538
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.75,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 63
+      },
+      "graph_increment_over_lexical": 0,
+      "task": "django__django-10554"
+    },
+    {
+      "edit_symbol": "tests.queries.test_qs_combinators.QuerySetSetOperationTests.test_ordering_by_f_expression",
+      "root_kind": "test",
+      "regime": "oracle",
+      "budget": 512,
+      "anchor_kind": "oracle_edited_symbol",
+      "resolved": true,
+      "root_is_edited": true,
+      "native_exploration_tokens": 3012,
+      "B_lexical": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": true,
+        "edit_line_coverage": 1.0,
+        "useful_symbol_recall": 0.0108,
+        "bundle_tokens": 124
+      },
+      "C_graph": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0215,
+        "bundle_tokens": 440
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 168
+      },
+      "graph_increment_over_lexical": 0.0107,
+      "task": "django__django-10554"
+    },
+    {
+      "edit_symbol": "tests.queries.test_qs_combinators.QuerySetSetOperationTests.test_ordering_by_f_expression",
+      "root_kind": "test",
+      "regime": "problem",
+      "budget": 512,
+      "anchor_kind": "traceback",
+      "resolved": true,
+      "root_is_edited": false,
+      "native_exploration_tokens": 3012,
+      "B_lexical": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 132
+      },
+      "C_graph": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 447
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 168
+      },
+      "graph_increment_over_lexical": 0,
+      "task": "django__django-10554"
+    },
+    {
+      "edit_symbol": "tests.queries.test_qs_combinators.QuerySetSetOperationTests.test_ordering_by_f_expression",
+      "root_kind": "test",
+      "regime": "oracle",
+      "budget": 1024,
+      "anchor_kind": "oracle_edited_symbol",
+      "resolved": true,
+      "root_is_edited": true,
+      "native_exploration_tokens": 3012,
+      "B_lexical": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": true,
+        "edit_line_coverage": 1.0,
+        "useful_symbol_recall": 0.0108,
+        "bundle_tokens": 124
+      },
+      "C_graph": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": true,
+        "edit_line_coverage": 1.0,
+        "useful_symbol_recall": 0.0215,
+        "bundle_tokens": 887
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 168
+      },
+      "graph_increment_over_lexical": 0.0107,
+      "task": "django__django-10554"
+    },
+    {
+      "edit_symbol": "tests.queries.test_qs_combinators.QuerySetSetOperationTests.test_ordering_by_f_expression",
+      "root_kind": "test",
+      "regime": "problem",
+      "budget": 1024,
+      "anchor_kind": "traceback",
+      "resolved": true,
+      "root_is_edited": false,
+      "native_exploration_tokens": 3012,
+      "B_lexical": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 132
+      },
+      "C_graph": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 538
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 168
+      },
+      "graph_increment_over_lexical": 0,
+      "task": "django__django-10554"
+    },
+    {
+      "edit_symbol": "tests.queries.test_qs_combinators.QuerySetSetOperationTests.test_ordering_by_f_expression",
+      "root_kind": "test",
+      "regime": "oracle",
+      "budget": 2048,
+      "anchor_kind": "oracle_edited_symbol",
+      "resolved": true,
+      "root_is_edited": true,
+      "native_exploration_tokens": 3012,
+      "B_lexical": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": true,
+        "edit_line_coverage": 1.0,
+        "useful_symbol_recall": 0.0108,
+        "bundle_tokens": 124
+      },
+      "C_graph": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": true,
+        "edit_line_coverage": 1.0,
+        "useful_symbol_recall": 0.0215,
+        "bundle_tokens": 1461
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 168
+      },
+      "graph_increment_over_lexical": 0.0107,
+      "task": "django__django-10554"
+    },
+    {
+      "edit_symbol": "tests.queries.test_qs_combinators.QuerySetSetOperationTests.test_ordering_by_f_expression",
+      "root_kind": "test",
+      "regime": "problem",
+      "budget": 2048,
+      "anchor_kind": "traceback",
+      "resolved": true,
+      "root_is_edited": false,
+      "native_exploration_tokens": 3012,
+      "B_lexical": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 132
+      },
+      "C_graph": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 538
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 168
+      },
+      "graph_increment_over_lexical": 0,
+      "task": "django__django-10554"
+    },
+    {
+      "edit_symbol": "tests.queries.test_qs_combinators.QuerySetSetOperationTests.test_ordering_by_f_expression",
+      "root_kind": "test",
+      "regime": "oracle",
+      "budget": 4096,
+      "anchor_kind": "oracle_edited_symbol",
+      "resolved": true,
+      "root_is_edited": true,
+      "native_exploration_tokens": 3012,
+      "B_lexical": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": true,
+        "edit_line_coverage": 1.0,
+        "useful_symbol_recall": 0.0108,
+        "bundle_tokens": 124
+      },
+      "C_graph": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": true,
+        "edit_line_coverage": 1.0,
+        "useful_symbol_recall": 0.0215,
+        "bundle_tokens": 1461
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 168
+      },
+      "graph_increment_over_lexical": 0.0107,
+      "task": "django__django-10554"
+    },
+    {
+      "edit_symbol": "tests.queries.test_qs_combinators.QuerySetSetOperationTests.test_ordering_by_f_expression",
+      "root_kind": "test",
+      "regime": "problem",
+      "budget": 4096,
+      "anchor_kind": "traceback",
+      "resolved": true,
+      "root_is_edited": false,
+      "native_exploration_tokens": 3012,
+      "B_lexical": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 132
+      },
+      "C_graph": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 538
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 168
+      },
+      "graph_increment_over_lexical": 0,
+      "task": "django__django-10554"
+    },
+    {
+      "edit_symbol": "tests.queries.test_qs_combinators.QuerySetSetOperationTests.test_ordering_by_f_expression",
+      "root_kind": "test",
+      "regime": "oracle",
+      "budget": 512,
+      "anchor_kind": "oracle_edited_symbol",
+      "resolved": true,
+      "root_is_edited": true,
+      "native_exploration_tokens": 3012,
+      "B_lexical": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.2222,
+        "useful_symbol_recall": 0.0108,
+        "bundle_tokens": 124
+      },
+      "C_graph": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0215,
+        "bundle_tokens": 440
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 168
+      },
+      "graph_increment_over_lexical": 0.0107,
+      "task": "django__django-10554"
+    },
+    {
+      "edit_symbol": "tests.queries.test_qs_combinators.QuerySetSetOperationTests.test_ordering_by_f_expression",
+      "root_kind": "test",
+      "regime": "problem",
+      "budget": 512,
+      "anchor_kind": "traceback",
+      "resolved": true,
+      "root_is_edited": false,
+      "native_exploration_tokens": 3012,
+      "B_lexical": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 132
+      },
+      "C_graph": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 447
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 168
+      },
+      "graph_increment_over_lexical": 0,
+      "task": "django__django-10554"
+    },
+    {
+      "edit_symbol": "tests.queries.test_qs_combinators.QuerySetSetOperationTests.test_ordering_by_f_expression",
+      "root_kind": "test",
+      "regime": "oracle",
+      "budget": 1024,
+      "anchor_kind": "oracle_edited_symbol",
+      "resolved": true,
+      "root_is_edited": true,
+      "native_exploration_tokens": 3012,
+      "B_lexical": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.2222,
+        "useful_symbol_recall": 0.0108,
+        "bundle_tokens": 124
+      },
+      "C_graph": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.2222,
+        "useful_symbol_recall": 0.0215,
+        "bundle_tokens": 887
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 168
+      },
+      "graph_increment_over_lexical": 0.0107,
+      "task": "django__django-10554"
+    },
+    {
+      "edit_symbol": "tests.queries.test_qs_combinators.QuerySetSetOperationTests.test_ordering_by_f_expression",
+      "root_kind": "test",
+      "regime": "problem",
+      "budget": 1024,
+      "anchor_kind": "traceback",
+      "resolved": true,
+      "root_is_edited": false,
+      "native_exploration_tokens": 3012,
+      "B_lexical": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 132
+      },
+      "C_graph": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 538
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 168
+      },
+      "graph_increment_over_lexical": 0,
+      "task": "django__django-10554"
+    },
+    {
+      "edit_symbol": "tests.queries.test_qs_combinators.QuerySetSetOperationTests.test_ordering_by_f_expression",
+      "root_kind": "test",
+      "regime": "oracle",
+      "budget": 2048,
+      "anchor_kind": "oracle_edited_symbol",
+      "resolved": true,
+      "root_is_edited": true,
+      "native_exploration_tokens": 3012,
+      "B_lexical": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.2222,
+        "useful_symbol_recall": 0.0108,
+        "bundle_tokens": 124
+      },
+      "C_graph": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.2778,
+        "useful_symbol_recall": 0.0215,
+        "bundle_tokens": 1461
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 168
+      },
+      "graph_increment_over_lexical": 0.0107,
+      "task": "django__django-10554"
+    },
+    {
+      "edit_symbol": "tests.queries.test_qs_combinators.QuerySetSetOperationTests.test_ordering_by_f_expression",
+      "root_kind": "test",
+      "regime": "problem",
+      "budget": 2048,
+      "anchor_kind": "traceback",
+      "resolved": true,
+      "root_is_edited": false,
+      "native_exploration_tokens": 3012,
+      "B_lexical": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 132
+      },
+      "C_graph": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 538
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 168
+      },
+      "graph_increment_over_lexical": 0,
+      "task": "django__django-10554"
+    },
+    {
+      "edit_symbol": "tests.queries.test_qs_combinators.QuerySetSetOperationTests.test_ordering_by_f_expression",
+      "root_kind": "test",
+      "regime": "oracle",
+      "budget": 4096,
+      "anchor_kind": "oracle_edited_symbol",
+      "resolved": true,
+      "root_is_edited": true,
+      "native_exploration_tokens": 3012,
+      "B_lexical": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.2222,
+        "useful_symbol_recall": 0.0108,
+        "bundle_tokens": 124
+      },
+      "C_graph": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.2778,
+        "useful_symbol_recall": 0.0215,
+        "bundle_tokens": 1461
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 168
+      },
+      "graph_increment_over_lexical": 0.0107,
+      "task": "django__django-10554"
+    },
+    {
+      "edit_symbol": "tests.queries.test_qs_combinators.QuerySetSetOperationTests.test_ordering_by_f_expression",
+      "root_kind": "test",
+      "regime": "problem",
+      "budget": 4096,
+      "anchor_kind": "traceback",
+      "resolved": true,
+      "root_is_edited": false,
+      "native_exploration_tokens": 3012,
+      "B_lexical": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 132
+      },
+      "C_graph": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 538
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 168
+      },
+      "graph_increment_over_lexical": 0,
+      "task": "django__django-10554"
+    },
+    {
+      "edit_symbol": "django.db.backends.oracle.operations.DatabaseOperations._convert_field_to_tz",
+      "root_kind": "method",
+      "regime": "oracle",
+      "budget": 512,
+      "anchor_kind": "oracle_edited_symbol",
+      "resolved": true,
+      "root_is_edited": true,
+      "native_exploration_tokens": 612,
+      "B_lexical": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": true,
+        "edit_line_coverage": 1.0,
+        "useful_symbol_recall": 0.0128,
+        "bundle_tokens": 178
+      },
+      "C_graph": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": true,
+        "edit_line_coverage": 1.0,
+        "useful_symbol_recall": 0.0128,
+        "bundle_tokens": 240
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.125,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 169
+      },
+      "graph_increment_over_lexical": 0.0,
+      "task": "django__django-11138"
+    },
+    {
+      "edit_symbol": "django.db.backends.oracle.operations.DatabaseOperations._convert_field_to_tz",
+      "root_kind": "method",
+      "regime": "problem",
+      "budget": 512,
+      "anchor_kind": "freetext",
+      "resolved": true,
+      "root_is_edited": false,
+      "native_exploration_tokens": 612,
+      "B_lexical": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 53
+      },
+      "C_graph": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 137
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.125,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 169
+      },
+      "graph_increment_over_lexical": 0,
+      "task": "django__django-11138"
+    },
+    {
+      "edit_symbol": "django.db.backends.oracle.operations.DatabaseOperations._convert_field_to_tz",
+      "root_kind": "method",
+      "regime": "oracle",
+      "budget": 1024,
+      "anchor_kind": "oracle_edited_symbol",
+      "resolved": true,
+      "root_is_edited": true,
+      "native_exploration_tokens": 612,
+      "B_lexical": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": true,
+        "edit_line_coverage": 1.0,
+        "useful_symbol_recall": 0.0128,
+        "bundle_tokens": 178
+      },
+      "C_graph": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": true,
+        "edit_line_coverage": 1.0,
+        "useful_symbol_recall": 0.0128,
+        "bundle_tokens": 240
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.125,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 169
+      },
+      "graph_increment_over_lexical": 0.0,
+      "task": "django__django-11138"
+    },
+    {
+      "edit_symbol": "django.db.backends.oracle.operations.DatabaseOperations._convert_field_to_tz",
+      "root_kind": "method",
+      "regime": "problem",
+      "budget": 1024,
+      "anchor_kind": "freetext",
+      "resolved": true,
+      "root_is_edited": false,
+      "native_exploration_tokens": 612,
+      "B_lexical": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 53
+      },
+      "C_graph": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 137
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.125,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 169
+      },
+      "graph_increment_over_lexical": 0,
+      "task": "django__django-11138"
+    },
+    {
+      "edit_symbol": "django.db.backends.oracle.operations.DatabaseOperations._convert_field_to_tz",
+      "root_kind": "method",
+      "regime": "oracle",
+      "budget": 2048,
+      "anchor_kind": "oracle_edited_symbol",
+      "resolved": true,
+      "root_is_edited": true,
+      "native_exploration_tokens": 612,
+      "B_lexical": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": true,
+        "edit_line_coverage": 1.0,
+        "useful_symbol_recall": 0.0128,
+        "bundle_tokens": 178
+      },
+      "C_graph": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": true,
+        "edit_line_coverage": 1.0,
+        "useful_symbol_recall": 0.0128,
+        "bundle_tokens": 240
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.125,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 169
+      },
+      "graph_increment_over_lexical": 0.0,
+      "task": "django__django-11138"
+    },
+    {
+      "edit_symbol": "django.db.backends.oracle.operations.DatabaseOperations._convert_field_to_tz",
+      "root_kind": "method",
+      "regime": "problem",
+      "budget": 2048,
+      "anchor_kind": "freetext",
+      "resolved": true,
+      "root_is_edited": false,
+      "native_exploration_tokens": 612,
+      "B_lexical": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 53
+      },
+      "C_graph": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 137
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.125,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 169
+      },
+      "graph_increment_over_lexical": 0,
+      "task": "django__django-11138"
+    },
+    {
+      "edit_symbol": "django.db.backends.oracle.operations.DatabaseOperations._convert_field_to_tz",
+      "root_kind": "method",
+      "regime": "oracle",
+      "budget": 4096,
+      "anchor_kind": "oracle_edited_symbol",
+      "resolved": true,
+      "root_is_edited": true,
+      "native_exploration_tokens": 612,
+      "B_lexical": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": true,
+        "edit_line_coverage": 1.0,
+        "useful_symbol_recall": 0.0128,
+        "bundle_tokens": 178
+      },
+      "C_graph": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": true,
+        "edit_line_coverage": 1.0,
+        "useful_symbol_recall": 0.0128,
+        "bundle_tokens": 240
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.125,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 169
+      },
+      "graph_increment_over_lexical": 0.0,
+      "task": "django__django-11138"
+    },
+    {
+      "edit_symbol": "django.db.backends.oracle.operations.DatabaseOperations._convert_field_to_tz",
+      "root_kind": "method",
+      "regime": "problem",
+      "budget": 4096,
+      "anchor_kind": "freetext",
+      "resolved": true,
+      "root_is_edited": false,
+      "native_exploration_tokens": 612,
+      "B_lexical": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 53
+      },
+      "C_graph": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 137
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.125,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 169
+      },
+      "graph_increment_over_lexical": 0,
+      "task": "django__django-11138"
+    },
+    {
+      "edit_symbol": "django.db.backends.utils.typecast_timestamp",
+      "root_kind": "function",
+      "regime": "oracle",
+      "budget": 512,
+      "anchor_kind": "oracle_edited_symbol",
+      "resolved": true,
+      "root_is_edited": true,
+      "native_exploration_tokens": 467,
+      "B_lexical": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": true,
+        "edit_line_coverage": 1.0,
+        "useful_symbol_recall": 0.0128,
+        "bundle_tokens": 251
+      },
+      "C_graph": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": true,
+        "edit_line_coverage": 1.0,
+        "useful_symbol_recall": 0.0128,
+        "bundle_tokens": 415
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 81
+      },
+      "graph_increment_over_lexical": 0.0,
+      "task": "django__django-11138"
+    },
+    {
+      "edit_symbol": "django.db.backends.utils.typecast_timestamp",
+      "root_kind": "function",
+      "regime": "problem",
+      "budget": 512,
+      "anchor_kind": "freetext",
+      "resolved": true,
+      "root_is_edited": false,
+      "native_exploration_tokens": 467,
+      "B_lexical": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 53
+      },
+      "C_graph": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 137
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 81
+      },
+      "graph_increment_over_lexical": 0,
+      "task": "django__django-11138"
+    },
+    {
+      "edit_symbol": "django.db.backends.utils.typecast_timestamp",
+      "root_kind": "function",
+      "regime": "oracle",
+      "budget": 1024,
+      "anchor_kind": "oracle_edited_symbol",
+      "resolved": true,
+      "root_is_edited": true,
+      "native_exploration_tokens": 467,
+      "B_lexical": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": true,
+        "edit_line_coverage": 1.0,
+        "useful_symbol_recall": 0.0128,
+        "bundle_tokens": 251
+      },
+      "C_graph": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": true,
+        "edit_line_coverage": 1.0,
+        "useful_symbol_recall": 0.0128,
+        "bundle_tokens": 415
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 81
+      },
+      "graph_increment_over_lexical": 0.0,
+      "task": "django__django-11138"
+    },
+    {
+      "edit_symbol": "django.db.backends.utils.typecast_timestamp",
+      "root_kind": "function",
+      "regime": "problem",
+      "budget": 1024,
+      "anchor_kind": "freetext",
+      "resolved": true,
+      "root_is_edited": false,
+      "native_exploration_tokens": 467,
+      "B_lexical": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 53
+      },
+      "C_graph": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 137
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 81
+      },
+      "graph_increment_over_lexical": 0,
+      "task": "django__django-11138"
+    },
+    {
+      "edit_symbol": "django.db.backends.utils.typecast_timestamp",
+      "root_kind": "function",
+      "regime": "oracle",
+      "budget": 2048,
+      "anchor_kind": "oracle_edited_symbol",
+      "resolved": true,
+      "root_is_edited": true,
+      "native_exploration_tokens": 467,
+      "B_lexical": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": true,
+        "edit_line_coverage": 1.0,
+        "useful_symbol_recall": 0.0128,
+        "bundle_tokens": 251
+      },
+      "C_graph": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": true,
+        "edit_line_coverage": 1.0,
+        "useful_symbol_recall": 0.0128,
+        "bundle_tokens": 415
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 81
+      },
+      "graph_increment_over_lexical": 0.0,
+      "task": "django__django-11138"
+    },
+    {
+      "edit_symbol": "django.db.backends.utils.typecast_timestamp",
+      "root_kind": "function",
+      "regime": "problem",
+      "budget": 2048,
+      "anchor_kind": "freetext",
+      "resolved": true,
+      "root_is_edited": false,
+      "native_exploration_tokens": 467,
+      "B_lexical": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 53
+      },
+      "C_graph": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 137
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 81
+      },
+      "graph_increment_over_lexical": 0,
+      "task": "django__django-11138"
+    },
+    {
+      "edit_symbol": "django.db.backends.utils.typecast_timestamp",
+      "root_kind": "function",
+      "regime": "oracle",
+      "budget": 4096,
+      "anchor_kind": "oracle_edited_symbol",
+      "resolved": true,
+      "root_is_edited": true,
+      "native_exploration_tokens": 467,
+      "B_lexical": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": true,
+        "edit_line_coverage": 1.0,
+        "useful_symbol_recall": 0.0128,
+        "bundle_tokens": 251
+      },
+      "C_graph": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": true,
+        "edit_line_coverage": 1.0,
+        "useful_symbol_recall": 0.0128,
+        "bundle_tokens": 415
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 81
+      },
+      "graph_increment_over_lexical": 0.0,
+      "task": "django__django-11138"
+    },
+    {
+      "edit_symbol": "django.db.backends.utils.typecast_timestamp",
+      "root_kind": "function",
+      "regime": "problem",
+      "budget": 4096,
+      "anchor_kind": "freetext",
+      "resolved": true,
+      "root_is_edited": false,
+      "native_exploration_tokens": 467,
+      "B_lexical": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 53
+      },
+      "C_graph": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 137
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 81
+      },
+      "graph_increment_over_lexical": 0,
+      "task": "django__django-11138"
+    },
+    {
+      "edit_symbol": "django.db.backends.utils",
+      "root_kind": "module",
+      "regime": "oracle",
+      "budget": 512,
+      "anchor_kind": "oracle_edited_symbol",
+      "resolved": true,
+      "root_is_edited": true,
+      "native_exploration_tokens": 467,
+      "B_lexical": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0128,
+        "bundle_tokens": 60
+      },
+      "C_graph": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 132
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.75,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 81
+      },
+      "graph_increment_over_lexical": -0.0128,
+      "task": "django__django-11138"
+    },
+    {
+      "edit_symbol": "django.db.backends.utils",
+      "root_kind": "module",
+      "regime": "problem",
+      "budget": 512,
+      "anchor_kind": "freetext",
+      "resolved": true,
+      "root_is_edited": false,
+      "native_exploration_tokens": 467,
+      "B_lexical": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 53
+      },
+      "C_graph": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 137
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.75,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 81
+      },
+      "graph_increment_over_lexical": 0,
+      "task": "django__django-11138"
+    },
+    {
+      "edit_symbol": "django.db.backends.utils",
+      "root_kind": "module",
+      "regime": "oracle",
+      "budget": 1024,
+      "anchor_kind": "oracle_edited_symbol",
+      "resolved": true,
+      "root_is_edited": true,
+      "native_exploration_tokens": 467,
+      "B_lexical": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0128,
+        "bundle_tokens": 60
+      },
+      "C_graph": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 132
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.75,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 81
+      },
+      "graph_increment_over_lexical": -0.0128,
+      "task": "django__django-11138"
+    },
+    {
+      "edit_symbol": "django.db.backends.utils",
+      "root_kind": "module",
+      "regime": "problem",
+      "budget": 1024,
+      "anchor_kind": "freetext",
+      "resolved": true,
+      "root_is_edited": false,
+      "native_exploration_tokens": 467,
+      "B_lexical": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 53
+      },
+      "C_graph": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 137
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.75,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 81
+      },
+      "graph_increment_over_lexical": 0,
+      "task": "django__django-11138"
+    },
+    {
+      "edit_symbol": "django.db.backends.utils",
+      "root_kind": "module",
+      "regime": "oracle",
+      "budget": 2048,
+      "anchor_kind": "oracle_edited_symbol",
+      "resolved": true,
+      "root_is_edited": true,
+      "native_exploration_tokens": 467,
+      "B_lexical": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0128,
+        "bundle_tokens": 60
+      },
+      "C_graph": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 132
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.75,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 81
+      },
+      "graph_increment_over_lexical": -0.0128,
+      "task": "django__django-11138"
+    },
+    {
+      "edit_symbol": "django.db.backends.utils",
+      "root_kind": "module",
+      "regime": "problem",
+      "budget": 2048,
+      "anchor_kind": "freetext",
+      "resolved": true,
+      "root_is_edited": false,
+      "native_exploration_tokens": 467,
+      "B_lexical": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 53
+      },
+      "C_graph": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 137
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.75,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 81
+      },
+      "graph_increment_over_lexical": 0,
+      "task": "django__django-11138"
+    },
+    {
+      "edit_symbol": "django.db.backends.utils",
+      "root_kind": "module",
+      "regime": "oracle",
+      "budget": 4096,
+      "anchor_kind": "oracle_edited_symbol",
+      "resolved": true,
+      "root_is_edited": true,
+      "native_exploration_tokens": 467,
+      "B_lexical": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0128,
+        "bundle_tokens": 60
+      },
+      "C_graph": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0128,
+        "bundle_tokens": 731
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.75,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 81
+      },
+      "graph_increment_over_lexical": 0.0,
+      "task": "django__django-11138"
+    },
+    {
+      "edit_symbol": "django.db.backends.utils",
+      "root_kind": "module",
+      "regime": "problem",
+      "budget": 4096,
+      "anchor_kind": "freetext",
+      "resolved": true,
+      "root_is_edited": false,
+      "native_exploration_tokens": 467,
+      "B_lexical": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 53
+      },
+      "C_graph": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 137
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.75,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 81
+      },
+      "graph_increment_over_lexical": 0,
+      "task": "django__django-11138"
+    },
+    {
+      "edit_symbol": "django.db.backends.sqlite3.base.DatabaseWrapper.get_new_connection",
+      "root_kind": "method",
+      "regime": "oracle",
+      "budget": 512,
+      "anchor_kind": "oracle_edited_symbol",
+      "resolved": true,
+      "root_is_edited": true,
+      "native_exploration_tokens": 4066,
+      "B_lexical": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0128,
+        "bundle_tokens": 67
+      },
+      "C_graph": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0256,
+        "bundle_tokens": 412
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.3333,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 106
+      },
+      "graph_increment_over_lexical": 0.0128,
+      "task": "django__django-11138"
+    },
+    {
+      "edit_symbol": "django.db.backends.sqlite3.base.DatabaseWrapper.get_new_connection",
+      "root_kind": "method",
+      "regime": "problem",
+      "budget": 512,
+      "anchor_kind": "freetext",
+      "resolved": true,
+      "root_is_edited": false,
+      "native_exploration_tokens": 4066,
+      "B_lexical": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 53
+      },
+      "C_graph": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 137
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.3333,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 106
+      },
+      "graph_increment_over_lexical": 0,
+      "task": "django__django-11138"
+    },
+    {
+      "edit_symbol": "django.db.backends.sqlite3.base.DatabaseWrapper.get_new_connection",
+      "root_kind": "method",
+      "regime": "oracle",
+      "budget": 1024,
+      "anchor_kind": "oracle_edited_symbol",
+      "resolved": true,
+      "root_is_edited": true,
+      "native_exploration_tokens": 4066,
+      "B_lexical": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0128,
+        "bundle_tokens": 67
+      },
+      "C_graph": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0385,
+        "bundle_tokens": 469
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.3333,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 106
+      },
+      "graph_increment_over_lexical": 0.0257,
+      "task": "django__django-11138"
+    },
+    {
+      "edit_symbol": "django.db.backends.sqlite3.base.DatabaseWrapper.get_new_connection",
+      "root_kind": "method",
+      "regime": "problem",
+      "budget": 1024,
+      "anchor_kind": "freetext",
+      "resolved": true,
+      "root_is_edited": false,
+      "native_exploration_tokens": 4066,
+      "B_lexical": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 53
+      },
+      "C_graph": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 137
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.3333,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 106
+      },
+      "graph_increment_over_lexical": 0,
+      "task": "django__django-11138"
+    },
+    {
+      "edit_symbol": "django.db.backends.sqlite3.base.DatabaseWrapper.get_new_connection",
+      "root_kind": "method",
+      "regime": "oracle",
+      "budget": 2048,
+      "anchor_kind": "oracle_edited_symbol",
+      "resolved": true,
+      "root_is_edited": true,
+      "native_exploration_tokens": 4066,
+      "B_lexical": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": true,
+        "edit_line_coverage": 1.0,
+        "useful_symbol_recall": 0.0128,
+        "bundle_tokens": 953
+      },
+      "C_graph": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": true,
+        "edit_line_coverage": 1.0,
+        "useful_symbol_recall": 0.0385,
+        "bundle_tokens": 1509
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.3333,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 106
+      },
+      "graph_increment_over_lexical": 0.0257,
+      "task": "django__django-11138"
+    },
+    {
+      "edit_symbol": "django.db.backends.sqlite3.base.DatabaseWrapper.get_new_connection",
+      "root_kind": "method",
+      "regime": "problem",
+      "budget": 2048,
+      "anchor_kind": "freetext",
+      "resolved": true,
+      "root_is_edited": false,
+      "native_exploration_tokens": 4066,
+      "B_lexical": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 53
+      },
+      "C_graph": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 137
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.3333,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 106
+      },
+      "graph_increment_over_lexical": 0,
+      "task": "django__django-11138"
+    },
+    {
+      "edit_symbol": "django.db.backends.sqlite3.base.DatabaseWrapper.get_new_connection",
+      "root_kind": "method",
+      "regime": "oracle",
+      "budget": 4096,
+      "anchor_kind": "oracle_edited_symbol",
+      "resolved": true,
+      "root_is_edited": true,
+      "native_exploration_tokens": 4066,
+      "B_lexical": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": true,
+        "edit_line_coverage": 1.0,
+        "useful_symbol_recall": 0.0128,
+        "bundle_tokens": 953
+      },
+      "C_graph": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": true,
+        "edit_line_coverage": 1.0,
+        "useful_symbol_recall": 0.0385,
+        "bundle_tokens": 1509
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.3333,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 106
+      },
+      "graph_increment_over_lexical": 0.0257,
+      "task": "django__django-11138"
+    },
+    {
+      "edit_symbol": "django.db.backends.sqlite3.base.DatabaseWrapper.get_new_connection",
+      "root_kind": "method",
+      "regime": "problem",
+      "budget": 4096,
+      "anchor_kind": "freetext",
+      "resolved": true,
+      "root_is_edited": false,
+      "native_exploration_tokens": 4066,
+      "B_lexical": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 53
+      },
+      "C_graph": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 137
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.3333,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 106
+      },
+      "graph_increment_over_lexical": 0,
+      "task": "django__django-11138"
+    },
+    {
+      "edit_symbol": "django.db.backends.sqlite3.base._sqlite_datetime_parse",
+      "root_kind": "function",
+      "regime": "oracle",
+      "budget": 512,
+      "anchor_kind": "oracle_edited_symbol",
+      "resolved": true,
+      "root_is_edited": true,
+      "native_exploration_tokens": 4066,
+      "B_lexical": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": true,
+        "edit_line_coverage": 1.0,
+        "useful_symbol_recall": 0.0128,
+        "bundle_tokens": 121
+      },
+      "C_graph": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": true,
+        "edit_line_coverage": 1.0,
+        "useful_symbol_recall": 0.0256,
+        "bundle_tokens": 382
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 106
+      },
+      "graph_increment_over_lexical": 0.0128,
+      "task": "django__django-11138"
+    },
+    {
+      "edit_symbol": "django.db.backends.sqlite3.base._sqlite_datetime_parse",
+      "root_kind": "function",
+      "regime": "problem",
+      "budget": 512,
+      "anchor_kind": "freetext",
+      "resolved": true,
+      "root_is_edited": false,
+      "native_exploration_tokens": 4066,
+      "B_lexical": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 53
+      },
+      "C_graph": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 137
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 106
+      },
+      "graph_increment_over_lexical": 0,
+      "task": "django__django-11138"
+    },
+    {
+      "edit_symbol": "django.db.backends.sqlite3.base._sqlite_datetime_parse",
+      "root_kind": "function",
+      "regime": "oracle",
+      "budget": 1024,
+      "anchor_kind": "oracle_edited_symbol",
+      "resolved": true,
+      "root_is_edited": true,
+      "native_exploration_tokens": 4066,
+      "B_lexical": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": true,
+        "edit_line_coverage": 1.0,
+        "useful_symbol_recall": 0.0128,
+        "bundle_tokens": 121
+      },
+      "C_graph": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": true,
+        "edit_line_coverage": 1.0,
+        "useful_symbol_recall": 0.0256,
+        "bundle_tokens": 556
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 106
+      },
+      "graph_increment_over_lexical": 0.0128,
+      "task": "django__django-11138"
+    },
+    {
+      "edit_symbol": "django.db.backends.sqlite3.base._sqlite_datetime_parse",
+      "root_kind": "function",
+      "regime": "problem",
+      "budget": 1024,
+      "anchor_kind": "freetext",
+      "resolved": true,
+      "root_is_edited": false,
+      "native_exploration_tokens": 4066,
+      "B_lexical": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 53
+      },
+      "C_graph": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 137
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 106
+      },
+      "graph_increment_over_lexical": 0,
+      "task": "django__django-11138"
+    },
+    {
+      "edit_symbol": "django.db.backends.sqlite3.base._sqlite_datetime_parse",
+      "root_kind": "function",
+      "regime": "oracle",
+      "budget": 2048,
+      "anchor_kind": "oracle_edited_symbol",
+      "resolved": true,
+      "root_is_edited": true,
+      "native_exploration_tokens": 4066,
+      "B_lexical": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": true,
+        "edit_line_coverage": 1.0,
+        "useful_symbol_recall": 0.0128,
+        "bundle_tokens": 121
+      },
+      "C_graph": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": true,
+        "edit_line_coverage": 1.0,
+        "useful_symbol_recall": 0.0256,
+        "bundle_tokens": 556
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 106
+      },
+      "graph_increment_over_lexical": 0.0128,
+      "task": "django__django-11138"
+    },
+    {
+      "edit_symbol": "django.db.backends.sqlite3.base._sqlite_datetime_parse",
+      "root_kind": "function",
+      "regime": "problem",
+      "budget": 2048,
+      "anchor_kind": "freetext",
+      "resolved": true,
+      "root_is_edited": false,
+      "native_exploration_tokens": 4066,
+      "B_lexical": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 53
+      },
+      "C_graph": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 137
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 106
+      },
+      "graph_increment_over_lexical": 0,
+      "task": "django__django-11138"
+    },
+    {
+      "edit_symbol": "django.db.backends.sqlite3.base._sqlite_datetime_parse",
+      "root_kind": "function",
+      "regime": "oracle",
+      "budget": 4096,
+      "anchor_kind": "oracle_edited_symbol",
+      "resolved": true,
+      "root_is_edited": true,
+      "native_exploration_tokens": 4066,
+      "B_lexical": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": true,
+        "edit_line_coverage": 1.0,
+        "useful_symbol_recall": 0.0128,
+        "bundle_tokens": 121
+      },
+      "C_graph": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": true,
+        "edit_line_coverage": 1.0,
+        "useful_symbol_recall": 0.0256,
+        "bundle_tokens": 556
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 106
+      },
+      "graph_increment_over_lexical": 0.0128,
+      "task": "django__django-11138"
+    },
+    {
+      "edit_symbol": "django.db.backends.sqlite3.base._sqlite_datetime_parse",
+      "root_kind": "function",
+      "regime": "problem",
+      "budget": 4096,
+      "anchor_kind": "freetext",
+      "resolved": true,
+      "root_is_edited": false,
+      "native_exploration_tokens": 4066,
+      "B_lexical": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 53
+      },
+      "C_graph": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 137
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 106
+      },
+      "graph_increment_over_lexical": 0,
+      "task": "django__django-11138"
+    },
+    {
+      "edit_symbol": "django.db.backends.sqlite3.base._sqlite_datetime_extract",
+      "root_kind": "function",
+      "regime": "oracle",
+      "budget": 512,
+      "anchor_kind": "oracle_edited_symbol",
+      "resolved": true,
+      "root_is_edited": true,
+      "native_exploration_tokens": 4066,
+      "B_lexical": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.8077,
+        "useful_symbol_recall": 0.0128,
+        "bundle_tokens": 168
+      },
+      "C_graph": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.8077,
+        "useful_symbol_recall": 0.0385,
+        "bundle_tokens": 427
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 106
+      },
+      "graph_increment_over_lexical": 0.0257,
+      "task": "django__django-11138"
+    },
+    {
+      "edit_symbol": "django.db.backends.sqlite3.base._sqlite_datetime_extract",
+      "root_kind": "function",
+      "regime": "problem",
+      "budget": 512,
+      "anchor_kind": "freetext",
+      "resolved": true,
+      "root_is_edited": false,
+      "native_exploration_tokens": 4066,
+      "B_lexical": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 53
+      },
+      "C_graph": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 137
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 106
+      },
+      "graph_increment_over_lexical": 0,
+      "task": "django__django-11138"
+    },
+    {
+      "edit_symbol": "django.db.backends.sqlite3.base._sqlite_datetime_extract",
+      "root_kind": "function",
+      "regime": "oracle",
+      "budget": 1024,
+      "anchor_kind": "oracle_edited_symbol",
+      "resolved": true,
+      "root_is_edited": true,
+      "native_exploration_tokens": 4066,
+      "B_lexical": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.8077,
+        "useful_symbol_recall": 0.0128,
+        "bundle_tokens": 168
+      },
+      "C_graph": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.8077,
+        "useful_symbol_recall": 0.0385,
+        "bundle_tokens": 601
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 106
+      },
+      "graph_increment_over_lexical": 0.0257,
+      "task": "django__django-11138"
+    },
+    {
+      "edit_symbol": "django.db.backends.sqlite3.base._sqlite_datetime_extract",
+      "root_kind": "function",
+      "regime": "problem",
+      "budget": 1024,
+      "anchor_kind": "freetext",
+      "resolved": true,
+      "root_is_edited": false,
+      "native_exploration_tokens": 4066,
+      "B_lexical": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 53
+      },
+      "C_graph": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 137
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 106
+      },
+      "graph_increment_over_lexical": 0,
+      "task": "django__django-11138"
+    },
+    {
+      "edit_symbol": "django.db.backends.sqlite3.base._sqlite_datetime_extract",
+      "root_kind": "function",
+      "regime": "oracle",
+      "budget": 2048,
+      "anchor_kind": "oracle_edited_symbol",
+      "resolved": true,
+      "root_is_edited": true,
+      "native_exploration_tokens": 4066,
+      "B_lexical": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.8077,
+        "useful_symbol_recall": 0.0128,
+        "bundle_tokens": 168
+      },
+      "C_graph": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.8077,
+        "useful_symbol_recall": 0.0385,
+        "bundle_tokens": 601
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 106
+      },
+      "graph_increment_over_lexical": 0.0257,
+      "task": "django__django-11138"
+    },
+    {
+      "edit_symbol": "django.db.backends.sqlite3.base._sqlite_datetime_extract",
+      "root_kind": "function",
+      "regime": "problem",
+      "budget": 2048,
+      "anchor_kind": "freetext",
+      "resolved": true,
+      "root_is_edited": false,
+      "native_exploration_tokens": 4066,
+      "B_lexical": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 53
+      },
+      "C_graph": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 137
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 106
+      },
+      "graph_increment_over_lexical": 0,
+      "task": "django__django-11138"
+    },
+    {
+      "edit_symbol": "django.db.backends.sqlite3.base._sqlite_datetime_extract",
+      "root_kind": "function",
+      "regime": "oracle",
+      "budget": 4096,
+      "anchor_kind": "oracle_edited_symbol",
+      "resolved": true,
+      "root_is_edited": true,
+      "native_exploration_tokens": 4066,
+      "B_lexical": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.8077,
+        "useful_symbol_recall": 0.0128,
+        "bundle_tokens": 168
+      },
+      "C_graph": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.8077,
+        "useful_symbol_recall": 0.0385,
+        "bundle_tokens": 601
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 106
+      },
+      "graph_increment_over_lexical": 0.0257,
+      "task": "django__django-11138"
+    },
+    {
+      "edit_symbol": "django.db.backends.sqlite3.base._sqlite_datetime_extract",
+      "root_kind": "function",
+      "regime": "problem",
+      "budget": 4096,
+      "anchor_kind": "freetext",
+      "resolved": true,
+      "root_is_edited": false,
+      "native_exploration_tokens": 4066,
+      "B_lexical": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 53
+      },
+      "C_graph": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 137
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 106
+      },
+      "graph_increment_over_lexical": 0,
+      "task": "django__django-11138"
+    },
+    {
+      "edit_symbol": "django.db.backends.sqlite3.base.DatabaseWrapper.get_new_connection",
+      "root_kind": "method",
+      "regime": "oracle",
+      "budget": 512,
+      "anchor_kind": "oracle_edited_symbol",
+      "resolved": true,
+      "root_is_edited": true,
+      "native_exploration_tokens": 4066,
+      "B_lexical": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0128,
+        "bundle_tokens": 67
+      },
+      "C_graph": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0256,
+        "bundle_tokens": 412
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.3889,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 106
+      },
+      "graph_increment_over_lexical": 0.0128,
+      "task": "django__django-11138"
+    },
+    {
+      "edit_symbol": "django.db.backends.sqlite3.base.DatabaseWrapper.get_new_connection",
+      "root_kind": "method",
+      "regime": "problem",
+      "budget": 512,
+      "anchor_kind": "freetext",
+      "resolved": true,
+      "root_is_edited": false,
+      "native_exploration_tokens": 4066,
+      "B_lexical": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 53
+      },
+      "C_graph": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 137
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.3889,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 106
+      },
+      "graph_increment_over_lexical": 0,
+      "task": "django__django-11138"
+    },
+    {
+      "edit_symbol": "django.db.backends.sqlite3.base.DatabaseWrapper.get_new_connection",
+      "root_kind": "method",
+      "regime": "oracle",
+      "budget": 1024,
+      "anchor_kind": "oracle_edited_symbol",
+      "resolved": true,
+      "root_is_edited": true,
+      "native_exploration_tokens": 4066,
+      "B_lexical": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0128,
+        "bundle_tokens": 67
+      },
+      "C_graph": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0385,
+        "bundle_tokens": 469
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.3889,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 106
+      },
+      "graph_increment_over_lexical": 0.0257,
+      "task": "django__django-11138"
+    },
+    {
+      "edit_symbol": "django.db.backends.sqlite3.base.DatabaseWrapper.get_new_connection",
+      "root_kind": "method",
+      "regime": "problem",
+      "budget": 1024,
+      "anchor_kind": "freetext",
+      "resolved": true,
+      "root_is_edited": false,
+      "native_exploration_tokens": 4066,
+      "B_lexical": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 53
+      },
+      "C_graph": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 137
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.3889,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 106
+      },
+      "graph_increment_over_lexical": 0,
+      "task": "django__django-11138"
+    },
+    {
+      "edit_symbol": "django.db.backends.sqlite3.base.DatabaseWrapper.get_new_connection",
+      "root_kind": "method",
+      "regime": "oracle",
+      "budget": 2048,
+      "anchor_kind": "oracle_edited_symbol",
+      "resolved": true,
+      "root_is_edited": true,
+      "native_exploration_tokens": 4066,
+      "B_lexical": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.1111,
+        "useful_symbol_recall": 0.0128,
+        "bundle_tokens": 953
+      },
+      "C_graph": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.1111,
+        "useful_symbol_recall": 0.0385,
+        "bundle_tokens": 1509
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.3889,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 106
+      },
+      "graph_increment_over_lexical": 0.0257,
+      "task": "django__django-11138"
+    },
+    {
+      "edit_symbol": "django.db.backends.sqlite3.base.DatabaseWrapper.get_new_connection",
+      "root_kind": "method",
+      "regime": "problem",
+      "budget": 2048,
+      "anchor_kind": "freetext",
+      "resolved": true,
+      "root_is_edited": false,
+      "native_exploration_tokens": 4066,
+      "B_lexical": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 53
+      },
+      "C_graph": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 137
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.3889,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 106
+      },
+      "graph_increment_over_lexical": 0,
+      "task": "django__django-11138"
+    },
+    {
+      "edit_symbol": "django.db.backends.sqlite3.base.DatabaseWrapper.get_new_connection",
+      "root_kind": "method",
+      "regime": "oracle",
+      "budget": 4096,
+      "anchor_kind": "oracle_edited_symbol",
+      "resolved": true,
+      "root_is_edited": true,
+      "native_exploration_tokens": 4066,
+      "B_lexical": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.1111,
+        "useful_symbol_recall": 0.0128,
+        "bundle_tokens": 953
+      },
+      "C_graph": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.1111,
+        "useful_symbol_recall": 0.0385,
+        "bundle_tokens": 1509
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.3889,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 106
+      },
+      "graph_increment_over_lexical": 0.0257,
+      "task": "django__django-11138"
+    },
+    {
+      "edit_symbol": "django.db.backends.sqlite3.base.DatabaseWrapper.get_new_connection",
+      "root_kind": "method",
+      "regime": "problem",
+      "budget": 4096,
+      "anchor_kind": "freetext",
+      "resolved": true,
+      "root_is_edited": false,
+      "native_exploration_tokens": 4066,
+      "B_lexical": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 53
+      },
+      "C_graph": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 137
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.3889,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 106
+      },
+      "graph_increment_over_lexical": 0,
+      "task": "django__django-11138"
+    },
+    {
+      "edit_symbol": "django.forms.formsets.BaseFormSet.full_clean",
+      "root_kind": "method",
+      "regime": "oracle",
+      "budget": 512,
+      "anchor_kind": "oracle_edited_symbol",
+      "resolved": true,
+      "root_is_edited": true,
+      "native_exploration_tokens": 1276,
+      "B_lexical": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.3333,
+        "useful_symbol_recall": 0.0556,
+        "bundle_tokens": 445
+      },
+      "C_graph": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 355
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 116
+      },
+      "graph_increment_over_lexical": -0.0556,
+      "task": "django__django-14608"
+    },
+    {
+      "edit_symbol": "django.forms.formsets.BaseFormSet.full_clean",
+      "root_kind": "method",
+      "regime": "problem",
+      "budget": 512,
+      "anchor_kind": "freetext",
+      "resolved": true,
+      "root_is_edited": false,
+      "native_exploration_tokens": 1276,
+      "B_lexical": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0556,
+        "bundle_tokens": 42
+      },
+      "C_graph": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 79
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 116
+      },
+      "graph_increment_over_lexical": -0.0556,
+      "task": "django__django-14608"
+    },
+    {
+      "edit_symbol": "django.forms.formsets.BaseFormSet.full_clean",
+      "root_kind": "method",
+      "regime": "oracle",
+      "budget": 1024,
+      "anchor_kind": "oracle_edited_symbol",
+      "resolved": true,
+      "root_is_edited": true,
+      "native_exploration_tokens": 1276,
+      "B_lexical": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": true,
+        "edit_line_coverage": 1.0,
+        "useful_symbol_recall": 0.0556,
+        "bundle_tokens": 646
+      },
+      "C_graph": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.2778,
+        "bundle_tokens": 889
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 116
+      },
+      "graph_increment_over_lexical": 0.2222,
+      "task": "django__django-14608"
+    },
+    {
+      "edit_symbol": "django.forms.formsets.BaseFormSet.full_clean",
+      "root_kind": "method",
+      "regime": "problem",
+      "budget": 1024,
+      "anchor_kind": "freetext",
+      "resolved": true,
+      "root_is_edited": false,
+      "native_exploration_tokens": 1276,
+      "B_lexical": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0556,
+        "bundle_tokens": 585
+      },
+      "C_graph": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0556,
+        "bundle_tokens": 665
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 116
+      },
+      "graph_increment_over_lexical": 0.0,
+      "task": "django__django-14608"
+    },
+    {
+      "edit_symbol": "django.forms.formsets.BaseFormSet.full_clean",
+      "root_kind": "method",
+      "regime": "oracle",
+      "budget": 2048,
+      "anchor_kind": "oracle_edited_symbol",
+      "resolved": true,
+      "root_is_edited": true,
+      "native_exploration_tokens": 1276,
+      "B_lexical": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": true,
+        "edit_line_coverage": 1.0,
+        "useful_symbol_recall": 0.0556,
+        "bundle_tokens": 646
+      },
+      "C_graph": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": true,
+        "edit_line_coverage": 1.0,
+        "useful_symbol_recall": 0.2778,
+        "bundle_tokens": 1833
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 116
+      },
+      "graph_increment_over_lexical": 0.2222,
+      "task": "django__django-14608"
+    },
+    {
+      "edit_symbol": "django.forms.formsets.BaseFormSet.full_clean",
+      "root_kind": "method",
+      "regime": "problem",
+      "budget": 2048,
+      "anchor_kind": "freetext",
+      "resolved": true,
+      "root_is_edited": false,
+      "native_exploration_tokens": 1276,
+      "B_lexical": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0556,
+        "bundle_tokens": 585
+      },
+      "C_graph": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0556,
+        "bundle_tokens": 665
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 116
+      },
+      "graph_increment_over_lexical": 0.0,
+      "task": "django__django-14608"
+    },
+    {
+      "edit_symbol": "django.forms.formsets.BaseFormSet.full_clean",
+      "root_kind": "method",
+      "regime": "oracle",
+      "budget": 4096,
+      "anchor_kind": "oracle_edited_symbol",
+      "resolved": true,
+      "root_is_edited": true,
+      "native_exploration_tokens": 1276,
+      "B_lexical": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": true,
+        "edit_line_coverage": 1.0,
+        "useful_symbol_recall": 0.0556,
+        "bundle_tokens": 646
+      },
+      "C_graph": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": true,
+        "edit_line_coverage": 1.0,
+        "useful_symbol_recall": 0.2778,
+        "bundle_tokens": 3173
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 116
+      },
+      "graph_increment_over_lexical": 0.2222,
+      "task": "django__django-14608"
+    },
+    {
+      "edit_symbol": "django.forms.formsets.BaseFormSet.full_clean",
+      "root_kind": "method",
+      "regime": "problem",
+      "budget": 4096,
+      "anchor_kind": "freetext",
+      "resolved": true,
+      "root_is_edited": false,
+      "native_exploration_tokens": 1276,
+      "B_lexical": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0556,
+        "bundle_tokens": 585
+      },
+      "C_graph": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0556,
+        "bundle_tokens": 665
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 116
+      },
+      "graph_increment_over_lexical": 0.0,
+      "task": "django__django-14608"
+    },
+    {
+      "edit_symbol": "django.forms.formsets.BaseFormSet.full_clean",
+      "root_kind": "method",
+      "regime": "oracle",
+      "budget": 512,
+      "anchor_kind": "oracle_edited_symbol",
+      "resolved": true,
+      "root_is_edited": true,
+      "native_exploration_tokens": 1276,
+      "B_lexical": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": true,
+        "edit_line_coverage": 1.0,
+        "useful_symbol_recall": 0.0556,
+        "bundle_tokens": 445
+      },
+      "C_graph": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 355
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": true,
+        "edit_line_coverage": 1.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 116
+      },
+      "graph_increment_over_lexical": -0.0556,
+      "task": "django__django-14608"
+    },
+    {
+      "edit_symbol": "django.forms.formsets.BaseFormSet.full_clean",
+      "root_kind": "method",
+      "regime": "problem",
+      "budget": 512,
+      "anchor_kind": "freetext",
+      "resolved": true,
+      "root_is_edited": false,
+      "native_exploration_tokens": 1276,
+      "B_lexical": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0556,
+        "bundle_tokens": 42
+      },
+      "C_graph": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 79
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": true,
+        "edit_line_coverage": 1.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 116
+      },
+      "graph_increment_over_lexical": -0.0556,
+      "task": "django__django-14608"
+    },
+    {
+      "edit_symbol": "django.forms.formsets.BaseFormSet.full_clean",
+      "root_kind": "method",
+      "regime": "oracle",
+      "budget": 1024,
+      "anchor_kind": "oracle_edited_symbol",
+      "resolved": true,
+      "root_is_edited": true,
+      "native_exploration_tokens": 1276,
+      "B_lexical": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": true,
+        "edit_line_coverage": 1.0,
+        "useful_symbol_recall": 0.0556,
+        "bundle_tokens": 646
+      },
+      "C_graph": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.2778,
+        "bundle_tokens": 889
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": true,
+        "edit_line_coverage": 1.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 116
+      },
+      "graph_increment_over_lexical": 0.2222,
+      "task": "django__django-14608"
+    },
+    {
+      "edit_symbol": "django.forms.formsets.BaseFormSet.full_clean",
+      "root_kind": "method",
+      "regime": "problem",
+      "budget": 1024,
+      "anchor_kind": "freetext",
+      "resolved": true,
+      "root_is_edited": false,
+      "native_exploration_tokens": 1276,
+      "B_lexical": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0556,
+        "bundle_tokens": 585
+      },
+      "C_graph": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0556,
+        "bundle_tokens": 665
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": true,
+        "edit_line_coverage": 1.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 116
+      },
+      "graph_increment_over_lexical": 0.0,
+      "task": "django__django-14608"
+    },
+    {
+      "edit_symbol": "django.forms.formsets.BaseFormSet.full_clean",
+      "root_kind": "method",
+      "regime": "oracle",
+      "budget": 2048,
+      "anchor_kind": "oracle_edited_symbol",
+      "resolved": true,
+      "root_is_edited": true,
+      "native_exploration_tokens": 1276,
+      "B_lexical": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": true,
+        "edit_line_coverage": 1.0,
+        "useful_symbol_recall": 0.0556,
+        "bundle_tokens": 646
+      },
+      "C_graph": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": true,
+        "edit_line_coverage": 1.0,
+        "useful_symbol_recall": 0.2778,
+        "bundle_tokens": 1833
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": true,
+        "edit_line_coverage": 1.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 116
+      },
+      "graph_increment_over_lexical": 0.2222,
+      "task": "django__django-14608"
+    },
+    {
+      "edit_symbol": "django.forms.formsets.BaseFormSet.full_clean",
+      "root_kind": "method",
+      "regime": "problem",
+      "budget": 2048,
+      "anchor_kind": "freetext",
+      "resolved": true,
+      "root_is_edited": false,
+      "native_exploration_tokens": 1276,
+      "B_lexical": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0556,
+        "bundle_tokens": 585
+      },
+      "C_graph": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0556,
+        "bundle_tokens": 665
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": true,
+        "edit_line_coverage": 1.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 116
+      },
+      "graph_increment_over_lexical": 0.0,
+      "task": "django__django-14608"
+    },
+    {
+      "edit_symbol": "django.forms.formsets.BaseFormSet.full_clean",
+      "root_kind": "method",
+      "regime": "oracle",
+      "budget": 4096,
+      "anchor_kind": "oracle_edited_symbol",
+      "resolved": true,
+      "root_is_edited": true,
+      "native_exploration_tokens": 1276,
+      "B_lexical": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": true,
+        "edit_line_coverage": 1.0,
+        "useful_symbol_recall": 0.0556,
+        "bundle_tokens": 646
+      },
+      "C_graph": {
+        "edit_symbol_recall": true,
+        "edit_line_recall": true,
+        "edit_line_coverage": 1.0,
+        "useful_symbol_recall": 0.2778,
+        "bundle_tokens": 3173
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": true,
+        "edit_line_coverage": 1.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 116
+      },
+      "graph_increment_over_lexical": 0.2222,
+      "task": "django__django-14608"
+    },
+    {
+      "edit_symbol": "django.forms.formsets.BaseFormSet.full_clean",
+      "root_kind": "method",
+      "regime": "problem",
+      "budget": 4096,
+      "anchor_kind": "freetext",
+      "resolved": true,
+      "root_is_edited": false,
+      "native_exploration_tokens": 1276,
+      "B_lexical": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0556,
+        "bundle_tokens": 585
+      },
+      "C_graph": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": false,
+        "edit_line_coverage": 0.0,
+        "useful_symbol_recall": 0.0556,
+        "bundle_tokens": 665
+      },
+      "D_skeleton": {
+        "edit_symbol_recall": false,
+        "edit_line_recall": true,
+        "edit_line_coverage": 1.0,
+        "useful_symbol_recall": 0.0,
+        "bundle_tokens": 116
+      },
+      "graph_increment_over_lexical": 0.0,
+      "task": "django__django-14608"
+    }
+  ],
+  "aggregate": {
+    "oracle@512": {
+      "n": 14,
+      "n_function_edits": 9,
+      "root_is_edited_frac": 1.0,
+      "edit_symbol_recall_C": 0.7143,
+      "edit_line_recall_C": 0.2857,
+      "edit_line_coverage_C": 0.3536,
+      "edit_line_recall_C_function_only": 0.3333,
+      "edit_line_coverage_C_function_only": 0.439,
+      "edit_line_recall_B": 0.4286,
+      "edit_line_recall_D_skeleton": 0.0714,
+      "edit_line_coverage_D_skeleton": 0.2569,
+      "useful_recall_B": 0.0182,
+      "useful_recall_C": 0.0147,
+      "graph_increment_over_lexical": -0.0035,
+      "bundle_tokens_C": 300.2143,
+      "native_exploration_tokens": 2046.2143,
+      "token_compression_C": 0.8533
+    },
+    "oracle@1024": {
+      "n": 14,
+      "n_function_edits": 9,
+      "root_is_edited_frac": 1.0,
+      "edit_symbol_recall_C": 0.8571,
+      "edit_line_recall_C": 0.3571,
+      "edit_line_coverage_C": 0.4409,
+      "edit_line_recall_C_function_only": 0.3333,
+      "edit_line_coverage_C_function_only": 0.439,
+      "edit_line_recall_B": 0.5,
+      "edit_line_recall_D_skeleton": 0.0714,
+      "edit_line_coverage_D_skeleton": 0.2569,
+      "useful_recall_B": 0.0182,
+      "useful_recall_C": 0.0562,
+      "graph_increment_over_lexical": 0.038,
+      "bundle_tokens_C": 473.3571,
+      "native_exploration_tokens": 2046.2143,
+      "token_compression_C": 0.7687
+    },
+    "oracle@2048": {
+      "n": 14,
+      "n_function_edits": 9,
+      "root_is_edited_frac": 1.0,
+      "edit_symbol_recall_C": 0.8571,
+      "edit_line_recall_C": 0.5714,
+      "edit_line_coverage_C": 0.6671,
+      "edit_line_recall_C_function_only": 0.6667,
+      "edit_line_coverage_C_function_only": 0.7846,
+      "edit_line_recall_B": 0.5714,
+      "edit_line_recall_D_skeleton": 0.0714,
+      "edit_line_coverage_D_skeleton": 0.2569,
+      "useful_recall_B": 0.0182,
+      "useful_recall_C": 0.0562,
+      "graph_increment_over_lexical": 0.038,
+      "bundle_tokens_C": 838.7857,
+      "native_exploration_tokens": 2046.2143,
+      "token_compression_C": 0.5901
+    },
+    "oracle@4096": {
+      "n": 14,
+      "n_function_edits": 9,
+      "root_is_edited_frac": 1.0,
+      "edit_symbol_recall_C": 1.0,
+      "edit_line_recall_C": 0.5714,
+      "edit_line_coverage_C": 0.676,
+      "edit_line_recall_C_function_only": 0.6667,
+      "edit_line_coverage_C_function_only": 0.7846,
+      "edit_line_recall_B": 0.5714,
+      "edit_line_recall_D_skeleton": 0.0714,
+      "edit_line_coverage_D_skeleton": 0.2569,
+      "useful_recall_B": 0.0182,
+      "useful_recall_C": 0.0579,
+      "graph_increment_over_lexical": 0.0397,
+      "bundle_tokens_C": 1220.5714,
+      "native_exploration_tokens": 2046.2143,
+      "token_compression_C": 0.4035
+    },
+    "problem@512": {
+      "n": 14,
+      "n_function_edits": 9,
+      "root_is_edited_frac": 0.0,
+      "edit_symbol_recall_C": 0.0,
+      "edit_line_recall_C": 0.0,
+      "edit_line_coverage_C": 0.0,
+      "edit_line_recall_C_function_only": 0.0,
+      "edit_line_coverage_C_function_only": 0.0,
+      "edit_line_recall_B": 0.0,
+      "edit_line_recall_D_skeleton": 0.0714,
+      "edit_line_coverage_D_skeleton": 0.2569,
+      "useful_recall_B": 0.0079,
+      "useful_recall_C": 0.0,
+      "graph_increment_over_lexical": -0.0079,
+      "bundle_tokens_C": 239.4286,
+      "native_exploration_tokens": 2046.2143,
+      "token_compression_C": 0.883
+    },
+    "problem@1024": {
+      "n": 14,
+      "n_function_edits": 9,
+      "root_is_edited_frac": 0.0,
+      "edit_symbol_recall_C": 0.0,
+      "edit_line_recall_C": 0.0,
+      "edit_line_coverage_C": 0.0,
+      "edit_line_recall_C_function_only": 0.0,
+      "edit_line_coverage_C_function_only": 0.0,
+      "edit_line_recall_B": 0.0,
+      "edit_line_recall_D_skeleton": 0.0714,
+      "edit_line_coverage_D_skeleton": 0.2569,
+      "useful_recall_B": 0.0079,
+      "useful_recall_C": 0.0079,
+      "graph_increment_over_lexical": 0.0,
+      "bundle_tokens_C": 355.6429,
+      "native_exploration_tokens": 2046.2143,
+      "token_compression_C": 0.8262
+    },
+    "problem@2048": {
+      "n": 14,
+      "n_function_edits": 9,
+      "root_is_edited_frac": 0.0,
+      "edit_symbol_recall_C": 0.0,
+      "edit_line_recall_C": 0.0,
+      "edit_line_coverage_C": 0.0,
+      "edit_line_recall_C_function_only": 0.0,
+      "edit_line_coverage_C_function_only": 0.0,
+      "edit_line_recall_B": 0.0,
+      "edit_line_recall_D_skeleton": 0.0714,
+      "edit_line_coverage_D_skeleton": 0.2569,
+      "useful_recall_B": 0.0079,
+      "useful_recall_C": 0.0079,
+      "graph_increment_over_lexical": 0.0,
+      "bundle_tokens_C": 355.6429,
+      "native_exploration_tokens": 2046.2143,
+      "token_compression_C": 0.8262
+    },
+    "problem@4096": {
+      "n": 14,
+      "n_function_edits": 9,
+      "root_is_edited_frac": 0.0,
+      "edit_symbol_recall_C": 0.0,
+      "edit_line_recall_C": 0.0,
+      "edit_line_coverage_C": 0.0,
+      "edit_line_recall_C_function_only": 0.0,
+      "edit_line_coverage_C_function_only": 0.0,
+      "edit_line_recall_B": 0.0,
+      "edit_line_recall_D_skeleton": 0.0714,
+      "edit_line_coverage_D_skeleton": 0.2569,
+      "useful_recall_B": 0.0079,
+      "useful_recall_C": 0.0079,
+      "graph_increment_over_lexical": 0.0,
+      "bundle_tokens_C": 355.6429,
+      "native_exploration_tokens": 2046.2143,
+      "token_compression_C": 0.8262
+    }
+  },
+  "n_rows": 112,
+  "provenance": {
+    "tasks": {
+      "django__django-10554": {
+        "graph_db": "codegraph.db",
+        "transcript": "e66c5a33-7111-4a52-8781-cb618e402ca0.jsonl",
+        "spec": "corpus/specs/run-29.md",
+        "base_commit": "14d026cccb144c6877294ba4cd4e03ebf0842498",
+        "graph_db_sha256": "sha256:307f65a70a3f8c2b94eff80968ef330ecbf707c7b780c7a8b763d73329c82ecd",
+        "files_indexed": 2643
+      },
+      "django__django-11138": {
+        "graph_db": "codegraph.db",
+        "transcript": "da5e16af-8802-4ca6-9d14-d27df2ffc96f.jsonl",
+        "spec": "corpus/specs/run-14.md",
+        "base_commit": "c84b91b7603e488f7171fdff8f08368ef3d6b856",
+        "graph_db_sha256": "sha256:8abfaac7a4afeddbc3024bc0be9f3077224802587c02174ac7d7d1e6a38f9f21",
+        "files_indexed": 2639
+      },
+      "django__django-12419": {
+        "graph_db": "codegraph.db",
+        "transcript": "de5544ab-9a4c-45a5-b4f3-226ee8d4489a.jsonl",
+        "spec": "corpus/specs/run-15.md",
+        "base_commit": "7fa1a93c6c8109010a6ff3f604fda83b604e0e97",
+        "graph_db_sha256": "sha256:594e8bdead4f4dfd58d85e7ff7cdc8e85905c8234f8a3eb332033df6f79d40d4",
+        "files_indexed": 2699
+      },
+      "django__django-14608": {
+        "graph_db": "codegraph.db",
+        "transcript": "37fbdfe9-9872-47d8-b9e1-aa4aab4303c9.jsonl",
+        "spec": "corpus/specs/run-24.md",
+        "base_commit": "7f33c1e22dbc34a7afae7967783725b10f1f13b1",
+        "graph_db_sha256": "sha256:545c16f35ae68450ea6d177ec41bcc495190a83e51bfcefa5ca92a73298a5e9c",
+        "files_indexed": 2805
+      }
+    },
+    "arm": "A_native",
+    "budgets": [
+      512,
+      1024,
+      2048,
+      4096
+    ],
+    "repo_id": "django",
+    "task_set": [
+      "django__django-10554",
+      "django__django-11138",
+      "django__django-12419",
+      "django__django-14608"
+    ],
+    "code_commit": "3a4d4584000b006aef073a1b21137a2cd6ec73f2"
+  }
+}
