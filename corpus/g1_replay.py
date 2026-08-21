@@ -279,6 +279,84 @@ def _aggregate(rows, budgets) -> dict:
     return out
 
 
+_DEP = ("CALLS", "IMPLEMENTS", "IMPORTS", "DEPENDS_ON")
+
+
+def _reachable(store, src, dst, edge_types=_DEP, maxhop=3):
+    from collections import deque
+    seen, dq = {src}, deque([(src, 0)])
+    while dq:
+        s, h = dq.popleft()
+        if h >= maxhop:
+            continue
+        for e in store.code_edges_from(s, edge_types):
+            n = e["dst_id"]
+            if n == dst:
+                return h + 1
+            if n not in seen:
+                seen.add(n); dq.append((n, h + 1))
+    return None
+
+
+def coedit_relation(store, a, b) -> str:
+    """The STRONGEST graph relation from co-edited symbol a to co-edited symbol b, giving the graph
+    its fairest chance: callee (a depends on b) / caller (b depends on a) / test (TESTED_BY) /
+    same_file / none. Bug fixes co-edit symbols related by FEATURE; this asks whether ANY graph edge
+    (not just forward callees) captures that."""
+    ra, rb = store.symbol_row(a), store.symbol_row(b)
+    if _reachable(store, a, b, _DEP) is not None:
+        return "callee"
+    if _reachable(store, b, a, _DEP) is not None:
+        return "caller"
+    if any(e["dst_id"] == b for e in store.code_edges_from(a, ("TESTED_BY",))) or \
+       any(e["src_id"] == b for e in store.code_edges_to(a, ("TESTED_BY",))):
+        return "test"
+    if ra is not None and rb is not None and ra["path"] and ra["path"] == rb["path"]:
+        return "same_file"
+    return "none"
+
+
+def fair_bc_ablation(results_json: str, tasks: dict, pilot_dir: str, *, arm="A_native") -> dict:
+    """The fair B-vs-C test on MULTI-SYMBOL fixes: for every ordered pair of distinct co-edited
+    symbols (root a, other b), can the graph surface b from a? B (target-only) surfaces 0 co-edits by
+    construction; C's ceiling is bounded by whether b is graph-adjacent to a AT ALL. Reports the
+    co-edit relation distribution — the decisive number for 'does the dependency graph know which
+    symbols a fix edits together'."""
+    from collections import Counter
+    from contextruntime.store import GraphStore
+    res = json.load(open(results_json))
+    rel = Counter()
+    pairs = 0
+    per_task = {}
+    for tid in tasks:
+        gdb = os.path.join(pilot_dir, tid, "C_graph", "codegraph.db")
+        tr = next((m["transcript"] for k, m in res.items()
+                   if k.startswith(f"{tid}|{arm}|") and isinstance(m, dict) and m.get("transcript")
+                   and os.path.exists(m["transcript"])), None)
+        if not (tr and os.path.exists(gdb)):
+            continue
+        store = GraphStore(gdb)
+        syms = list(dict.fromkeys(g["symbol_id"] for g in edit_ground_truth(tr, store, "django") if g["symbol_id"]))
+        tc = Counter()
+        for a in syms:
+            for b in syms:
+                if a == b:
+                    continue
+                pairs += 1
+                r = coedit_relation(store, a, b)
+                rel[r] += 1; tc[r] += 1
+        per_task[tid] = {"distinct_edited_symbols": len(syms), "coedit_pairs": sum(tc.values()),
+                         "relations": dict(tc)}
+        store.close()
+    connected = pairs - rel.get("none", 0)
+    dep_connected = rel.get("callee", 0) + rel.get("caller", 0)
+    return {"coedit_pairs": pairs, "relations": dict(rel), "per_task": per_task,
+            "any_graph_relation_frac": round(connected / pairs, 4) if pairs else None,
+            "dependency_edge_frac": round(dep_connected / pairs, 4) if pairs else None,
+            "note": ("C (graph) can only surface a co-edited symbol that is graph-adjacent to the "
+                     "anchor; B (target-only) surfaces none. This is C's upper bound over B.")}
+
+
 def _main(argv) -> None:
     """Smoke: python -m corpus.g1_replay <graph_db> <transcript> [spec]"""
     from contextruntime.store import GraphStore

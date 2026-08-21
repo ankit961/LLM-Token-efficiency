@@ -1,0 +1,42 @@
+{
+  "coedit_pairs": 42,
+  "relations": {
+    "same_file": 8,
+    "none": 28,
+    "caller": 3,
+    "callee": 3
+  },
+  "per_task": {
+    "django__django-10554": {
+      "distinct_edited_symbols": 4,
+      "coedit_pairs": 12,
+      "relations": {
+        "same_file": 2,
+        "none": 10
+      }
+    },
+    "django__django-11138": {
+      "distinct_edited_symbols": 6,
+      "coedit_pairs": 30,
+      "relations": {
+        "none": 18,
+        "same_file": 6,
+        "caller": 3,
+        "callee": 3
+      }
+    },
+    "django__django-12419": {
+      "distinct_edited_symbols": 0,
+      "coedit_pairs": 0,
+      "relations": {}
+    },
+    "django__django-14608": {
+      "distinct_edited_symbols": 1,
+      "coedit_pairs": 0,
+      "relations": {}
+    }
+  },
+  "any_graph_relation_frac": 0.3333,
+  "dependency_edge_frac": 0.1429,
+  "note": "C (graph) can only surface a co-edited symbol that is graph-adjacent to the anchor; B (target-only) surfaces none. This is C's upper bound over B."
+}

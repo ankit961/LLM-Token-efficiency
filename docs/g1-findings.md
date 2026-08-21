@@ -61,6 +61,37 @@ neighborhood) · **D** skeleton (B2 `reduce_file` on the file). Budgets 512/1024
    by only +0.038. Per the preregistered logic, *"if B ≈ C the graph adds little and the win is
    simply targeted source slicing."* That is what the data shows.
 
+## The fair B-vs-C ablation (does the graph help on MULTI-SYMBOL fixes?)
+
+B==C on edit-line because both render the target *body*; the graph's real value proposition is
+assembling the OTHER symbols a fix touches. So the fair test (`fair_bc_ablation`,
+`corpus/analysis/g1-fair-bc.json`): for every ordered pair of co-edited symbols (root a, other b),
+can the graph surface b from a? B (target-only) surfaces **zero** co-edits by construction, so C's
+entire advantage is bounded by whether b is graph-adjacent to a **at all** — given the graph its
+fairest chance (callees, callers, tests, AND same-file, up to 3 hops).
+
+Over 42 co-edited pairs (from the multi-symbol tasks):
+
+| co-edit relation to the anchor | share |
+|---|---:|
+| none (no graph edge, not same file) | **28/42 = 67%** |
+| same_file | 8/42 = 19% |
+| caller | 3/42 = 7% |
+| callee | 3/42 = 7% |
+
+- **C's ceiling over B = 33%** (any graph relation, incl. same-file); via actual dependency edges,
+  only **14%**. And that is a *ceiling* — the graph-adjacent co-edits still have to fit the budget.
+- **67% of co-edited symbol pairs have no graph relation at all.** Bug fixes co-edit symbols related
+  by FEATURE / semantics, not the CALLS/IMPORTS/DEPENDS_ON/TESTED_BY structure the graph encodes.
+
+**So the fair ablation does not rescue the graph — it indicts it more sharply.** Even given the
+fairest neighborhood, graph traversal from a correct anchor cannot assemble two-thirds of the
+multi-symbol fix context, because that context is not a dependency relation. The B≈C result was not
+an artifact of a stingy neighborhood; the co-edit relation the graph would need is simply absent.
+(Caveat: 42 pairs, mostly from 2 tasks; graph edge extraction may be incomplete, which would only
+*raise* the "none" share if edges are missing — but even crediting same-file, two-thirds are
+unreachable.)
+
 ## Skeptical review (caveats that keep this from being a firm verdict)
 
 - **Sample is tiny**: 4 django tasks, 14 scorable edits — suggestive, not decisive.
@@ -80,12 +111,18 @@ neighborhood) · **D** skeleton (B2 `reduce_file` on the file). Budgets 512/1024
 anchor half fails outright on this corpus. Do **not** run any live model experiment (Step 9 honored).
 
 The result is not "the graph idea was tested at the wrong layer and it works." It is: **the compiler
-half is sound and beats B2; the unsolved problems are (a) resolving an anchor from a real bug report
-and (b) demonstrating that the graph neighborhood beats plain lexical target-slicing.** If pursued,
-the next offline (still zero-quota) steps are: a stronger free-text→anchor resolver (or a
-traceback-bearing corpus), a larger task set, and an ablation that gives the graph a fair chance to
-beat B (e.g. tasks whose fix requires a caller/callee/test the target body alone does not contain).
-Only if those move the B-vs-C and pipeline numbers materially would a live A/B be warranted.
+half is sound and beats B2, but (a) anchor resolution from a real (prose) bug report fails, and (b)
+the graph neighborhood does not beat plain lexical target-slicing — even given its fairest chance.**
+The fair B-vs-C ablation (above) settles (b): 67% of co-edited symbols have no graph relation to the
+anchor, so C's ceiling over B is 33% (14% via dependency edges). The graph does not encode the
+"edited together for this fix" relation.
+
+The remaining honest uncertainty is the **corpus**: only 1/4 tasks had a traceback, and the sample is
+4 tasks / 14 edits. Before abandoning graph-first entirely, the one thing that could still change the
+picture is a **larger, traceback-bearing bug corpus** — it would (i) let anchor resolution use the
+strong signal it needs and (ii) test co-edit connectivity at scale. That is the only next offline
+step I would consider worthwhile; the two mechanisms measured here (free-text anchor, dependency-
+graph neighborhood) did not clear the bar. **No live experiment is warranted on this evidence.**
 
 The 0/11 advisory result stands for what it measured; this does not overturn it. Frozen B1 and the
 B2 evidence artifacts were not touched.
