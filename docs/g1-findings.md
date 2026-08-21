@@ -79,18 +79,35 @@ Over 42 co-edited pairs (from the multi-symbol tasks):
 | caller | 3/42 = 7% |
 | callee | 3/42 = 7% |
 
-- **C's ceiling over B = 33%** (any graph relation, incl. same-file); via actual dependency edges,
-  only **14%**. And that is a *ceiling* — the graph-adjacent co-edits still have to fit the budget.
-- **67% of co-edited symbol pairs have no graph relation at all.** Bug fixes co-edit symbols related
-  by FEATURE / semantics, not the CALLS/IMPORTS/DEPENDS_ON/TESTED_BY structure the graph encodes.
+- Via actual dependency edges, only **14%** of ordered co-edit pairs are linked; crediting same-file
+  raises it to **33%**; **67% have no tested graph relation at all.**
 
-**So the fair ablation does not rescue the graph — it indicts it more sharply.** Even given the
-fairest neighborhood, graph traversal from a correct anchor cannot assemble two-thirds of the
-multi-symbol fix context, because that context is not a dependency relation. The B≈C result was not
-an artifact of a stingy neighborhood; the co-edit relation the graph would need is simply absent.
-(Caveat: 42 pairs, mostly from 2 tasks; graph edge extraction may be incomplete, which would only
-*raise* the "none" share if edges are missing — but even crediting same-file, two-thirds are
-unreachable.)
+**What this does and does NOT establish (four corrections to an earlier, over-reaching draft):**
+
+1. **This is not a ceiling on graph-assisted context retrieval — only on co-edited-symbol
+   PREDICTION.** Reachability between two *edited* symbols ≠ useful-context recall. A graph can still
+   save tokens by surfacing symbols that are READ but never edited — a caller, a type/definition, a
+   test, a validation helper the agent needs to modify the target correctly. "33% is C's ceiling over
+   B" bounds only "can this structural graph predict the OTHER edited symbol," not "tokens avoided via
+   support-context retrieval." That is the wrong (too narrow) value function; G2 measures the right one.
+2. **The 33% over-credits today's compiler.** C's actual bundle planner traverses only
+   `CALLS/IMPLEMENTS/IMPORTS`; the fair ablation additionally credited reverse callers, `DEPENDS_ON`,
+   tests, and same-file. So 33% is an **upper bound for an ENRICHED structural neighborhood**, not
+   what the shipped bundle achieves — a reason to *enrich* the graph, not to close it.
+3. **Missing edges bias AGAINST the graph.** If extraction misses a real edge, that pair is
+   classified `none` — so incomplete extraction **inflates** the 67% `none`. Better extraction can
+   only *lower* it. The measured 67% is therefore an *upper bound* on disconnection, not a robust
+   floor. (My earlier draft had this backwards.)
+4. **n ≈ 2, not 42.** All 42 ordered pairs come from just **two** multi-symbol tasks (12 + 30; the
+   other two contribute zero), and pairs within one fix are strongly dependent. Report "28/42 pairs"
+   descriptively; do **not** treat 67% as a stable corpus-level property of bug fixes.
+
+**The valid, valuable result:** *plain dependency structure is insufficient to explain many
+multi-symbol fixes* — on these two Django cases only 14% of co-edit pairs are dependency-linked,
+another 19% merely same-file. That means **dependency graph ≠ task-relevance graph**, not "graphs are
+useless." The sharper hypothesis this leaves: a *task-relevance* graph (structural + locality +
+behavioral + historical + semantic relations) might reduce exploration tokens where a plain
+code-dependency graph cannot. **G2** (`docs/g2-*`) tests exactly that, offline, before any live run.
 
 ## Skeptical review (caveats that keep this from being a firm verdict)
 
@@ -110,19 +127,20 @@ unreachable.)
 **NO-GO for a live experiment now.** The gates fail even with an oracle anchor, and the free-text→
 anchor half fails outright on this corpus. Do **not** run any live model experiment (Step 9 honored).
 
-The result is not "the graph idea was tested at the wrong layer and it works." It is: **the compiler
-half is sound and beats B2, but (a) anchor resolution from a real (prose) bug report fails, and (b)
-the graph neighborhood does not beat plain lexical target-slicing — even given its fairest chance.**
-The fair B-vs-C ablation (above) settles (b): 67% of co-edited symbols have no graph relation to the
-anchor, so C's ceiling over B is 33% (14% via dependency edges). The graph does not encode the
-"edited together for this fix" relation.
+The result is not "the graph idea was tested at the wrong layer and it works" — nor is it "the graph
+is useless." It is: **the compiler half is sound and beats B2; the current STRUCTURAL
+(`CALLS/IMPORTS/IMPLEMENTS`) dependency graph is insufficient to explain many multi-symbol fixes; and
+free-text anchor resolution fails on prose.** The fair ablation does NOT settle whether a graph can
+retrieve useful support-context — it bounds only whether *this* structural graph can predict the
+*other edited* symbol (33% ceiling, an enriched-neighborhood upper bound), a narrower question.
 
-The remaining honest uncertainty is the **corpus**: only 1/4 tasks had a traceback, and the sample is
-4 tasks / 14 edits. Before abandoning graph-first entirely, the one thing that could still change the
-picture is a **larger, traceback-bearing bug corpus** — it would (i) let anchor resolution use the
-strong signal it needs and (ii) test co-edit connectivity at scale. That is the only next offline
-step I would consider worthwhile; the two mechanisms measured here (free-text anchor, dependency-
-graph neighborhood) did not clear the bar. **No live experiment is warranted on this evidence.**
+**The sharper hypothesis this leaves — and the right next test — is G2 (task-relevance graph
+ceiling).** Before sourcing a new (traceback-bearing) corpus, which primarily repairs *anchor
+resolution*, the deeper question is: *even with a correct anchor, does a cheap, deterministic
+task-relevance graph contain the useful neighborhood the agent actually reads?* G2 answers that on
+data we already have, at zero quota, with a hard preregistered gate:
+`R_task − R_lexical < 0.15 at comparable-or-lower token cost ⇒ close graph traversal as a
+token-saving mechanism`. **No live experiment is warranted until G2 reports.**
 
 The 0/11 advisory result stands for what it measured; this does not overturn it. Frozen B1 and the
 B2 evidence artifacts were not touched.
