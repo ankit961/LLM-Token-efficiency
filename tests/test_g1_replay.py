@@ -1,5 +1,30 @@
 """G1 offline harness — metric primitives (deterministic, no graph/transcript needed)."""
-from corpus.g1_replay import (_lineno_of, _read_line_span, available_anchors, edit_line_coverage)
+from corpus.g1_replay import (_lineno_of, _read_line_span, available_anchors, coedit_relation,
+                              edit_line_coverage)
+from contextruntime.store import GraphStore
+
+_COLS = ("symbol_id", "repo_id", "language", "kind", "qualified_name", "path", "start_line",
+         "end_line", "signature", "content_hash", "parser", "resolution_quality", "schema_version")
+
+
+def _sym(s, sid, path, qn):
+    vals = {**{c: None for c in _COLS}, "symbol_id": sid, "repo_id": "r", "language": "python",
+            "kind": "function", "qualified_name": qn, "path": path, "start_line": 1, "end_line": 5,
+            "parser": "test", "resolution_quality": "exact", "schema_version": 1}
+    s.conn.execute(f"INSERT INTO symbols ({','.join(_COLS)}) VALUES ({','.join('?' * len(_COLS))})",
+                   [vals[c] for c in _COLS])
+
+
+def test_coedit_relation_classifies_strongest_edge():
+    s = GraphStore(":memory:")
+    _sym(s, "a", "pkg/x.py", "pkg.x.a"); _sym(s, "b", "pkg/x.py", "pkg.x.b")
+    _sym(s, "c", "pkg/y.py", "pkg.y.c"); _sym(s, "d", "pkg/z.py", "pkg.z.d")
+    s.add_code_edge("r", "a", "c", "CALLS", 1.0, "exact", match_kind="exact")     # a → c
+    s.conn.commit()
+    assert coedit_relation(s, "a", "c") == "callee"      # a depends on c
+    assert coedit_relation(s, "c", "a") == "caller"      # c is reached FROM a
+    assert coedit_relation(s, "a", "b") == "same_file"   # same path, no edge
+    assert coedit_relation(s, "a", "d") == "none"        # different file, no edge
 
 
 def test_lineno_of_reads_line_number_prefix():
