@@ -1,0 +1,155 @@
+{
+  "n_sessions": 60,
+  "lag": 5,
+  "thetas": [
+    80000,
+    120000,
+    160000,
+    190000
+  ],
+  "mean_peak_reduction_pct": 14.97,
+  "deferral_by_theta": [
+    {
+      "theta": 80000,
+      "n_would_compact": 30,
+      "n_fully_avoided": 9,
+      "avoided_frac": 0.3,
+      "mean_deferral_turns": 24.7
+    },
+    {
+      "theta": 120000,
+      "n_would_compact": 10,
+      "n_fully_avoided": 10,
+      "avoided_frac": 1.0,
+      "mean_deferral_turns": 24.0
+    },
+    {
+      "theta": 160000,
+      "n_would_compact": 0,
+      "n_fully_avoided": 0,
+      "avoided_frac": null,
+      "mean_deferral_turns": null
+    },
+    {
+      "theta": 190000,
+      "n_would_compact": 0,
+      "n_fully_avoided": 0,
+      "avoided_frac": null,
+      "mean_deferral_turns": null
+    }
+  ],
+  "extras": [
+    {
+      "turns": 2454,
+      "peak_cache_read": 996606,
+      "deferral": {
+        "peak_native": 996606,
+        "peak_b3": 903211,
+        "peak_reduction_pct": 9.37,
+        "by_theta": [
+          {
+            "theta": 80000,
+            "would_compact": true,
+            "K_native": 26,
+            "K_b3": 37,
+            "avoided": false,
+            "deferral_turns": 11
+          },
+          {
+            "theta": 120000,
+            "would_compact": true,
+            "K_native": 54,
+            "K_b3": 99,
+            "avoided": false,
+            "deferral_turns": 45
+          },
+          {
+            "theta": 160000,
+            "would_compact": true,
+            "K_native": 123,
+            "K_b3": 180,
+            "avoided": false,
+            "deferral_turns": 57
+          },
+          {
+            "theta": 190000,
+            "would_compact": true,
+            "K_native": 180,
+            "K_b3": 229,
+            "avoided": false,
+            "deferral_turns": 49
+          }
+        ]
+      },
+      "redundancy": {
+        "n_boundaries": 20,
+        "standalone_tokturns": 252910743,
+        "unique_tokturns": 21007475,
+        "unique_fraction": 0.0831
+      }
+    }
+  ],
+  "sessions_peak_cr": [
+    104174,
+    95996,
+    88671,
+    124092,
+    148825,
+    137536,
+    63450,
+    56448,
+    65235,
+    58723,
+    59727,
+    77551,
+    93198,
+    108699,
+    127381,
+    139187,
+    125279,
+    107742,
+    54446,
+    62375,
+    67061,
+    65306,
+    62897,
+    75907,
+    80635,
+    80006,
+    97885,
+    120339,
+    136675,
+    98826,
+    65792,
+    61361,
+    61907,
+    66193,
+    71109,
+    70992,
+    81659,
+    107990,
+    87894,
+    109957,
+    106068,
+    142136,
+    58427,
+    58596,
+    61193,
+    62243,
+    72108,
+    64499,
+    95356,
+    110099,
+    127841,
+    117884,
+    103450,
+    92346,
+    62320,
+    70390,
+    61038,
+    66833,
+    73949,
+    79117
+  ],
+  "code_commit": "8db13bae28c0fd454940c67a426736451a62df68"
+}
