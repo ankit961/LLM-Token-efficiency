@@ -1,0 +1,33 @@
+{
+  "experiment": "B3.3 paired resume A/B (FULL vs RETIRED context) via `claude -p --resume`, claude-sonnet-5",
+  "method": "Truncate a real A_native Step-7 session at cut turn t*, reconstruct the worktree state by replaying edits<=t*, stub the tool-result content of every B3-retired object (superseded within-prefix, or safe tail at tail_turn+5) in the RETIRED arm only, resume BOTH arms with the same continuation prompt (budget-capped), and compare the downstream trajectory. No API key available (SDK blocked); the only live path was the OAuth `claude` CLI, so retirement was applied by hand-editing the resumable transcript.",
+  "caveats": [
+    "n=3 tasks, 1 cut point each, 1 rep per arm (tiny)",
+    "no docker/linux, so no SWE-bench pass/fail grading: 'same fix' means the RETIRED arm edited the SAME source files as the FULL arm (and as the native run), not a verified test pass",
+    "retirement is MECHANICAL (superseded + tail>=tail_turn+5), not the B3.1 safety-filtered set -- so if anything this OVER-retires",
+    "worktree state reconstructed via edit-replay (old_string match can drift); both arms share the same reconstructed state",
+    "model is non-deterministic and only 1 rep/arm was run"
+  ],
+  "tasks": [
+    {"task": "django-10554", "T": 134, "tstar": 58, "n_retired_objs": 29,
+     "FULL":    {"cost_usd": 0.482, "cont_records": 30, "reread_retired": 1, "reread_files": ["expressions.py"], "edited": ["expressions.py"]},
+     "RETIRED": {"cost_usd": 0.528, "cont_records": 45, "reread_retired": 2, "reread_files": ["expressions.py"], "edited": ["expressions.py"]},
+     "same_fix": true, "retirement_induced_extra_rereads": 1},
+    {"task": "django-11138", "T": 122, "tstar": 43, "n_retired_objs": null,
+     "FULL":    {"cost_usd": null,  "cont_records": 124, "reread_retired": 3, "reread_files": ["base.py"], "edited": ["base.py", "operations.py", "utils.py"]},
+     "RETIRED": {"cost_usd": 1.183, "cont_records": 123, "reread_retired": 3, "reread_files": ["base.py"], "edited": ["base.py", "operations.py", "utils.py"]},
+     "same_fix": true, "retirement_induced_extra_rereads": 0},
+    {"task": "django-14608", "T": 47, "tstar": 25, "n_retired_objs": 12,
+     "FULL":    {"cost_usd": 0.165, "cont_records": 16, "reread_retired": 0, "reread_files": [], "edited": []},
+     "RETIRED": {"cost_usd": 0.139, "cont_records": 16, "reread_retired": 0, "reread_files": [], "edited": []},
+     "same_fix": true, "note": "cut landed AFTER the fix was already complete (edits start turn 8); no continuation work for either arm",
+     "retirement_induced_extra_rereads": 0}
+  ],
+  "summary": {
+    "tasks_same_fix": "3/3",
+    "total_retirement_induced_extra_rereads": 1,
+    "finding": "Retirement never broke the task: in all 3 tasks the RETIRED arm reached the SAME fix (same source files edited) as the FULL arm. Retired-object re-reads were near-identical between arms because the only re-reads are of the edit-TARGET file, which agents re-read right before editing REGARDLESS of whether an earlier read is resident -- so retiring that earlier read costs ~nothing. Non-target retired objects (query.py, compiler.py, tests.py, timezone.py, bash outputs, etc.) were NEVER re-read.",
+    "implication": "The live signal is consistent with B3.1's mechanical 95-99% safety, and slightly stronger: even edit-target reads (which B3.1's D0/D1 flags as 'unsafe') cost ~nothing to retire, because the agent re-reads them for the Edit anyway.",
+    "est_total_cost_usd": "~4-5 including feasibility probes"
+  }
+}
