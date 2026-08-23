@@ -49,6 +49,25 @@ checked against the B3 research numbers offline.
 in a list of Anthropic-shaped messages, returning what it freed. That is the whole mechanism where it
 *is* supported — the difficulty was never the edit, it was *having a place to make it*.
 
+## Gateway adapter — built and OBSERVE-validated (`contextruntime/gateway.py`)
+
+The gateway backend is now wired. `RetirementGateway.process(body)` is stateless per request (each API
+call already carries the full message array): it maps Anthropic message shapes to `ObservedObject`s,
+rebuilds the planner, and dispatches on `CR_GATEWAY_MODE`:
+
+- **off** (default kill-switch) — passthrough, no planning.
+- **observe** — plan + log what WOULD be freed, return the request **byte-for-byte unchanged**.
+- **enforce** — additionally stub the retired `tool_result`s at batch boundaries.
+
+It is **fail-open** (any parse error returns the request untouched) and OBSERVE is **non-mutating by
+construction** (the mutator is only invoked under `enforce`). Run over 5 real Step-7 sessions in OBSERVE
+mode (`corpus/analysis/b4-gateway-observe.json`), the non-mutation invariant held on every request, and
+it surfaced ~1.8–4.0k retirable tokens per request (up to ~8.2k), ~3–4 batch boundaries per ~40-turn
+session — the expected shape, and consistent with the B3 residency numbers. `summarize_log()` turns an
+OBSERVE log into that measurable opportunity.
+
+This is the B1 shipping pattern exactly: default off, OBSERVE before ENFORCE, fail-open, decision log.
+
 ## What this spike establishes
 
 - The **policy half is done and safe-by-construction**: deterministic, forward-only, recoverable,
@@ -67,11 +86,18 @@ in a list of Anthropic-shaped messages, returning what it freed. That is the who
 
 ## Next steps (in order)
 
-1. **Pick the mutation site** — gateway vs custom loop — for the primary target. This is the decision
-   that unblocks everything downstream.
-2. **Wire `InProcessMessageMutator` into that site** behind a kill-switch, OBSERVE-mode first (plan and
-   log, do not mutate), mirroring how B1 shipped.
-3. **Graded scale-up** — once a mutator is live, run the dozens-of-tasks × reps A/B *with* pass/fail
+1. ~~Pick the mutation site~~ — **done: gateway** (a proxy owning the outbound request).
+2. ~~Wire the mutator OBSERVE-first behind a kill-switch~~ — **done: `RetirementGateway`, default off,
+   OBSERVE non-mutating + fail-open, validated on real sessions.** Remaining sub-step: deploy the
+   gateway in OBSERVE mode on **live** traffic (a real proxy process in front of the API) and collect
+   decision logs, to measure the retirable opportunity on production sessions rather than replayed ones.
+3. **Turn on ENFORCE behind the kill-switch** once OBSERVE logs look right, starting with the
+   provably-safe superseded-only subset before the cold-tail policy.
+4. **Graded scale-up** — with a live mutator, run the dozens-of-tasks × reps A/B *with* pass/fail
    grading to convert B3.1's *modeled* 8–11% into a *measured* whole-session number.
+
+The one thing this spike does NOT include is the proxy process itself (the HTTP server that terminates
+the client connection and forwards to the API) — that is deployment plumbing, not a feasibility
+question; `RetirementGateway.process(body)` is the hook it would call per request.
 
 Frozen B1, the B2 artifacts, and the G1/G2 closure are untouched.

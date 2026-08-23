@@ -1,0 +1,42 @@
+{
+  "8281ca77": {
+    "turns": 37,
+    "requests": 37,
+    "mean_retirable_tok": 2744.9,
+    "max_retirable_tok": 5375,
+    "batch_boundaries": 3,
+    "tok_retirable_last_boundary": 4607
+  },
+  "838f646a": {
+    "turns": 46,
+    "requests": 46,
+    "mean_retirable_tok": 1755.1,
+    "max_retirable_tok": 4267,
+    "batch_boundaries": 4,
+    "tok_retirable_last_boundary": 3424
+  },
+  "fa55e3bc": {
+    "turns": 39,
+    "requests": 39,
+    "mean_retirable_tok": 2657.4,
+    "max_retirable_tok": 7782,
+    "batch_boundaries": 3,
+    "tok_retirable_last_boundary": 4698
+  },
+  "de5544ab": {
+    "turns": 42,
+    "requests": 42,
+    "mean_retirable_tok": 3973.1,
+    "max_retirable_tok": 8179,
+    "batch_boundaries": 4,
+    "tok_retirable_last_boundary": 8063
+  },
+  "37fbdfe9": {
+    "turns": 47,
+    "requests": 47,
+    "mean_retirable_tok": 3046.3,
+    "max_retirable_tok": 5980,
+    "batch_boundaries": 4,
+    "tok_retirable_last_boundary": 5196
+  }
+}
