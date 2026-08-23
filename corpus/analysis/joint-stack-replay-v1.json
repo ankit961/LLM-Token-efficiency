@@ -1,0 +1,219 @@
+{
+  "version": "joint-stack-replay-v1",
+  "environments": {
+    "lean_subscription": {
+      "environment": "lean_subscription",
+      "sessions": 60,
+      "b3_turn_axis_mismatches": 0,
+      "clamped_calls": 8,
+      "L0": {
+        "sum_P": 212101711,
+        "calls": 2968,
+        "sum_out": 1223883,
+        "reduction_pct": 0.0,
+        "peak_P_mean": 88420
+      },
+      "L1": {
+        "sum_P": 152652618,
+        "calls": 2968,
+        "sum_out": 1223883,
+        "reduction_pct": 28.03,
+        "peak_P_mean": 68468
+      },
+      "L2": {
+        "sum_P": 136114817,
+        "calls": 2578,
+        "sum_out": 1103300,
+        "reduction_pct": 35.83,
+        "peak_P_mean": 68421
+      },
+      "L3": {
+        "sum_P": 117574533,
+        "calls": 2578,
+        "sum_out": 1103300,
+        "reduction_pct": 44.57,
+        "peak_P_mean": 56518
+      },
+      "L4": {
+        "sum_P": 96664691,
+        "calls": 2578,
+        "sum_out": 1103300,
+        "reduction_pct": 54.43,
+        "peak_P_mean": 45707
+      },
+      "solo_reductions_pct": {
+        "prefix": 28.03,
+        "collapse": 11.46,
+        "b3": 9.64,
+        "think": 10.78
+      },
+      "multiplicative_approx_pct": 48.63,
+      "exact_joint_pct": 54.43,
+      "approx_minus_exact_pp": -5.8
+    },
+    "lean_gateway": {
+      "environment": "lean_gateway",
+      "sessions": 60,
+      "b3_turn_axis_mismatches": 0,
+      "clamped_calls": 8,
+      "L0": {
+        "sum_P": 212101711,
+        "calls": 2968,
+        "sum_out": 1223883,
+        "reduction_pct": 0.0,
+        "peak_P_mean": 88420
+      },
+      "L1": {
+        "sum_P": 145822048,
+        "calls": 2968,
+        "sum_out": 1223883,
+        "reduction_pct": 31.25,
+        "peak_P_mean": 66176
+      },
+      "L2": {
+        "sum_P": 130177541,
+        "calls": 2578,
+        "sum_out": 1103300,
+        "reduction_pct": 38.62,
+        "peak_P_mean": 66129
+      },
+      "L3": {
+        "sum_P": 111637257,
+        "calls": 2578,
+        "sum_out": 1103300,
+        "reduction_pct": 47.37,
+        "peak_P_mean": 54226
+      },
+      "L4": {
+        "sum_P": 90727415,
+        "calls": 2578,
+        "sum_out": 1103300,
+        "reduction_pct": 57.22,
+        "peak_P_mean": 43415
+      },
+      "solo_reductions_pct": {
+        "prefix": 31.25,
+        "collapse": 11.46,
+        "b3": 9.64,
+        "think": 10.78
+      },
+      "multiplicative_approx_pct": 50.93,
+      "exact_joint_pct": 57.22,
+      "approx_minus_exact_pp": -6.29
+    },
+    "heavy_subscription": {
+      "environment": "heavy_subscription",
+      "sessions": 8,
+      "b3_turn_axis_mismatches": 0,
+      "clamped_calls": 0,
+      "L0": {
+        "sum_P": 22235662,
+        "calls": 290,
+        "sum_out": 176439,
+        "reduction_pct": 0.0,
+        "peak_P_mean": 106003
+      },
+      "L1": {
+        "sum_P": 17339745,
+        "calls": 290,
+        "sum_out": 176439,
+        "reduction_pct": 22.02,
+        "peak_P_mean": 89489
+      },
+      "L2": {
+        "sum_P": 16898210,
+        "calls": 279,
+        "sum_out": 168746,
+        "reduction_pct": 24.0,
+        "peak_P_mean": 89489
+      },
+      "L3": {
+        "sum_P": 14884481,
+        "calls": 279,
+        "sum_out": 168746,
+        "reduction_pct": 33.06,
+        "peak_P_mean": 75217
+      },
+      "L4": {
+        "sum_P": 13267789,
+        "calls": 279,
+        "sum_out": 168746,
+        "reduction_pct": 40.33,
+        "peak_P_mean": 66003
+      },
+      "solo_reductions_pct": {
+        "prefix": 22.02,
+        "collapse": 2.81,
+        "b3": 9.22,
+        "think": 7.4
+      },
+      "multiplicative_approx_pct": 36.29,
+      "exact_joint_pct": 40.33,
+      "approx_minus_exact_pp": -4.04
+    },
+    "heavy_gateway": {
+      "environment": "heavy_gateway",
+      "sessions": 8,
+      "b3_turn_axis_mismatches": 0,
+      "clamped_calls": 0,
+      "L0": {
+        "sum_P": 22235662,
+        "calls": 290,
+        "sum_out": 176439,
+        "reduction_pct": 0.0,
+        "peak_P_mean": 106003
+      },
+      "L1": {
+        "sum_P": 14203298,
+        "calls": 290,
+        "sum_out": 176439,
+        "reduction_pct": 36.12,
+        "peak_P_mean": 78910
+      },
+      "L2": {
+        "sum_P": 13878958,
+        "calls": 279,
+        "sum_out": 168746,
+        "reduction_pct": 37.58,
+        "peak_P_mean": 78910
+      },
+      "L3": {
+        "sum_P": 11865229,
+        "calls": 279,
+        "sum_out": 168746,
+        "reduction_pct": 46.64,
+        "peak_P_mean": 64638
+      },
+      "L4": {
+        "sum_P": 10248537,
+        "calls": 279,
+        "sum_out": 168746,
+        "reduction_pct": 53.91,
+        "peak_P_mean": 55424
+      },
+      "solo_reductions_pct": {
+        "prefix": 36.12,
+        "collapse": 2.81,
+        "b3": 9.22,
+        "think": 7.4
+      },
+      "multiplicative_approx_pct": 47.82,
+      "exact_joint_pct": 53.91,
+      "approx_minus_exact_pp": -6.09
+    }
+  },
+  "prefix_frac_inputs": {
+    "lean_subscription": 0.47,
+    "lean_gateway": 0.524,
+    "heavy_subscription": 0.384,
+    "heavy_gateway": 0.63,
+    "source": "prefix-doctor-v1 pct_of_prefix (subscription_achievable / gateway_achievable)"
+  },
+  "method": "exact per-call joint replay: L0 baseline, L1 -prefix (frac x session startup), L2 drop evidence-gated D0/D1 avoided calls (oracle), L3 -B3 safe per-object retirements (lag5, immediate), L4 -measured thinking keep-1 (out - 1.74 x cl100k(visible), floor 0); slices disjoint; clamps counted",
+  "notes": [
+    "exact joint EXCEEDS the multiplicative approximation: the levers remove ABSOLUTE disjoint slices, composing near-additively in tokens (super-multiplicative in fractions)",
+    "thinking measured per session with the 1.74 accounting factor applied \u2014 the earlier 11.3% share survives the correction (visible output is small; ~130 tok/call thinking on lean)",
+    "counterfactual opportunities, not live realized savings"
+  ],
+  "code_commit": "985859734f9812aa306fbbdcd511730cd25d22ca"
+}

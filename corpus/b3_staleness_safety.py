@@ -146,6 +146,35 @@ def staleness_safety(objects, edits, inputs_by_turn, T, *, lag: int, d1_minchars
             "safe_total_gross": round(superseded_gross + safe_gross)}
 
 
+def per_object_safety(objects, edits, inputs_by_turn, T, *, lag: int = 5, d1_minchars: int = 20):
+    """Per-object verdicts for the JOINT replay (B5.2): [(object, retire_turn, safe)] — superseded
+    objects retire at obsolete_turn (always safe: replaced); tail objects retire at tail_turn+lag and
+    are safe unless D0 re-reference / D1 content-reuse fires after the retire turn. Objects that never
+    retire within the session are omitted. Same logic as `staleness_safety`, exposed per object."""
+    assign_obsolescence(objects, T)
+    edits_dl = sorted((et, _distinctive_lines(es, minchars=d1_minchars)) for et, ep, es in edits)
+    inputs_sorted = sorted(inputs_by_turn.items())
+    out = []
+    for o in objects:
+        if o["obsolete_turn"] is not None:
+            out.append((o, o["obsolete_turn"], True))
+            continue
+        if o["tail_turn"] is None:
+            continue
+        r = o["tail_turn"] + lag
+        if r >= T:
+            continue
+        d0 = bool(o["path"]) and any(o["path"] in s2 for t2, s2 in inputs_sorted if t2 > r)
+        d1 = False
+        if o["dlines"]:
+            for et, edl in edits_dl:
+                if et > r and o["dlines"] & edl:
+                    d1 = True
+                    break
+        out.append((o, r, not (d0 or d1)))
+    return out
+
+
 def analyze_safety(transcript_path, *, lags=(0, 3, 5, 10, 20)):
     objects, edits, inputs_by_turn, T, usage = parse_for_safety(transcript_path)
     tt = usage["T_total"] or 0
