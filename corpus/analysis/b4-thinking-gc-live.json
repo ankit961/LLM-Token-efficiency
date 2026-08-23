@@ -1,0 +1,121 @@
+{
+  "experiment": "thinking-GC live validation via gateway proxy (claude -p, sonnet-5 = keep-all-prior-thinking model), same tiny calc task",
+  "observe": {
+    "decisions": [
+      {
+        "turn": 1,
+        "thinking_strippable": 0,
+        "thinking_sig_bytes": 0
+      },
+      {
+        "turn": 2,
+        "thinking_strippable": 1,
+        "thinking_sig_bytes": 404
+      },
+      {
+        "turn": 3,
+        "thinking_strippable": 1,
+        "thinking_sig_bytes": 404
+      },
+      {
+        "turn": 1,
+        "thinking_strippable": 0,
+        "thinking_sig_bytes": 0
+      },
+      {
+        "turn": 2,
+        "thinking_strippable": 1,
+        "thinking_sig_bytes": 392
+      },
+      {
+        "turn": 3,
+        "thinking_strippable": 1,
+        "thinking_sig_bytes": 392
+      }
+    ],
+    "note": "two runs were accidentally triggered (decisions duplicated); usage not captured (compressed SSE, fixed before the enforce run)"
+  },
+  "enforce": {
+    "keep_last": 1,
+    "result": "success \u2014 'All tests pass' (verified on disk)",
+    "api_calls": 7,
+    "fallbacks_to_original": 0,
+    "decisions": [
+      {
+        "turn": 1,
+        "thinking_strippable": 0,
+        "thinking_stripped": 0,
+        "thinking_sig_bytes": 0
+      },
+      {
+        "turn": 2,
+        "thinking_strippable": 1,
+        "thinking_stripped": 1,
+        "thinking_sig_bytes": 404
+      },
+      {
+        "turn": 3,
+        "thinking_strippable": 1,
+        "thinking_stripped": 1,
+        "thinking_sig_bytes": 404
+      },
+      {
+        "turn": 4,
+        "thinking_strippable": 1,
+        "thinking_stripped": 1,
+        "thinking_sig_bytes": 404
+      }
+    ],
+    "response_usage": [
+      {
+        "input_tokens": 764,
+        "cache_read_input_tokens": 0,
+        "cache_creation_input_tokens": 0,
+        "output_tokens": 20
+      },
+      {
+        "input_tokens": 2,
+        "cache_read_input_tokens": 69740,
+        "cache_creation_input_tokens": 12618,
+        "output_tokens": 59
+      },
+      {
+        "input_tokens": 2,
+        "cache_read_input_tokens": 82358,
+        "cache_creation_input_tokens": 122,
+        "output_tokens": 263
+      },
+      {
+        "input_tokens": 2,
+        "cache_read_input_tokens": 82358,
+        "cache_creation_input_tokens": 834,
+        "output_tokens": 434
+      },
+      {
+        "input_tokens": 2,
+        "cache_read_input_tokens": 69420,
+        "cache_creation_input_tokens": 14260,
+        "output_tokens": 55
+      },
+      {
+        "input_tokens": 2,
+        "cache_read_input_tokens": 83680,
+        "cache_creation_input_tokens": 142,
+        "output_tokens": 8
+      },
+      {
+        "input_tokens": 155,
+        "cache_read_input_tokens": 6235,
+        "cache_creation_input_tokens": 0,
+        "output_tokens": 76
+      }
+    ]
+  },
+  "findings": [
+    "the real API accepted every request with prior-turn thinking blocks stripped client-side (keep_last=1) during a tool-use loop on a keep-all model: 0 rejections, 0 fallbacks",
+    "stripped turns re-created only 122/834/142 cache tokens: the edit point is at the tail, so the rewrite is small and constant (cache-cheap), unlike B3 retirement deep in the prefix",
+    "magnitude is workload-dependent: this trivial headless task produced ~400-byte signatures (~100 thinking tokens/block); the 11.3% resident share was measured on reasoning-heavy django sessions"
+  ],
+  "cost_usd": "~0.5 (observe x2) + 0.30 (enforce)",
+  "code_commit": "93160174d9cb90a5ecda6353e8c929dc588b00ac"
+}
