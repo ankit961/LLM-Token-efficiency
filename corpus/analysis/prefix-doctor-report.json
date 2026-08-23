@@ -1,0 +1,256 @@
+{
+  "startup_prefix_est_tokens": 82365,
+  "calibration_factor": 1.81,
+  "measured_startup_prefix_median": 41894,
+  "n_tools": 82,
+  "tools_est_tokens": 77405,
+  "sessions_scanned": 60,
+  "median_calls_per_session": 53,
+  "fixed_prefix_share_of_sum_P_median": 66.5,
+  "rows": [
+    {
+      "group": "tool:builtin",
+      "est_tokens": 49320,
+      "uses_in_recent_sessions": 10755
+    },
+    {
+      "group": "tool:claude_ai_Gmail",
+      "est_tokens": 22200,
+      "uses_in_recent_sessions": 0
+    },
+    {
+      "group": "tool:mobile",
+      "est_tokens": 5885,
+      "uses_in_recent_sessions": 4
+    },
+    {
+      "group": "system",
+      "est_tokens": 4781,
+      "uses_in_recent_sessions": null
+    },
+    {
+      "group": "injected",
+      "est_tokens": 166,
+      "uses_in_recent_sessions": null
+    },
+    {
+      "group": "user",
+      "est_tokens": 13,
+      "uses_in_recent_sessions": null
+    }
+  ],
+  "tools": [
+    {
+      "name": "Workflow",
+      "server": "builtin",
+      "tokens": 9675,
+      "uses": 32
+    },
+    {
+      "name": "Artifact",
+      "server": "builtin",
+      "tokens": 7554,
+      "uses": 36
+    },
+    {
+      "name": "DesignSync",
+      "server": "builtin",
+      "tokens": 4164,
+      "uses": 0
+    },
+    {
+      "name": "Monitor",
+      "server": "builtin",
+      "tokens": 3520,
+      "uses": 20
+    },
+    {
+      "name": "mcp__claude_ai_Gmail__search_threads",
+      "server": "claude_ai_Gmail",
+      "tokens": 2584,
+      "uses": 0
+    },
+    {
+      "name": "ScheduleWakeup",
+      "server": "builtin",
+      "tokens": 2110,
+      "uses": 4
+    },
+    {
+      "name": "mcp__claude_ai_Gmail__update_draft",
+      "server": "claude_ai_Gmail",
+      "tokens": 2067,
+      "uses": 0
+    },
+    {
+      "name": "mcp__claude_ai_Gmail__create_label",
+      "server": "claude_ai_Gmail",
+      "tokens": 1830,
+      "uses": 0
+    },
+    {
+      "name": "EnterWorktree",
+      "server": "builtin",
+      "tokens": 1824,
+      "uses": 0
+    },
+    {
+      "name": "mcp__claude_ai_Gmail__send_message",
+      "server": "claude_ai_Gmail",
+      "tokens": 1772,
+      "uses": 0
+    },
+    {
+      "name": "mcp__claude_ai_Gmail__update_label",
+      "server": "claude_ai_Gmail",
+      "tokens": 1766,
+      "uses": 0
+    },
+    {
+      "name": "RemoteTrigger",
+      "server": "builtin",
+      "tokens": 1698,
+      "uses": 0
+    },
+    {
+      "name": "mcp__claude_ai_Gmail__create_draft",
+      "server": "claude_ai_Gmail",
+      "tokens": 1656,
+      "uses": 0
+    },
+    {
+      "name": "CronCreate",
+      "server": "builtin",
+      "tokens": 1650,
+      "uses": 0
+    },
+    {
+      "name": "TaskUpdate",
+      "server": "builtin",
+      "tokens": 1623,
+      "uses": 314
+    },
+    {
+      "name": "Agent",
+      "server": "builtin",
+      "tokens": 1442,
+      "uses": 23
+    },
+    {
+      "name": "SendMessage",
+      "server": "builtin",
+      "tokens": 1381,
+      "uses": 0
+    },
+    {
+      "name": "Bash",
+      "server": "builtin",
+      "tokens": 1294,
+      "uses": 6031
+    },
+    {
+      "name": "TaskCreate",
+      "server": "builtin",
+      "tokens": 1290,
+      "uses": 191
+    },
+    {
+      "name": "mcp__claude_ai_Gmail__list_drafts",
+      "server": "claude_ai_Gmail",
+      "tokens": 1251,
+      "uses": 0
+    },
+    {
+      "name": "ExitWorktree",
+      "server": "builtin",
+      "tokens": 1144,
+      "uses": 0
+    },
+    {
+      "name": "mcp__claude_ai_Gmail__get_message",
+      "server": "claude_ai_Gmail",
+      "tokens": 1140,
+      "uses": 0
+    },
+    {
+      "name": "mcp__claude_ai_Gmail__get_thread",
+      "server": "claude_ai_Gmail",
+      "tokens": 1080,
+      "uses": 0
+    },
+    {
+      "name": "ReportFindings",
+      "server": "builtin",
+      "tokens": 1028,
+      "uses": 0
+    },
+    {
+      "name": "Skill",
+      "server": "builtin",
+      "tokens": 825,
+      "uses": 24
+    }
+  ],
+  "recommendations": [
+    {
+      "action": "disconnect MCP server 'claude_ai_Gmail' for this project, or run with --disallowedTools \"mcp__claude_ai_Gmail__*\"",
+      "tokens_per_call": 22199,
+      "token_turns_per_session": 1176547,
+      "reason": "28 tools, 0 uses in the last 60 sessions"
+    },
+    {
+      "action": "trim system[2]:claude_md",
+      "tokens_per_call": 4718,
+      "token_turns_per_session": 250048,
+      "reason": "large always-resident block"
+    },
+    {
+      "action": "--disallowedTools DesignSync (or permissions.deny in settings)",
+      "tokens_per_call": 4164,
+      "token_turns_per_session": 220692,
+      "reason": "0 uses in the last 60 sessions"
+    },
+    {
+      "action": "--disallowedTools EnterWorktree (or permissions.deny in settings)",
+      "tokens_per_call": 1824,
+      "token_turns_per_session": 96672,
+      "reason": "0 uses in the last 60 sessions"
+    },
+    {
+      "action": "--disallowedTools RemoteTrigger (or permissions.deny in settings)",
+      "tokens_per_call": 1698,
+      "token_turns_per_session": 89994,
+      "reason": "0 uses in the last 60 sessions"
+    },
+    {
+      "action": "--disallowedTools CronCreate (or permissions.deny in settings)",
+      "tokens_per_call": 1650,
+      "token_turns_per_session": 87450,
+      "reason": "0 uses in the last 60 sessions"
+    }
+  ],
+  "potential_tokens_per_call_saved": 36253,
+  "potential_share_of_startup": 44.0,
+  "est_cost_per_session_usd_fixed_reads": 1.31,
+  "mcp_servers_used": {
+    "Claude_Browser": 612,
+    "godot": 156,
+    "computer-use": 45,
+    "ccd_session": 29,
+    "visualize": 6,
+    "mobile": 4
+  },
+  "skills_used": {
+    "artifact-design": 7,
+    "dataviz": 4,
+    "anthropic-skills:xlsx": 3,
+    "anthropic-skills:docx": 3,
+    "anthropic-skills:pdf": 3,
+    "init": 2,
+    "ui-ux-pro-max": 2
+  },
+  "agents_used": {
+    "general-purpose": 14,
+    "Explore": 9
+  }
+}

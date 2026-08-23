@@ -83,6 +83,12 @@ def cmd_ledger(args) -> int:
 
 
 def cmd_doctor(args) -> int:
+    if getattr(args, "prefix", False):
+        from . import prefixdoctor
+        import json as _json
+        rep = prefixdoctor.run(args.cwd or None, capture=not args.no_capture, sessions=args.sessions)
+        print(_json.dumps(rep, indent=2, default=str) if args.json else prefixdoctor.format_report(rep))
+        return 0
     print(doctor_mod.format_report(doctor_mod.probe()))
     return 0
 
@@ -351,7 +357,12 @@ def main(argv=None) -> int:
     p.add_argument("--pricing")
     p.set_defaults(func=cmd_ledger)
 
-    p = sub.add_parser("doctor", help="probe runtime capabilities")
+    p = sub.add_parser("doctor", help="probe runtime capabilities; --prefix itemizes the fixed per-call prefix")
+    p.add_argument("--prefix", action="store_true", help="measure + itemize the system/tool prefix re-read on every API call (zero model quota)")
+    p.add_argument("--cwd", default=None, help="project dir to capture the prefix in (default: current)")
+    p.add_argument("--sessions", type=int, default=40, help="recent sessions to scan for usage evidence")
+    p.add_argument("--no-capture", action="store_true", help="skip the zero-quota capture; evidence-only")
+    p.add_argument("--json", action="store_true")
     p.set_defaults(func=cmd_doctor)
 
     p = sub.add_parser("graph", help="node/edge counts")
