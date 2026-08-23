@@ -84,6 +84,40 @@ This is the B1 shipping pattern exactly: default off, OBSERVE before ENFORCE, fa
 - **No new policy tuning.** `lag≈5–10` and batch≈10 are the frozen B3 operating points; re-tuning is a
   later optimization, not a feasibility question.
 
+## Thinking-GC — built, OBSERVE-counted, ENFORCE-validated live (`gateway.py`, 2026-08-23)
+
+`docs/path-to-50.md` found that **retained thinking is ~11.3% of resident token-turns** on the django
+sessions and is *invisible* in transcripts: on display-omitted models the client holds only the
+`signature`, but the server decrypts it back into context and — on keep-all models (Opus 4.5+, Sonnet
+4.6+, Fable/Mythos 5) — *"previous thinking blocks remain in context, count toward the window, and are
+billed as input."* The API rules for the client are explicit: *"outside tool use, omit prior turns'
+thinking"* is **allowed**; *"within the latest assistant message"* the thinking sequence must stay
+intact (including `redacted_thinking`), or the request is rejected with a 400.
+
+So thinking-GC is B3's policy applied to thinking, with one important economic difference:
+
+- **Policy**: `CR_GATEWAY_THINKING_KEEP=N` keeps thinking only in the last N assistant messages
+  (N ≥ 1; the latest is never touched); everything older is dropped (`thinking_gc`). A message is never
+  emptied. OBSERVE counts what would be stripped (`thinking_opportunity`); ENFORCE strips on every call.
+- **Cache-cheap by construction**: the edit point is always the message that just left the keep window
+  — at the *tail* of the prefix — so the invalidated suffix is small and constant. Unlike B3 retirement
+  (deep in the prefix, hence batched), thinking-GC can run every call.
+- **Fail-open at the response level**: if upstream answers 4xx to a *mutated* body, the proxy resends
+  the **original** bytes and logs `fallback_original`. This protects both thinking-GC and B3 enforce
+  against any rule we have wrong.
+- **Real usage now logged**: the proxy forwards with identity encoding and extracts `usage` from the
+  SSE `message_start`/`message_delta` events (or JSON) — so the gateway measures its own effect.
+
+**Live validation** (`corpus/analysis/b4-thinking-gc-live.json`, ~$0.80): the same tiny coding task
+through the proxy with `CR_GATEWAY_MODE=enforce CR_GATEWAY_THINKING_KEEP=1` on Sonnet 5 (a keep-all
+model): **7 API calls, all 200, 0 fallbacks** — the API accepted every request with prior-turn thinking
+stripped mid tool-use loop — and the task completed correctly (tests pass on disk). The stripped turns
+re-created only **122 / 834 / 142** cache tokens, confirming the tail-edit cheapness. Magnitude is
+workload-dependent: this trivial headless task produced ~400-byte signatures (~100 thinking tokens per
+block), so the saving here is negligible; the 11.3% share was measured on reasoning-heavy sessions, and
+interactive Opus sessions are heavier still. The mechanism, its legality, and its cache economics are
+what this validates — not a percentage.
+
 ## Next steps (in order)
 
 1. ~~Pick the mutation site~~ — **done: gateway** (a proxy owning the outbound request).

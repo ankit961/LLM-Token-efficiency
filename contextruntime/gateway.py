@@ -27,6 +27,54 @@ _READ = {"Read", "NotebookRead"}
 _EDIT = {"Edit", "MultiEdit", "NotebookEdit", "Write"}
 _KEYED = {"Grep", "Glob", "Bash"}
 MODES = ("off", "observe", "enforce")
+_THINKING = ("thinking", "redacted_thinking")
+
+
+def thinking_keep_from_env():
+    """CR_GATEWAY_THINKING_KEEP = N: keep thinking blocks only in the last N assistant messages
+    (N >= 1 — the latest assistant message is never touched). Unset/invalid ⇒ thinking-GC off."""
+    v = os.environ.get("CR_GATEWAY_THINKING_KEEP")
+    try:
+        n = int(v) if v else 0
+    except ValueError:
+        return None
+    return n if n >= 1 else None
+
+
+def thinking_opportunity(messages, keep_last):
+    """Count the thinking/redacted_thinking blocks (and their signature bytes — the client holds only
+    signatures on display=omitted models) that thinking-GC WOULD strip: all assistant messages except
+    the last `keep_last`. Pure; never mutates."""
+    idx = [i for i, m in enumerate(messages) if m.get("role") == "assistant"]
+    n_blocks = sig_bytes = 0
+    for i in idx[:-keep_last] if keep_last > 0 else []:
+        for b in (messages[i].get("content") if isinstance(messages[i].get("content"), list) else []):
+            if isinstance(b, dict) and b.get("type") in _THINKING:
+                n_blocks += 1
+                sig_bytes += len(b.get("signature") or b.get("data") or "")
+    return n_blocks, sig_bytes
+
+
+def thinking_gc(messages, keep_last):
+    """Strip thinking/redacted_thinking blocks from every assistant message EXCEPT the last `keep_last`
+    (docs: 'outside tool use, omit prior turns' thinking'; the latest assistant message's thinking
+    sequence must stay intact). A message is never emptied — if stripping would leave no blocks it is
+    left alone. Returns (n_blocks_stripped, signature_bytes_stripped). Mutates in place."""
+    idx = [i for i, m in enumerate(messages) if m.get("role") == "assistant"]
+    n_blocks = sig_bytes = 0
+    for i in idx[:-keep_last] if keep_last > 0 else []:
+        c = messages[i].get("content")
+        if not isinstance(c, list):
+            continue
+        kept = [b for b in c if not (isinstance(b, dict) and b.get("type") in _THINKING)]
+        if not kept or len(kept) == len(c):
+            continue
+        for b in c:
+            if isinstance(b, dict) and b.get("type") in _THINKING:
+                n_blocks += 1
+                sig_bytes += len(b.get("signature") or b.get("data") or "")
+        messages[i]["content"] = kept
+    return n_blocks, sig_bytes
 
 
 def gateway_mode_from_env() -> str:
@@ -99,6 +147,9 @@ class GatewayDecision:
     tokens_retirable: int
     is_batch_boundary: bool
     applied: int = 0                       # tool_results actually stubbed (enforce only)
+    thinking_strippable: int = 0           # thinking blocks outside the last N assistant messages
+    thinking_sig_bytes: int = 0            # their signature bytes (proxy for retained thinking size)
+    thinking_stripped: int = 0             # blocks actually removed (enforce + CR_GATEWAY_THINKING_KEEP)
 
 
 class RetirementGateway:
@@ -106,11 +157,12 @@ class RetirementGateway:
     OBSERVE never mutates; ENFORCE mutates only at batch boundaries; FAIL-OPEN on any error."""
 
     def __init__(self, *, mode: str = None, lag: int = DEFAULT_LAG, batch_turns: int = DEFAULT_BATCH_TURNS,
-                 log_path: str = None) -> None:
+                 log_path: str = None, thinking_keep: int = None) -> None:
         self.mode = mode if mode in MODES else gateway_mode_from_env()
         self.lag = lag
         self.batch_turns = batch_turns
         self.log_path = log_path
+        self.thinking_keep = thinking_keep if thinking_keep is not None else thinking_keep_from_env()
 
     def _log(self, record: dict) -> None:
         if not self.log_path:
@@ -140,6 +192,12 @@ class RetirementGateway:
                                   is_batch_boundary=boundary)
             if self.mode == "enforce" and boundary and plan.retirements:
                 dec.applied = InProcessMessageMutator().apply(plan, messages).applied
+            if self.thinking_keep:
+                dec.thinking_strippable, dec.thinking_sig_bytes = thinking_opportunity(messages, self.thinking_keep)
+                if self.mode == "enforce" and dec.thinking_strippable:
+                    # cache-cheap every call: the edit point is always near the tail (the message that
+                    # just left the keep window), so the invalidated suffix is small and constant
+                    dec.thinking_stripped, _ = thinking_gc(messages, self.thinking_keep)
             self._log(asdict(dec))
             return body, dec
         except Exception as e:      # noqa: BLE001 — FAIL-OPEN: never break a request
