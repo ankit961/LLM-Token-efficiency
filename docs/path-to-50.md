@@ -125,7 +125,14 @@ subscription client, "gateway" = our proxy / API path where we own the request.
 | 7 | ReadIfChanged / canonical-object dedup / bash trimming | **−1 to −3** combined | gateway | high, small | deprioritize |
 | 8 | Runaway-trajectory governor | −2 to −5 | any | medium | deprioritize |
 
-**Arithmetic for 50% (corrected: multiplicative, not additive).** Levers overlap multiplicatively —
+**Arithmetic for 50% (superseded 2026-08-23: EXACT joint replay).** The multiplicative model below was
+itself corrected by `corpus/joint_stack_replay.py` (`docs/joint-stack-findings.md`): the levers remove
+absolute disjoint slices and compose SUPER-multiplicatively — the approximation was 4–6pp too
+pessimistic. Exact joint counterfactual opportunities: lean-sub **54.4%**, lean-gw **57.2%**,
+heavy-sub **40.3%**, heavy-gw **53.9%** (measured per-session thinking; live realization not yet
+demonstrated).
+
+**Arithmetic for 50% (multiplicative model, superseded).** Levers overlap multiplicatively —
 each acts on the workload the previous ones left. E.g. prefix −20%, calls −15%, B3 −8%, thinking −7%
 compose to 0.80×0.85×0.92×0.93 ≈ 0.582, i.e. **−41.8%**, not −50%. Reaching 50% needs roughly prefix
 −30% × calls −15% × B3 × thinking (≈ −49%) or a stronger stack. The measured prefix numbers are now in

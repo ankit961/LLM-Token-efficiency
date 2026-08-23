@@ -74,17 +74,13 @@ workload — never substituted into the central claim).
 
 *(each cell: without thinking → with the 7% thinking assumption)*
 
-**The honest verdict, in one sentence each:**
-
-1. **On the subscription-config path, 50% is NOT yet empirically supported**: central stacks land at
-   **41–49%**. It becomes supported only with the optimistic collapse bound or the top of the
-   thinking range — neither of which belongs in a central claim.
-2. **On the gateway path, 50% IS empirically supported with central, measured values**: **47.6%
-   (lean) and 55.6% (heavy) before any thinking-GC**, 51–59% with it. The gateway prefix number
-   (deferral-at-first-use) is what carries it.
-
-So the 50% target has moved from aspiration to an empirically supported engineering target **for the
-gateway/custom-loop product**, and to a near-miss (~45%) for pure subscription configuration.
+**Verdict (wording tightened per review, and superseded by the EXACT joint replay):** the measured
+opportunity stack supports a **credible ~50% engineering target for the gateway architecture; live
+end-to-end realization remains to be demonstrated.** The multiplicative table above was subsequently
+shown to be 4–6pp too *pessimistic* — the levers remove absolute disjoint slices and compose
+super-multiplicatively. The exact per-call joint replay (`docs/joint-stack-findings.md`) gives
+counterfactual joint opportunities of **54.4% (lean-sub), 57.2% (lean-gw), 40.3% (heavy-sub), 53.9%
+(heavy-gw)**, with per-session measured thinking instead of the assumed 7%.
 
 ## Caveats
 
