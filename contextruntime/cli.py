@@ -86,7 +86,9 @@ def cmd_doctor(args) -> int:
     if getattr(args, "prefix", False):
         from . import prefixdoctor
         import json as _json
-        rep = prefixdoctor.run(args.cwd or None, capture=not args.no_capture, sessions=args.sessions)
+        extra = ("--model", args.capture_model) if args.capture_model else ()
+        body = None if args.no_capture else prefixdoctor.capture_first_request(args.cwd or None or ".", extra_args=extra)
+        rep = prefixdoctor.run(args.cwd or None, capture=False, sessions=args.sessions, body=body)
         print(_json.dumps(rep, indent=2, default=str) if args.json else prefixdoctor.format_report(rep))
         return 0
     print(doctor_mod.format_report(doctor_mod.probe()))
@@ -362,6 +364,7 @@ def main(argv=None) -> int:
     p.add_argument("--cwd", default=None, help="project dir to capture the prefix in (default: current)")
     p.add_argument("--sessions", type=int, default=40, help="recent sessions to scan for usage evidence")
     p.add_argument("--no-capture", action="store_true", help="skip the zero-quota capture; evidence-only")
+    p.add_argument("--capture-model", default=None, help="model for the capture run (pair it with the model your sessions use; the prefix is model-dependent)")
     p.add_argument("--json", action="store_true")
     p.set_defaults(func=cmd_doctor)
 
