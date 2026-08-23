@@ -1,4 +1,5 @@
-"""cr doctor --prefix — itemize/classify, evidence scan, recommendations, and the capture proxy."""
+"""cr doctor --prefix v1 — classification, audit actions + feasibility, counterfactual monotonicity,
+deferral-aware lean attribution, duplicates, evidence scan, and the capture proxy."""
 import http.client
 import json
 import threading
@@ -6,68 +7,109 @@ from http.server import ThreadingHTTPServer
 
 from contextruntime import prefixdoctor as pd
 
+CORE = ("\nYou are an interactive agent that helps users with software engineering tasks.\n\n# System\nx\n"
+        "# Doing tasks\ny\n# Using your tools\nz\n# auto memory\nMEMORY.md is loaded each session\n# Environment\nPlatform: darwin\n")
+
 
 def _body():
     big = {"type": "object", "properties": {k: {"type": "string", "description": "x" * 200} for k in "abcdefgh"}}
-    return {"model": "m", "stream": True,
-            "system": [{"type": "text", "text": "You are Claude Code. " * 20},
-                       {"type": "text", "text": "# claudeMd\nContents of CLAUDE.md " + "rule " * 8000}],
+    return {"model": "claude-sonnet-5", "stream": True,
+            "system": [{"type": "text", "text": "x-anthropic-billing-header: cc_version=2.1.229"},
+                       {"type": "text", "text": CORE}],
             "tools": [{"name": "Bash", "description": "run", "input_schema": big},
                       {"name": "Workflow", "description": "orchestrate " * 400, "input_schema": big},
+                      {"name": "DesignSync", "description": "design " * 400, "input_schema": big},
                       {"name": "mcp__gmail__send", "description": "send mail " * 300, "input_schema": big},
                       {"name": "mcp__gmail__list", "description": "list mail " * 300, "input_schema": big}],
-            "messages": [{"role": "user", "content": [{"type": "text", "text": "<system-reminder>memory MEMORY.md</system-reminder>"},
-                                                      {"type": "text", "text": "fix the bug"}]}]}
+            "messages": [{"role": "user", "content": [
+                {"type": "text", "text": "<system-reminder>\n# claudeMd\nContents of /p/CLAUDE.md (project instructions):\n" + "rule " * 3000 + "</system-reminder>"},
+                {"type": "text", "text": "fix the bug"}]}]}
 
 
-def test_itemize_groups_tools_by_server_and_classifies_blocks():
+def _sessions(n=10, calls=50):
+    """n sessions; Bash used at call 1 everywhere; Workflow used in 2 sessions, late (call 40)."""
+    out = []
+    for i in range(n):
+        uses = {"Bash": 30}
+        first = {"Bash": 1}
+        if i < 2:
+            uses["Workflow"] = 1
+            first["Workflow"] = 40
+        out.append(pd.SessionStats(f"s{i}", calls, 40000, 40000 * calls * 1.4, first, pd.Counter(uses)))
+    return out
+
+
+def test_classification_core_vs_injected_markers():
+    assert pd._classify_block(CORE) == "system_core"                    # mentions memory/env but IS the core prompt
+    assert pd._classify_block("# claudeMd\nContents of /p/CLAUDE.md\nrules") == "claude_md"
+    assert pd._classify_block("Contents of /x/MEMORY.md (user's auto-memory)") == "memory"
     items = pd.itemize(_body())
-    groups = {it.group for it in items}
-    assert {"tool:builtin", "tool:gmail", "system", "injected", "user"} <= groups
+    cats = {it.name: it.category for it in items}
+    assert cats["system[1]"] == "system_core" and cats["msg0[0]"] == "claude_md" and cats["msg0[1]"] == "user_prompt"
+    assert {it.category for it in items if it.name.startswith("mcp__")} == {"mcp_tool"}
+
+
+def test_audit_actions_and_feasibility():
+    rows = {r["name"]: r for r in pd.audit_tools(pd.itemize(_body()), _sessions(), 1.7)}
+    assert rows["Bash"]["action"] == "KEEP" and rows["Bash"]["wasted_residency"] == 0
+    assert rows["DesignSync"]["action"] == "DISABLE?" and rows["DesignSync"]["feasibility"] == pd.FEAS["SUB"]
+    assert rows["mcp__gmail__send"]["action"] == "DISABLE?" and rows["mcp__gmail__send"]["feasibility"] == pd.FEAS["SUB"]
+    assert rows["Workflow"]["action"] == "DEFER" and rows["Workflow"]["feasibility"] == pd.FEAS["ANT"]
+    assert rows["Workflow"]["median_first_use_call"] == 40
+    # wasted residency for a never-used tool = tokens × N
+    assert rows["DesignSync"]["wasted_residency"] == rows["DesignSync"]["tokens"] * 50
+    assert pd.audit_tools(pd.itemize(_body()), _sessions(n=3), 1.7)[0]["action"] == "UNKNOWN"   # too little evidence
+    blocks = {r["category"]: r for r in pd.audit_blocks(pd.itemize(_body()), 1.7, _sessions())}
+    assert blocks["claude_md"]["action"] == "COMPRESS" and blocks["claude_md"]["feasibility"] == pd.FEAS["SUB"]
+    assert blocks["system_core"]["action"] == "KEEP" and blocks["system_core"]["feasibility"] == pd.FEAS["ANT"]
+
+
+def test_counterfactuals_are_monotone_and_reconcile():
+    rep = pd.build_report(_body(), _sessions(), env_label="t", real_startup=60000)
+    cf = rep["counterfactuals"]
+    seq = [cf[k]["prefix_tokens"] for k in ("P0", "P1", "P1b", "P2", "P3_conservative", "P3_realistic", "P4_oracle")]
+    assert seq == sorted(seq, reverse=True)                                 # each step removes more
+    assert cf["P1"]["note"].startswith("servers: ['gmail']")                # the unused server
+    assert cf["subscription_achievable"]["prefix_tokens"] <= cf["P1b"]["prefix_tokens"]
+    assert cf["gateway_achievable"]["prefix_tokens"] <= cf["subscription_achievable"]["prefix_tokens"]
+    rc = rep["reconciliation"]
+    assert rc["measured_cl100k_total"] == sum(rc["by_category_cl100k"].values())
+    assert abs(sum(rc["by_category_estimated"].values()) - 60000) <= 5       # proportional attribution sums to the real prefix
+    assert rep["totals"]["startup_prefix_tokens"] == 60000
+    assert 0 < rep["totals"]["fixed_prefix_share_pct"] <= 100
+
+
+def test_lean_items_exclude_deferred_tools(tmp_path):
+    rows = [{"type": "attachment", "attachment": {"type": "deferred_tools_delta", "addedNames": ["DesignSync", "mcp__gmail__send", "mcp__gmail__list"], "addedLines": ["DesignSync", "mcp__gmail__send"]}},
+            {"type": "attachment", "attachment": {"type": "skill_listing", "content": "- pdf: make pdfs\n- xlsx: sheets"}},
+            {"type": "attachment", "attachment": {"type": "agent_listing_delta", "addedLines": ["- Explore: read-only search"]}}]
+    tp = tmp_path / "s.jsonl"
+    tp.write_text("\n".join(json.dumps(r) for r in rows))
+    items, notes = pd.lean_items([str(tp)], _body())
     names = {it.name for it in items}
-    assert "system[1]:claude_md" in names and "msg0[0]:memory" in names
-    s = pd.summarize_items(items)
-    assert s["n_tools"] == 4 and s["tools_est_tokens"] > 0
-    assert s["by_group"]["tool:gmail"] > 0
+    assert "Bash" in names and "Workflow" in names                          # loaded
+    assert "DesignSync" not in names and "mcp__gmail__send" not in names      # deferred ⇒ not resident
+    assert {"skills", "agents", "deferred_tools", "system[1]"} <= names      # measured listings + core from reference
+    assert any("deferred (not resident)" in n for n in notes)
 
 
-def test_report_recommends_unused_heavy_server_and_builtin_with_flags():
-    ev = pd.Evidence(sessions=10, startup_prefix=[40000] * 10, calls_per_session=[50] * 10,
-                     per_session_P=[40000 * 50 * 1.3] * 10)
-    ev.builtin_tool_uses.update({"Bash": 500})                      # Workflow never used; gmail never used
-    rep = pd.build_report(pd.itemize(_body()), ev, {}, real_first_P=None)
-    acts = " | ".join(r["action"] for r in rep["recommendations"])
-    assert 'mcp__gmail__*' in acts                                  # whole unused server
-    assert "--disallowedTools Workflow" in acts                     # unused heavy builtin
-    assert "trim system[1]:claude_md" in acts                       # large resident block
-    assert rep["median_calls_per_session"] == 50
-    assert 0 < rep["fixed_prefix_share_of_sum_P_median"] <= 100
-    assert rep["potential_tokens_per_call_saved"] > 0
+def test_duplicates_detect_exact_repeats():
+    para = "This exact paragraph is repeated verbatim across two different blocks to be detected. " * 3
+    items = [pd.Item("system_core", "s", "a", 10, "", para + "\n\nother text " * 20),
+             pd.Item("injected_reminder", "m", "b", 10, "", "intro\n\n" + para)]
+    d = pd.find_duplicates(items, 1.0)
+    assert len(d["exact"]) == 1 and d["exact"][0]["duplicate_of"] == "a" and d["exact_dup_tokens"] > 0
 
 
-def test_calibration_anchors_to_real_first_call():
-    ev = pd.Evidence()
-    items = pd.itemize(_body())
-    est = pd.summarize_items(items)["total_est_tokens"]
-    rep = pd.build_report(items, ev, {}, real_first_P=est * 2)
-    assert rep["calibration_factor"] == 2.0 and rep["startup_prefix_est_tokens"] == est * 2
-
-
-def test_usage_evidence_scans_transcripts(tmp_path):
-    proj = tmp_path / "-proj"
-    proj.mkdir()
+def test_session_stats_first_use_and_startup(tmp_path):
     u = {"cache_read_input_tokens": 0, "cache_creation_input_tokens": 30000, "input_tokens": 5, "output_tokens": 3}
-    rows = [
-        {"type": "assistant", "requestId": "r1", "message": {"usage": u, "content": [
-            {"type": "tool_use", "id": "a", "name": "mcp__gmail__send", "input": {}},
-            {"type": "tool_use", "id": "b", "name": "Skill", "input": {"skill": "pdf"}}]}},
-        {"type": "assistant", "requestId": "r2", "message": {"usage": {**u, "cache_read_input_tokens": 30000, "cache_creation_input_tokens": 100},
-                                                            "content": [{"type": "tool_use", "id": "c", "name": "Bash", "input": {}}]}},
-    ]
-    (proj / "s.jsonl").write_text("\n".join(json.dumps(r) for r in rows))
-    ev = pd.usage_evidence(str(tmp_path), max_sessions=5)
-    assert ev.sessions == 1 and ev.calls_per_session == [2] and ev.startup_prefix == [30005]
-    assert ev.mcp_server_uses["gmail"] == 1 and ev.skill_uses["pdf"] == 1 and ev.builtin_tool_uses["Bash"] == 1
+    rows = [{"type": "assistant", "requestId": "r1", "message": {"usage": u, "content": [{"type": "tool_use", "id": "a", "name": "Bash", "input": {}}]}},
+            {"type": "assistant", "requestId": "r2", "message": {"usage": {**u, "cache_read_input_tokens": 30000, "cache_creation_input_tokens": 100},
+                                                                "content": [{"type": "tool_use", "id": "b", "name": "mcp__gmail__send", "input": {}}]}}]
+    tp = tmp_path / "s.jsonl"
+    tp.write_text("\n".join(json.dumps(r) for r in rows))
+    s = pd.session_stats(str(tp))
+    assert s.calls == 2 and s.startup_P == 30005 and s.first_use == {"Bash": 1, "mcp__gmail__send": 2}
 
 
 def test_capture_handler_records_main_request_and_rejects():
@@ -76,17 +118,12 @@ def test_capture_handler_records_main_request_and_rejects():
     threading.Thread(target=srv.serve_forever, daemon=True).start()
     port = srv.server_address[1]
     try:
-        c = http.client.HTTPConnection("127.0.0.1", port, timeout=5)
-        aux = json.dumps({"messages": [{"role": "user", "content": "title?"}]}).encode()
-        c.request("POST", "/v1/messages", body=aux, headers={"x-api-key": "sk-secret", "Content-Type": "application/json"})
-        r = c.getresponse(); r.read(); c.close()
-        assert r.status == 400                                      # rejected, not forwarded
-        c = http.client.HTTPConnection("127.0.0.1", port, timeout=5)
-        main = json.dumps(_body()).encode()
-        c.request("POST", "/v1/messages", body=main, headers={"x-api-key": "sk-secret", "Content-Type": "application/json"})
-        r = c.getresponse(); r.read(); c.close()
-        assert r.status == 400 and pd._Capture.event.is_set()      # main (with tools) captured
-        assert len(pd._Capture.bodies) == 2
-        assert "sk-secret" not in json.dumps(pd._Capture.bodies)    # auth never stored
+        for payload in (json.dumps({"messages": [{"role": "user", "content": "title?"}]}), json.dumps(_body())):
+            c = http.client.HTTPConnection("127.0.0.1", port, timeout=5)
+            c.request("POST", "/v1/messages", body=payload.encode(), headers={"x-api-key": "sk-secret", "Content-Type": "application/json"})
+            r = c.getresponse(); r.read(); c.close()
+            assert r.status == 400                                          # never forwarded
+        assert pd._Capture.event.is_set() and len(pd._Capture.bodies) == 2
+        assert "sk-secret" not in json.dumps(pd._Capture.bodies)            # auth never stored
     finally:
         srv.shutdown()

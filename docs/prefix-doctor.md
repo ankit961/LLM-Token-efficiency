@@ -1,5 +1,13 @@
 # `cr doctor --prefix` — itemize the fixed prefix re-read on every API call
 
+> **v1 (2026-08-23):** the doctor now reconciles attribution against the real first call (residuals
+> stated, ~±10%), is deferral-aware (schemas listed in `deferred_tools_delta` are NOT charged),
+> audits first-use timing (wasted residency = tokens × calls before first use), emits conservative
+> KEEP/DEFER/DISABLE?/COMPRESS/UNKNOWN actions tagged SUBSCRIPTION_CONFIG / GATEWAY_CONTROLLABLE /
+> ANTHROPIC_CLIENT_REQUIRED, and computes the P0–P4 counterfactual waterfall for both environments.
+> Findings + the hard decision gate: `docs/prefix-doctor-findings.md`; frozen artifact:
+> `corpus/analysis/prefix-doctor-v1.json`. The v0 report below stands as the first diagnosis.
+
 **2026-08-23. Built, tested, run on a real machine. Zero model quota.** `contextruntime/prefixdoctor.py`,
 `contextruntime doctor --prefix [--cwd DIR] [--sessions N] [--json]`; this machine's report in
 `corpus/analysis/prefix-doctor-report.json`.

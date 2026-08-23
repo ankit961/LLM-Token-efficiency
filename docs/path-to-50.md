@@ -125,7 +125,18 @@ subscription client, "gateway" = our proxy / API path where we own the request.
 | 7 | ReadIfChanged / canonical-object dedup / bash trimming | **−1 to −3** combined | gateway | high, small | deprioritize |
 | 8 | Runaway-trajectory governor | −2 to −5 | any | medium | deprioritize |
 
-**Arithmetic for 50%.** On the lean workload, B3 (8) + thinking GC (8) + ReadIfChanged-class (2) =
+**Arithmetic for 50% (corrected: multiplicative, not additive).** Levers overlap multiplicatively —
+each acts on the workload the previous ones left. E.g. prefix −20%, calls −15%, B3 −8%, thinking −7%
+compose to 0.80×0.85×0.92×0.93 ≈ 0.582, i.e. **−41.8%**, not −50%. Reaching 50% needs roughly prefix
+−30% × calls −15% × B3 × thinking (≈ −49%) or a stronger stack. The measured prefix numbers are now in
+`docs/prefix-doctor-findings.md`: subscription-achievable −27.6% (heavy) / −31.9% (lean) of Σ P_t.
+
+**Tokenizer correction (measured while reconciling the doctor):** Claude's tokenizer counts **~1.74×
+cl100k** on coding-agent content (455 clean call-deltas, IQR 1.61–1.89). All heuristic/tiktoken token
+estimates in this repo and in the external literature understate Claude usage by ~40% in absolute
+terms; ratios/percentages are unaffected.
+
+**Arithmetic for 50% (original, superseded by the above).** On the lean workload, B3 (8) + thinking GC (8) + ReadIfChanged-class (2) =
 ~18% — *the ceiling of everything that operates on content*. The rest must come from the two
 multipliers: the fixed prefix (#1) and the call count (#2). 50% is reachable only as
 **#1 + #2 + #3 + #4 together**, e.g. −20 (prefix) −15 (calls) −8 (B3) −7 (thinking) ≈ −50. In heavy-MCP
