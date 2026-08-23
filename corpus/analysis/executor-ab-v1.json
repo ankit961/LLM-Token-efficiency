@@ -1,0 +1,105 @@
+{
+  "version": "executor-ab-v1",
+  "experiment": "B5.2 Stage B live paired A/B, 3 django tasks, sonnet, $2.5 caps",
+  "pairs": [
+    {
+      "task": "django__django-10554",
+      "A": {
+        "calls": 52,
+        "sum_input": 3824824,
+        "discover_calls": 0,
+        "native_discovery": 31,
+        "status": "success",
+        "cost_usd": 1.8900176,
+        "edited": [
+          "django/db/models/sql/compiler.py",
+          "django/db/models/sql/query.py",
+          "tests/queries/test_qs_combinators.py"
+        ]
+      },
+      "B": {
+        "calls": 62,
+        "sum_input": 4704294,
+        "discover_calls": 0,
+        "native_discovery": 29,
+        "status": "error_max_budget_usd",
+        "cost_usd": 2.5089638,
+        "edited": [
+          "django/db/models/sql/compiler.py",
+          "django/db/models/sql/query.py"
+        ]
+      }
+    },
+    {
+      "task": "django__django-11138",
+      "A": {
+        "calls": 49,
+        "sum_input": 3302997,
+        "discover_calls": 0,
+        "native_discovery": 21,
+        "status": "success",
+        "cost_usd": 1.6089451,
+        "edited": [
+          "django/db/backends/mysql/operations.py",
+          "django/db/backends/oracle/operations.py",
+          "django/db/backends/sqlite3/base.py",
+          "django/db/backends/sqlite3/operations.py",
+          "tests/timezones/tests.py"
+        ]
+      },
+      "B": {
+        "calls": 38,
+        "sum_input": 2717832,
+        "discover_calls": 0,
+        "native_discovery": 25,
+        "status": "timeout",
+        "cost_usd": null,
+        "edited": [
+          "django/db/backends/mysql/operations.py",
+          "django/db/backends/oracle/operations.py",
+          "django/db/backends/sqlite3/base.py"
+        ]
+      }
+    },
+    {
+      "task": "django__django-14608",
+      "A": {
+        "calls": 37,
+        "sum_input": 2054124,
+        "discover_calls": 0,
+        "native_discovery": 16,
+        "status": "success",
+        "cost_usd": 0.9925124,
+        "edited": [
+          "django/forms/formsets.py",
+          "docs/topics/forms/formsets.txt",
+          "tests/admin_views/tests.py",
+          "tests/forms_tests/tests/test_formsets.py"
+        ]
+      },
+      "B": {
+        "calls": 29,
+        "sum_input": 1516207,
+        "discover_calls": 0,
+        "native_discovery": 15,
+        "status": "success",
+        "cost_usd": 0.7454938999999997,
+        "edited": [
+          "django/forms/formsets.py",
+          "docs/releases/4.0.txt",
+          "docs/topics/forms/formsets.txt",
+          "tests/forms_tests/tests/test_formsets.py"
+        ]
+      }
+    }
+  ],
+  "verdict": "NOT REALIZED \u2014 the executor was never invoked in any B-arm (0 discover calls / 3 tasks). Root cause measured: the cr MCP server connects AFTER claude -p's first API call, so its tool arrives as a names-only deferred_tools_delta (3/3 runs); loading a deferred tool requires an explicit ToolSearch/WaitForMcpServers step the model never performed, even when the system prompt explicitly instructed it (0/3). With the schema invisible, B differed from A only by noise: paired deltas (-23.0%, +17.7% [timeout-truncated], +26.2%) are trajectory variance.",
+  "gates": {
+    "adoption": "0/3 (FAIL \u2014 experiment did not exercise the executor)",
+    "same_source_files": "2/3 (10554 yes, 14608 partial-different-tests, 11138 B timed out unfinished)",
+    "calls_and_input_gates": "not meaningfully evaluable \u2014 B never used the tool"
+  },
+  "spend_usd_approx": 9.7,
+  "lesson": "Tool DELIVERY on the subscription client is client-controlled (deferral + startup race) \u2014 the same subscription-vs-gateway boundary the doctor drew for schemas now also blocks adding our own tool surface. Realizing the oracle's 13.1% needs a custom loop (we own the tool list) or client-side support; prompt steering alone cannot reach a schema the model never sees.",
+  "code_commit": "854239411348f1a627e2e78f1306e308d4956e69"
+}
