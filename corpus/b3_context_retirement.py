@@ -34,6 +34,7 @@ import os
 import re
 
 from contextruntime.reducers.base import tokens as _tok
+from corpus.transcript_util import merged_records
 
 _READ_TOOLS = {"Read", "NotebookRead"}
 _EDIT_TOOLS = {"Edit", "MultiEdit", "NotebookEdit", "Write"}
@@ -75,11 +76,7 @@ def parse_context_objects(transcript_path: str):
     objects = []
     usage = {"cache_read": 0, "cache_creation": 0, "input": 0, "output": 0}
     turn = 0
-    for line in open(transcript_path, errors="replace"):
-        try:
-            rec = json.loads(line)
-        except Exception:      # noqa: BLE001
-            continue
+    for rec in merged_records(transcript_path):
         msg = rec.get("message") or {}
         content = msg.get("content")
         if rec.get("type") == "assistant" and isinstance(content, list):

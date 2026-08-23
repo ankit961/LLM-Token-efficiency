@@ -9,7 +9,7 @@ oracle/measurement round. Evidence: `docs/b3-findings.md`, `docs/b3.1-safety-fin
 
 > **ContextRuntime's strongest validated mechanism is retroactive context retirement. Offline replay
 > estimates roughly 8–11% safe additive token-residency reduction on single-window coding sessions,
-> increasing with session length. A small live paired-resume experiment found no obvious degradation
+> increasing with session length (≈8% pooled; ≈14% tail / 5.6% provably-safe on sessions of 60+ API calls). A small live paired-resume experiment found no obvious degradation
 > from removing retired context, but the live experiment was a safety sanity check rather than a direct
 > measurement of whole-session token savings.**
 
@@ -20,7 +20,7 @@ Say this, and not "8–11% live-demonstrated saving" — that stronger claim is 
 | step | what it establishes |
 |---|---|
 | **B3.0** | Retroactive-retirement opportunity **rises with session length**; ~7–15% optimistic single-window opportunity with a ~3–6% mechanically-certain (superseded-only) core. First double-digit lever in the program. |
-| **B3.1** | After excluding mechanically-unsafe retirements, **lag-5 safe token-turn saving ≈ 7.6% (<100-turn) and 11.1% (≥100-turn)**, overall ~8.7%; mechanical safety fraction ~98% (short) / ~95.5% (long). |
+| **B3.1** | After excluding mechanically-unsafe retirements, **lag-5 safe token-turn saving ≈ 8.3% pooled** (corrected to real API-call turns, see `docs/path-to-50.md` §0; sessions of 60+ calls reach ~14% tail / 5.6% provably-safe); mechanical safety fraction ~98%. |
 | **B3.2** | In multi-window sessions native `/compact` absorbs most of the *raw* saving (unique ≈ 8% of standalone); B3's durable multi-window value is **lossless compaction deferral/avoidance**, capped near the ~16% tool-output share of the prefix. |
 | **B3.3** | **Live** paired resume (n=3, CLI-resume hack): removing retired objects did not derail the continuation — 3/3 reached the same fix, ~zero re-read tax. A **safety** check, not a savings measurement (2 active + 1 inert; no clean live cost pairing). |
 

@@ -29,6 +29,7 @@ import os
 
 from contextruntime.reducers.base import tokens as _tok
 from corpus.b3_context_retirement import _obj_key, _norm_path, assign_obsolescence
+from corpus.transcript_util import merged_records
 
 _READ = {"Read", "NotebookRead"}
 _EDIT = {"Edit", "MultiEdit", "NotebookEdit", "Write"}
@@ -49,11 +50,7 @@ def parse_trajectory(transcript_path):
     size that turn. objects = {turn, key, size} for every tool result."""
     uses, objects, cr = {}, [], {}
     turn = 0
-    for line in open(transcript_path, errors="replace"):
-        try:
-            rec = json.loads(line)
-        except Exception:      # noqa: BLE001
-            continue
+    for rec in merged_records(transcript_path):
         msg = rec.get("message") or {}
         content = msg.get("content")
         if rec.get("type") == "assistant" and isinstance(content, list):

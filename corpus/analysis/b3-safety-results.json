@@ -12,177 +12,68 @@
     {
       "lag": 0,
       "safe_fraction": 0.968,
-      "safe_total_pct_T_total": 9.297,
-      "unsafe_pct_T_total_gap": 1.031
+      "safe_total_pct_T_total": 9.275,
+      "unsafe_pct_T_total_gap": 1.037
     },
     {
       "lag": 3,
-      "safe_fraction": 0.973,
-      "safe_total_pct_T_total": 8.967,
-      "unsafe_pct_T_total_gap": 0.873
+      "safe_fraction": 0.975,
+      "safe_total_pct_T_total": 8.681,
+      "unsafe_pct_T_total_gap": 0.82
     },
     {
       "lag": 5,
-      "safe_fraction": 0.974,
-      "safe_total_pct_T_total": 8.702,
-      "unsafe_pct_T_total_gap": 0.835
+      "safe_fraction": 0.979,
+      "safe_total_pct_T_total": 8.3,
+      "unsafe_pct_T_total_gap": 0.732
     },
     {
       "lag": 10,
-      "safe_fraction": 0.98,
-      "safe_total_pct_T_total": 8.15,
-      "unsafe_pct_T_total_gap": 0.71
+      "safe_fraction": 0.982,
+      "safe_total_pct_T_total": 7.426,
+      "unsafe_pct_T_total_gap": 0.592
     },
     {
       "lag": 20,
-      "safe_fraction": 0.982,
-      "safe_total_pct_T_total": 7.148,
-      "unsafe_pct_T_total_gap": 0.569
+      "safe_fraction": 0.983,
+      "safe_total_pct_T_total": 6.071,
+      "unsafe_pct_T_total_gap": 0.427
     }
   ],
   "strata": [
     {
       "bucket": "0-100",
-      "n": 41,
+      "n": 60,
       "by_lag": [
         {
           "lag": 0,
-          "safe_fraction": 0.977,
-          "safe_total_pct_T_total": 8.228
+          "safe_fraction": 0.968,
+          "safe_total_pct_T_total": 9.275
         },
         {
           "lag": 3,
+          "safe_fraction": 0.975,
+          "safe_total_pct_T_total": 8.681
+        },
+        {
+          "lag": 5,
+          "safe_fraction": 0.979,
+          "safe_total_pct_T_total": 8.3
+        },
+        {
+          "lag": 10,
           "safe_fraction": 0.982,
-          "safe_total_pct_T_total": 7.891
+          "safe_total_pct_T_total": 7.426
         },
         {
-          "lag": 5,
+          "lag": 20,
           "safe_fraction": 0.983,
-          "safe_total_pct_T_total": 7.593
-        },
-        {
-          "lag": 10,
-          "safe_fraction": 0.988,
-          "safe_total_pct_T_total": 6.98
-        },
-        {
-          "lag": 20,
-          "safe_fraction": 0.99,
-          "safe_total_pct_T_total": 5.874
-        }
-      ]
-    },
-    {
-      "bucket": "100-+",
-      "n": 19,
-      "by_lag": [
-        {
-          "lag": 0,
-          "safe_fraction": 0.95,
-          "safe_total_pct_T_total": 11.605
-        },
-        {
-          "lag": 3,
-          "safe_fraction": 0.952,
-          "safe_total_pct_T_total": 11.291
-        },
-        {
-          "lag": 5,
-          "safe_fraction": 0.955,
-          "safe_total_pct_T_total": 11.096
-        },
-        {
-          "lag": 10,
-          "safe_fraction": 0.962,
-          "safe_total_pct_T_total": 10.675
-        },
-        {
-          "lag": 20,
-          "safe_fraction": 0.965,
-          "safe_total_pct_T_total": 9.898
+          "safe_total_pct_T_total": 6.071
         }
       ]
     }
   ],
-  "extras": [
-    {
-      "turns": 2414,
-      "T_total": 1183840760,
-      "multiwindow": true,
-      "by_lag": [
-        {
-          "lag": 0,
-          "n_tail_retired": 516,
-          "n_safe": 501,
-          "n_unsafe_d0_reref": 1,
-          "n_unsafe_d1_reuse": 14,
-          "safe_fraction": 0.9709,
-          "superseded_gross": 78121460,
-          "tail_gross": 163932984,
-          "safe_tail_gross": 134369353,
-          "safe_total_gross": 212490813,
-          "safe_total_pct_T_total": 17.95,
-          "tail_pct_T_total": 20.45
-        },
-        {
-          "lag": 3,
-          "n_tail_retired": 515,
-          "n_safe": 503,
-          "n_unsafe_d0_reref": 1,
-          "n_unsafe_d1_reuse": 11,
-          "safe_fraction": 0.9767,
-          "superseded_gross": 78121460,
-          "tail_gross": 163577834,
-          "safe_tail_gross": 136274094,
-          "safe_total_gross": 214395554,
-          "safe_total_pct_T_total": 18.11,
-          "tail_pct_T_total": 20.42
-        },
-        {
-          "lag": 5,
-          "n_tail_retired": 515,
-          "n_safe": 503,
-          "n_unsafe_d0_reref": 1,
-          "n_unsafe_d1_reuse": 11,
-          "safe_fraction": 0.9767,
-          "superseded_gross": 78121460,
-          "tail_gross": 163341134,
-          "safe_tail_gross": 136070456,
-          "safe_total_gross": 214191916,
-          "safe_total_pct_T_total": 18.09,
-          "tail_pct_T_total": 20.4
-        },
-        {
-          "lag": 10,
-          "n_tail_retired": 514,
-          "n_safe": 504,
-          "n_unsafe_d0_reref": 1,
-          "n_unsafe_d1_reuse": 9,
-          "safe_fraction": 0.9805,
-          "superseded_gross": 78121460,
-          "tail_gross": 162750920,
-          "safe_tail_gross": 137045089,
-          "safe_total_gross": 215166549,
-          "safe_total_pct_T_total": 18.18,
-          "tail_pct_T_total": 20.35
-        },
-        {
-          "lag": 20,
-          "n_tail_retired": 511,
-          "n_safe": 501,
-          "n_unsafe_d0_reref": 1,
-          "n_unsafe_d1_reuse": 9,
-          "safe_fraction": 0.9804,
-          "superseded_gross": 78121460,
-          "tail_gross": 161575939,
-          "safe_tail_gross": 136028048,
-          "safe_total_gross": 214149508,
-          "safe_total_pct_T_total": 18.09,
-          "tail_pct_T_total": 20.25
-        }
-      ],
-      "transcript": "/Users/pardeepsingh/.claude/projects/-Users-pardeepsingh-Desktop-Token-Optimisation/5b8e6383-8f63-458d-8a43-9ab270dbbd1a.jsonl"
-    }
-  ],
-  "code_commit": "d83288daeb60959b79905df3175013ca0ed522d8"
+  "extras": [],
+  "code_commit": "5c3a5d547e5431eb03444c0962c2c3eef31151a8",
+  "note": "CORRECTED: real API-call turns."
 }

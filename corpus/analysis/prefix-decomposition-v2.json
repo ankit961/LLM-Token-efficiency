@@ -1,0 +1,29 @@
+{
+  "n": 60,
+  "share_of_sum_P": {
+    "fixed(system+tools+injected)": 73.03,
+    "result_bash": 4.88,
+    "tool_use_edit": 1.02,
+    "tool_use_bash": 1.19,
+    "result_read": 6.77,
+    "user_text": 0.68,
+    "result_other": 0.04,
+    "tool_use_other": 0.48,
+    "thinking": 0.0,
+    "assistant_text": 0.21,
+    "result_edit": 0.35,
+    "tool_use_write": 0.04,
+    "thinking(est,invisible)": 11.31,
+    "waste:polling_turns": 0.47
+  },
+  "mean_turns": 49.5,
+  "mean_first_P": 42451,
+  "mean_waste_tokens": {
+    "read_same_path_refresh": 2103,
+    "inline_script_input": 326,
+    "edit_old_string_dup_of_read": 0
+  },
+  "mean_polling_turns": 0.27,
+  "hard_lower_bound_fixed_pct": 66.9,
+  "code_commit": "5c3a5d547e5431eb03444c0962c2c3eef31151a8"
+}

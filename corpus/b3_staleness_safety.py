@@ -30,6 +30,7 @@ import re
 from contextruntime.reducers.base import tokens as _tok
 from corpus.b3_context_retirement import _obj_key, _norm_path, assign_obsolescence
 from corpus.edit_recall_replay import _EDIT_TOOLS
+from corpus.transcript_util import merged_records
 
 _READ_TOOLS = {"Read", "NotebookRead"}
 _KEYED_TOOLS = {"Grep", "Glob", "Bash"}
@@ -65,11 +66,7 @@ def parse_for_safety(transcript_path: str):
     inputs_by_turn = {}
     usage = {"cache_read": 0, "cache_creation": 0, "input": 0, "output": 0}
     turn = 0
-    for line in open(transcript_path, errors="replace"):
-        try:
-            rec = json.loads(line)
-        except Exception:      # noqa: BLE001
-            continue
+    for rec in merged_records(transcript_path):
         msg = rec.get("message") or {}
         content = msg.get("content")
         if rec.get("type") == "assistant" and isinstance(content, list):
