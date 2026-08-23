@@ -1,5 +1,8 @@
 # B3.0 — Retroactive context-retirement ceiling: offline findings
 
+> **Correction (2026-08-23):** the harness originally counted transcript *records* as turns, but Claude Code stores one API call as several assistant records sharing a `requestId`, so the turn axis was inflated ~1.9× (134 records = 71 real calls) and Σ usage ~1.9×. Fixed in `corpus/transcript_util.merged_records`; the harness now reproduces the CLI-reported usage exactly. **The percentages survive** (pooled mech/+tail 4.33/10.32 vs documented 4.3/10.3; lag-5 safe 0.979/8.30% vs 0.974/8.70%); only the length buckets change — real sessions are 20–180 API calls, so read "≥100 turns" as "≥60 real calls" (13.9% tail / 5.6% mech / 9.3% cost-NET, n=16). See `docs/path-to-50.md` §0.
+
+
 **Run 2026-08-22, ZERO Claude quota. No live history transformer built.** Offline replay over the 60
 Step-7 django sessions (single-window, 37–180 turns) plus one very long real session (this
 workstream's own transcript, 2,365 turns) as a caveated extreme point. Harness

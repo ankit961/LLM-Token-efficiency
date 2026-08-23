@@ -23,6 +23,7 @@ import subprocess
 import uuid
 
 from corpus.b3_context_retirement import _obj_key, assign_obsolescence
+from corpus.transcript_util import merged_records
 
 _READ = {"Read", "NotebookRead"}
 _EDIT = {"Edit", "MultiEdit", "NotebookEdit", "Write"}
@@ -36,7 +37,7 @@ _DROP_TYPES = {"last-prompt", "queue-operation"}
 
 
 def load_records(path):
-    return [json.loads(l) for l in open(path) if l.strip()]
+    return list(merged_records(path))
 
 
 def turns_of(records):
