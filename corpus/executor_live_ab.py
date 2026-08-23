@@ -25,11 +25,13 @@ import sys
 
 STEER = (
     "This project provides the MCP tool mcp__cr__discover: fast LOCAL code discovery in ONE call. "
-    "For ANY codebase exploration (finding a definition, usages, reading the relevant code, following "
-    "a traceback), call mcp__cr__discover FIRST with an identifier/pattern (and/or path/traceback) "
-    "instead of running chains of Grep/Glob/ls/cat/Read calls. It returns one consolidated evidence "
-    "packet with the relevant source slices and related test files. Only fall back to native "
-    "Grep/Read if the packet is insufficient for a specific detail.")
+    "IMPORTANT: the cr MCP server may still be connecting when you start — if mcp__cr__discover is "
+    "not yet in your tools, FIRST call WaitForMcpServers (or load it via ToolSearch) before any "
+    "exploration. Then, for ANY codebase exploration (finding a definition, usages, reading the "
+    "relevant code, following a traceback), call mcp__cr__discover FIRST with an identifier/pattern "
+    "(and/or path/traceback) instead of running chains of Grep/Glob/ls/cat/Read calls. It returns one "
+    "consolidated evidence packet with the relevant source slices and related test files. Only fall "
+    "back to native Grep/Read if the packet is insufficient for a specific detail.")
 
 _READONLY = re.compile(r"^\s*(ls|find|cat|head|tail|tree|wc|grep|rg|git\s+(log|show|diff|status|blame|grep))\b")
 
@@ -53,18 +55,21 @@ def run_arm(task, arm, prompt, wt, *, repo, python, model="sonnet", budget=2.5, 
     env = dict(os.environ)
     env.pop("ANTHROPIC_BASE_URL", None)                  # direct; no proxy in this experiment
     env.pop("CR_GATEWAY_MODE", None)
-    p = subprocess.run(argv, cwd=wt, env=env, capture_output=True, text=True, timeout=timeout)
     try:
-        res = json.loads(p.stdout.strip().splitlines()[-1])
-    except Exception:      # noqa: BLE001
-        res = {"parse_error": p.stdout[-400:], "stderr": p.stderr[-300:]}
+        p = subprocess.run(argv, cwd=wt, env=env, capture_output=True, text=True, timeout=timeout)
+        try:
+            res = json.loads(p.stdout.strip().splitlines()[-1])
+        except Exception:      # noqa: BLE001
+            res = {"parse_error": (p.stdout or "")[-400:], "stderr": (p.stderr or "")[-300:]}
+    except subprocess.TimeoutExpired:
+        res = {"subtype": "timeout", "total_cost_usd": None}   # transcript still analyzable
     diff = subprocess.run(["git", "-C", wt, "diff", "--name-only"], capture_output=True, text=True).stdout
     res["_edited_files"] = sorted(f for f in diff.splitlines() if f.strip())
     return res
 
 
 def transcript_for(wt):
-    enc = os.path.abspath(wt).replace("/", "-")
+    enc = re.sub(r"[/_]", "-", os.path.abspath(wt))       # Claude Code encodes BOTH / and _ as - (Step-7 lesson)
     files = glob.glob(os.path.expanduser(f"~/.claude/projects/*{enc}*/*.jsonl"))
     return max(files, key=os.path.getmtime) if files else None
 
@@ -96,19 +101,26 @@ def analyze_transcript(tp):
 
 
 def usage_of(res):
-    mu = next(iter((res.get("modelUsage") or {}).values()), {})
-    return {"input_total": mu.get("inputTokens", 0) + mu.get("cacheReadInputTokens", 0) + mu.get("cacheCreationInputTokens", 0),
-            "cache_read": mu.get("cacheReadInputTokens", 0), "cache_creation": mu.get("cacheCreationInputTokens", 0),
-            "output": mu.get("outputTokens", 0), "cost_usd": res.get("total_cost_usd"),
+    tot = {"inputTokens": 0, "cacheReadInputTokens": 0, "cacheCreationInputTokens": 0, "outputTokens": 0}
+    for mu in (res.get("modelUsage") or {}).values():     # SUM across models (aux + main)
+        for k in tot:
+            tot[k] += mu.get(k, 0) or 0
+    return {"input_total": tot["inputTokens"] + tot["cacheReadInputTokens"] + tot["cacheCreationInputTokens"],
+            "cache_read": tot["cacheReadInputTokens"], "cache_creation": tot["cacheCreationInputTokens"],
+            "output": tot["outputTokens"], "cost_usd": res.get("total_cost_usd"),
             "num_turns": res.get("num_turns"), "status": res.get("subtype")}
 
 
 def main(cfg_path):
     cfg = json.load(open(cfg_path))
     out = {"tasks": {}}
+    if os.path.exists(cfg["out"]):
+        out = json.load(open(cfg["out"]))                 # resume: keep completed arms
     for t in cfg["tasks"]:
-        out["tasks"][t["id"]] = {}
+        out["tasks"].setdefault(t["id"], {})
         for arm in ("A", "B"):
+            if out["tasks"][t["id"]].get(arm):
+                continue                                  # already recorded
             wt = worktree(cfg["mirror"], t["base"], os.path.join(cfg["workdir"], f"{t['id']}-{arm}"))
             res = run_arm(t["id"], arm, t["prompt"], wt, repo=cfg["repo"], python=cfg["python"],
                           budget=cfg.get("budget", 2.5))
@@ -118,6 +130,7 @@ def main(cfg_path):
             if tp:
                 rec["trace"] = analyze_transcript(tp)
             out["tasks"][t["id"]][arm] = rec
+            json.dump(out, open(cfg["out"], "w"), indent=2)   # incremental save after every arm
             print(f"{t['id']} {arm}: {json.dumps(rec['usage'])} edited={rec['edited_files']} "
                   f"trace={rec.get('trace')}", flush=True)
     json.dump(out, open(cfg["out"], "w"), indent=2)
