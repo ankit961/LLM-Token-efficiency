@@ -12,9 +12,11 @@ Diagnostic only — the doctor never disables or rewrites anything.
   to the prompt — found the hard way).
 - **Attribution reconciles, residual stated**: every tool schema and system/injected block is
   tokenized (cl100k) and reconciled against the REAL first-call prefix from same-environment sessions.
-  **Claude's tokenizer counts ~1.74× cl100k on coding-agent content** (455 clean call-deltas, IQR
-  1.61–1.89) — a finding in its own right: heuristic/tiktoken estimates understate Claude token usage
-  by ~40%. Residuals: heavy **−9.5%**, lean **−8.1%** — attribution and reality agree within the
+  the **Claude request-accounting factor is ~1.74× the cl100k estimate** on coding-agent content
+  (455 clean call-deltas, IQR 1.61–1.89). Stated as an accounting factor, not a tokenizer claim: it may
+  include request serialization/protocol/invisible content; pinning it to vocabulary alone needs the
+  official count-tokens endpoint on identical bytes. Practical consequence stands: heuristic/tiktoken
+  estimates understate Claude-billed usage by ~40%. Residuals: heavy **−9.5%**, lean **−8.1%** — attribution and reality agree within the
   tokenizer spread.
 - **Deferral-aware**: whether a schema is *resident* is observed, not assumed — from the capture
   (loaded `tools` array) and from transcripts (`deferred_tools_delta` = names only, NOT resident). The

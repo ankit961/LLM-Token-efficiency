@@ -43,7 +43,10 @@ try:
 except Exception:      # noqa: BLE001
     merged_records = None
 
-CLAUDE_PER_CL100K = 1.74        # empirical Claude-tokens per cl100k-token on coding-agent content (n=455)
+CLAUDE_PER_CL100K = 1.74        # empirical Claude REQUEST-ACCOUNTING factor per cl100k token (n=455 call-deltas).
+                                # NOT claimed to be pure tokenizer vocabulary difference: it may include request
+                                # serialization/protocol/invisible content. Pin it down only via the official
+                                # count-tokens endpoint on identical bytes (needs an API key).
 CLAUDE_PER_CL100K_IQR = (1.61, 1.89)
 FEAS = {"SUB": "SUBSCRIPTION_CONFIG", "GW": "GATEWAY_CONTROLLABLE", "ANT": "ANTHROPIC_CLIENT_REQUIRED"}
 HEAVY_CL100K = 300              # below this (cl100k) a tool is not worth acting on
