@@ -88,16 +88,25 @@ This is the B1 shipping pattern exactly: default off, OBSERVE before ENFORCE, fa
 
 1. ~~Pick the mutation site~~ — **done: gateway** (a proxy owning the outbound request).
 2. ~~Wire the mutator OBSERVE-first behind a kill-switch~~ — **done: `RetirementGateway`, default off,
-   OBSERVE non-mutating + fail-open, validated on real sessions.** Remaining sub-step: deploy the
-   gateway in OBSERVE mode on **live** traffic (a real proxy process in front of the API) and collect
-   decision logs, to measure the retirable opportunity on production sessions rather than replayed ones.
-3. **Turn on ENFORCE behind the kill-switch** once OBSERVE logs look right, starting with the
-   provably-safe superseded-only subset before the cold-tail policy.
-4. **Graded scale-up** — with a live mutator, run the dozens-of-tasks × reps A/B *with* pass/fail
+   OBSERVE non-mutating + fail-open, validated on real sessions.**
+3. ~~Make OBSERVE runnable as a real proxy~~ — **done: `contextruntime/gateway_proxy.py`** (stdlib-only
+   HTTP proxy; relays the client's own auth, streams responses through by connection-close). Run it and
+   point the client at it:
+
+       CR_GATEWAY_MODE=observe CR_GATEWAY_LOG=gw.jsonl python -m contextruntime.gateway_proxy
+       export ANTHROPIC_BASE_URL=http://127.0.0.1:8787
+
+   In OBSERVE mode it forwards request bytes **unchanged** (integration-tested against a fake upstream)
+   and appends a decision per request; `summarize_log(gw.jsonl)` reports the opportunity. Remaining
+   sub-step: actually run production traffic through it and read the logs.
+4. **Turn on ENFORCE behind the kill-switch** (`CR_GATEWAY_MODE=enforce`) once OBSERVE logs look right,
+   starting with the provably-safe superseded-only subset before the cold-tail policy.
+5. **Graded scale-up** — with a live mutator, run the dozens-of-tasks × reps A/B *with* pass/fail
    grading to convert B3.1's *modeled* 8–11% into a *measured* whole-session number.
 
-The one thing this spike does NOT include is the proxy process itself (the HTTP server that terminates
-the client connection and forwards to the API) — that is deployment plumbing, not a feasibility
-question; `RetirementGateway.process(body)` is the hook it would call per request.
+What remains is **operational**, not a feasibility question: deciding where the proxy runs, and running
+real sessions through it. The proxy buffers nothing but does terminate TLS at the client's chosen
+`ANTHROPIC_BASE_URL`, so production use needs the usual proxy hardening (TLS, timeouts, retries) — out
+of scope for the spike, which proves the mechanism end-to-end.
 
 Frozen B1, the B2 artifacts, and the G1/G2 closure are untouched.
