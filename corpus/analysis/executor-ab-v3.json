@@ -1,0 +1,162 @@
+{
+  "version": "executor-ab-v3 (B5.3: ENFORCED substitution)",
+  "arms": "A native (reused baselines) vs C = alwaysLoad discover + policy prompt + --disallowedTools Grep Glob Bash(grep/rg/find/cat/egrep/ack *); Read preserved for targeted follow-up + edit preconditions",
+  "per_task": {
+    "django__django-10554": {
+      "A": {
+        "usage": {
+          "cost_usd": 1.8900176,
+          "status": "success"
+        },
+        "edited_files": [
+          "django/db/models/sql/compiler.py",
+          "django/db/models/sql/query.py",
+          "tests/queries/test_qs_combinators.py"
+        ],
+        "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-b52-ab-django--django-10554-A/c7390162-e1bc-4793-b939-fd0cb9abd50f.jsonl",
+        "trace": {
+          "api_calls": 52,
+          "discover_calls": 0,
+          "native_discovery_calls": 31,
+          "native_after_first_discover": 0
+        }
+      },
+      "C": {
+        "usage": {
+          "input_total": 4216649,
+          "cache_read": 4079669,
+          "cache_creation": 135279,
+          "output": 31913,
+          "cost_usd": 2.515964699999999,
+          "num_turns": 45,
+          "status": "error_max_budget_usd"
+        },
+        "edited_files": [
+          "django/db/models/sql/compiler.py",
+          "django/db/models/sql/query.py",
+          "tests/queries/test_qs_combinators.py"
+        ],
+        "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-b52-ab-django--django-10554-C/1a318374-714e-4e2c-83cd-d2b5e04381b1.jsonl",
+        "trace": {
+          "api_calls": 42,
+          "discover_calls": 15,
+          "native_discovery_calls": 15,
+          "native_after_first_discover": 15
+        }
+      }
+    },
+    "django__django-11138": {
+      "A": {
+        "usage": {
+          "cost_usd": 1.6089451,
+          "status": "success"
+        },
+        "edited_files": [
+          "django/db/backends/mysql/operations.py",
+          "django/db/backends/oracle/operations.py",
+          "django/db/backends/sqlite3/base.py",
+          "django/db/backends/sqlite3/operations.py",
+          "tests/timezones/tests.py"
+        ],
+        "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-b52-ab-django--django-11138-A/587b9583-5409-41c7-823c-15dde450439b.jsonl",
+        "trace": {
+          "api_calls": 49,
+          "discover_calls": 0,
+          "native_discovery_calls": 21,
+          "native_after_first_discover": 0
+        }
+      },
+      "C": {
+        "usage": {
+          "input_total": 4608568,
+          "cache_read": 4496506,
+          "cache_creation": 110364,
+          "output": 31157,
+          "cost_usd": 2.4801968000000003,
+          "num_turns": 46,
+          "status": "success"
+        },
+        "edited_files": [
+          "django/db/backends/mysql/operations.py",
+          "django/db/backends/oracle/operations.py",
+          "django/db/backends/sqlite3/base.py"
+        ],
+        "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-b52-ab-django--django-11138-C/7bbbe246-d463-45b9-a938-29eaa26ff932.jsonl",
+        "trace": {
+          "api_calls": 42,
+          "discover_calls": 16,
+          "native_discovery_calls": 12,
+          "native_after_first_discover": 12
+        }
+      }
+    },
+    "django__django-14608": {
+      "A": {
+        "usage": {
+          "input_total": 2054809,
+          "cache_read": 2012678,
+          "cache_creation": 41372,
+          "output": 9316,
+          "cost_usd": 0.9925124,
+          "num_turns": 37,
+          "status": "success"
+        },
+        "edited_files": [
+          "django/forms/formsets.py",
+          "docs/topics/forms/formsets.txt",
+          "tests/admin_views/tests.py",
+          "tests/forms_tests/tests/test_formsets.py"
+        ],
+        "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-b52-ab-django--django-14608-A/b91a8e75-67fa-46d4-a990-75d35abccf27.jsonl",
+        "trace": {
+          "api_calls": 37,
+          "discover_calls": 0,
+          "native_discovery_calls": 16,
+          "native_after_first_discover": 0
+        }
+      },
+      "C": {
+        "usage": {
+          "input_total": 5204918,
+          "cache_read": 5087598,
+          "cache_creation": 116541,
+          "output": 18205,
+          "cost_usd": 2.4993974,
+          "num_turns": 53,
+          "status": "success"
+        },
+        "edited_files": [
+          "django/forms/formsets.py",
+          "docs/releases/4.0.txt",
+          "docs/topics/forms/formsets.txt",
+          "tests/forms_tests/tests/test_formsets.py"
+        ],
+        "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-b52-ab-django--django-14608-C/a6c27a97-e9a7-44eb-ad06-fc19888b37ce.jsonl",
+        "trace": {
+          "api_calls": 50,
+          "discover_calls": 16,
+          "native_discovery_calls": 13,
+          "native_after_first_discover": 13
+        }
+      }
+    }
+  },
+  "preregistered_gates": {
+    "adoption_100pct": "PASS \u2014 3/3 sessions, 15\u201316 discover calls each (enforcement produces DEEP use)",
+    "displacement_ge_70pct": "FAIL \u2014 mean 65.1% (68.4 / 76.9 / 50.0); residual native = allowed ls/head/git-class cmds; denied attempts 1/2/4 (no retry loops)",
+    "calls_minus_10pct": "FAIL \u2014 mean \u22120.5% (\u221219.2%\u2713 / \u221214.3%\u2713 / +35.1% MORE on 14608)",
+    "input_minus_8pct": "FAIL decisively \u2014 mean 71.6% MORE input (+11.5 / +39.5 / +163.8% MORE)",
+    "non_inferior": "marginal FAIL \u2014 same source files 2/3 (11138-C missed sqlite3/operations.py); 1 budget-cap; fewer test runs (3/3/5 vs 4/5/12)"
+  },
+  "mechanism": "Under enforcement the model uses discover as a SEARCH ENGINE, iteratively (15\u201316 calls/session \u2014 more than its native search count in A). Each call returns a multi-kilotoken packet that stays resident for the rest of the session; iterative querying \u00d7 eager top-k packets \u21d2 input inflation. The oracle's premise \u2014 ONE packet replaces a RUN \u2014 did not transfer: the model queries stepwise regardless of tool, so the executor converted cheap native probes into expensive packet fetches.",
+  "decision": "CLOSE call-collapse as a major token-saving lever, per the preregistered rule ('if it fails even under enforcement, close it rather than adding embeddings/graph/D2'). The oracle's 13.1% remains a valid OFFLINE opportunity bound; realizing it would require packet economics fundamentally different from eager top-k fetching (e.g. incremental/cursor packets or retire-on-supersede packets) \u2014 out of scope.",
+  "stack_without_collapse_v3_L4": {
+    "lean_sub": 49.24,
+    "lean_gw": 52.3,
+    "heavy_sub": 39.4,
+    "heavy_gw": 54.88
+  },
+  "stack_note": "Removing collapse barely dents the joint stack (lean-sub 53.4\u219249.2, lean-gw 56.0\u219252.3, heavy-sub 39.7\u219239.4, heavy-gw 54.7\u219254.9%) \u2014 B3/thinking re-cover most of its contribution. The ~50% gateway target survives without the executor.",
+  "spend_usd": 7.5,
+  "code_commit": "7bc790c488ab6ff9bf68e9ebadf2447f485b09c0"
+}

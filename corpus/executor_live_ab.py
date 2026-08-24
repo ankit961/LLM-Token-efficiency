@@ -33,6 +33,17 @@ STEER = (
     "consolidated evidence packet with the relevant source slices and related test files. Only fall "
     "back to native Grep/Read if the packet is insufficient for a specific detail.")
 
+STEER_C = (
+    "IMPORTANT — this session's exploration policy: the native Grep and Glob tools and exploratory "
+    "shell search (grep/rg/find/cat) are DISABLED. For ALL codebase exploration — finding definitions, "
+    "usages, relevant code, following a traceback — use the MCP tool mcp__cr__discover (one call "
+    "returns a consolidated evidence packet: matching source slices + related test files + other "
+    "matching paths). The Read tool remains available for TARGETED follow-up of specific files the "
+    "packet names and for edit preconditions. Running tests and editing are unrestricted.")
+
+DISALLOW_C = ["Grep", "Glob", "Bash(grep *)", "Bash(rg *)", "Bash(find *)", "Bash(cat *)",
+              "Bash(egrep *)", "Bash(ack *)"]
+
 _READONLY = re.compile(r"^\s*(ls|find|cat|head|tail|tree|wc|grep|rg|git\s+(log|show|diff|status|blame|grep))\b")
 
 
@@ -48,12 +59,16 @@ def worktree(mirror, base, dest):
 def run_arm(task, arm, prompt, wt, *, repo, python, model="sonnet", budget=2.5, timeout=700):
     argv = ["claude", "-p", prompt, "--output-format", "json", "--model", model,
             "--max-budget-usd", str(budget), "--dangerously-skip-permissions"]
-    if arm == "B":
+    if arm in ("B", "C"):
         mcp = {"mcpServers": {"cr": {"command": python, "args": ["-m", "contextruntime.discover_mcp"],
                                      "env": {"PYTHONPATH": repo},
                                      "alwaysLoad": True}}}   # B5.2R: eager-load — startup waits for the
                                                              # server, schema present on call 1 (docs)
-        argv += ["--mcp-config", json.dumps(mcp), "--append-system-prompt", STEER]
+        argv += ["--mcp-config", json.dumps(mcp)]
+        if arm == "B":
+            argv += ["--append-system-prompt", STEER]
+        else:                                            # C = ENFORCED substitution (B5.3)
+            argv += ["--append-system-prompt", STEER_C, "--disallowedTools", *DISALLOW_C]
     env = dict(os.environ)
     env.pop("ANTHROPIC_BASE_URL", None)                  # direct; no proxy in this experiment
     env.pop("CR_GATEWAY_MODE", None)
@@ -120,7 +135,7 @@ def main(cfg_path):
         out = json.load(open(cfg["out"]))                 # resume: keep completed arms
     for t in cfg["tasks"]:
         out["tasks"].setdefault(t["id"], {})
-        for arm in ("A", "B"):
+        for arm in cfg.get("arms", ("A", "B")):
             if out["tasks"][t["id"]].get(arm):
                 continue                                  # already recorded
             wt = worktree(cfg["mirror"], t["base"], os.path.join(cfg["workdir"], f"{t['id']}-{arm}"))
