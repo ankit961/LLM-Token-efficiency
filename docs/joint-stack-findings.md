@@ -1,4 +1,26 @@
-# B5.2 Stage A — Exact joint counterfactual replay of the lever stack
+# B5.2 Stage A — Joint counterfactual replay (v1 provisional → v2 repaired)
+
+> **Revision (2026-08-24, per review):** v1 below is NOT fully exact and is renamed **joint
+> counterfactual replay v1 (provisional)**. Three repairs landed as **v2**
+> (`corpus/analysis/joint-stack-replay-v2.json`): (1) the gateway prefix now replays **per-tool
+> defer-at-first-use** (0,…,S from each tool's first use in that session; unused ⇒ deferred all
+> session; scaled to each session's available prefix) instead of a constant fraction; (2) **B3
+> retirement re-runs on the collapsed timeline** (objects/edits remapped, avoided-call objects live at
+> the packet call, lag 5 in new-timeline calls); (3) **thinking-GC counts kept calls only** and uses an
+> **independently measured OUTPUT-side factor 1.51** (p05–p10 lower envelope of out/vis over 219
+> visible-heavy calls) — the input-side 1.74 accounting factor is no longer reused for output.
+>
+> | env | v1 (provisional) | **v2 (repaired)** |
+> |---|---:|---:|
+> | lean, subscription | 54.4% | **53.9%** |
+> | lean, gateway | 57.2% | **58.2%** |
+> | heavy, subscription | 40.3% | **40.2%** |
+> | heavy, gateway | 53.9% | **59.0%** |
+>
+> Subscription numbers are ~unchanged (constant-H is correct for disable-class removal — v1 validated
+> there); the repairs matter exactly where predicted: the **gateway** columns, whose advantage is
+> deferral-at-first-use. All numbers remain counterfactual opportunities, not live savings.
+
 
 **2026-08-23. Zero model quota.** Harness `corpus/joint_stack_replay.py`; frozen artifact
 `corpus/analysis/joint-stack-replay-v1.json`. Replaces the multiplicative approximation with an exact

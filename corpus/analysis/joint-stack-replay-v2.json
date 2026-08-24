@@ -1,0 +1,213 @@
+{
+  "version": "joint-stack-replay-v2",
+  "environments": {
+    "lean_subscription_v2": {
+      "environment": "lean_subscription_v2",
+      "sessions": 60,
+      "b3_turn_axis_mismatches": 0,
+      "clamped_calls": 4,
+      "L0": {
+        "sum_P": 212101711,
+        "calls": 2968,
+        "sum_out": 1223883,
+        "reduction_pct": 0.0,
+        "peak_P_mean": 88420
+      },
+      "L1": {
+        "sum_P": 152652618,
+        "calls": 2968,
+        "sum_out": 0,
+        "reduction_pct": 28.03,
+        "peak_P_mean": 68468
+      },
+      "L2": {
+        "sum_P": 136114817,
+        "calls": 2578,
+        "sum_out": 1103300,
+        "reduction_pct": 35.83,
+        "peak_P_mean": 68421
+      },
+      "L3": {
+        "sum_P": 117793317,
+        "calls": 2578,
+        "sum_out": 1103300,
+        "reduction_pct": 44.46,
+        "peak_P_mean": 56536
+      },
+      "L4": {
+        "sum_P": 97726872,
+        "calls": 2578,
+        "sum_out": 1103300,
+        "reduction_pct": 53.92,
+        "peak_P_mean": 46001
+      },
+      "solo_reductions_pct": {
+        "prefix": 28.03,
+        "collapse": 11.46,
+        "b3": 9.64,
+        "think": 10.78
+      },
+      "multiplicative_approx_pct": 48.63,
+      "exact_joint_pct": 53.92,
+      "approx_minus_exact_pp": -5.29
+    },
+    "lean_gateway_v2": {
+      "environment": "lean_gateway_v2",
+      "sessions": 60,
+      "b3_turn_axis_mismatches": 0,
+      "clamped_calls": 4,
+      "L0": {
+        "sum_P": 212101711,
+        "calls": 2968,
+        "sum_out": 1223883,
+        "reduction_pct": 0.0,
+        "peak_P_mean": 88420
+      },
+      "L1": {
+        "sum_P": 142184118,
+        "calls": 2968,
+        "sum_out": 0,
+        "reduction_pct": 32.96,
+        "peak_P_mean": 65363
+      },
+      "L2": {
+        "sum_P": 127065503,
+        "calls": 2578,
+        "sum_out": 1103300,
+        "reduction_pct": 40.09,
+        "peak_P_mean": 65316
+      },
+      "L3": {
+        "sum_P": 108744003,
+        "calls": 2578,
+        "sum_out": 1103300,
+        "reduction_pct": 48.73,
+        "peak_P_mean": 53420
+      },
+      "L4": {
+        "sum_P": 88677558,
+        "calls": 2578,
+        "sum_out": 1103300,
+        "reduction_pct": 58.19,
+        "peak_P_mean": 42866
+      },
+      "solo_reductions_pct": {
+        "prefix": 32.96,
+        "collapse": 11.46,
+        "b3": 9.64,
+        "think": 10.78
+      },
+      "multiplicative_approx_pct": 52.16,
+      "exact_joint_pct": 58.19,
+      "approx_minus_exact_pp": -6.03
+    },
+    "heavy_subscription_v2": {
+      "environment": "heavy_subscription_v2",
+      "sessions": 8,
+      "b3_turn_axis_mismatches": 0,
+      "clamped_calls": 0,
+      "L0": {
+        "sum_P": 22235662,
+        "calls": 290,
+        "sum_out": 176439,
+        "reduction_pct": 0.0,
+        "peak_P_mean": 106003
+      },
+      "L1": {
+        "sum_P": 17339745,
+        "calls": 290,
+        "sum_out": 0,
+        "reduction_pct": 22.02,
+        "peak_P_mean": 89489
+      },
+      "L2": {
+        "sum_P": 16898210,
+        "calls": 279,
+        "sum_out": 168746,
+        "reduction_pct": 24.0,
+        "peak_P_mean": 89489
+      },
+      "L3": {
+        "sum_P": 14892178,
+        "calls": 279,
+        "sum_out": 168746,
+        "reduction_pct": 33.03,
+        "peak_P_mean": 75447
+      },
+      "L4": {
+        "sum_P": 13293021,
+        "calls": 279,
+        "sum_out": 168746,
+        "reduction_pct": 40.22,
+        "peak_P_mean": 65995
+      },
+      "solo_reductions_pct": {
+        "prefix": 22.02,
+        "collapse": 2.81,
+        "b3": 9.22,
+        "think": 7.4
+      },
+      "multiplicative_approx_pct": 36.29,
+      "exact_joint_pct": 40.22,
+      "approx_minus_exact_pp": -3.93
+    },
+    "heavy_gateway_v2": {
+      "environment": "heavy_gateway_v2",
+      "sessions": 8,
+      "b3_turn_axis_mismatches": 0,
+      "clamped_calls": 0,
+      "L0": {
+        "sum_P": 22235662,
+        "calls": 290,
+        "sum_out": 176439,
+        "reduction_pct": 0.0,
+        "peak_P_mean": 106003
+      },
+      "L1": {
+        "sum_P": 13003705,
+        "calls": 290,
+        "sum_out": 0,
+        "reduction_pct": 41.52,
+        "peak_P_mean": 75154
+      },
+      "L2": {
+        "sum_P": 12723630,
+        "calls": 279,
+        "sum_out": 168746,
+        "reduction_pct": 42.78,
+        "peak_P_mean": 75154
+      },
+      "L3": {
+        "sum_P": 10717598,
+        "calls": 279,
+        "sum_out": 168746,
+        "reduction_pct": 51.8,
+        "peak_P_mean": 61112
+      },
+      "L4": {
+        "sum_P": 9118441,
+        "calls": 279,
+        "sum_out": 168746,
+        "reduction_pct": 58.99,
+        "peak_P_mean": 51660
+      },
+      "solo_reductions_pct": {
+        "prefix": 41.52,
+        "collapse": 2.81,
+        "b3": 9.22,
+        "think": 7.4
+      },
+      "multiplicative_approx_pct": 52.22,
+      "exact_joint_pct": 58.99,
+      "approx_minus_exact_pp": -6.77
+    }
+  },
+  "repairs": [
+    "gateway prefix = per-tool defer-at-first-use schedule (0,\u2026,S from first use; unused \u21d2 all session), scaled to each session's available prefix (startup \u2212 sub slice \u2212 ~10k core)",
+    "B3 retirement re-run on the COLLAPSED timeline (objects/edits/inputs remapped; avoided-call objects live at the packet call; lag 5 in new-timeline calls)",
+    "thinking-GC over KEPT calls only with the INDEPENDENT output-side factor 1.51 (p05\u2013p10 lower envelope of out/vis, n=219 visible-heavy calls) \u2014 avoided calls' thinking credited to collapse",
+    "v1 renamed provisional; v1-vs-v2 deltas \u22641.2pp on lean/heavy-sub validate v1's approximation there"
+  ],
+  "factor_out": 1.51,
+  "code_commit": "999b3587a7ca4ba158d5a070196c8316e7478e34"
+}

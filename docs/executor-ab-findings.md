@@ -1,5 +1,15 @@
 # B5.2 Stage B — Live discovery-executor A/B: NOT REALIZED (a delivery failure, precisely measured)
 
+> **Correction (2026-08-24, per review): the "requires a custom loop" conclusion below was premature.**
+> Claude Code provides exactly the control this experiment needed and did not use: `"alwaysLoad": true`
+> on an MCP server loads all its tools at session start and **blocks startup until the server
+> connects** (and `MCP_CONNECTION_NONBLOCKING=0` restores blocking startup generally). The correct
+> conclusion is: *B5.2B failed because the tool was not present on turn 1, and the eager-loading
+> mechanism went untested.* A zero-quota capture confirms the discover schema CAN be present in the
+> first request (240 cl100k tokens; note the capture's timing cannot reproduce the lost race, so the
+> live rerun is the discriminating test). **B5.2R** reruns the three B-arms with `alwaysLoad: true`;
+> results in `corpus/analysis/executor-ab-v2.json` and the B5.2R section of this document.
+
 **2026-08-24. Live; ~$10 of quota (user-approved).** Runner `corpus/executor_live_ab.py`; executor
 `contextruntime/discover.py` + `contextruntime/discover_mcp.py`; frozen artifact
 `corpus/analysis/executor-ab-v1.json` (per-pair records). Paired A/B on 3 django tasks (sonnet, $2.50
