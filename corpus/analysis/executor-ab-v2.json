@@ -1,0 +1,138 @@
+{
+  "version": "executor-ab-v2 (B5.2R: alwaysLoad)",
+  "pairs": [
+    {
+      "task": "django__django-10554",
+      "A": {
+        "calls": 52,
+        "sum_input": 3824824,
+        "cache_read": 3755212,
+        "cache_creation": 69508,
+        "output": 22959,
+        "discover": 0,
+        "native_discovery": 31,
+        "native_after_discover": 0,
+        "status": "success",
+        "cost_usd": 1.8900176,
+        "edited": [
+          "django/db/models/sql/compiler.py",
+          "django/db/models/sql/query.py",
+          "tests/queries/test_qs_combinators.py"
+        ]
+      },
+      "B": {
+        "calls": 45,
+        "sum_input": 3762618,
+        "cache_read": 3643826,
+        "cache_creation": 118702,
+        "output": 24379,
+        "discover": 4,
+        "native_discovery": 21,
+        "native_after_discover": 21,
+        "status": "success",
+        "cost_usd": 2.0832206999999996,
+        "edited": [
+          "django/db/models/sql/compiler.py",
+          "django/db/models/sql/query.py",
+          "tests/queries/test_qs_combinators.py"
+        ]
+      },
+      "calls_delta_pct": 13.5,
+      "input_delta_pct": 1.6
+    },
+    {
+      "task": "django__django-11138",
+      "A": {
+        "calls": 49,
+        "sum_input": 3302997,
+        "cache_read": 3243367,
+        "cache_creation": 59532,
+        "output": 18450,
+        "discover": 0,
+        "native_discovery": 21,
+        "native_after_discover": 0,
+        "status": "success",
+        "cost_usd": 1.6089451,
+        "edited": [
+          "django/db/backends/mysql/operations.py",
+          "django/db/backends/oracle/operations.py",
+          "django/db/backends/sqlite3/base.py",
+          "django/db/backends/sqlite3/operations.py",
+          "tests/timezones/tests.py"
+        ]
+      },
+      "B": {
+        "calls": 53,
+        "sum_input": 4395422,
+        "cache_read": 4316132,
+        "cache_creation": 79184,
+        "output": 26576,
+        "discover": 1,
+        "native_discovery": 26,
+        "native_after_discover": 26,
+        "status": "success",
+        "cost_usd": 2.1706006,
+        "edited": [
+          "django/db/backends/mysql/operations.py",
+          "django/db/backends/oracle/operations.py",
+          "django/db/backends/sqlite3/base.py",
+          "django/db/backends/sqlite3/operations.py"
+        ]
+      },
+      "calls_delta_pct": -8.2,
+      "input_delta_pct": -33.1
+    },
+    {
+      "task": "django__django-14608",
+      "A": {
+        "calls": 37,
+        "sum_input": 2054124,
+        "cache_read": 2012678,
+        "cache_creation": 41372,
+        "output": 9299,
+        "discover": 0,
+        "native_discovery": 16,
+        "native_after_discover": 0,
+        "status": "success",
+        "cost_usd": 0.9925124,
+        "edited": [
+          "django/forms/formsets.py",
+          "docs/topics/forms/formsets.txt",
+          "tests/admin_views/tests.py",
+          "tests/forms_tests/tests/test_formsets.py"
+        ]
+      },
+      "B": {
+        "calls": 36,
+        "sum_input": 2219556,
+        "cache_read": 2176371,
+        "cache_creation": 43113,
+        "output": 8817,
+        "discover": 1,
+        "native_discovery": 15,
+        "native_after_discover": 15,
+        "status": "success",
+        "cost_usd": 1.0448303,
+        "edited": [
+          "django/forms/formsets.py",
+          "docs/releases/4.0.txt",
+          "docs/topics/forms/index.txt",
+          "tests/admin_views/tests.py",
+          "tests/forms_tests/tests/test_formsets.py"
+        ]
+      },
+      "calls_delta_pct": 2.7,
+      "input_delta_pct": -8.1
+    }
+  ],
+  "gates": {
+    "adoption": "3/3 (discover invoked in every B-arm \u2014 the alwaysLoad fix WORKS; delivery blocker resolved)",
+    "task_success": "3/3 success, same django source files edited as A in all three",
+    "calls_minus_10pct": "FAIL \u2014 mean +2.7% (10554 \u221213.5%, 11138 +8.2% MORE, 14608 \u22122.7%)",
+    "input_minus_8pct": "FAIL \u2014 mean \u221213.2% (B used MORE input on average; packets add cache_creation 43\u2013109k without displacing native chains)",
+    "pathological_fallback": "none (native discovery similar to A: 21/26/15 vs 31/21/16)"
+  },
+  "verdict": "DELIVERY FIXED, DISPLACEMENT NOT ACHIEVED. With alwaysLoad the schema is present and the model uses discover \u2014 but SHALLOWLY (1\u20134 calls/session) as an ADDITIONAL search tool while continuing native discovery chains (21\u201326 native calls after the first discover). The executor's packets add tokens without replacing the runs, so the efficiency gates fail. The remaining gap is BEHAVIORAL (substitution, not delivery): candidates are forcing (disallow native search tools), stronger protocol-level steering, or the custom loop where the tool surface is ours. n=3 \u00d7 1 rep; same-task rep variance up to 1.9x (Step 7) \u2014 deltas are within noise except the consistent direction of extra input.",
+  "spend_usd": 5.3,
+  "code_commit": "9411046407d6da175fd7f1533b2e0b43a0bb465a"
+}
