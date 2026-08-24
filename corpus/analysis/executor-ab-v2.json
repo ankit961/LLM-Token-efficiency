@@ -128,8 +128,8 @@
   "gates": {
     "adoption": "3/3 (discover invoked in every B-arm \u2014 the alwaysLoad fix WORKS; delivery blocker resolved)",
     "task_success": "3/3 success, same django source files edited as A in all three",
-    "calls_minus_10pct": "FAIL \u2014 mean +2.7% (10554 \u221213.5%, 11138 +8.2% MORE, 14608 \u22122.7%)",
-    "input_minus_8pct": "FAIL \u2014 mean \u221213.2% (B used MORE input on average; packets add cache_creation 43\u2013109k without displacing native chains)",
+    "calls_minus_10pct": "FAIL \u2014 mean reduction only 2.7% (10554 \u221213.5%, 11138 +8.2% MORE calls, 14608 \u22122.7%)",
+    "input_minus_8pct": "FAIL \u2014 B used ~13.2% MORE input than A on average (gate: >=8% LESS); packets add cache_creation 43\u2013109k without displacing native chains",
     "pathological_fallback": "none (native discovery similar to A: 21/26/15 vs 31/21/16)"
   },
   "verdict": "DELIVERY FIXED, DISPLACEMENT NOT ACHIEVED. With alwaysLoad the schema is present and the model uses discover \u2014 but SHALLOWLY (1\u20134 calls/session) as an ADDITIONAL search tool while continuing native discovery chains (21\u201326 native calls after the first discover). The executor's packets add tokens without replacing the runs, so the efficiency gates fail. The remaining gap is BEHAVIORAL (substitution, not delivery): candidates are forcing (disallow native search tools), stronger protocol-level steering, or the custom loop where the tool surface is ours. n=3 \u00d7 1 rep; same-task rep variance up to 1.9x (Step 7) \u2014 deltas are within noise except the consistent direction of extra input.",

@@ -102,14 +102,19 @@ def test_v2_defer_schedule_and_collapsed_timeline(tmp_path):
     L = r["levels"]
     # Read first used at call 2 -> its 5k schema is deferred ONLY on call 1 (H=10k on every call)
     assert L["L1"]["P"] == L["L0"]["P"] - 4 * 10_000 - 5_000
-    # collapsed timeline: call 2 avoided; kept 1,3,4 -> new 1,2,3. The b.py read (mapped to the packet
-    # call) is superseded by the Edit (new turn 2) and retires SAFELY -> the last kept call sheds it.
     assert L["L2"]["calls"] == 3
-    b3_delta = L["L2"]["P"] - L["L3"]["P"]
+    # v3 CONSERVATIVE packets: the b.py read merges with the run's grep output into ONE packet object;
+    # the grep constituent never goes cold within T, so the packet NEVER retires -> b3_delta == 0
+    assert L["L2"]["P"] - L["L3"]["P"] == 0
+    # the separately-ADDRESSABLE design recovers the retirement (the superseded read retires alone)
+    r_addr = session_joint_v2(tp, sub_frac=0.10, deferrable_sizes={"Read": 5000}, packet_mode="addressable")
+    La = r_addr["levels"]
+    b3_delta = La["L2"]["P"] - La["L3"]["P"]
     assert 0 < b3_delta < 100
     # thinking: kept calls only, keep-1 on the NEW sequence -> only think_kept[0] applies (at new t=3)
     calls = parse_session(tp)
     vis = visible_out_per_call(tp)
     tk = [max(calls[t - 1]["out_tokens"] - round(FACTOR_OUT * vis[t - 1]), 0) for t in (1, 3, 4)]
     assert L["L4"]["P"] == L["L3"]["P"] - tk[0]
+    assert L["L1"]["out"] == L["L0"]["out"]              # v3 fix: L1 removes no calls
     assert r["think_total_measured"] == sum(tk)          # avoided call 2's thinking NOT counted here

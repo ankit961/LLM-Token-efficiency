@@ -99,3 +99,32 @@ Two further findings the exact replay surfaces:
   tokenizer); the factor-1.0 variant would raise L4 slightly (upper bound, not used).
 - B3 modeled as immediate retirement (batching keeps ~90% of it); collapse assumes packets replace
   interleaved outputs at equal residency (dedup bonus ignored).
+
+## v3 (2026-08-24, per review) — repairs + explicit conventions; PROVISIONAL, not exact
+
+Four review findings repaired (`corpus/analysis/joint-stack-replay-v3.json`):
+
+1. **Session-exact inventory**: the gateway defer schedule now uses each session's OWN resident tools
+   (reference sizes minus that session's `deferred_tools_delta` names), capped — no foreign-inventory
+   scaling.
+2. **Packet-conservative B3 (central)**: a collapsed run's outputs become ONE object that retires at
+   the max of its constituents' safe retire turns, only if all are safe (a real executor emits one
+   combined tool result). The separately-addressable design is reported as a variant (~+0.5pp).
+3. **Output factor**: 1.51 stays an envelope estimate; the L4 sensitivity band under 1.30–1.74 is
+   ±0.7pp.
+4. **Bookkeeping**: solo-thinking now uses the same output-factor path; L1 `sum_out` fixed.
+
+**Explicit non-overlapping conventions**: subscription arms = constant doctor fraction; gateway arms =
+**defer-only** (the schedule subsumes disallows; user-block compression omitted — conservative).
+
+| env | v1 (provisional) | v2 | **v3 central** | factor band | addressable packets |
+|---|---:|---:|---:|---|---:|
+| lean, subscription | 54.4 | 53.9 | **53.4%** | — | — |
+| lean, gateway | 57.2 | 58.2 | **56.0%** | 55.4–56.6 | 56.6 |
+| heavy, subscription | 40.3 | 40.2 | **39.7%** | — | — |
+| heavy, gateway | 53.9 | 59.0 | **54.7%** | 54.0–55.5 | 55.3 |
+
+**Status: 39.7–56.0% PROVISIONAL COUNTERFACTUAL opportunity** — each repair moved numbers 1–4pp and
+they now vary <1pp under the remaining known uncertainties (factor band, packet addressability). Still
+not "exact": tool sizes come from a reference capture, the output factor is an envelope, and packet
+residency assumes zero dedup bonus. Live end-to-end realization remains undemonstrated.

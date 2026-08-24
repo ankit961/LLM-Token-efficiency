@@ -199,7 +199,7 @@ def _timeline_map(N, avoided, runs):
 
 
 def session_joint_v2(transcript_path, *, sub_frac, deferrable_sizes=None, cli_meta=None,
-                     factor_out=FACTOR_OUT):
+                     factor_out=FACTOR_OUT, packet_mode="conservative", session_resident_names=None):
     """Repaired replay (B5.2R): per-tool defer-at-first-use for the gateway prefix (schedule
     0,0,…,S,S from each tool's first use in THIS session; unused ⇒ deferred all session), B3 retirement
     re-run on the COLLAPSED timeline (remapped objects/edits/inputs, lag in new-timeline calls), and
@@ -227,29 +227,59 @@ def session_joint_v2(transcript_path, *, sub_frac, deferrable_sizes=None, cli_me
         for c in calls:
             for name, _inp in c["tools"]:
                 first_use.setdefault(name, c["idx"])
-        total = sum(deferrable_sizes.values())
-        # a session in a DIFFERENT project may not carry the doctor-inventoried tools at these sizes;
-        # scale the deferrable slice to what this session's own prefix can actually contain
+        # (v3, per review) SESSION-EXACT inventory: only tools RESIDENT in this session are deferrable.
+        # Residency is observed from the session's own deferred_tools_delta (names listed there were
+        # NOT resident); sizes come from the reference capture (same Claude Code version). No foreign-
+        # inventory scaling — just a hard cap at what this session's prefix can actually contain.
+        inv = {n: S for n, S in deferrable_sizes.items()
+               if session_resident_names is None or n in session_resident_names}
+        total = sum(inv.values())
         avail = max(calls[0]["P"] - H - 10_000, 0)          # startup − subscription slice − ~core floor
-        scale = min(1.0, avail / total) if total else 0.0
+        cap = min(total, avail)
         for t in range(1, N + 1):
-            loaded = sum(S for name, S in deferrable_sizes.items()
+            loaded = sum(S for name, S in inv.items()
                          if first_use.get(name) is not None and first_use[name] <= t)
-            defer_red[t] = round((total - loaded) * scale)
+            defer_red[t] = round(min(max(total - loaded, 0), cap))
     # B3 on the COLLAPSED timeline
     objs, edits, inputs_by_turn, T_b3, _u = parse_for_safety(transcript_path)
     b3_ok = (T_b3 == N)
     cumret_new = [0] * (T_new + 2)
     if b3_ok:
+        run_of_call = {}
+        for ri, r in enumerate(gated_runs):
+            for t in range(r["start_call"], r["end_call"] + 1):
+                run_of_call[t] = ri
         for o in objs:
+            o["_run"] = run_of_call.get(o["turn"])
             o["turn"] = tmap.get(o["turn"], 1)
         edits2 = [(tmap.get(t, 1), p, o_) for (t, p, o_) in edits]
         inputs2 = {}
         for t, txt in inputs_by_turn.items():
             nt = tmap.get(t, 1)
             inputs2[nt] = (inputs2.get(nt, "") + "\n" + txt)
-        retire = sorted((rt, o["size"]) for (o, rt, safe) in
-                        per_object_safety(objs, edits2, inputs2, T_new, lag=B3_LAG) if safe)
+        verdicts = per_object_safety(objs, edits2, inputs2, T_new, lag=B3_LAG)
+        if packet_mode == "conservative":
+            # (v3, per review) a real executor emits ONE combined tool result per collapsed run: its
+            # sub-objects are NOT independently retireable. The packet retires only when ALL its
+            # constituents would have retired safely (retire turn = max; unsafe/never ⇒ never).
+            by_run = {}
+            singles = []
+            verdict_ids = {id(o): (rt, safe) for (o, rt, safe) in verdicts}
+            for o in objs:
+                if o.get("_run") is not None:
+                    by_run.setdefault(o["_run"], []).append(o)
+                elif id(o) in verdict_ids:
+                    rt, safe = verdict_ids[id(o)]
+                    if safe:
+                        singles.append((rt, o["size"]))
+            retire = singles
+            for ri, group in by_run.items():
+                if all(id(o) in verdict_ids and verdict_ids[id(o)][1] for o in group):
+                    rt = max(verdict_ids[id(o)][0] for o in group)
+                    retire.append((rt, sum(o["size"] for o in group)))
+            retire.sort()
+        else:                                             # 'addressable': packets designed as separately
+            retire = sorted((rt, o["size"]) for (o, rt, safe) in verdicts if safe)   # addressable objects
         run_sum, ci = 0, 0
         for t in range(1, T_new + 1):
             while ci < len(retire) and retire[ci][0] < t:
@@ -283,6 +313,7 @@ def session_joint_v2(transcript_path, *, sub_frac, deferrable_sizes=None, cli_me
         lvl["L0"]["peak"] = max(lvl["L0"]["peak"], c["P"])
         v1p = px(c["P"], *pre)
         lvl["L1"]["P"] += v1p
+        lvl["L1"]["out"] += c["out_tokens"]              # (v3 fix) L1 removes no calls
         lvl["L1"]["peak"] = max(lvl["L1"]["peak"], v1p)
         solo["prefix"] += v1p
         if t not in avoided:
@@ -296,16 +327,33 @@ def session_joint_v2(transcript_path, *, sub_frac, deferrable_sizes=None, cli_me
                 lvl[k]["peak"] = max(lvl[k]["peak"], v)
                 lvl[k]["calls"] += 1
     lvl["L0"]["calls"] = lvl["L1"]["calls"] = N
-    # solo b3/think on the ORIGINAL timeline for reference comparability
+    # solo b3/think on the ORIGINAL timeline, with the SAME v2/v3 semantics (v3 fix: the solo think
+    # comparison previously flowed through the v1 path with the input-side factor)
     base = session_joint(transcript_path, prefix_frac=0.0, cli_meta=cli_meta)
     solo["b3"] = base["solo"]["b3"]
-    solo["think"] = base["solo"]["think"]
+    think_all = [max(c["out_tokens"] - round(factor_out * v), 0) for c, v in zip(calls, vis)]
+    cum_all = [0] * (N + 1)
+    for i in range(1, N + 1):
+        cum_all[i] = cum_all[i - 1] + (think_all[i - 3] if i >= 3 else 0)
+    solo["think"] = sum(px(c["P"], cum_all[c["idx"]]) for c in calls)
     return {"transcript": transcript_path, "N": N, "avoided": len(avoided), "b3_turn_axis_ok": b3_ok,
             "startup_P": calls[0]["P"], "H": H, "clamps": dict(clamps),
             "think_total_measured": sum(think_kept), "levels": lvl, "solo": solo}
 
 
-def run_stage_a_v2(results_json=None, *, sub_frac, deferrable_sizes=None, label, transcripts=None):
+def session_resident_names_of(transcript_path, reference_names):
+    """Tools RESIDENT in this session = reference inventory minus the names its own
+    deferred_tools_delta listed (those schemas were never in context)."""
+    try:
+        from contextruntime.prefixdoctor import transcript_listings
+        deferred = transcript_listings(transcript_path)["deferred_names"]
+    except Exception:      # noqa: BLE001
+        deferred = set()
+    return {n for n in reference_names if n not in deferred}
+
+
+def run_stage_a_v2(results_json=None, *, sub_frac, deferrable_sizes=None, label, transcripts=None,
+                   packet_mode="conservative", factor_out=FACTOR_OUT):
     rows = []
     if results_json:
         res = json.load(open(results_json))
@@ -316,12 +364,18 @@ def run_stage_a_v2(results_json=None, *, sub_frac, deferrable_sizes=None, label,
             tp = m.get("transcript")
             if tp and os.path.exists(tp) and tp not in seen:
                 seen.add(tp)
-                r = session_joint_v2(tp, sub_frac=sub_frac, deferrable_sizes=deferrable_sizes, cli_meta=m)
+                names = session_resident_names_of(tp, set(deferrable_sizes)) if deferrable_sizes else None
+                r = session_joint_v2(tp, sub_frac=sub_frac, deferrable_sizes=deferrable_sizes, cli_meta=m,
+                                     packet_mode=packet_mode, factor_out=factor_out,
+                                     session_resident_names=names)
                 if r:
                     rows.append(r)
     else:
         for tp in transcripts or []:
-            r = session_joint_v2(tp, sub_frac=sub_frac, deferrable_sizes=deferrable_sizes)
+            names = session_resident_names_of(tp, set(deferrable_sizes)) if deferrable_sizes else None
+            r = session_joint_v2(tp, sub_frac=sub_frac, deferrable_sizes=deferrable_sizes,
+                                 packet_mode=packet_mode, factor_out=factor_out,
+                                 session_resident_names=names)
             if r:
                 rows.append(r)
     return {"rows": rows, "aggregate": aggregate(rows, label)}
