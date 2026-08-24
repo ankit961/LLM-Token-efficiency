@@ -89,3 +89,27 @@ def test_run_stage_a_over_results_json(tmp_path):
     out = run_stage_a(str(rp), prefix_frac=0.10, label="fixture")
     assert out["aggregate"]["sessions"] == 1
     assert out["aggregate"]["L0"]["calls"] == 4 and out["aggregate"]["L4"]["calls"] == 3
+
+
+def test_v2_defer_schedule_and_collapsed_timeline(tmp_path):
+    """v2: per-tool deferral reduces the prefix only BEFORE a tool's first use; B3 runs on the
+    collapsed timeline; thinking counts kept calls only (output-side factor)."""
+    from corpus.joint_stack_replay import session_joint_v2, FACTOR_OUT
+    from corpus.joint_stack_replay import visible_out_per_call
+    from corpus.call_collapse_oracle import parse_session
+    tp = _fixture(tmp_path)
+    r = session_joint_v2(tp, sub_frac=0.10, deferrable_sizes={"Read": 5000})
+    L = r["levels"]
+    # Read first used at call 2 -> its 5k schema is deferred ONLY on call 1 (H=10k on every call)
+    assert L["L1"]["P"] == L["L0"]["P"] - 4 * 10_000 - 5_000
+    # collapsed timeline: call 2 avoided; kept 1,3,4 -> new 1,2,3. The b.py read (mapped to the packet
+    # call) is superseded by the Edit (new turn 2) and retires SAFELY -> the last kept call sheds it.
+    assert L["L2"]["calls"] == 3
+    b3_delta = L["L2"]["P"] - L["L3"]["P"]
+    assert 0 < b3_delta < 100
+    # thinking: kept calls only, keep-1 on the NEW sequence -> only think_kept[0] applies (at new t=3)
+    calls = parse_session(tp)
+    vis = visible_out_per_call(tp)
+    tk = [max(calls[t - 1]["out_tokens"] - round(FACTOR_OUT * vis[t - 1]), 0) for t in (1, 3, 4)]
+    assert L["L4"]["P"] == L["L3"]["P"] - tk[0]
+    assert r["think_total_measured"] == sum(tk)          # avoided call 2's thinking NOT counted here

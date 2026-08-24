@@ -50,7 +50,9 @@ def run_arm(task, arm, prompt, wt, *, repo, python, model="sonnet", budget=2.5, 
             "--max-budget-usd", str(budget), "--dangerously-skip-permissions"]
     if arm == "B":
         mcp = {"mcpServers": {"cr": {"command": python, "args": ["-m", "contextruntime.discover_mcp"],
-                                     "env": {"PYTHONPATH": repo}}}}
+                                     "env": {"PYTHONPATH": repo},
+                                     "alwaysLoad": True}}}   # B5.2R: eager-load — startup waits for the
+                                                             # server, schema present on call 1 (docs)
         argv += ["--mcp-config", json.dumps(mcp), "--append-system-prompt", STEER]
     env = dict(os.environ)
     env.pop("ANTHROPIC_BASE_URL", None)                  # direct; no proxy in this experiment

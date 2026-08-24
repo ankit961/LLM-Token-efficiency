@@ -34,7 +34,9 @@ from corpus.transcript_util import merged_records
 from corpus.call_collapse_oracle import analyze_session as oracle_session, tok
 from corpus.b3_staleness_safety import parse_for_safety, per_object_safety
 
-FACTOR = 1.74                     # Claude request-accounting factor (see prefix-doctor findings)
+FACTOR = 1.74                     # INPUT-side Claude request-accounting factor (see prefix-doctor findings)
+FACTOR_OUT = 1.51                 # OUTPUT-side conversion, measured independently: p05-p10 lower envelope of
+                                  # out/vis on 219 visible-heavy calls (1.502/1.526) — NOT the input factor
 B3_LAG = 5
 
 
@@ -175,6 +177,151 @@ def run_stage_a(results_json=None, *, prefix_frac, label, transcripts=None, meta
     else:
         for tp in transcripts or []:
             r = session_joint(tp, prefix_frac=prefix_frac)
+            if r:
+                rows.append(r)
+    return {"rows": rows, "aggregate": aggregate(rows, label)}
+
+
+# --------------------------------------------------------------------------- v2 (repaired) replay
+def _timeline_map(N, avoided, runs):
+    """old call idx -> new idx on the collapsed timeline. Kept calls keep order; an avoided call maps
+    to the new idx of its run's FIRST call (its outputs live in that packet call)."""
+    kept = [t for t in range(1, N + 1) if t not in avoided]
+    new_of = {t: i + 1 for i, t in enumerate(kept)}
+    run_first = {}
+    for r in runs:
+        for t in range(r["start_call"], r["end_call"] + 1):
+            run_first[t] = r["start_call"]
+    m = {}
+    for t in range(1, N + 1):
+        m[t] = new_of[t] if t in new_of else new_of.get(run_first.get(t, t), 1)
+    return m, kept
+
+
+def session_joint_v2(transcript_path, *, sub_frac, deferrable_sizes=None, cli_meta=None,
+                     factor_out=FACTOR_OUT):
+    """Repaired replay (B5.2R): per-tool defer-at-first-use for the gateway prefix (schedule
+    0,0,…,S,S from each tool's first use in THIS session; unused ⇒ deferred all session), B3 retirement
+    re-run on the COLLAPSED timeline (remapped objects/edits/inputs, lag in new-timeline calls), and
+    thinking-GC computed only over KEPT calls with the independent OUTPUT-side factor (avoided calls'
+    thinking was never generated — that saving belongs to collapse). Subscription arm: deferrable_sizes=None.
+    """
+    orc = oracle_session(transcript_path, cli_meta=cli_meta)
+    from corpus.call_collapse_oracle import parse_session
+    calls = parse_session(transcript_path)
+    N = len(calls)
+    if N == 0:
+        return None
+    gated_runs = [r for r in orc["runs"] if r["n_calls"] >= 2 and r["run_class"] in ("D0", "D0D1")
+                  and (r["retention"] is None or r["retention"].get("next_action_ok"))]
+    avoided = set()
+    for r in gated_runs:
+        avoided.update(range(r["start_call"] + 1, r["end_call"] + 1))
+    tmap, kept = _timeline_map(N, avoided, gated_runs)
+    T_new = len(kept)
+    # prefix: constant subscription slice + (gateway) per-tool defer schedule
+    H = round(sub_frac * calls[0]["P"])
+    defer_red = [0] * (N + 1)
+    if deferrable_sizes:
+        first_use = {}
+        for c in calls:
+            for name, _inp in c["tools"]:
+                first_use.setdefault(name, c["idx"])
+        total = sum(deferrable_sizes.values())
+        # a session in a DIFFERENT project may not carry the doctor-inventoried tools at these sizes;
+        # scale the deferrable slice to what this session's own prefix can actually contain
+        avail = max(calls[0]["P"] - H - 10_000, 0)          # startup − subscription slice − ~core floor
+        scale = min(1.0, avail / total) if total else 0.0
+        for t in range(1, N + 1):
+            loaded = sum(S for name, S in deferrable_sizes.items()
+                         if first_use.get(name) is not None and first_use[name] <= t)
+            defer_red[t] = round((total - loaded) * scale)
+    # B3 on the COLLAPSED timeline
+    objs, edits, inputs_by_turn, T_b3, _u = parse_for_safety(transcript_path)
+    b3_ok = (T_b3 == N)
+    cumret_new = [0] * (T_new + 2)
+    if b3_ok:
+        for o in objs:
+            o["turn"] = tmap.get(o["turn"], 1)
+        edits2 = [(tmap.get(t, 1), p, o_) for (t, p, o_) in edits]
+        inputs2 = {}
+        for t, txt in inputs_by_turn.items():
+            nt = tmap.get(t, 1)
+            inputs2[nt] = (inputs2.get(nt, "") + "\n" + txt)
+        retire = sorted((rt, o["size"]) for (o, rt, safe) in
+                        per_object_safety(objs, edits2, inputs2, T_new, lag=B3_LAG) if safe)
+        run_sum, ci = 0, 0
+        for t in range(1, T_new + 1):
+            while ci < len(retire) and retire[ci][0] < t:
+                run_sum += retire[ci][1]
+                ci += 1
+            cumret_new[t] = run_sum
+    # thinking over KEPT calls only, new-timeline keep-1, output-side factor
+    vis = visible_out_per_call(transcript_path)
+    vis = vis if len(vis) == N else [0] * N
+    think_kept = [max(calls[t - 1]["out_tokens"] - round(factor_out * vis[t - 1]), 0) for t in kept]
+    cumthink_new = [0] * (T_new + 1)
+    for i in range(1, T_new + 1):
+        cumthink_new[i] = cumthink_new[i - 1] + (think_kept[i - 3] if i >= 3 else 0)
+
+    clamps = Counter()
+
+    def px(P, *reds):
+        v = P - sum(reds)
+        if v < 0:
+            clamps["negative"] += 1
+            return 0
+        return v
+
+    lvl = {k: {"P": 0, "calls": 0, "out": 0, "peak": 0} for k in ("L0", "L1", "L2", "L3", "L4")}
+    solo = {"prefix": 0, "collapse": 0, "b3": 0, "think": 0}
+    for c in calls:
+        t = c["idx"]
+        pre = (H + defer_red[t],)
+        lvl["L0"]["P"] += c["P"]
+        lvl["L0"]["out"] += c["out_tokens"]
+        lvl["L0"]["peak"] = max(lvl["L0"]["peak"], c["P"])
+        v1p = px(c["P"], *pre)
+        lvl["L1"]["P"] += v1p
+        lvl["L1"]["peak"] = max(lvl["L1"]["peak"], v1p)
+        solo["prefix"] += v1p
+        if t not in avoided:
+            nt = tmap[t]
+            solo["collapse"] += c["P"]
+            for k, reds in (("L2", pre), ("L3", pre + (cumret_new[nt],)),
+                            ("L4", pre + (cumret_new[nt], cumthink_new[nt]))):
+                v = px(c["P"], *reds)
+                lvl[k]["P"] += v
+                lvl[k]["out"] += c["out_tokens"]
+                lvl[k]["peak"] = max(lvl[k]["peak"], v)
+                lvl[k]["calls"] += 1
+    lvl["L0"]["calls"] = lvl["L1"]["calls"] = N
+    # solo b3/think on the ORIGINAL timeline for reference comparability
+    base = session_joint(transcript_path, prefix_frac=0.0, cli_meta=cli_meta)
+    solo["b3"] = base["solo"]["b3"]
+    solo["think"] = base["solo"]["think"]
+    return {"transcript": transcript_path, "N": N, "avoided": len(avoided), "b3_turn_axis_ok": b3_ok,
+            "startup_P": calls[0]["P"], "H": H, "clamps": dict(clamps),
+            "think_total_measured": sum(think_kept), "levels": lvl, "solo": solo}
+
+
+def run_stage_a_v2(results_json=None, *, sub_frac, deferrable_sizes=None, label, transcripts=None):
+    rows = []
+    if results_json:
+        res = json.load(open(results_json))
+        seen = set()
+        for key, m in res.items():
+            if not isinstance(m, dict) or "error" in m:
+                continue
+            tp = m.get("transcript")
+            if tp and os.path.exists(tp) and tp not in seen:
+                seen.add(tp)
+                r = session_joint_v2(tp, sub_frac=sub_frac, deferrable_sizes=deferrable_sizes, cli_meta=m)
+                if r:
+                    rows.append(r)
+    else:
+        for tp in transcripts or []:
+            r = session_joint_v2(tp, sub_frac=sub_frac, deferrable_sizes=deferrable_sizes)
             if r:
                 rows.append(r)
     return {"rows": rows, "aggregate": aggregate(rows, label)}
