@@ -90,8 +90,8 @@ per-pair records `corpus/analysis/executor-ab-v2.json`):
 the executor — `alwaysLoad` resolves the race exactly as documented, and the earlier "requires a
 custom loop" conclusion is withdrawn.
 
-**Displacement is NOT achieved: the efficiency gates fail** (mean calls +2.7% vs gate −10%; mean
-Σ input −13.2% vs gate −8%). Adoption was *shallow* — 1–4 discover calls per session used as an
+**Displacement is NOT achieved: the efficiency gates fail** (mean calls reduced only 2.7% vs the ≥10%
+gate; mean Σ input **~13.2% MORE** than A vs the ≥8%-reduction gate — sign stated plainly per review). Adoption was *shallow* — 1–4 discover calls per session used as an
 *additional* search tool while the native discovery chains continued (21–26 native calls after the
 first discover). The packets add cache-creation tokens (43–109k) without replacing the runs they were
 built to collapse.
