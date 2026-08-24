@@ -113,28 +113,35 @@ Per-pair records: `corpus/analysis/executor-ab-v3.json`.
 | preregistered gate | result |
 |---|---|
 | adoption = 100% | **PASS** — 3/3, 15–16 discover calls each |
-| displacement ≥ 70% | FAIL — mean 65.1% (68.4 / 76.9 / 50.0) |
+| displacement ≥ 70% | FAIL — mean 65.1% **over the enforced categories** (68.4 / 76.9 / 50.0; A explore 19/13/10 → C 6/3/5; Read excluded by design — it stayed allowed; reads A 12/8/6 vs C 9/9/8) |
 | API calls −10% | FAIL — mean −0.5% (−19.2 ✓ / −14.3 ✓ / **+35.1% more**) |
-| Σ input −8% | **FAIL decisively — mean 71.6% MORE input** (+11.5 / +39.5 / +163.8% more) |
+| Σ input −8% | **FAIL decisively — mean +71.6% MORE input** (+11.5 / +39.5 / +163.8; pooled +55.6%). Authoritative source = transcript per-call sums (A 3.82/3.30/2.05M → C 4.27/4.61/5.42M); the runner's modelUsage sums (4.22/4.61/5.20M, mean +67.7%) are stored as reference — either source fails the gate by a wide margin. Formulas + denominators: `executor-ab-v3.json → authoritative_measurements` |
 | non-inferior | marginal fail — same source files 2/3; one budget cap; fewer test runs |
 
 **The mechanism, finally visible:** under enforcement the model uses discover **as a search engine,
 iteratively** — 15–16 calls per session, *more* than its native search count in A. Every call returns
 a multi-kilotoken packet that stays resident for the rest of the session. The oracle's premise — ONE
-packet replaces a RUN — did not transfer: the model explores stepwise regardless of tool, so the
-executor converted cheap native probes into expensive packet fetches. Enforcement solved *adoption*;
-nothing about it changes *how models explore*.
+packet replaces a RUN — did not transfer: **in all three enforced runs the model continued stepwise
+exploration despite the consolidated discovery tool** (three django tasks and one agent — enough to
+close this preregistered branch, not a general law about all coding models). Enforcement solved
+*adoption*; it did not change exploration behaviour here.
 
-**Decision (preregistered): CLOSE call-collapse as a major token-saving lever.** No embeddings, no
-graph sophistication, no D2 planning. The 13.1% oracle stands as an offline opportunity bound;
+**Decision (preregistered), scoped precisely: CLOSE eager multi-kilotoken discovery packets as a
+primary token-saving mechanism.** Not the stronger claim that no local discovery system could ever
+save tokens — what is established is that, on these tasks and this agent, forcing the model through a
+richer eager retrieval tool does not change its iterative exploration enough to save tokens and can
+make residency dramatically worse. No embeddings, no graph sophistication, no D2 planning. The 13.1% oracle stands as an offline opportunity bound;
 realizing it would need packet economics fundamentally different from eager top-k fetching
 (incremental/cursor packets, or packets that retire on supersession) — noted, not pursued.
 
-**The stack survives the closure:** re-running the v3 joint replay with collapse disabled gives
-**49.2 / 52.3 / 39.4 / 54.9%** (lean-sub / lean-gw / heavy-sub / heavy-gw) — B3 and thinking-GC
-re-cover most of collapse's contribution because they apply over the calls it would have removed. The
+**The stack survives the closure:** after removing call-collapse entirely, the admission + lifetime
+counterfactual still yields **roughly 52–55% opportunity on the two gateway environments and roughly
+39–49% on the subscription/configuration environments** (49.2 / 52.3 / 39.4 / 54.9% for lean-sub /
+lean-gw / heavy-sub / heavy-gw). Removing collapse leaves more calls over which lifetime management
+acts, so the attribution shifts between levers; the joint numbers are what the replay establishes. The
 ~50% gateway engineering target stands on **admission (prefix) + lifetime (B3, thinking-GC)** alone.
 
 Arc complete: voluntary → shallow adoption; delivery-fixed → additional-tool use; enforced → deep
-adoption with anti-economical packets. Three experiments, one clean closure, and the program's thesis
-sharpens: *control what enters and how long it stays; do not try to out-search the model.*
+adoption with anti-economical packets. Three experiments, one clean scoped closure, and the program's
+thesis sharpens: *control what enters and how long it stays; do not spend the product's complexity
+budget trying to change how the model searches.*

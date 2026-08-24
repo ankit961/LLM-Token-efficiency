@@ -143,13 +143,13 @@
   },
   "preregistered_gates": {
     "adoption_100pct": "PASS \u2014 3/3 sessions, 15\u201316 discover calls each (enforcement produces DEEP use)",
-    "displacement_ge_70pct": "FAIL \u2014 mean 65.1% (68.4 / 76.9 / 50.0); residual native = allowed ls/head/git-class cmds; denied attempts 1/2/4 (no retry loops)",
+    "displacement_ge_70pct": "FAIL \u2014 mean 65.1% over the ENFORCED categories (formula + denominators in authoritative_measurements)",
     "calls_minus_10pct": "FAIL \u2014 mean \u22120.5% (\u221219.2%\u2713 / \u221214.3%\u2713 / +35.1% MORE on 14608)",
-    "input_minus_8pct": "FAIL decisively \u2014 mean 71.6% MORE input (+11.5 / +39.5 / +163.8% MORE)",
+    "input_minus_8pct": "FAIL decisively \u2014 mean +71.6% MORE input (per-task +11.5/+39.5/+163.8; pooled +55.6%)",
     "non_inferior": "marginal FAIL \u2014 same source files 2/3 (11138-C missed sqlite3/operations.py); 1 budget-cap; fewer test runs (3/3/5 vs 4/5/12)"
   },
   "mechanism": "Under enforcement the model uses discover as a SEARCH ENGINE, iteratively (15\u201316 calls/session \u2014 more than its native search count in A). Each call returns a multi-kilotoken packet that stays resident for the rest of the session; iterative querying \u00d7 eager top-k packets \u21d2 input inflation. The oracle's premise \u2014 ONE packet replaces a RUN \u2014 did not transfer: the model queries stepwise regardless of tool, so the executor converted cheap native probes into expensive packet fetches.",
-  "decision": "CLOSE call-collapse as a major token-saving lever, per the preregistered rule ('if it fails even under enforcement, close it rather than adding embeddings/graph/D2'). The oracle's 13.1% remains a valid OFFLINE opportunity bound; realizing it would require packet economics fundamentally different from eager top-k fetching (e.g. incremental/cursor packets or retire-on-supersede packets) \u2014 out of scope.",
+  "decision": "CLOSE the EAGER-MULTI-KILOTOKEN-PACKET call-collapse mechanism as a major token-saving lever (scoped: not a claim that no local discovery system could ever save tokens), per the preregistered rule ('if it fails even under enforcement, close it rather than adding embeddings/graph/D2'). The oracle's 13.1% remains a valid OFFLINE opportunity bound; realizing it would require packet economics fundamentally different from eager top-k fetching (e.g. incremental/cursor packets or retire-on-supersede packets) \u2014 out of scope.",
   "stack_without_collapse_v3_L4": {
     "lean_sub": 49.24,
     "lean_gw": 52.3,
@@ -158,5 +158,133 @@
   },
   "stack_note": "Removing collapse barely dents the joint stack (lean-sub 53.4\u219249.2, lean-gw 56.0\u219252.3, heavy-sub 39.7\u219239.4, heavy-gw 54.7\u219254.9%) \u2014 B3/thinking re-cover most of its contribution. The ~50% gateway target survives without the executor.",
   "spend_usd": 7.5,
-  "code_commit": "7bc790c488ab6ff9bf68e9ebadf2447f485b09c0"
+  "code_commit": "7bc790c488ab6ff9bf68e9ebadf2447f485b09c0",
+  "authoritative_measurements": {
+    "source": "per-call usage summed from session transcripts (requestId-merged, sidechains excluded) \u2014 the same source as every replay in this repo; supersedes the runner's modelUsage sums (which differ 1\u20134%, stored per task as *_for_reference)",
+    "formulas": {
+      "input_increase_pct": "100 \u00d7 (C.sum_input / A.sum_input \u2212 1); sum_input = \u03a3 per-call (cache_read + cache_creation + input)",
+      "calls_reduction_pct": "100 \u00d7 (1 \u2212 C.calls / A.calls)",
+      "displacement_enforced_categories_pct": "100 \u00d7 (1 \u2212 C.native_explore / A.native_explore); native_explore counts ONLY the categories enforcement targeted: Grep, Glob, and read-only search Bash (grep/rg/find/cat/\u2026 excluding test commands). Read is EXCLUDED by design \u2014 it remained allowed for targeted follow-up and edit preconditions, so it is reported separately (reads A [12,8,6] vs C [9,9,8])."
+    },
+    "per_task": [
+      {
+        "task": "django__django-10554",
+        "A": {
+          "calls": 52,
+          "sum_input": 3824824,
+          "output": 22959,
+          "discover": 0,
+          "native_explore": 19,
+          "reads": 12,
+          "test_runs": 4,
+          "denied_attempts": 0
+        },
+        "C": {
+          "calls": 42,
+          "sum_input": 4265407,
+          "output": 32377,
+          "discover": 15,
+          "native_explore": 6,
+          "reads": 9,
+          "test_runs": 3,
+          "denied_attempts": 1
+        },
+        "input_increase_pct": 11.5,
+        "calls_reduction_pct": 19.2,
+        "displacement_enforced_categories_pct": 68.4,
+        "same_source_files": true,
+        "A_src": [
+          "django/db/models/sql/compiler.py",
+          "django/db/models/sql/query.py"
+        ],
+        "C_src": [
+          "django/db/models/sql/compiler.py",
+          "django/db/models/sql/query.py"
+        ],
+        "C_status": "error_max_budget_usd",
+        "C_cost": 2.515964699999999,
+        "modelUsage_C_input_total_for_reference": 4216649
+      },
+      {
+        "task": "django__django-11138",
+        "A": {
+          "calls": 49,
+          "sum_input": 3302997,
+          "output": 18450,
+          "discover": 0,
+          "native_explore": 13,
+          "reads": 8,
+          "test_runs": 5,
+          "denied_attempts": 0
+        },
+        "C": {
+          "calls": 42,
+          "sum_input": 4606954,
+          "output": 31141,
+          "discover": 16,
+          "native_explore": 3,
+          "reads": 9,
+          "test_runs": 3,
+          "denied_attempts": 2
+        },
+        "input_increase_pct": 39.5,
+        "calls_reduction_pct": 14.3,
+        "displacement_enforced_categories_pct": 76.9,
+        "same_source_files": false,
+        "A_src": [
+          "django/db/backends/mysql/operations.py",
+          "django/db/backends/oracle/operations.py",
+          "django/db/backends/sqlite3/base.py",
+          "django/db/backends/sqlite3/operations.py"
+        ],
+        "C_src": [
+          "django/db/backends/mysql/operations.py",
+          "django/db/backends/oracle/operations.py",
+          "django/db/backends/sqlite3/base.py"
+        ],
+        "C_status": "success",
+        "C_cost": 2.4801968000000003,
+        "modelUsage_C_input_total_for_reference": 4608568
+      },
+      {
+        "task": "django__django-14608",
+        "A": {
+          "calls": 37,
+          "sum_input": 2054124,
+          "output": 9299,
+          "discover": 0,
+          "native_explore": 10,
+          "reads": 6,
+          "test_runs": 12,
+          "denied_attempts": 0
+        },
+        "C": {
+          "calls": 50,
+          "sum_input": 5419018,
+          "output": 19022,
+          "discover": 16,
+          "native_explore": 5,
+          "reads": 8,
+          "test_runs": 5,
+          "denied_attempts": 4
+        },
+        "input_increase_pct": 163.8,
+        "calls_reduction_pct": -35.1,
+        "displacement_enforced_categories_pct": 50.0,
+        "same_source_files": true,
+        "A_src": [
+          "django/forms/formsets.py"
+        ],
+        "C_src": [
+          "django/forms/formsets.py"
+        ],
+        "C_status": "success",
+        "C_cost": 2.4993974,
+        "modelUsage_C_input_total_for_reference": 5204918
+      }
+    ],
+    "mean_input_increase_pct": 71.6,
+    "pooled_input_increase_pct": 55.6
+  },
+  "code_commit_repair": "ddbfd2b1c8314cc1fda5cd0f7a6490e4f72c1fd4"
 }
