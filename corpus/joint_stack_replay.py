@@ -199,7 +199,8 @@ def _timeline_map(N, avoided, runs):
 
 
 def session_joint_v2(transcript_path, *, sub_frac, deferrable_sizes=None, cli_meta=None,
-                     factor_out=FACTOR_OUT, packet_mode="conservative", session_resident_names=None):
+                     factor_out=FACTOR_OUT, packet_mode="conservative", session_resident_names=None,
+                     include_collapse=True):
     """Repaired replay (B5.2R): per-tool defer-at-first-use for the gateway prefix (schedule
     0,0,…,S,S from each tool's first use in THIS session; unused ⇒ deferred all session), B3 retirement
     re-run on the COLLAPSED timeline (remapped objects/edits/inputs, lag in new-timeline calls), and
@@ -213,7 +214,7 @@ def session_joint_v2(transcript_path, *, sub_frac, deferrable_sizes=None, cli_me
     if N == 0:
         return None
     gated_runs = [r for r in orc["runs"] if r["n_calls"] >= 2 and r["run_class"] in ("D0", "D0D1")
-                  and (r["retention"] is None or r["retention"].get("next_action_ok"))]
+                  and (r["retention"] is None or r["retention"].get("next_action_ok"))] if include_collapse else []
     avoided = set()
     for r in gated_runs:
         avoided.update(range(r["start_call"] + 1, r["end_call"] + 1))
@@ -353,7 +354,7 @@ def session_resident_names_of(transcript_path, reference_names):
 
 
 def run_stage_a_v2(results_json=None, *, sub_frac, deferrable_sizes=None, label, transcripts=None,
-                   packet_mode="conservative", factor_out=FACTOR_OUT):
+                   packet_mode="conservative", factor_out=FACTOR_OUT, include_collapse=True):
     rows = []
     if results_json:
         res = json.load(open(results_json))
@@ -367,7 +368,7 @@ def run_stage_a_v2(results_json=None, *, sub_frac, deferrable_sizes=None, label,
                 names = session_resident_names_of(tp, set(deferrable_sizes)) if deferrable_sizes else None
                 r = session_joint_v2(tp, sub_frac=sub_frac, deferrable_sizes=deferrable_sizes, cli_meta=m,
                                      packet_mode=packet_mode, factor_out=factor_out,
-                                     session_resident_names=names)
+                                     session_resident_names=names, include_collapse=include_collapse)
                 if r:
                     rows.append(r)
     else:
@@ -375,7 +376,7 @@ def run_stage_a_v2(results_json=None, *, sub_frac, deferrable_sizes=None, label,
             names = session_resident_names_of(tp, set(deferrable_sizes)) if deferrable_sizes else None
             r = session_joint_v2(tp, sub_frac=sub_frac, deferrable_sizes=deferrable_sizes,
                                  packet_mode=packet_mode, factor_out=factor_out,
-                                 session_resident_names=names)
+                                 session_resident_names=names, include_collapse=include_collapse)
             if r:
                 rows.append(r)
     return {"rows": rows, "aggregate": aggregate(rows, label)}

@@ -103,3 +103,38 @@ B-arm (distorts non-inferiority, previously rejected), or the custom loop where 
 the discovery policy are ours. n=3 × 1 rep; same-task rep variance reaches 1.9× (Step 7), so per-task
 deltas are within noise — the consistent signal is the *absence* of the displacement effect, not a
 reliable cost increase. STOP per directive.
+
+## B5.3 — ENFORCED substitution (2026-08-24, ~$7.50): call-collapse CLOSES
+
+Arm C = `alwaysLoad` discover + policy prompt + `--disallowedTools` for Grep/Glob and exploratory
+shell search (Read preserved for targeted follow-up and edit preconditions). A baselines reused.
+Per-pair records: `corpus/analysis/executor-ab-v3.json`.
+
+| preregistered gate | result |
+|---|---|
+| adoption = 100% | **PASS** — 3/3, 15–16 discover calls each |
+| displacement ≥ 70% | FAIL — mean 65.1% (68.4 / 76.9 / 50.0) |
+| API calls −10% | FAIL — mean −0.5% (−19.2 ✓ / −14.3 ✓ / **+35.1% more**) |
+| Σ input −8% | **FAIL decisively — mean 71.6% MORE input** (+11.5 / +39.5 / +163.8% more) |
+| non-inferior | marginal fail — same source files 2/3; one budget cap; fewer test runs |
+
+**The mechanism, finally visible:** under enforcement the model uses discover **as a search engine,
+iteratively** — 15–16 calls per session, *more* than its native search count in A. Every call returns
+a multi-kilotoken packet that stays resident for the rest of the session. The oracle's premise — ONE
+packet replaces a RUN — did not transfer: the model explores stepwise regardless of tool, so the
+executor converted cheap native probes into expensive packet fetches. Enforcement solved *adoption*;
+nothing about it changes *how models explore*.
+
+**Decision (preregistered): CLOSE call-collapse as a major token-saving lever.** No embeddings, no
+graph sophistication, no D2 planning. The 13.1% oracle stands as an offline opportunity bound;
+realizing it would need packet economics fundamentally different from eager top-k fetching
+(incremental/cursor packets, or packets that retire on supersession) — noted, not pursued.
+
+**The stack survives the closure:** re-running the v3 joint replay with collapse disabled gives
+**49.2 / 52.3 / 39.4 / 54.9%** (lean-sub / lean-gw / heavy-sub / heavy-gw) — B3 and thinking-GC
+re-cover most of collapse's contribution because they apply over the calls it would have removed. The
+~50% gateway engineering target stands on **admission (prefix) + lifetime (B3, thinking-GC)** alone.
+
+Arc complete: voluntary → shallow adoption; delivery-fixed → additional-tool use; enforced → deep
+adoption with anti-economical packets. Three experiments, one clean closure, and the program's thesis
+sharpens: *control what enters and how long it stays; do not try to out-search the model.*
