@@ -74,3 +74,32 @@ No D2 conversion, no semantic planner, no further spend. The B5.2 pair of result
 estimate (40.3–57.2%). Stage B: realizing the call-collapse slice live is blocked at tool delivery on
 the subscription client — it belongs to the custom-loop/gateway product path, alongside the other
 gateway-only levers.**
+
+## B5.2R — rerun with `alwaysLoad: true` (2026-08-24, ~$5.30)
+
+The three B-arms were rerun with `"alwaysLoad": true` on the `cr` server (A baselines reused;
+per-pair records `corpus/analysis/executor-ab-v2.json`):
+
+| task | A calls / Σ input | B(R) calls / Σ input | discover | native disc A→B | same src files |
+|---|---|---|---:|---|:--:|
+| 10554 | 52 / 3.82M | 45 / 3.76M (−13.5% / −1.6%) | 4 | 31→21 | ✅ |
+| 11138 | 49 / 3.30M | 53 / 4.40M (+8.2% / +33.1% MORE) | 1 | 21→26 | ✅ |
+| 14608 | 37 / 2.05M | 36 / 2.22M (−2.7% / +8.1% more) | 1 | 16→15 | ✅ |
+
+**Delivery is FIXED: 3/3 adoption, all success, same source files.** The subscription client CAN carry
+the executor — `alwaysLoad` resolves the race exactly as documented, and the earlier "requires a
+custom loop" conclusion is withdrawn.
+
+**Displacement is NOT achieved: the efficiency gates fail** (mean calls +2.7% vs gate −10%; mean
+Σ input −13.2% vs gate −8%). Adoption was *shallow* — 1–4 discover calls per session used as an
+*additional* search tool while the native discovery chains continued (21–26 native calls after the
+first discover). The packets add cache-creation tokens (43–109k) without replacing the runs they were
+built to collapse.
+
+**Where this leaves the executor:** the blocker has moved from *delivery* (solved) to *behavior* —
+getting the model to **substitute** discover for its discovery runs rather than add it. The
+next candidates, in escalating force: protocol-level steering, disallowing native search tools in the
+B-arm (distorts non-inferiority, previously rejected), or the custom loop where the tool surface and
+the discovery policy are ours. n=3 × 1 rep; same-task rep variance reaches 1.9× (Step 7), so per-task
+deltas are within noise — the consistent signal is the *absence* of the displacement effect, not a
+reliable cost increase. STOP per directive.
