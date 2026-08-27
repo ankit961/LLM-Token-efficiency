@@ -1,0 +1,331 @@
+{
+  "version": "b6-tasks-v1",
+  "selection": "modern (2023+) SWE-bench-Verified django instances present in the local mirror, VALIDATED for native no-docker grading on this machine (pre-fix F2P fails; gold patch \u2192 F2P passes \u2227 P2P green under python3.11 tests/runtests.py). Docstring-only test entries are skipped and counted (data quirk).",
+  "roster": [
+    {
+      "instance_id": "django__django-16485",
+      "base_commit": "39f83765e12b0e5d260b7939fc3fe281d879b279",
+      "created": "2023-01-18",
+      "FAIL_TO_PASS": [
+        "test_zero_values (template_tests.filter_tests.test_floatformat.FunctionTests.test_zero_values)"
+      ],
+      "PASS_TO_PASS": [
+        "test_floatformat01 (template_tests.filter_tests.test_floatformat.FloatformatTests.test_floatformat01)",
+        "test_floatformat02 (template_tests.filter_tests.test_floatformat.FloatformatTests.test_floatformat02)",
+        "test_float_dunder_method (template_tests.filter_tests.test_floatformat.FunctionTests.test_float_dunder_method)",
+        "test_force_grouping (template_tests.filter_tests.test_floatformat.FunctionTests.test_force_grouping)",
+        "test_infinity (template_tests.filter_tests.test_floatformat.FunctionTests.test_infinity)",
+        "test_inputs (template_tests.filter_tests.test_floatformat.FunctionTests.test_inputs)",
+        "#15789",
+        "test_negative_zero_values (template_tests.filter_tests.test_floatformat.FunctionTests.test_negative_zero_values)",
+        "test_unlocalize (template_tests.filter_tests.test_floatformat.FunctionTests.test_unlocalize)"
+      ],
+      "validation": {
+        "instance_id": "django__django-16485",
+        "pre_f2p_fails": true,
+        "pre_note": " | FAILED (errors=1)",
+        "gold_patch_applied": true,
+        "gold_f2p_pass": true,
+        "gold_p2p_pass": true,
+        "gold_p2p_checked": 8,
+        "gold_f2p_skipped_unresolvable": 0,
+        "gold_p2p_skipped_unresolvable": 1,
+        "gold_f2p_note": " | OK",
+        "gold_p2p_note": " | OK",
+        "gold_success": true,
+        "valid": true
+      }
+    },
+    {
+      "instance_id": "django__django-16502",
+      "base_commit": "246eb4836a6fb967880f838aa0d22ecfdca8b6f1",
+      "created": "2023-01-26",
+      "FAIL_TO_PASS": [
+        "test_no_body_returned_for_head_requests (servers.test_basehttp.WSGIRequestHandlerTestCase.test_no_body_returned_for_head_requests)"
+      ],
+      "PASS_TO_PASS": [
+        "test_https (servers.test_basehttp.WSGIRequestHandlerTestCase.test_https)",
+        "test_log_message (servers.test_basehttp.WSGIRequestHandlerTestCase.test_log_message)",
+        "WSGIRequestHandler ignores headers containing underscores.",
+        "WSGIServer handles broken pipe errors."
+      ],
+      "validation": {
+        "instance_id": "django__django-16502",
+        "pre_f2p_fails": true,
+        "pre_note": " | FAILED (failures=1)",
+        "gold_patch_applied": true,
+        "gold_f2p_pass": true,
+        "gold_p2p_pass": true,
+        "gold_p2p_checked": 2,
+        "gold_f2p_skipped_unresolvable": 0,
+        "gold_p2p_skipped_unresolvable": 2,
+        "gold_f2p_note": " | OK",
+        "gold_p2p_note": " | OK",
+        "gold_success": true,
+        "valid": true
+      }
+    },
+    {
+      "instance_id": "django__django-16527",
+      "base_commit": "bd366ca2aeffa869b7dbc0b0aa01caea75e6dc31",
+      "created": "2023-02-05",
+      "FAIL_TO_PASS": [
+        "test_submit_row_save_as_new_add_permission_required (admin_views.test_templatetags.AdminTemplateTagsTest.test_submit_row_save_as_new_add_permission_required)"
+      ],
+      "PASS_TO_PASS": [
+        "test_choice_links (admin_views.test_templatetags.DateHierarchyTests.test_choice_links)",
+        "test_choice_links_datetime (admin_views.test_templatetags.DateHierarchyTests.test_choice_links_datetime)",
+        "admin_modify template tags follow the standard search pattern",
+        "admin_list template tags follow the standard search pattern",
+        "test_override_show_save_and_add_another (admin_views.test_templatetags.AdminTemplateTagsTest.test_override_show_save_and_add_another)",
+        "submit_row template tag should pass whole context."
+      ],
+      "validation": {
+        "instance_id": "django__django-16527",
+        "pre_f2p_fails": true,
+        "pre_note": " | FAILED (failures=1)",
+        "gold_patch_applied": true,
+        "gold_f2p_pass": true,
+        "gold_p2p_pass": true,
+        "gold_p2p_checked": 3,
+        "gold_f2p_skipped_unresolvable": 0,
+        "gold_p2p_skipped_unresolvable": 3,
+        "gold_f2p_note": " | OK",
+        "gold_p2p_note": " | OK",
+        "gold_success": true,
+        "valid": true
+      }
+    },
+    {
+      "instance_id": "django__django-16901",
+      "base_commit": "ee36e101e8f8c0acde4bb148b738ab7034e902a0",
+      "created": "2023-05-30",
+      "FAIL_TO_PASS": [
+        "test_filter_multiple (xor_lookups.tests.XorLookupsTests.test_filter_multiple)"
+      ],
+      "PASS_TO_PASS": [
+        "test_empty_in (xor_lookups.tests.XorLookupsTests.test_empty_in)",
+        "test_exclude (xor_lookups.tests.XorLookupsTests.test_exclude)",
+        "test_filter (xor_lookups.tests.XorLookupsTests.test_filter)",
+        "test_filter_negated (xor_lookups.tests.XorLookupsTests.test_filter_negated)",
+        "test_pk_q (xor_lookups.tests.XorLookupsTests.test_pk_q)",
+        "test_stages (xor_lookups.tests.XorLookupsTests.test_stages)"
+      ],
+      "validation": {
+        "instance_id": "django__django-16901",
+        "pre_f2p_fails": true,
+        "pre_note": " | FAILED (failures=1)",
+        "gold_patch_applied": true,
+        "gold_f2p_pass": true,
+        "gold_p2p_pass": true,
+        "gold_p2p_checked": 6,
+        "gold_f2p_note": " | OK",
+        "gold_p2p_note": " | OK",
+        "gold_success": true,
+        "valid": true
+      }
+    }
+  ],
+  "reserve": [
+    {
+      "instance_id": "django__django-16595",
+      "base_commit": "f9fe062de5fc0896d6bbbf3f260b5c44473b3c77",
+      "created": "2023-02-24",
+      "FAIL_TO_PASS": [
+        "test_alter_alter_field (migrations.test_optimizer.OptimizerTests.test_alter_alter_field)"
+      ],
+      "PASS_TO_PASS": [
+        "AlterField should optimize into AddField.",
+        "RemoveField should cancel AddField",
+        "RenameField should optimize into AddField",
+        "test_alter_alter_index_model (migrations.test_optimizer.OptimizerTests.test_alter_alter_index_model)",
+        "test_alter_alter_owrt_model (migrations.test_optimizer.OptimizerTests.test_alter_alter_owrt_model)",
+        "test_alter_alter_table_model (migrations.test_optimizer.OptimizerTests.test_alter_alter_table_model)",
+        "test_alter_alter_unique_model (migrations.test_optimizer.OptimizerTests.test_alter_alter_unique_model)",
+        "RemoveField should absorb AlterField",
+        "RenameField should optimize to the other side of AlterField,",
+        "test_create_alter_index_delete_model (migrations.test_optimizer.OptimizerTests.test_create_alter_index_delete_model)",
+        "test_create_alter_index_field (migrations.test_optimizer.OptimizerTests.test_create_alter_index_field)",
+        "test_create_alter_model_managers (migrations.test_optimizer.OptimizerTests.test_create_alter_model_managers)",
+        "test_create_alter_model_options (migrations.test_optimizer.OptimizerTests.test_create_alter_model_options)",
+        "test_create_alter_owrt_delete_model (migrations.test_optimizer.OptimizerTests.test_create_alter_owrt_delete_model)",
+        "test_create_alter_owrt_field (migrations.test_optimizer.OptimizerTests.test_create_alter_owrt_field)",
+        "test_create_alter_unique_delete_model (migrations.test_optimizer.OptimizerTests.test_create_alter_unique_delete_model)",
+        "test_create_alter_unique_field (migrations.test_optimizer.OptimizerTests.test_create_alter_unique_field)",
+        "CreateModel and DeleteModel should collapse into nothing.",
+        "AddField should optimize into CreateModel.",
+        "AddField should NOT optimize into CreateModel if it's an M2M using a",
+        "AlterField should optimize into CreateModel.",
+        "test_create_model_and_remove_model_options (migrations.test_optimizer.OptimizerTests.test_create_model_and_remove_model_options)",
+        "CreateModel order remains unchanged if the later AddField operation",
+        "A CreateModel that inherits from another isn't reordered to avoid",
+        "RemoveField should optimize into CreateModel.",
+        "RenameField should optimize into CreateModel.",
+        "AddField optimizes into CreateModel if it's a FK to a model that's",
+        "CreateModel reordering behavior doesn't result in an infinite loop if",
+        "CreateModel should absorb RenameModels.",
+        "test_none_app_label (migrations.test_optimizer.OptimizerTests.test_none_app_label)",
+        "test_optimize_elidable_operation (migrations.test_optimizer.OptimizerTests.test_optimize_elidable_operation)",
+        "We should be able to optimize away create/delete through a create or",
+        "field-level through checking is working. This should manage to collapse",
+        "test_rename_index (migrations.test_optimizer.OptimizerTests.test_rename_index)",
+        "RenameModels should absorb themselves.",
+        "The optimizer does nothing on a single operation,",
+        "test_swapping_fields_names (migrations.test_optimizer.OptimizerTests.test_swapping_fields_names)"
+      ],
+      "validation": {
+        "instance_id": "django__django-16595",
+        "pre_f2p_fails": true,
+        "pre_note": " | FAILED (failures=1)",
+        "gold_patch_applied": true,
+        "gold_f2p_pass": true,
+        "gold_p2p_pass": true,
+        "gold_p2p_checked": 17,
+        "gold_f2p_skipped_unresolvable": 0,
+        "gold_p2p_skipped_unresolvable": 20,
+        "gold_f2p_note": " | OK",
+        "gold_p2p_note": " | OK",
+        "gold_success": true,
+        "valid": true
+      }
+    }
+  ],
+  "excluded_examples": {
+    "django__django-16662": {
+      "instance_id": "django__django-16662",
+      "pre_f2p_fails": false,
+      "pre_note": "no tests",
+      "gold_patch_applied": true,
+      "gold_f2p_pass": true,
+      "gold_p2p_pass": false,
+      "gold_p2p_checked": 40,
+      "gold_f2p_skipped_unresolvable": 1,
+      "gold_p2p_skipped_unresolvable": 7,
+      "gold_f2p_note": "no tests",
+      "gold_p2p_note": " | FAILED (errors=1)",
+      "gold_success": false,
+      "valid": false
+    },
+    "django__django-16801": {
+      "instance_id": "django__django-16801",
+      "pre_f2p_fails": false,
+      "pre_note": " | OK (skipped=1)",
+      "gold_patch_applied": true,
+      "gold_f2p_pass": true,
+      "gold_p2p_pass": false,
+      "gold_p2p_checked": 6,
+      "gold_f2p_skipped_unresolvable": 0,
+      "gold_p2p_skipped_unresolvable": 11,
+      "gold_f2p_note": " | OK (skipped=1)",
+      "gold_p2p_note": " | FAILED (errors=1, skipped=5)",
+      "gold_success": false,
+      "valid": false
+    },
+    "django__django-17029": {
+      "instance_id": "django__django-17029",
+      "pre_f2p_fails": true,
+      "pre_note": " | FAILED (failures=1)",
+      "gold_patch_applied": true,
+      "gold_f2p_pass": true,
+      "gold_p2p_pass": false,
+      "gold_p2p_checked": 17,
+      "gold_f2p_skipped_unresolvable": 0,
+      "gold_p2p_skipped_unresolvable": 26,
+      "gold_f2p_note": " | OK",
+      "gold_p2p_note": " | FAILED (errors=4)",
+      "gold_success": false,
+      "valid": false
+    },
+    "django__django-16569": {
+      "instance_id": "django__django-16569",
+      "pre_f2p_fails": true,
+      "pre_note": " | FAILED (errors=1, skipped=1)",
+      "gold_patch_applied": true,
+      "gold_f2p_pass": true,
+      "gold_p2p_pass": false,
+      "gold_p2p_checked": 40,
+      "gold_f2p_skipped_unresolvable": 0,
+      "gold_p2p_skipped_unresolvable": 38,
+      "gold_f2p_note": " | OK (skipped=1)",
+      "gold_p2p_note": " | FAILED (errors=9, skipped=10)",
+      "gold_success": false,
+      "valid": false
+    },
+    "django__django-16642": {
+      "instance_id": "django__django-16642",
+      "pre_f2p_fails": false,
+      "pre_note": "no tests",
+      "gold_patch_applied": true,
+      "gold_f2p_pass": true,
+      "gold_p2p_pass": true,
+      "gold_p2p_checked": 20,
+      "gold_f2p_skipped_unresolvable": 1,
+      "gold_p2p_skipped_unresolvable": 1,
+      "gold_f2p_note": "no tests",
+      "gold_p2p_note": " | OK",
+      "gold_success": true,
+      "valid": false
+    },
+    "django__django-16950": {
+      "instance_id": "django__django-16950",
+      "pre_f2p_fails": false,
+      "pre_note": "no tests",
+      "gold_patch_applied": true,
+      "gold_f2p_pass": true,
+      "gold_p2p_pass": true,
+      "gold_p2p_checked": 0,
+      "gold_f2p_skipped_unresolvable": 1,
+      "gold_p2p_skipped_unresolvable": 3,
+      "gold_f2p_note": "no tests",
+      "gold_p2p_note": "no tests",
+      "gold_success": true,
+      "valid": false
+    },
+    "django__django-16454": {
+      "instance_id": "django__django-16454",
+      "pre_f2p_fails": true,
+      "pre_note": " | FAILED (failures=1)",
+      "gold_patch_applied": true,
+      "gold_f2p_pass": true,
+      "gold_p2p_pass": false,
+      "gold_p2p_checked": 36,
+      "gold_f2p_skipped_unresolvable": 0,
+      "gold_p2p_skipped_unresolvable": 9,
+      "gold_f2p_note": " | OK",
+      "gold_p2p_note": " | FAILED (errors=1)",
+      "gold_success": false,
+      "valid": false
+    },
+    "django__django-16631": {
+      "instance_id": "django__django-16631",
+      "pre_f2p_fails": true,
+      "pre_note": " | FAILED (failures=1)",
+      "gold_patch_applied": true,
+      "gold_f2p_pass": true,
+      "gold_p2p_pass": false,
+      "gold_p2p_checked": 5,
+      "gold_f2p_skipped_unresolvable": 0,
+      "gold_p2p_skipped_unresolvable": 7,
+      "gold_f2p_note": " | OK",
+      "gold_p2p_note": " | FAILED (errors=1)",
+      "gold_success": false,
+      "valid": false
+    },
+    "django__django-16899": {
+      "instance_id": "django__django-16899",
+      "pre_f2p_fails": true,
+      "pre_note": " | FAILED (failures=2)",
+      "gold_patch_applied": true,
+      "gold_f2p_pass": true,
+      "gold_p2p_pass": false,
+      "gold_p2p_checked": 39,
+      "gold_f2p_skipped_unresolvable": 0,
+      "gold_p2p_skipped_unresolvable": 15,
+      "gold_f2p_note": " | OK",
+      "gold_p2p_note": " | FAILED (errors=3)",
+      "gold_success": false,
+      "valid": false
+    }
+  },
+  "code_commit": "19d7e0f7c835538995bbde6d29fef0bdb8d65f34"
+}
