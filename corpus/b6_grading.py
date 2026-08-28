@@ -58,6 +58,30 @@ def run_tests(wt: str, labels, *, timeout=600):
     return p.returncode == 0, " | ".join(t.strip() for t in tail)[:200]
 
 
+def reset_test_files(wt: str, test_patch: str):
+    """SWE-bench convention: the OFFICIAL test_patch defines grading; agent edits to the files it
+    touches are grading-irrelevant and — worse — make the patch fail to apply (observed live: the
+    agent adds its own regression test to the same file). Reset those files to the worktree's base
+    commit (HEAD — worktrees are detached at base_commit) before applying test_patch. Agent-created
+    files that test_patch also creates are deleted for the same reason.
+    Returns (files_in_patch, files_that_had_agent_edits)."""
+    files = re.findall(r"^diff --git a/(\S+)", test_patch, re.M)
+    touched = []
+    for f in files:
+        st = subprocess.run(["git", "-C", wt, "status", "--porcelain", "--", f],
+                            capture_output=True, text=True).stdout.strip()
+        if not st:
+            continue
+        touched.append(f)
+        if st.startswith("??"):                      # agent-created; base has no such file
+            p = os.path.join(wt, f)
+            if os.path.exists(p):
+                os.remove(p)
+        else:
+            subprocess.run(["git", "-C", wt, "checkout", "HEAD", "--", f], capture_output=True)
+    return files, touched
+
+
 def resolvable(names):
     """SWE-bench data quirk: some entries are BARE DOCSTRINGS with no test id at all — unresolvable
     from the string. Grade on the resolvable ones and report how many were skipped."""

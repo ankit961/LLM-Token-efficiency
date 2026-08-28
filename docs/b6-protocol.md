@@ -1,7 +1,13 @@
 # B6 — Integrated Admission + Lifetime live A/B: preregistered protocol
 
-**Status: PREREGISTERED, NOT YET RUN. No quota is spent until the budget line below is explicitly
-approved.** This is the experiment that converts "~40–55% measured counterfactual opportunity" into a
+> **Status update (2026-08-28): RUN COMPLETE on the subscription (user-approved, "use membership").
+> 24/24 sessions; results and analysis in `docs/b6-findings.md`; frozen artifacts
+> `corpus/analysis/b6-live-results.json` + `corpus/analysis/b6-gw-logs/`. One mid-run repair
+> (grading test-file reset, `corpus/b6_grading.reset_test_files`) is documented there; the
+> endpoints, gates, and thresholds below were not changed after the first paid run.**
+
+**Original preregistration follows, frozen as written. No quota is spent until the budget line
+below is explicitly approved.** This is the experiment that converts "~40–55% measured counterfactual opportunity" into a
 live, graded, end-to-end number — or fails to. Everything here is frozen before the first paid run.
 
 ## Question
