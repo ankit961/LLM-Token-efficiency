@@ -1,0 +1,76 @@
+{"turn": 0, "mode": "enforce", "n_objects": 0, "n_retirable": 0, "tokens_retirable": 0, "is_batch_boundary": false, "applied": 0, "thinking_strippable": 0, "thinking_sig_bytes": 0, "thinking_stripped": 0}
+{"response_usage": {"input_tokens": 1481, "cache_read_input_tokens": 0, "cache_creation_input_tokens": 0, "output_tokens": 20}, "upstream_status": 200}
+{"turn": 0, "mode": "enforce", "n_objects": 0, "n_retirable": 0, "tokens_retirable": 0, "is_batch_boundary": false, "applied": 0, "thinking_strippable": 0, "thinking_sig_bytes": 0, "thinking_stripped": 0}
+{"response_usage": {"input_tokens": 2, "cache_read_input_tokens": 8675, "cache_creation_input_tokens": 10117, "output_tokens": 130}, "upstream_status": 200}
+{"turn": 1, "mode": "enforce", "n_objects": 1, "n_retirable": 0, "tokens_retirable": 0, "is_batch_boundary": false, "applied": 0, "thinking_strippable": 0, "thinking_sig_bytes": 0, "thinking_stripped": 0}
+{"response_usage": {"input_tokens": 2, "cache_read_input_tokens": 18792, "cache_creation_input_tokens": 448, "output_tokens": 148}, "upstream_status": 200}
+{"turn": 2, "mode": "enforce", "n_objects": 2, "n_retirable": 0, "tokens_retirable": 0, "is_batch_boundary": false, "applied": 0, "thinking_strippable": 1, "thinking_sig_bytes": 460, "thinking_stripped": 1}
+{"response_usage": {"input_tokens": 2, "cache_read_input_tokens": 18792, "cache_creation_input_tokens": 4202, "output_tokens": 382}, "upstream_status": 200}
+{"turn": 3, "mode": "enforce", "n_objects": 3, "n_retirable": 0, "tokens_retirable": 0, "is_batch_boundary": false, "applied": 0, "thinking_strippable": 1, "thinking_sig_bytes": 460, "thinking_stripped": 1}
+{"response_usage": {"input_tokens": 2, "cache_read_input_tokens": 22994, "cache_creation_input_tokens": 640, "output_tokens": 128}, "upstream_status": 200}
+{"turn": 4, "mode": "enforce", "n_objects": 4, "n_retirable": 0, "tokens_retirable": 0, "is_batch_boundary": false, "applied": 0, "thinking_strippable": 2, "thinking_sig_bytes": 1808, "thinking_stripped": 2}
+{"response_usage": {"input_tokens": 2, "cache_read_input_tokens": 22994, "cache_creation_input_tokens": 816, "output_tokens": 468}, "upstream_status": 200}
+{"turn": 5, "mode": "enforce", "n_objects": 5, "n_retirable": 1, "tokens_retirable": 2420, "is_batch_boundary": false, "applied": 0, "thinking_strippable": 3, "thinking_sig_bytes": 2292, "thinking_stripped": 3}
+{"response_usage": {"input_tokens": 2, "cache_read_input_tokens": 22994, "cache_creation_input_tokens": 1458, "output_tokens": 551}, "upstream_status": 200}
+{"turn": 6, "mode": "enforce", "n_objects": 6, "n_retirable": 2, "tokens_retirable": 2565, "is_batch_boundary": false, "applied": 0, "thinking_strippable": 3, "thinking_sig_bytes": 2292, "thinking_stripped": 3}
+{"response_usage": {"input_tokens": 2, "cache_read_input_tokens": 24452, "cache_creation_input_tokens": 959, "output_tokens": 341}, "upstream_status": 200}
+{"turn": 7, "mode": "enforce", "n_objects": 7, "n_retirable": 2, "tokens_retirable": 2565, "is_batch_boundary": false, "applied": 0, "thinking_strippable": 4, "thinking_sig_bytes": 4028, "thinking_stripped": 4}
+{"response_usage": {"input_tokens": 2, "cache_read_input_tokens": 24452, "cache_creation_input_tokens": 948, "output_tokens": 172}, "upstream_status": 200}
+{"turn": 8, "mode": "enforce", "n_objects": 8, "n_retirable": 3, "tokens_retirable": 2731, "is_batch_boundary": false, "applied": 0, "thinking_strippable": 5, "thinking_sig_bytes": 4964, "thinking_stripped": 5}
+{"response_usage": {"input_tokens": 2, "cache_read_input_tokens": 24452, "cache_creation_input_tokens": 1282, "output_tokens": 174}, "upstream_status": 200}
+{"turn": 9, "mode": "enforce", "n_objects": 9, "n_retirable": 4, "tokens_retirable": 2987, "is_batch_boundary": false, "applied": 0, "thinking_strippable": 5, "thinking_sig_bytes": 4964, "thinking_stripped": 5}
+{"response_usage": {"input_tokens": 2, "cache_read_input_tokens": 25734, "cache_creation_input_tokens": 392, "output_tokens": 187}, "upstream_status": 200}
+{"turn": 10, "mode": "enforce", "n_objects": 10, "n_retirable": 5, "tokens_retirable": 3058, "is_batch_boundary": true, "applied": 5, "thinking_strippable": 5, "thinking_sig_bytes": 4964, "thinking_stripped": 5}
+{"response_usage": {"input_tokens": 2, "cache_read_input_tokens": 17769, "cache_creation_input_tokens": 4848, "output_tokens": 197}, "upstream_status": 200}
+{"turn": 11, "mode": "enforce", "n_objects": 11, "n_retirable": 6, "tokens_retirable": 3344, "is_batch_boundary": false, "applied": 0, "thinking_strippable": 6, "thinking_sig_bytes": 5416, "thinking_stripped": 6}
+{"response_usage": {"input_tokens": 2, "cache_read_input_tokens": 26126, "cache_creation_input_tokens": 1062, "output_tokens": 120}, "upstream_status": 200}
+{"turn": 12, "mode": "enforce", "n_objects": 12, "n_retirable": 7, "tokens_retirable": 3361, "is_batch_boundary": false, "applied": 0, "thinking_strippable": 7, "thinking_sig_bytes": 5844, "thinking_stripped": 7}
+{"response_usage": {"input_tokens": 2, "cache_read_input_tokens": 26126, "cache_creation_input_tokens": 1290, "output_tokens": 180}, "upstream_status": 200}
+{"turn": 13, "mode": "enforce", "n_objects": 13, "n_retirable": 8, "tokens_retirable": 3561, "is_batch_boundary": false, "applied": 0, "thinking_strippable": 7, "thinking_sig_bytes": 5844, "thinking_stripped": 7}
+{"response_usage": {"input_tokens": 2, "cache_read_input_tokens": 27416, "cache_creation_input_tokens": 491, "output_tokens": 190}, "upstream_status": 200}
+{"turn": 14, "mode": "enforce", "n_objects": 14, "n_retirable": 9, "tokens_retirable": 3684, "is_batch_boundary": false, "applied": 0, "thinking_strippable": 7, "thinking_sig_bytes": 5844, "thinking_stripped": 7}
+{"response_usage": {"input_tokens": 2, "cache_read_input_tokens": 27907, "cache_creation_input_tokens": 671, "output_tokens": 186}, "upstream_status": 200}
+{"turn": 15, "mode": "enforce", "n_objects": 15, "n_retirable": 10, "tokens_retirable": 3944, "is_batch_boundary": false, "applied": 0, "thinking_strippable": 7, "thinking_sig_bytes": 5844, "thinking_stripped": 7}
+{"response_usage": {"input_tokens": 2, "cache_read_input_tokens": 28578, "cache_creation_input_tokens": 373, "output_tokens": 149}, "upstream_status": 200}
+{"turn": 16, "mode": "enforce", "n_objects": 16, "n_retirable": 11, "tokens_retirable": 4164, "is_batch_boundary": false, "applied": 0, "thinking_strippable": 7, "thinking_sig_bytes": 5844, "thinking_stripped": 7}
+{"response_usage": {"input_tokens": 2, "cache_read_input_tokens": 28951, "cache_creation_input_tokens": 2369, "output_tokens": 236}, "upstream_status": 200}
+{"turn": 17, "mode": "enforce", "n_objects": 17, "n_retirable": 12, "tokens_retirable": 4203, "is_batch_boundary": false, "applied": 0, "thinking_strippable": 7, "thinking_sig_bytes": 5844, "thinking_stripped": 7}
+{"response_usage": {"input_tokens": 2, "cache_read_input_tokens": 31320, "cache_creation_input_tokens": 1344, "output_tokens": 189}, "upstream_status": 200}
+{"turn": 18, "mode": "enforce", "n_objects": 18, "n_retirable": 13, "tokens_retirable": 4403, "is_batch_boundary": false, "applied": 0, "thinking_strippable": 7, "thinking_sig_bytes": 5844, "thinking_stripped": 7}
+{"response_usage": {"input_tokens": 2, "cache_read_input_tokens": 32664, "cache_creation_input_tokens": 4040, "output_tokens": 556}, "upstream_status": 200}
+{"turn": 19, "mode": "enforce", "n_objects": 19, "n_retirable": 15, "tokens_retirable": 7356, "is_batch_boundary": false, "applied": 0, "thinking_strippable": 7, "thinking_sig_bytes": 5844, "thinking_stripped": 7}
+{"response_usage": {"input_tokens": 2, "cache_read_input_tokens": 36704, "cache_creation_input_tokens": 758, "output_tokens": 190}, "upstream_status": 200}
+{"turn": 20, "mode": "enforce", "n_objects": 20, "n_retirable": 16, "tokens_retirable": 7416, "is_batch_boundary": true, "applied": 16, "thinking_strippable": 7, "thinking_sig_bytes": 5844, "thinking_stripped": 7}
+{"response_usage": {"input_tokens": 2, "cache_read_input_tokens": 17769, "cache_creation_input_tokens": 12355, "output_tokens": 281}, "upstream_status": 200}
+{"turn": 21, "mode": "enforce", "n_objects": 21, "n_retirable": 17, "tokens_retirable": 8841, "is_batch_boundary": false, "applied": 0, "thinking_strippable": 7, "thinking_sig_bytes": 5844, "thinking_stripped": 7}
+{"response_usage": {"input_tokens": 2, "cache_read_input_tokens": 37462, "cache_creation_input_tokens": 3424, "output_tokens": 286}, "upstream_status": 200}
+{"turn": 22, "mode": "enforce", "n_objects": 22, "n_retirable": 18, "tokens_retirable": 9507, "is_batch_boundary": false, "applied": 0, "thinking_strippable": 7, "thinking_sig_bytes": 5844, "thinking_stripped": 7}
+{"response_usage": {"input_tokens": 2, "cache_read_input_tokens": 40886, "cache_creation_input_tokens": 876, "output_tokens": 450}, "upstream_status": 200}
+{"turn": 23, "mode": "enforce", "n_objects": 23, "n_retirable": 18, "tokens_retirable": 9507, "is_batch_boundary": false, "applied": 0, "thinking_strippable": 8, "thinking_sig_bytes": 6428, "thinking_stripped": 8}
+{"response_usage": {"input_tokens": 2, "cache_read_input_tokens": 40886, "cache_creation_input_tokens": 1360, "output_tokens": 761}, "upstream_status": 200}
+{"turn": 24, "mode": "enforce", "n_objects": 24, "n_retirable": 19, "tokens_retirable": 9576, "is_batch_boundary": false, "applied": 0, "thinking_strippable": 9, "thinking_sig_bytes": 8484, "thinking_stripped": 9}
+{"response_usage": {"input_tokens": 2, "cache_read_input_tokens": 40886, "cache_creation_input_tokens": 1929, "output_tokens": 123}, "upstream_status": 200}
+{"turn": 25, "mode": "enforce", "n_objects": 25, "n_retirable": 20, "tokens_retirable": 11035, "is_batch_boundary": false, "applied": 0, "thinking_strippable": 10, "thinking_sig_bytes": 9216, "thinking_stripped": 10}
+{"response_usage": {"input_tokens": 2, "cache_read_input_tokens": 40886, "cache_creation_input_tokens": 2552, "output_tokens": 218}, "upstream_status": 200}
+{"turn": 26, "mode": "enforce", "n_objects": 26, "n_retirable": 21, "tokens_retirable": 11455, "is_batch_boundary": false, "applied": 0, "thinking_strippable": 10, "thinking_sig_bytes": 9216, "thinking_stripped": 10}
+{"response_usage": {"input_tokens": 2, "cache_read_input_tokens": 43438, "cache_creation_input_tokens": 884, "output_tokens": 162}, "upstream_status": 200}
+{"turn": 27, "mode": "enforce", "n_objects": 27, "n_retirable": 22, "tokens_retirable": 11792, "is_batch_boundary": false, "applied": 0, "thinking_strippable": 10, "thinking_sig_bytes": 9216, "thinking_stripped": 10}
+{"response_usage": {"input_tokens": 2, "cache_read_input_tokens": 44322, "cache_creation_input_tokens": 564, "output_tokens": 83}, "upstream_status": 200}
+{"turn": 28, "mode": "enforce", "n_objects": 28, "n_retirable": 23, "tokens_retirable": 11805, "is_batch_boundary": false, "applied": 0, "thinking_strippable": 10, "thinking_sig_bytes": 9216, "thinking_stripped": 10}
+{"response_usage": {"input_tokens": 2, "cache_read_input_tokens": 44886, "cache_creation_input_tokens": 1167, "output_tokens": 217}, "upstream_status": 200}
+{"turn": 29, "mode": "enforce", "n_objects": 29, "n_retirable": 24, "tokens_retirable": 11874, "is_batch_boundary": false, "applied": 0, "thinking_strippable": 10, "thinking_sig_bytes": 9216, "thinking_stripped": 10}
+{"response_usage": {"input_tokens": 2, "cache_read_input_tokens": 46053, "cache_creation_input_tokens": 283, "output_tokens": 266}, "upstream_status": 200}
+{"turn": 30, "mode": "enforce", "n_objects": 30, "n_retirable": 25, "tokens_retirable": 12211, "is_batch_boundary": true, "applied": 25, "thinking_strippable": 11, "thinking_sig_bytes": 9748, "thinking_stripped": 11}
+{"response_usage": {"input_tokens": 2, "cache_read_input_tokens": 17769, "cache_creation_input_tokens": 12345, "output_tokens": 528}, "upstream_status": 200}
+{"turn": 31, "mode": "enforce", "n_objects": 31, "n_retirable": 27, "tokens_retirable": 12657, "is_batch_boundary": false, "applied": 0, "thinking_strippable": 11, "thinking_sig_bytes": 9748, "thinking_stripped": 11}
+{"response_usage": {"input_tokens": 2, "cache_read_input_tokens": 46053, "cache_creation_input_tokens": 1416, "output_tokens": 218}, "upstream_status": 200}
+{"turn": 32, "mode": "enforce", "n_objects": 32, "n_retirable": 28, "tokens_retirable": 12904, "is_batch_boundary": false, "applied": 0, "thinking_strippable": 12, "thinking_sig_bytes": 11048, "thinking_stripped": 12}
+{"response_usage": {"input_tokens": 2, "cache_read_input_tokens": 46053, "cache_creation_input_tokens": 1575, "output_tokens": 85}, "upstream_status": 200}
+{"turn": 33, "mode": "enforce", "n_objects": 33, "n_retirable": 29, "tokens_retirable": 13485, "is_batch_boundary": false, "applied": 0, "thinking_strippable": 12, "thinking_sig_bytes": 11048, "thinking_stripped": 12}
+{"response_usage": {"input_tokens": 2, "cache_read_input_tokens": 47628, "cache_creation_input_tokens": 311, "output_tokens": 347}, "upstream_status": 200}
+{"turn": 34, "mode": "enforce", "n_objects": 34, "n_retirable": 30, "tokens_retirable": 13492, "is_batch_boundary": false, "applied": 0, "thinking_strippable": 12, "thinking_sig_bytes": 11048, "thinking_stripped": 12}
+{"response_usage": {"input_tokens": 2, "cache_read_input_tokens": 47939, "cache_creation_input_tokens": 843, "output_tokens": 194}, "upstream_status": 200}
+{"turn": 35, "mode": "enforce", "n_objects": 35, "n_retirable": 30, "tokens_retirable": 13492, "is_batch_boundary": false, "applied": 0, "thinking_strippable": 12, "thinking_sig_bytes": 11048, "thinking_stripped": 12}
+{"response_usage": {"input_tokens": 2, "cache_read_input_tokens": 48782, "cache_creation_input_tokens": 184, "output_tokens": 166}, "upstream_status": 200}
+{"turn": 0, "mode": "enforce", "n_objects": 0, "n_retirable": 0, "tokens_retirable": 0, "is_batch_boundary": false, "applied": 0, "thinking_strippable": 0, "thinking_sig_bytes": 0, "thinking_stripped": 0}
+{"response_usage": {"input_tokens": 852, "cache_read_input_tokens": 6235, "cache_creation_input_tokens": 0, "output_tokens": 117}, "upstream_status": 200}

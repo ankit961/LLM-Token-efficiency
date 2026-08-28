@@ -32,7 +32,7 @@ import subprocess
 import sys
 import time
 
-from corpus.b6_grading import apply_patch, grade
+from corpus.b6_grading import apply_patch, grade, reset_test_files
 
 # Admission: never used in ANY headless arm of this program (doctor lean audit + B5 A-arms).
 # ScheduleWakeup and TodoWrite are deliberately KEPT (used in headless sessions).
@@ -182,7 +182,14 @@ def main(cfg_path):
                        "transcript": tp}
                 if tp:
                     rec["metrics"] = {k: v for k, v in transcript_metrics(tp).items() if k != "reads"}
-                # grading: apply test_patch to the EDITED tree, then run F2P + P2P
+                # grading: reset the OFFICIAL test files to base (agent edits to them are
+                # grading-irrelevant and break the apply — observed live), then apply test_patch
+                # to the edited tree and run F2P + P2P
+                rec["edited_files"] = subprocess.run(
+                    ["git", "-C", wt, "status", "--porcelain"],
+                    capture_output=True, text=True).stdout.strip().splitlines()
+                _, agent_touched = reset_test_files(wt, t["test_patch"])
+                rec["agent_edited_test_files"] = agent_touched
                 if not apply_patch(wt, t["test_patch"]):
                     rec["grade"] = {"test_patch_applied": False, "success": False}
                 else:
@@ -196,8 +203,7 @@ def main(cfg_path):
                 print(f"{t['instance_id']} {key}: calls={rec.get('metrics', {}).get('calls')} "
                       f"input={rec.get('metrics', {}).get('sum_input')} cost={rec['cost_usd']} "
                       f"success={rec['grade'].get('success')} gw={rec.get('gateway')}", flush=True)
-                subprocess.run(["git", "-C", cfg["mirror"], "worktree", "remove", "--force", wt],
-                               capture_output=True)
+                # worktrees are KEPT (disk is cheap) so any rep can be re-graded or inspected
     print("wrote", cfg["out"])
 
 

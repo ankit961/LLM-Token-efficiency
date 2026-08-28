@@ -1,0 +1,903 @@
+{
+  "tasks": {
+    "django__django-16485": {
+      "N0": {
+        "cost_usd": 0.453551,
+        "status": "success",
+        "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-b6-run-django--django-16485-N0/0e3d34c5-82fa-41f2-a1cc-b398d18996ed.jsonl",
+        "metrics": {
+          "calls": 16,
+          "sum_input": 772347,
+          "cache_read": 748460,
+          "cache_creation": 23855,
+          "output": 5672,
+          "peak_P": 53878
+        },
+        "grade": {
+          "patch_applied": true,
+          "f2p_pass": true,
+          "p2p_pass": true,
+          "p2p_checked": 8,
+          "f2p_skipped_unresolvable": 0,
+          "p2p_skipped_unresolvable": 1,
+          "f2p_note": " | OK",
+          "p2p_note": " | OK",
+          "success": true,
+          "test_patch_applied": true
+        },
+        "edited_files": [
+          "M django/template/defaultfilters.py",
+          " M tests/template_tests/filter_tests/test_floatformat.py"
+        ],
+        "agent_edited_test_files": [
+          "tests/template_tests/filter_tests/test_floatformat.py"
+        ],
+        "salvaged_grading": "grading repaired post-hoc: 2 Edit/Write ops replayed from the transcript onto a fresh base worktree (no mutating Bash in session), official test files reset before test_patch"
+      },
+      "T0": {
+        "cost_usd": 0.5724741,
+        "status": "success",
+        "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-b6-run-django--django-16485-T0/1fd9688c-2ddd-41a4-aa1e-7f99add98a26.jsonl",
+        "metrics": {
+          "calls": 22,
+          "sum_input": 555383,
+          "cache_read": 501297,
+          "cache_creation": 54042,
+          "output": 6323,
+          "peak_P": 33110
+        },
+        "grade": {
+          "patch_applied": true,
+          "f2p_pass": true,
+          "p2p_pass": true,
+          "p2p_checked": 8,
+          "f2p_skipped_unresolvable": 0,
+          "p2p_skipped_unresolvable": 1,
+          "f2p_note": " | OK",
+          "p2p_note": " | OK",
+          "success": true,
+          "test_patch_applied": true
+        },
+        "gateway": {
+          "tool_results_retired": 23,
+          "thinking_blocks_stripped": 91,
+          "fallback_original": 0
+        },
+        "edited_files": [
+          "M django/template/defaultfilters.py",
+          " M tests/template_tests/filter_tests/test_floatformat.py"
+        ],
+        "agent_edited_test_files": [
+          "tests/template_tests/filter_tests/test_floatformat.py"
+        ],
+        "salvaged_grading": "grading repaired post-hoc: 3 Edit/Write ops replayed from the transcript onto a fresh base worktree (no mutating Bash in session), official test files reset before test_patch"
+      },
+      "N1": {
+        "cost_usd": 0.42201459999999996,
+        "status": "success",
+        "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-b6-run-django--django-16485-N1/66b1f8a7-adf1-4fce-acf7-f7e8fd23733d.jsonl",
+        "metrics": {
+          "calls": 16,
+          "sum_input": 758327,
+          "cache_read": 736612,
+          "cache_creation": 21683,
+          "output": 4675,
+          "peak_P": 51706
+        },
+        "edited_files": [
+          "M django/template/defaultfilters.py",
+          " M tests/template_tests/filter_tests/test_floatformat.py",
+          "?? default_1.sqlite3",
+          "?? default_2.sqlite3",
+          "?? other_1.sqlite3",
+          "?? other_2.sqlite3"
+        ],
+        "agent_edited_test_files": [
+          "tests/template_tests/filter_tests/test_floatformat.py"
+        ],
+        "grade": {
+          "patch_applied": true,
+          "f2p_pass": true,
+          "p2p_pass": true,
+          "p2p_checked": 8,
+          "f2p_skipped_unresolvable": 0,
+          "p2p_skipped_unresolvable": 1,
+          "f2p_note": " | OK",
+          "p2p_note": " | OK",
+          "success": true,
+          "test_patch_applied": true
+        }
+      },
+      "T1": {
+        "cost_usd": 0.5368508999999999,
+        "status": "success",
+        "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-b6-run-django--django-16485-T1/ec7c3fd0-c60c-4b75-aceb-dfb7c14ede80.jsonl",
+        "metrics": {
+          "calls": 23,
+          "sum_input": 590632,
+          "cache_read": 546613,
+          "cache_creation": 43973,
+          "output": 7069,
+          "peak_P": 34175
+        },
+        "edited_files": [
+          "M django/template/defaultfilters.py",
+          " M tests/template_tests/filter_tests/test_floatformat.py",
+          "?? default_1.sqlite3",
+          "?? default_2.sqlite3",
+          "?? other_1.sqlite3",
+          "?? other_2.sqlite3"
+        ],
+        "agent_edited_test_files": [
+          "tests/template_tests/filter_tests/test_floatformat.py"
+        ],
+        "grade": {
+          "patch_applied": true,
+          "f2p_pass": true,
+          "p2p_pass": true,
+          "p2p_checked": 8,
+          "f2p_skipped_unresolvable": 0,
+          "p2p_skipped_unresolvable": 1,
+          "f2p_note": " | OK",
+          "p2p_note": " | OK",
+          "success": true,
+          "test_patch_applied": true
+        },
+        "gateway": {
+          "tool_results_retired": 22,
+          "thinking_blocks_stripped": 86,
+          "fallback_original": 0
+        }
+      },
+      "N2": {
+        "cost_usd": 0.6491323000000002,
+        "status": "success",
+        "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-b6-run-django--django-16485-N2/5e81cffc-1e5a-44e2-b674-fc819be723f8.jsonl",
+        "metrics": {
+          "calls": 25,
+          "sum_input": 1241551,
+          "cache_read": 1214151,
+          "cache_creation": 27350,
+          "output": 7995,
+          "peak_P": 57373
+        },
+        "edited_files": [
+          "M django/template/defaultfilters.py",
+          " M tests/template_tests/filter_tests/test_floatformat.py",
+          "?? default_1.sqlite3",
+          "?? default_2.sqlite3",
+          "?? default_3.sqlite3",
+          "?? default_4.sqlite3",
+          "?? default_5.sqlite3",
+          "?? default_6.sqlite3",
+          "?? default_7.sqlite3",
+          "?? default_8.sqlite3",
+          "?? other_1.sqlite3",
+          "?? other_2.sqlite3",
+          "?? other_3.sqlite3",
+          "?? other_4.sqlite3",
+          "?? other_5.sqlite3",
+          "?? other_6.sqlite3",
+          "?? other_7.sqlite3",
+          "?? other_8.sqlite3"
+        ],
+        "agent_edited_test_files": [
+          "tests/template_tests/filter_tests/test_floatformat.py"
+        ],
+        "grade": {
+          "patch_applied": true,
+          "f2p_pass": true,
+          "p2p_pass": true,
+          "p2p_checked": 8,
+          "f2p_skipped_unresolvable": 0,
+          "p2p_skipped_unresolvable": 1,
+          "f2p_note": " | OK",
+          "p2p_note": " | OK",
+          "success": true,
+          "test_patch_applied": true
+        }
+      },
+      "T2": {
+        "cost_usd": 0.4969352999999999,
+        "status": "success",
+        "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-b6-run-django--django-16485-T2/698bec39-e3e3-4de5-a158-c297096c37d8.jsonl",
+        "metrics": {
+          "calls": 22,
+          "sum_input": 536326,
+          "cache_read": 494971,
+          "cache_creation": 41311,
+          "output": 6504,
+          "peak_P": 30591
+        },
+        "edited_files": [
+          "M django/template/defaultfilters.py",
+          " M tests/template_tests/filter_tests/test_floatformat.py",
+          "?? default_1.sqlite3",
+          "?? default_2.sqlite3",
+          "?? default_3.sqlite3",
+          "?? default_4.sqlite3",
+          "?? default_5.sqlite3",
+          "?? default_6.sqlite3",
+          "?? default_7.sqlite3",
+          "?? default_8.sqlite3",
+          "?? other_1.sqlite3",
+          "?? other_2.sqlite3",
+          "?? other_3.sqlite3",
+          "?? other_4.sqlite3",
+          "?? other_5.sqlite3",
+          "?? other_6.sqlite3",
+          "?? other_7.sqlite3",
+          "?? other_8.sqlite3"
+        ],
+        "agent_edited_test_files": [
+          "tests/template_tests/filter_tests/test_floatformat.py"
+        ],
+        "grade": {
+          "patch_applied": true,
+          "f2p_pass": true,
+          "p2p_pass": true,
+          "p2p_checked": 8,
+          "f2p_skipped_unresolvable": 0,
+          "p2p_skipped_unresolvable": 1,
+          "f2p_note": " | OK",
+          "p2p_note": " | OK",
+          "success": true,
+          "test_patch_applied": true
+        },
+        "gateway": {
+          "tool_results_retired": 21,
+          "thinking_blocks_stripped": 83,
+          "fallback_original": 0
+        }
+      }
+    },
+    "django__django-16502": {
+      "N0": {
+        "cost_usd": 0.6044816000000001,
+        "status": "success",
+        "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-b6-run-django--django-16502-N0/75de6c03-ff19-4fb2-be9a-a8b4884b3ed2.jsonl",
+        "metrics": {
+          "calls": 24,
+          "sum_input": 1257263,
+          "cache_read": 1228162,
+          "cache_creation": 29053,
+          "output": 4026,
+          "peak_P": 59076
+        },
+        "edited_files": [
+          "M django/core/servers/basehttp.py",
+          " M tests/servers/test_basehttp.py",
+          "?? other_1.sqlite3",
+          "?? other_2.sqlite3",
+          "?? other_3.sqlite3",
+          "?? other_4.sqlite3",
+          "?? other_5.sqlite3",
+          "?? other_6.sqlite3",
+          "?? other_7.sqlite3",
+          "?? other_8.sqlite3"
+        ],
+        "agent_edited_test_files": [
+          "tests/servers/test_basehttp.py"
+        ],
+        "grade": {
+          "patch_applied": true,
+          "f2p_pass": true,
+          "p2p_pass": true,
+          "p2p_checked": 2,
+          "f2p_skipped_unresolvable": 0,
+          "p2p_skipped_unresolvable": 2,
+          "f2p_note": " | OK",
+          "p2p_note": " | OK",
+          "success": true,
+          "test_patch_applied": true
+        }
+      },
+      "T0": {
+        "cost_usd": 0.6933875999999999,
+        "status": "success",
+        "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-b6-run-django--django-16502-T0/324f2efc-5fdb-4013-a79c-d75f5ebbac24.jsonl",
+        "metrics": {
+          "calls": 26,
+          "sum_input": 772348,
+          "cache_read": 710582,
+          "cache_creation": 61714,
+          "output": 7002,
+          "peak_P": 41282
+        },
+        "edited_files": [
+          "M django/core/servers/basehttp.py",
+          " M tests/servers/test_basehttp.py",
+          "?? default_3.sqlite3",
+          "?? other_1.sqlite3",
+          "?? other_2.sqlite3",
+          "?? other_3.sqlite3",
+          "?? other_4.sqlite3",
+          "?? other_5.sqlite3",
+          "?? other_6.sqlite3",
+          "?? other_7.sqlite3",
+          "?? other_8.sqlite3"
+        ],
+        "agent_edited_test_files": [
+          "tests/servers/test_basehttp.py"
+        ],
+        "grade": {
+          "patch_applied": true,
+          "f2p_pass": false,
+          "p2p_pass": true,
+          "p2p_checked": 2,
+          "f2p_skipped_unresolvable": 0,
+          "p2p_skipped_unresolvable": 2,
+          "f2p_note": " | FAILED (failures=1)",
+          "p2p_note": " | OK",
+          "success": false,
+          "test_patch_applied": true
+        },
+        "gateway": {
+          "tool_results_retired": 21,
+          "thinking_blocks_stripped": 96,
+          "fallback_original": 0
+        }
+      },
+      "N1": {
+        "cost_usd": 0.4842829,
+        "status": "success",
+        "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-b6-run-django--django-16502-N1/4dc175fe-36ff-4d91-9c3a-2e8a8eb7044b.jsonl",
+        "metrics": {
+          "calls": 17,
+          "sum_input": 842570,
+          "cache_read": 817373,
+          "cache_creation": 25163,
+          "output": 5787,
+          "peak_P": 55186
+        },
+        "edited_files": [
+          "M django/core/servers/basehttp.py",
+          " M tests/servers/test_basehttp.py",
+          "?? other_1.sqlite3",
+          "?? other_2.sqlite3",
+          "?? other_3.sqlite3",
+          "?? other_4.sqlite3",
+          "?? other_5.sqlite3",
+          "?? other_6.sqlite3",
+          "?? other_7.sqlite3",
+          "?? other_8.sqlite3"
+        ],
+        "agent_edited_test_files": [
+          "tests/servers/test_basehttp.py"
+        ],
+        "grade": {
+          "patch_applied": true,
+          "f2p_pass": false,
+          "p2p_pass": true,
+          "p2p_checked": 2,
+          "f2p_skipped_unresolvable": 0,
+          "p2p_skipped_unresolvable": 2,
+          "f2p_note": " | FAILED (failures=1)",
+          "p2p_note": " | OK",
+          "success": false,
+          "test_patch_applied": true
+        }
+      },
+      "T1": {
+        "cost_usd": 1.3350998999999995,
+        "status": "success",
+        "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-b6-run-django--django-16502-T1/47a88188-e7c0-4f9a-899c-5164ca54f136.jsonl",
+        "metrics": {
+          "calls": 43,
+          "sum_input": 1415981,
+          "cache_read": 1297223,
+          "cache_creation": 118672,
+          "output": 15260,
+          "peak_P": 48775
+        },
+        "edited_files": [
+          "M django/core/servers/basehttp.py",
+          " M tests/servers/test_basehttp.py"
+        ],
+        "agent_edited_test_files": [
+          "tests/servers/test_basehttp.py"
+        ],
+        "grade": {
+          "patch_applied": true,
+          "f2p_pass": false,
+          "p2p_pass": true,
+          "p2p_checked": 2,
+          "f2p_skipped_unresolvable": 0,
+          "p2p_skipped_unresolvable": 2,
+          "f2p_note": " | FAILED (failures=1)",
+          "p2p_note": " | OK",
+          "success": false,
+          "test_patch_applied": true
+        },
+        "gateway": {
+          "tool_results_retired": 82,
+          "thinking_blocks_stripped": 464,
+          "fallback_original": 0
+        }
+      },
+      "N2": {
+        "cost_usd": 1.3285496000000003,
+        "status": "success",
+        "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-b6-run-django--django-16502-N2/faffcde1-c0b3-41a7-bec5-64c8b7ab028c.jsonl",
+        "metrics": {
+          "calls": 41,
+          "sum_input": 2653489,
+          "cache_read": 2598342,
+          "cache_creation": 55065,
+          "output": 14482,
+          "peak_P": 85088
+        },
+        "edited_files": [
+          "M django/core/servers/basehttp.py",
+          " M tests/servers/test_basehttp.py",
+          "?? default_1.sqlite3",
+          "?? default_2.sqlite3",
+          "?? other_1.sqlite3",
+          "?? other_2.sqlite3"
+        ],
+        "agent_edited_test_files": [
+          "tests/servers/test_basehttp.py"
+        ],
+        "grade": {
+          "patch_applied": true,
+          "f2p_pass": true,
+          "p2p_pass": true,
+          "p2p_checked": 2,
+          "f2p_skipped_unresolvable": 0,
+          "p2p_skipped_unresolvable": 2,
+          "f2p_note": " | OK",
+          "p2p_note": " | OK",
+          "success": true,
+          "test_patch_applied": true
+        }
+      },
+      "T2": {
+        "cost_usd": 0.9721770000000001,
+        "status": "success",
+        "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-b6-run-django--django-16502-T2/981b7487-f3f4-442f-9187-eb7dc1b6a789.jsonl",
+        "metrics": {
+          "calls": 36,
+          "sum_input": 1230238,
+          "cache_read": 1149590,
+          "cache_creation": 80576,
+          "output": 9259,
+          "peak_P": 48968
+        },
+        "edited_files": [
+          "M django/core/servers/basehttp.py",
+          " M tests/servers/tests.py"
+        ],
+        "agent_edited_test_files": [],
+        "grade": {
+          "patch_applied": true,
+          "f2p_pass": false,
+          "p2p_pass": true,
+          "p2p_checked": 2,
+          "f2p_skipped_unresolvable": 0,
+          "p2p_skipped_unresolvable": 2,
+          "f2p_note": " | FAILED (failures=1)",
+          "p2p_note": " | OK",
+          "success": false,
+          "test_patch_applied": true
+        },
+        "gateway": {
+          "tool_results_retired": 46,
+          "thinking_blocks_stripped": 249,
+          "fallback_original": 0
+        }
+      }
+    },
+    "django__django-16527": {
+      "N0": {
+        "cost_usd": 0.7852243,
+        "status": "success",
+        "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-b6-run-django--django-16527-N0/d7e8acac-18f8-4069-bc0b-ed9fd969593a.jsonl",
+        "metrics": {
+          "calls": 26,
+          "sum_input": 1431772,
+          "cache_read": 1391531,
+          "cache_creation": 40189,
+          "output": 8379,
+          "peak_P": 70212
+        },
+        "edited_files": [
+          "M django/contrib/admin/templatetags/admin_modify.py",
+          " M tests/admin_views/test_templatetags.py"
+        ],
+        "agent_edited_test_files": [
+          "tests/admin_views/test_templatetags.py"
+        ],
+        "grade": {
+          "patch_applied": true,
+          "f2p_pass": true,
+          "p2p_pass": true,
+          "p2p_checked": 3,
+          "f2p_skipped_unresolvable": 0,
+          "p2p_skipped_unresolvable": 3,
+          "f2p_note": " | OK",
+          "p2p_note": " | OK",
+          "success": true,
+          "test_patch_applied": true
+        }
+      },
+      "T0": {
+        "cost_usd": 0.6626183999999999,
+        "status": "success",
+        "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-b6-run-django--django-16527-T0/63eec7a3-c117-4143-b464-4a5a580374f9.jsonl",
+        "metrics": {
+          "calls": 26,
+          "sum_input": 737793,
+          "cache_read": 675258,
+          "cache_creation": 62483,
+          "output": 5460,
+          "peak_P": 41287
+        },
+        "edited_files": [
+          "M django/contrib/admin/templatetags/admin_modify.py",
+          " M tests/admin_views/test_templatetags.py"
+        ],
+        "agent_edited_test_files": [
+          "tests/admin_views/test_templatetags.py"
+        ],
+        "grade": {
+          "patch_applied": true,
+          "f2p_pass": true,
+          "p2p_pass": true,
+          "p2p_checked": 3,
+          "f2p_skipped_unresolvable": 0,
+          "p2p_skipped_unresolvable": 3,
+          "f2p_note": " | OK",
+          "p2p_note": " | OK",
+          "success": true,
+          "test_patch_applied": true
+        },
+        "gateway": {
+          "tool_results_retired": 21,
+          "thinking_blocks_stripped": 96,
+          "fallback_original": 0
+        }
+      },
+      "N1": {
+        "cost_usd": 0.6681977,
+        "status": "success",
+        "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-b6-run-django--django-16527-N1/9ab1aa81-e93e-498e-9e9e-90df001c6255.jsonl",
+        "metrics": {
+          "calls": 24,
+          "sum_input": 1271902,
+          "cache_read": 1235229,
+          "cache_creation": 36625,
+          "output": 5129,
+          "peak_P": 66648
+        },
+        "edited_files": [
+          "M django/contrib/admin/templatetags/admin_modify.py"
+        ],
+        "agent_edited_test_files": [],
+        "grade": {
+          "patch_applied": true,
+          "f2p_pass": true,
+          "p2p_pass": true,
+          "p2p_checked": 3,
+          "f2p_skipped_unresolvable": 0,
+          "p2p_skipped_unresolvable": 3,
+          "f2p_note": " | OK",
+          "p2p_note": " | OK",
+          "success": true,
+          "test_patch_applied": true
+        }
+      },
+      "T1": {
+        "cost_usd": 0.6276993,
+        "status": "success",
+        "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-b6-run-django--django-16527-T1/92256a78-bd00-4bf9-a269-d314ac75853e.jsonl",
+        "metrics": {
+          "calls": 30,
+          "sum_input": 823354,
+          "cache_read": 774481,
+          "cache_creation": 48813,
+          "output": 6614,
+          "peak_P": 37112
+        },
+        "edited_files": [
+          "M django/contrib/admin/templatetags/admin_modify.py",
+          " M tests/admin_views/tests.py"
+        ],
+        "agent_edited_test_files": [],
+        "grade": {
+          "patch_applied": true,
+          "f2p_pass": true,
+          "p2p_pass": true,
+          "p2p_checked": 3,
+          "f2p_skipped_unresolvable": 0,
+          "p2p_skipped_unresolvable": 3,
+          "f2p_note": " | OK",
+          "p2p_note": " | OK",
+          "success": true,
+          "test_patch_applied": true
+        },
+        "gateway": {
+          "tool_results_retired": 21,
+          "thinking_blocks_stripped": 155,
+          "fallback_original": 0
+        }
+      },
+      "N2": {
+        "cost_usd": 0.46958279999999997,
+        "status": "success",
+        "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-b6-run-django--django-16527-N2/6ba0f6f0-7b6e-4b03-87c1-7e52239e988d.jsonl",
+        "metrics": {
+          "calls": 19,
+          "sum_input": 902556,
+          "cache_read": 878006,
+          "cache_creation": 24512,
+          "output": 3880,
+          "peak_P": 54535
+        },
+        "edited_files": [
+          "M django/contrib/admin/templatetags/admin_modify.py"
+        ],
+        "agent_edited_test_files": [],
+        "grade": {
+          "patch_applied": true,
+          "f2p_pass": true,
+          "p2p_pass": true,
+          "p2p_checked": 3,
+          "f2p_skipped_unresolvable": 0,
+          "p2p_skipped_unresolvable": 3,
+          "f2p_note": " | OK",
+          "p2p_note": " | OK",
+          "success": true,
+          "test_patch_applied": true
+        }
+      },
+      "T2": {
+        "cost_usd": 0.3894945000000001,
+        "status": "success",
+        "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-b6-run-django--django-16527-T2/c885b7d3-30d3-457e-989a-07ba930b9f8c.jsonl",
+        "metrics": {
+          "calls": 20,
+          "sum_input": 493904,
+          "cache_read": 464045,
+          "cache_creation": 29819,
+          "output": 4544,
+          "peak_P": 31203
+        },
+        "edited_files": [
+          "M django/contrib/admin/templatetags/admin_modify.py",
+          "?? other_1.sqlite3",
+          "?? other_2.sqlite3",
+          "?? other_3.sqlite3",
+          "?? other_4.sqlite3",
+          "?? other_5.sqlite3",
+          "?? other_6.sqlite3",
+          "?? other_7.sqlite3",
+          "?? other_8.sqlite3"
+        ],
+        "agent_edited_test_files": [],
+        "grade": {
+          "patch_applied": true,
+          "f2p_pass": true,
+          "p2p_pass": true,
+          "p2p_checked": 3,
+          "f2p_skipped_unresolvable": 0,
+          "p2p_skipped_unresolvable": 3,
+          "f2p_note": " | OK",
+          "p2p_note": " | OK",
+          "success": true,
+          "test_patch_applied": true
+        },
+        "gateway": {
+          "tool_results_retired": 5,
+          "thinking_blocks_stripped": 30,
+          "fallback_original": 0
+        }
+      }
+    },
+    "django__django-16901": {
+      "N0": {
+        "cost_usd": 1.0308794,
+        "status": "success",
+        "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-b6-run-django--django-16901-N0/27815773-8060-42d5-b85b-bf5d7e909dea.jsonl",
+        "metrics": {
+          "calls": 36,
+          "sum_input": 2013393,
+          "cache_read": 1972848,
+          "cache_creation": 40473,
+          "output": 12999,
+          "peak_P": 70496
+        },
+        "edited_files": [
+          "M django/db/models/sql/where.py",
+          " M tests/xor_lookups/tests.py"
+        ],
+        "agent_edited_test_files": [
+          "tests/xor_lookups/tests.py"
+        ],
+        "grade": {
+          "patch_applied": true,
+          "f2p_pass": true,
+          "p2p_pass": true,
+          "p2p_checked": 6,
+          "f2p_skipped_unresolvable": 0,
+          "p2p_skipped_unresolvable": 0,
+          "f2p_note": " | OK",
+          "p2p_note": " | OK",
+          "success": true,
+          "test_patch_applied": true
+        }
+      },
+      "T0": {
+        "cost_usd": 0.4660385999999999,
+        "status": "success",
+        "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-b6-run-django--django-16901-T0/7837a33a-db59-4413-aa8a-3f3d4a75a00f.jsonl",
+        "metrics": {
+          "calls": 17,
+          "sum_input": 406815,
+          "cache_read": 365932,
+          "cache_creation": 40849,
+          "output": 7129,
+          "peak_P": 29761
+        },
+        "edited_files": [
+          "M django/db/models/sql/where.py",
+          " M tests/xor_lookups/tests.py"
+        ],
+        "agent_edited_test_files": [
+          "tests/xor_lookups/tests.py"
+        ],
+        "grade": {
+          "patch_applied": true,
+          "f2p_pass": true,
+          "p2p_pass": true,
+          "p2p_checked": 6,
+          "f2p_skipped_unresolvable": 0,
+          "p2p_skipped_unresolvable": 0,
+          "f2p_note": " | OK",
+          "p2p_note": " | OK",
+          "success": true,
+          "test_patch_applied": true
+        },
+        "gateway": {
+          "tool_results_retired": 5,
+          "thinking_blocks_stripped": 59,
+          "fallback_original": 0
+        }
+      },
+      "N1": {
+        "cost_usd": 0.7783725000000001,
+        "status": "success",
+        "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-b6-run-django--django-16901-N1/e233457d-2df1-4d68-abfd-4ee30d777b1b.jsonl",
+        "metrics": {
+          "calls": 28,
+          "sum_input": 1453204,
+          "cache_read": 1419385,
+          "cache_creation": 33763,
+          "output": 9921,
+          "peak_P": 63786
+        },
+        "edited_files": [
+          "M django/db/models/sql/where.py",
+          " M tests/xor_lookups/tests.py"
+        ],
+        "agent_edited_test_files": [
+          "tests/xor_lookups/tests.py"
+        ],
+        "grade": {
+          "patch_applied": true,
+          "f2p_pass": true,
+          "p2p_pass": true,
+          "p2p_checked": 6,
+          "f2p_skipped_unresolvable": 0,
+          "p2p_skipped_unresolvable": 0,
+          "f2p_note": " | OK",
+          "p2p_note": " | OK",
+          "success": true,
+          "test_patch_applied": true
+        }
+      },
+      "T1": {
+        "cost_usd": 0.5327105999999999,
+        "status": "success",
+        "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-b6-run-django--django-16901-T1/fca887e1-d281-4fff-bea7-028b14028547.jsonl",
+        "metrics": {
+          "calls": 21,
+          "sum_input": 508446,
+          "cache_read": 463082,
+          "cache_creation": 45322,
+          "output": 7840,
+          "peak_P": 29852
+        },
+        "edited_files": [
+          "M django/db/models/sql/where.py",
+          " M tests/xor_lookups/tests.py"
+        ],
+        "agent_edited_test_files": [
+          "tests/xor_lookups/tests.py"
+        ],
+        "grade": {
+          "patch_applied": true,
+          "f2p_pass": true,
+          "p2p_pass": true,
+          "p2p_checked": 6,
+          "f2p_skipped_unresolvable": 0,
+          "p2p_skipped_unresolvable": 0,
+          "f2p_note": " | OK",
+          "p2p_note": " | OK",
+          "success": true,
+          "test_patch_applied": true
+        },
+        "gateway": {
+          "tool_results_retired": 20,
+          "thinking_blocks_stripped": 102,
+          "fallback_original": 0
+        }
+      },
+      "N2": {
+        "cost_usd": 0.30302339999999994,
+        "status": "success",
+        "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-b6-run-django--django-16901-N2/f9d22fa5-441d-4d50-ab5c-7909b1bd9a93.jsonl",
+        "metrics": {
+          "calls": 7,
+          "sum_input": 267739,
+          "cache_read": 237913,
+          "cache_creation": 29814,
+          "output": 2329,
+          "peak_P": 46538
+        },
+        "edited_files": [
+          "M django/db/models/sql/where.py"
+        ],
+        "agent_edited_test_files": [],
+        "grade": {
+          "patch_applied": true,
+          "f2p_pass": false,
+          "p2p_pass": true,
+          "p2p_checked": 6,
+          "f2p_skipped_unresolvable": 0,
+          "p2p_skipped_unresolvable": 0,
+          "f2p_note": " | FAILED (failures=1)",
+          "p2p_note": " | OK",
+          "success": false,
+          "test_patch_applied": true
+        }
+      },
+      "T2": {
+        "cost_usd": 0.48961380000000004,
+        "status": "success",
+        "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-b6-run-django--django-16901-T2/678e9ed3-87b6-4aa1-b792-9ff6984c825d.jsonl",
+        "metrics": {
+          "calls": 25,
+          "sum_input": 628566,
+          "cache_read": 604536,
+          "cache_creation": 23980,
+          "output": 10673,
+          "peak_P": 32449
+        },
+        "edited_files": [
+          "M django/db/models/sql/where.py",
+          " M tests/xor_lookups/tests.py"
+        ],
+        "agent_edited_test_files": [
+          "tests/xor_lookups/tests.py"
+        ],
+        "grade": {
+          "patch_applied": true,
+          "f2p_pass": true,
+          "p2p_pass": true,
+          "p2p_checked": 6,
+          "f2p_skipped_unresolvable": 0,
+          "p2p_skipped_unresolvable": 0,
+          "f2p_note": " | OK",
+          "p2p_note": " | OK",
+          "success": true,
+          "test_patch_applied": true
+        },
+        "gateway": {
+          "tool_results_retired": 66,
+          "thinking_blocks_stripped": 283,
+          "fallback_original": 0
+        }
+      }
+    }
+  }
+}

@@ -3,7 +3,7 @@ and the live-runner's pure metric functions. The live claude/proxy path is not e
 import json
 import subprocess
 
-from corpus.b6_grading import apply_patch, resolvable, to_label
+from corpus.b6_grading import apply_patch, reset_test_files, resolvable, to_label
 from corpus.b6_live_ab import DISALLOW_ADMISSION, gc_rereads, transcript_metrics
 
 
@@ -38,6 +38,45 @@ def test_apply_patch_on_tmp_repo(tmp_path):
     assert apply_patch(str(tmp_path), patch)
     assert f.read_text() == "one\nTWO\n"
     assert not apply_patch(str(tmp_path), "garbage not a patch")
+
+
+def test_reset_test_files_recovers_conflicting_apply(tmp_path):
+    """Live-observed failure: the agent edits (or creates) the very test file the official
+    test_patch touches, so the patch no longer applies. reset_test_files must restore base state
+    for exactly those files and report which ones the agent had touched."""
+    wt = str(tmp_path)
+    subprocess.run(["git", "init", "-q", wt], check=True)
+    (tmp_path / "tests").mkdir()
+    (tmp_path / "tests" / "t.py").write_text("base\n")
+    (tmp_path / "src.py").write_text("code\n")
+    subprocess.run(["git", "-C", wt, "add", "."], check=True)
+    subprocess.run(["git", "-C", wt, "-c", "user.email=t@t", "-c", "user.name=t",
+                    "commit", "-qm", "base"], check=True)
+    # agent work: legit source edit + conflicting edit to the official test file + created file
+    (tmp_path / "src.py").write_text("fixed code\n")
+    (tmp_path / "tests" / "t.py").write_text("base\nagent added a test\n")
+    (tmp_path / "tests" / "new.py").write_text("agent-created\n")
+    test_patch = """diff --git a/tests/t.py b/tests/t.py
+--- a/tests/t.py
++++ b/tests/t.py
+@@ -1 +1,2 @@
+ base
++official test
+diff --git a/tests/new.py b/tests/new.py
+new file mode 100644
+--- /dev/null
++++ b/tests/new.py
+@@ -0,0 +1 @@
++official new file
+"""
+    assert not apply_patch(wt, test_patch)                    # the observed conflict
+    files, touched = reset_test_files(wt, test_patch)
+    assert files == ["tests/t.py", "tests/new.py"]
+    assert sorted(touched) == ["tests/new.py", "tests/t.py"]
+    assert apply_patch(wt, test_patch)                        # applies after reset
+    assert (tmp_path / "tests" / "t.py").read_text() == "base\nofficial test\n"
+    assert (tmp_path / "tests" / "new.py").read_text() == "official new file\n"
+    assert (tmp_path / "src.py").read_text() == "fixed code\n"   # agent's source fix untouched
 
 
 def test_disallow_list_keeps_the_working_tools():
