@@ -66,7 +66,13 @@ with a non-fix (an import line and a self-written test, no logic change) while T
 **Input-token residency fell 41.5%; dollar cost fell only 2.5%.** Retirement and thinking-GC edit
 the conversation prefix, which invalidates the incremental prompt cache: T converts cheap
 cache-read tokens (0.1× price) into expensive cache-creation tokens (1.25×), and the pricing
-asymmetry consumes almost the entire saving at current API rates. T sessions also ran slightly
+asymmetry consumes almost the entire saving at current API rates.
+
+> **Correction (2026-08-28, B7):** the write multiplier above is the 5-minute tier's; a zero-quota
+> capture shows this client requests `cache_control: {ttl: "1h"}`, whose writes bill at **2.0×**
+> base input. At 2.0× the list-price reconstruction of this table gives **−2.8%** — matching the
+> CLI's −2.5% almost exactly, which resolves the reconciliation. The mechanism statement stands;
+> the penalty is worse than stated. Full analysis: `docs/b7-findings.md`. T sessions also ran slightly
 more calls (+11.5%, ordinary iteration variance by the re-read analysis) and slightly more output.
 Under *this* billing model, B6's treatment is roughly **cost-neutral** while cutting the context
 workload nearly in half.

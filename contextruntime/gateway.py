@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import json
 import os
+import time
 from dataclasses import asdict, dataclass
 
 from .reducers.base import tokens as _tok
@@ -63,6 +64,30 @@ def thinking_gc(messages, keep_last):
     idx = [i for i, m in enumerate(messages) if m.get("role") == "assistant"]
     n_blocks = sig_bytes = 0
     for i in idx[:-keep_last] if keep_last > 0 else []:
+        c = messages[i].get("content")
+        if not isinstance(c, list):
+            continue
+        kept = [b for b in c if not (isinstance(b, dict) and b.get("type") in _THINKING)]
+        if not kept or len(kept) == len(c):
+            continue
+        for b in c:
+            if isinstance(b, dict) and b.get("type") in _THINKING:
+                n_blocks += 1
+                sig_bytes += len(b.get("signature") or b.get("data") or "")
+        messages[i]["content"] = kept
+    return n_blocks, sig_bytes
+
+
+def thinking_gc_upto(messages, frontier_turn):
+    """B7 persistent variant of thinking-GC: strip thinking blocks from assistant messages whose
+    1-based assistant index is <= frontier_turn. The frontier only advances at cache-aligned fire
+    moments, so between fires every request strips the SAME set — byte-stable, no new cache
+    invalidation. Returns (n_blocks_stripped, signature_bytes_stripped). Mutates in place."""
+    idx = [i for i, m in enumerate(messages) if m.get("role") == "assistant"]
+    n_blocks = sig_bytes = 0
+    for a_turn, i in enumerate(idx, start=1):
+        if a_turn > frontier_turn:
+            break
         c = messages[i].get("content")
         if not isinstance(c, list):
             continue
@@ -150,6 +175,14 @@ class GatewayDecision:
     thinking_strippable: int = 0           # thinking blocks outside the last N assistant messages
     thinking_sig_bytes: int = 0            # their signature bytes (proxy for retained thinking size)
     thinking_stripped: int = 0             # blocks actually removed (enforce + CR_GATEWAY_THINKING_KEEP)
+    ts: float = 0.0                        # request wall-clock (B7: enables gap analysis from logs)
+    align: str = "off"                     # CR_GATEWAY_CACHE_ALIGN mode in effect
+    fired: bool = False                    # cache-aligned: NEW mutations introduced this request
+    fire_reason: str = ""                  # cold-start | ttl-gap | break-even | hold | align-off
+    gap_s: float = -1.0                    # seconds since previous request (-1 on the first)
+    pending_tokens: int = 0                # retirable tokens held back by the scheduler
+    suffix_tokens_est: int = 0             # estimated tokens after the earliest pending edit point
+    persistent_applied: int = 0            # previously fired retirements re-applied (byte-stable)
 
 
 class RetirementGateway:
@@ -157,12 +190,15 @@ class RetirementGateway:
     OBSERVE never mutates; ENFORCE mutates only at batch boundaries; FAIL-OPEN on any error."""
 
     def __init__(self, *, mode: str = None, lag: int = DEFAULT_LAG, batch_turns: int = DEFAULT_BATCH_TURNS,
-                 log_path: str = None, thinking_keep: int = None) -> None:
+                 log_path: str = None, thinking_keep: int = None, align: str = None) -> None:
+        from .cachealign import ALIGN_MODES, CacheAlignedScheduler, align_mode_from_env
         self.mode = mode if mode in MODES else gateway_mode_from_env()
         self.lag = lag
         self.batch_turns = batch_turns
         self.log_path = log_path
         self.thinking_keep = thinking_keep if thinking_keep is not None else thinking_keep_from_env()
+        self.align = align if align in ALIGN_MODES else align_mode_from_env()
+        self.scheduler = CacheAlignedScheduler(mode=self.align)
 
     def _log(self, record: dict) -> None:
         if not self.log_path:
@@ -180,6 +216,23 @@ class RetirementGateway:
             planner.observe(o)
         return objs, n_turns, planner.plan(n_turns, force=True)   # full retirable set at the latest turn
 
+    @staticmethod
+    def _suffix_tokens_est(messages, after_turn: int) -> int:
+        """Rough token count of everything AFTER assistant turn `after_turn` — the suffix a fire at
+        that depth would re-create (the retired tool_result sits in the next user message, so the
+        count starts there). Serialization chars / 4; gates WHEN to fire, never correctness."""
+        a_turn = 0
+        chars = 0
+        counting = False
+        for m in messages:
+            if counting:
+                chars += len(json.dumps(m.get("content"), default=str))
+            if m.get("role") == "assistant":
+                a_turn += 1
+                if a_turn >= after_turn:
+                    counting = True
+        return chars // 4
+
     def process(self, body: dict):
         if self.mode == "off":
             return body, None
@@ -189,15 +242,44 @@ class RetirementGateway:
             boundary = self.batch_turns > 0 and n_turns > 0 and n_turns % self.batch_turns == 0
             dec = GatewayDecision(turn=n_turns, mode=self.mode, n_objects=len(objs),
                                   n_retirable=len(plan.retirements), tokens_retirable=plan.tokens_freed,
-                                  is_batch_boundary=boundary)
-            if self.mode == "enforce" and boundary and plan.retirements:
-                dec.applied = InProcessMessageMutator().apply(plan, messages).applied
-            if self.thinking_keep:
-                dec.thinking_strippable, dec.thinking_sig_bytes = thinking_opportunity(messages, self.thinking_keep)
-                if self.mode == "enforce" and dec.thinking_strippable:
-                    # cache-cheap every call: the edit point is always near the tail (the message that
-                    # just left the keep window), so the invalidated suffix is small and constant
-                    dec.thinking_stripped, _ = thinking_gc(messages, self.thinking_keep)
+                                  is_batch_boundary=boundary, ts=time.time(), align=self.align)
+            if self.align != "off" and self.mode == "enforce":
+                # B7 cache-aligned path: fired mutations re-apply every request (byte-stable);
+                # NEW mutations only at cold-start / TTL-gap / break-even moments.
+                fired_ids = self.scheduler.fired_keys
+                persistent = [r for r in plan.retirements if r.obj_id in fired_ids]
+                pending = [r for r in plan.retirements if r.obj_id not in fired_ids]
+                if persistent:
+                    sub = HistoryMutationPlan(plan.at_turn, tuple(persistent),
+                                              sum(r.tokens_freed for r in persistent))
+                    dec.persistent_applied = InProcessMessageMutator().apply(sub, messages).applied
+                turn_of = {o.obj_id: o.turn for o in objs}
+                earliest = min((turn_of.get(r.obj_id, n_turns) for r in pending), default=n_turns)
+                suffix_est = self._suffix_tokens_est(messages, earliest) if pending else 0
+                fd = self.scheduler.decide(
+                    [(r.obj_id, turn_of.get(r.obj_id, n_turns), r.tokens_freed) for r in pending],
+                    suffix_est, now_ts=dec.ts)
+                dec.fire_reason, dec.gap_s = fd.reason, (fd.gap_s if fd.gap_s is not None else -1.0)
+                dec.pending_tokens, dec.suffix_tokens_est = fd.pending_tokens, suffix_est
+                if fd.fire:
+                    dec.fired = True
+                    if pending:
+                        sub = HistoryMutationPlan(plan.at_turn, tuple(pending),
+                                                  sum(r.tokens_freed for r in pending))
+                        dec.applied = InProcessMessageMutator().apply(sub, messages).applied
+                    self.scheduler.commit([r.obj_id for r in pending], n_turns)
+                if self.thinking_keep:
+                    dec.thinking_strippable, dec.thinking_sig_bytes = thinking_opportunity(messages, self.thinking_keep)
+                    dec.thinking_stripped, _ = thinking_gc_upto(messages, self.scheduler.strip_frontier)
+            else:
+                if self.mode == "enforce" and boundary and plan.retirements:
+                    dec.applied = InProcessMessageMutator().apply(plan, messages).applied
+                if self.thinking_keep:
+                    dec.thinking_strippable, dec.thinking_sig_bytes = thinking_opportunity(messages, self.thinking_keep)
+                    if self.mode == "enforce" and dec.thinking_strippable:
+                        # cache-cheap every call: the edit point is always near the tail (the message that
+                        # just left the keep window), so the invalidated suffix is small and constant
+                        dec.thinking_stripped, _ = thinking_gc(messages, self.thinking_keep)
             self._log(asdict(dec))
             return body, dec
         except Exception as e:      # noqa: BLE001 — FAIL-OPEN: never break a request
