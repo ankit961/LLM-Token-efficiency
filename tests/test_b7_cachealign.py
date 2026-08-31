@@ -142,3 +142,20 @@ def test_replay_cold_gap_fires_free_at_idle_gap():
     assert cg["fires"] >= 1 and cg["retired_tokens"] == 3_000
     assert cg["bite"] <= nat["bite"]                          # free window: no cache damage
     assert cg["sum_P"] < nat["sum_P"]                         # and residency actually drops
+
+
+def test_proxy_gateway_is_a_process_singleton(monkeypatch):
+    """B7 regression: the scheduler's fired set lives on the gateway, so the proxy must reuse ONE
+    instance across requests (a fresh instance per POST silently resets alignment state)."""
+    import contextruntime.gateway_proxy as gp
+    monkeypatch.setattr(gp, "_SCHED", None)
+    monkeypatch.setenv("CR_GATEWAY_MODE", "enforce")
+    monkeypatch.setenv("CR_GATEWAY_CACHE_ALIGN", "gated")
+    a = gp.gateway_singleton()
+    b = gp.gateway_singleton()
+    assert a is not b and a.scheduler is b.scheduler and b.align == "gated"
+    a.scheduler.fired_keys.add("t-x")
+    assert "t-x" in gp.gateway_singleton().scheduler.fired_keys
+    monkeypatch.setenv("CR_GATEWAY_CACHE_ALIGN", "cold")     # mode switch starts fresh state
+    c = gp.gateway_singleton()
+    assert c.scheduler is not a.scheduler and not c.scheduler.fired_keys

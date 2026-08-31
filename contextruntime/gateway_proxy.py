@@ -21,6 +21,7 @@ from __future__ import annotations
 import http.client
 import json
 import os
+import threading
 import urllib.parse
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
@@ -98,6 +99,25 @@ def _connect(upstream: str):
     return cls(u.hostname, port, timeout=600), u.hostname
 
 
+_SCHED = None
+_GW_LOCK = threading.Lock()
+
+
+def gateway_singleton() -> RetirementGateway:
+    """Gateway per request (env re-read each time, as pre-B7), but the cache-aligned SCHEDULER —
+    fired set, thinking frontier, last-request timestamp — is process-lived state and must be
+    shared across requests, or alignment silently resets every call. The shared scheduler carries
+    over while the align mode is unchanged; switching modes starts fresh state."""
+    global _SCHED
+    gw = RetirementGateway(log_path=os.environ.get("CR_GATEWAY_LOG"))
+    with _GW_LOCK:
+        if _SCHED is not None and _SCHED.mode == gw.align:
+            gw.scheduler = _SCHED
+        else:
+            _SCHED = gw.scheduler
+    return gw
+
+
 class RetirementProxyHandler(BaseHTTPRequestHandler):
     protocol_version = "HTTP/1.1"
 
@@ -105,7 +125,7 @@ class RetirementProxyHandler(BaseHTTPRequestHandler):
         pass
 
     def _gateway(self):
-        return RetirementGateway(log_path=os.environ.get("CR_GATEWAY_LOG"))
+        return gateway_singleton()
 
     def _read_body(self):
         n = int(self.headers.get("Content-Length", 0) or 0)
@@ -175,7 +195,8 @@ class RetirementProxyHandler(BaseHTTPRequestHandler):
         raw = self._read_body()
         gw = self._gateway()
         try:
-            body_out, _dec = prepare_upstream_body(raw, self.path, gw)
+            with _GW_LOCK:      # scheduler state mutates in process(); requests serialize here
+                body_out, _dec = prepare_upstream_body(raw, self.path, gw)
         except Exception:      # noqa: BLE001 — the gateway must never break the request path
             body_out = raw
         self._relay("POST", body_out, original=(raw if body_out is not raw else None), log=gw._log)
