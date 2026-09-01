@@ -1,0 +1,144 @@
+{
+ "note": "B8 v1 frozen record. Session transcripts (~/.claude/projects) are the authoritative usage source and survive; the scratchpad gw decision logs were lost to a /tmp purge after the run \u2014 their aggregates below were extracted during the run and are recorded verbatim.",
+ "confound": "custom ANTHROPIC_BASE_URL disables MCP tool-schema deferral: T first request 84,676 tokens vs N 41,554; six read=0 full-prefix rewrites in T0 (turns 0,6,15,25,45,52 \u2014 turn 6 with zero gateway mutations active); N0 had zero full misses incl. through both 65-min gaps (soft TTL).",
+ "gw_aggregates_from_run": {
+  "T0": {
+   "fires": 3,
+   "by_reason": {
+    "cold-start": 1,
+    "ttl-gap": 2
+   },
+   "persistent_applied": 39,
+   "retired": 39,
+   "thinking_stripped": 537,
+   "fallback_original": 0
+  },
+  "T1": {
+   "fires": 3,
+   "by_reason": {
+    "cold-start": 1,
+    "ttl-gap": 2
+   },
+   "persistent_applied": 36,
+   "retired": 36,
+   "thinking_stripped": 662,
+   "fallback_original": 0
+  }
+ },
+ "cli_costs_usd": {
+  "N0": 2.36,
+  "N1": 3.66,
+  "T0": 5.67,
+  "T1": 4.96
+ },
+ "grades": "12/12 completed task-instances succeeded (both arms, all chunks)",
+ "sessions": {
+  "N0": {
+   "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-b8-run-session-N0/91127882-3eb2-46b6-8b5f-b54e29219dfc.jsonl",
+   "calls": 60,
+   "bite": 787256.0,
+   "sum_P": 4086761,
+   "read": 3936390,
+   "creation": 150251,
+   "output": 18599,
+   "first_P": 41554,
+   "full_misses_gt20k": []
+  },
+  "N1": {
+   "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-b8-run-session-N1/8a748b1f-be0e-4825-ab11-b6a0f04d8a5e.jsonl",
+   "calls": 81,
+   "bite": 1219392.9,
+   "sum_P": 6835933,
+   "read": 6633519,
+   "creation": 202252,
+   "output": 30275,
+   "first_P": 41552,
+   "full_misses_gt20k": []
+  },
+  "N2": {
+   "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-b8-run-session-N2/dc74b3cc-4f7c-4a03-81a6-eca7cb750c6e.jsonl",
+   "calls": 8,
+   "bite": 84406.8,
+   "sum_P": 358841,
+   "read": 340718,
+   "creation": 18107,
+   "output": 2821,
+   "first_P": 41553,
+   "full_misses_gt20k": []
+  },
+  "T0": {
+   "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-b8-run-session-T0/a3d31420-fcd2-45f3-b591-c984ff224e93.jsonl",
+   "calls": 62,
+   "bite": 1888704.0,
+   "sum_P": 6276810,
+   "read": 5656030,
+   "creation": 620656,
+   "output": 16333,
+   "first_P": 84676,
+   "full_misses_gt20k": [
+    [
+     0,
+     84676
+    ],
+    [
+     6,
+     89093
+    ],
+    [
+     15,
+     92540
+    ],
+    [
+     25,
+     98164
+    ],
+    [
+     45,
+     105183
+    ],
+    [
+     52,
+     109181
+    ]
+   ]
+  },
+  "T1": {
+   "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-b8-run-session-T1/b49625b8-9634-4a1e-a59d-a385e8aebb6b.jsonl",
+   "calls": 61,
+   "bite": 1652034.1,
+   "sum_P": 6192763,
+   "read": 5703521,
+   "creation": 489120,
+   "output": 20664,
+   "first_P": 84674,
+   "full_misses_gt20k": [
+    [
+     24,
+     95850
+    ],
+    [
+     33,
+     102084
+    ],
+    [
+     43,
+     103298
+    ],
+    [
+     49,
+     108041
+    ]
+   ]
+  }
+ },
+ "pairs": {
+  "pair0": {
+   "R_dollar": 2.399,
+   "delta_pct": 139.9
+  },
+  "pair1": {
+   "R_dollar": 1.355,
+   "delta_pct": 35.5
+  }
+ }
+}

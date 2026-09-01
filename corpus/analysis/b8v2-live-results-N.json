@@ -1,0 +1,241 @@
+{
+  "pairs": {
+    "N0": {
+      "gw_log": null,
+      "session_id": "73cf63fd-79ba-4bdd-8b5a-0b7edc38761d",
+      "chunk0": {
+        "done": true,
+        "cost_usd": 0.4094319,
+        "status": "success",
+        "wt": "/private/tmp/claude-501/-Users-pardeepsingh-Desktop-Token-Optimisation/5b8e6383-8f63-458d-8a43-9ab270dbbd1a/scratchpad/b8v2-run/session-N0/wt-django__django-16485",
+        "grade": {
+          "patch_applied": true,
+          "f2p_pass": true,
+          "p2p_pass": true,
+          "p2p_checked": 8,
+          "f2p_skipped_unresolvable": 0,
+          "p2p_skipped_unresolvable": 1,
+          "f2p_note": " | OK",
+          "p2p_note": " | OK",
+          "success": true,
+          "test_patch_applied": true
+        }
+      },
+      "gap1_done": true,
+      "chunk1": {
+        "done": true,
+        "cost_usd": 1.4753418,
+        "status": "success",
+        "wt": "/private/tmp/claude-501/-Users-pardeepsingh-Desktop-Token-Optimisation/5b8e6383-8f63-458d-8a43-9ab270dbbd1a/scratchpad/b8v2-run/session-N0/wt-django__django-16527",
+        "grade": {
+          "patch_applied": true,
+          "f2p_pass": true,
+          "p2p_pass": true,
+          "p2p_checked": 3,
+          "f2p_skipped_unresolvable": 0,
+          "p2p_skipped_unresolvable": 3,
+          "f2p_note": " | OK",
+          "p2p_note": " | OK",
+          "success": true,
+          "test_patch_applied": true
+        }
+      },
+      "gap2_done": true,
+      "chunk2": {
+        "done": true,
+        "cost_usd": 0.8007917999999998,
+        "status": "success",
+        "wt": "/private/tmp/claude-501/-Users-pardeepsingh-Desktop-Token-Optimisation/5b8e6383-8f63-458d-8a43-9ab270dbbd1a/scratchpad/b8v2-run/session-N0/wt-django__django-16901",
+        "grade": {
+          "patch_applied": true,
+          "f2p_pass": true,
+          "p2p_pass": true,
+          "p2p_checked": 6,
+          "f2p_skipped_unresolvable": 0,
+          "p2p_skipped_unresolvable": 0,
+          "f2p_note": " | OK",
+          "p2p_note": " | OK",
+          "success": true,
+          "test_patch_applied": true
+        }
+      },
+      "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-b8v2-run-session-N0/73cf63fd-79ba-4bdd-8b5a-0b7edc38761d.jsonl",
+      "metrics": {
+        "calls": 76,
+        "sum_input": 5944341,
+        "cache_read": 5859655,
+        "cache_creation": 84534,
+        "output": 27948,
+        "peak_P": 114557
+      },
+      "bite": {
+        "calls": 76,
+        "bite": 894925.5,
+        "read": 5859655,
+        "creation": 84534,
+        "output": 27948,
+        "sum_P": 5944341
+      },
+      "gateway": null,
+      "complete": true
+    },
+    "N1": {
+      "gw_log": null,
+      "session_id": "2eb09fcc-7dde-4b5c-8476-ec83ed8e4a78",
+      "chunk0": {
+        "done": true,
+        "cost_usd": 0.46356319999999995,
+        "status": "success",
+        "wt": "/private/tmp/claude-501/-Users-pardeepsingh-Desktop-Token-Optimisation/5b8e6383-8f63-458d-8a43-9ab270dbbd1a/scratchpad/b8v2-run/session-N1/wt-django__django-16485",
+        "grade": {
+          "patch_applied": true,
+          "f2p_pass": true,
+          "p2p_pass": true,
+          "p2p_checked": 8,
+          "f2p_skipped_unresolvable": 0,
+          "p2p_skipped_unresolvable": 1,
+          "f2p_note": " | OK",
+          "p2p_note": " | OK",
+          "success": true,
+          "test_patch_applied": true
+        }
+      },
+      "gap1_done": true,
+      "chunk1": {
+        "done": true,
+        "cost_usd": 0.5719893,
+        "status": "success",
+        "wt": "/private/tmp/claude-501/-Users-pardeepsingh-Desktop-Token-Optimisation/5b8e6383-8f63-458d-8a43-9ab270dbbd1a/scratchpad/b8v2-run/session-N1/wt-django__django-16527",
+        "grade": {
+          "patch_applied": true,
+          "f2p_pass": true,
+          "p2p_pass": true,
+          "p2p_checked": 3,
+          "f2p_skipped_unresolvable": 0,
+          "p2p_skipped_unresolvable": 3,
+          "f2p_note": " | OK",
+          "p2p_note": " | OK",
+          "success": true,
+          "test_patch_applied": true
+        }
+      },
+      "gap2_done": true,
+      "chunk2": {
+        "done": true,
+        "cost_usd": 0.6189062999999999,
+        "status": "success",
+        "wt": "/private/tmp/claude-501/-Users-pardeepsingh-Desktop-Token-Optimisation/5b8e6383-8f63-458d-8a43-9ab270dbbd1a/scratchpad/b8v2-run/session-N1/wt-django__django-16901",
+        "grade": {
+          "patch_applied": true,
+          "f2p_pass": true,
+          "p2p_pass": true,
+          "p2p_checked": 6,
+          "f2p_skipped_unresolvable": 0,
+          "p2p_skipped_unresolvable": 0,
+          "f2p_note": " | OK",
+          "p2p_note": " | OK",
+          "success": true,
+          "test_patch_applied": true
+        }
+      },
+      "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-b8v2-run-session-N1/2eb09fcc-7dde-4b5c-8476-ec83ed8e4a78.jsonl",
+      "metrics": {
+        "calls": 49,
+        "sum_input": 3336261,
+        "cache_read": 3272846,
+        "cache_creation": 63317,
+        "output": 19441,
+        "peak_P": 93340
+      },
+      "bite": {
+        "calls": 49,
+        "bite": 551221.6,
+        "read": 3272846,
+        "creation": 63317,
+        "output": 19441,
+        "sum_P": 3336261
+      },
+      "gateway": null,
+      "complete": true
+    },
+    "N2": {
+      "gw_log": null,
+      "session_id": "3be30fd8-9339-4ed8-a0ca-097af8e452c8",
+      "chunk0": {
+        "done": true,
+        "cost_usd": 0.4725547999999999,
+        "status": "success",
+        "wt": "/private/tmp/claude-501/-Users-pardeepsingh-Desktop-Token-Optimisation/5b8e6383-8f63-458d-8a43-9ab270dbbd1a/scratchpad/b8v2-run/session-N2/wt-django__django-16485",
+        "grade": {
+          "patch_applied": true,
+          "f2p_pass": true,
+          "p2p_pass": true,
+          "p2p_checked": 8,
+          "f2p_skipped_unresolvable": 0,
+          "p2p_skipped_unresolvable": 1,
+          "f2p_note": " | OK",
+          "p2p_note": " | OK",
+          "success": true,
+          "test_patch_applied": true
+        }
+      },
+      "gap1_done": true,
+      "chunk1": {
+        "done": true,
+        "cost_usd": 0.8372355000000002,
+        "status": "success",
+        "wt": "/private/tmp/claude-501/-Users-pardeepsingh-Desktop-Token-Optimisation/5b8e6383-8f63-458d-8a43-9ab270dbbd1a/scratchpad/b8v2-run/session-N2/wt-django__django-16527",
+        "grade": {
+          "patch_applied": true,
+          "f2p_pass": true,
+          "p2p_pass": true,
+          "p2p_checked": 3,
+          "f2p_skipped_unresolvable": 0,
+          "p2p_skipped_unresolvable": 3,
+          "f2p_note": " | OK",
+          "p2p_note": " | OK",
+          "success": true,
+          "test_patch_applied": true
+        }
+      },
+      "gap2_done": true,
+      "chunk2": {
+        "done": true,
+        "cost_usd": 0.9035574,
+        "status": "success",
+        "wt": "/private/tmp/claude-501/-Users-pardeepsingh-Desktop-Token-Optimisation/5b8e6383-8f63-458d-8a43-9ab270dbbd1a/scratchpad/b8v2-run/session-N2/wt-django__django-16901",
+        "grade": {
+          "patch_applied": true,
+          "f2p_pass": true,
+          "p2p_pass": true,
+          "p2p_checked": 6,
+          "f2p_skipped_unresolvable": 0,
+          "p2p_skipped_unresolvable": 0,
+          "f2p_note": " | OK",
+          "p2p_note": " | OK",
+          "success": true,
+          "test_patch_applied": true
+        }
+      },
+      "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-b8v2-run-session-N2/3be30fd8-9339-4ed8-a0ca-097af8e452c8.jsonl",
+      "metrics": {
+        "calls": 67,
+        "sum_input": 4877580,
+        "cache_read": 4801299,
+        "cache_creation": 76147,
+        "output": 20992,
+        "peak_P": 107064
+      },
+      "bite": {
+        "calls": 67,
+        "bite": 737517.9,
+        "read": 4801299,
+        "creation": 76147,
+        "output": 20992,
+        "sum_P": 4877580
+      },
+      "gateway": null,
+      "complete": true
+    }
+  }
+}

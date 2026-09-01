@@ -62,3 +62,44 @@ test-file reset).
   directly. That distinction survives into any external claim.
 
 **STOP: awaiting explicit budget approval (≈$17–20, cap $25) and any replication adjustments.**
+
+---
+
+## v2 (2026-08-28, preregistered before its first paid session; v1 above ran and is CONFOUNDED)
+
+**v1 outcome, kept honest:** 2 pairs completed ($16.65-equiv; 12/12 graded task-instances
+succeeded in both arms) but the primary endpoint read +139.9%/+35.5% — **outside the band, and
+invalid as a test**: a previously unknown client behavior (custom `ANTHROPIC_BASE_URL` ⇒ MCP
+tool-schema deferral DISABLED) inflated the T arm by ~43k tokens/call from request 1
+(84,676 vs 41,554 first-request tokens) plus repeated full-prefix rewrites on tool-list changes —
+six read=0 rewrites, one on a request with zero gateway mutations active. The scheduler itself
+behaved exactly as designed (fires only cold-start/ttl-gap, monotone persistent set, 0 fallbacks).
+Post-hoc removal of the de-deferral mass lands T0 at ≈ −16%, inside the original band — evidence
+the prediction machinery is sound, but per preregistration rules a post-hoc rescue is NOT a
+validation. Two standing discoveries: (1) **gateway deployments de-defer client tool schemas —
+admission is REQUIRED in the gateway product just to reach parity with the native client**;
+(2) the "1h" cache TTL is soft — N sailed through 65-min gaps with zero full misses, so ttl-gap
+fires at ~65 min mutate a still-warm cache and are not free.
+
+**v2 design deltas (all confound- or finding-driven):**
+- T arm = `--disallowedTools` admission (the B6 list) + gated proxy — the real product
+  configuration; kills the de-deferral confound (anchor: B6 measured 18,130 first-request tokens
+  through this exact proxy+disallow config).
+- Idle gaps dropped to 60 s (soft TTL makes 65-min gap-fires untrustworthy); the scheduler tests
+  its cold-start + break-even rules only. The idle-gap lever returns to "modeled, pending a
+  TTL-expiry measurement".
+- Everything else unchanged: same 3 chained tasks, same grading, same endpoint definition.
+
+**v2 preregistered prediction (frozen now, from the same calibrated machinery; T stream =
+native timeline − measured 23,424/call admission delta, gated schedule):**
+
+    T (admission + gated) vs N (native): BITE delta −29.5%, residency −46.3%, ~9 fires
+    (cold-start + break-even), retirement/thinking contribution modest — decomposed via gw log.
+
+    VALIDATION GATE: live pooled R$ ∈ [−36%, −22%]  → model validated in-regime
+    live ∈ (−22%, −10%]  → direction confirmed, magnitude over-predicted; recalibrate
+    live > −10%          → the admission+gated stack under-delivers live; investigate before
+                            any product claim. (> 0% refutes outright.)
+
+- **Budget: ≈$15–18 additional (B8 total ≈ $33; new hard cap $45, user-approved). 3 pairs,
+  ~1 h/session, arms concurrent ⇒ ~3.5 h total.**
