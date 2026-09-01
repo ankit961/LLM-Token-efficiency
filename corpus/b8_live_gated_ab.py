@@ -34,6 +34,18 @@ import time
 from corpus.b6_grading import apply_patch, grade, reset_test_files
 from corpus.b6_live_ab import start_proxy, transcript_metrics, worktree
 
+
+def worktree_retry(mirror, base, dest, *, attempts=5):
+    """Both arm processes share the mirror; git lock collisions are transient — retry."""
+    last = None
+    for i in range(attempts):
+        try:
+            return worktree(mirror, base, dest)
+        except RuntimeError as e:
+            last = e
+            time.sleep(3 + 2 * i)
+    raise last
+
 GAP_S_DEFAULT = 3900          # 65 min: strictly beyond the 1h cache TTL
 
 
@@ -75,9 +87,12 @@ def chunk_prompt(task, wt):
             f"Reply DONE when finished.\n\n{task['problem']}")
 
 
-def run_chunk(prompt, cwd, env, *, resume=None, model="sonnet", budget=2.5, timeout=1800):
+def run_chunk(prompt, cwd, env, *, resume=None, model="sonnet", budget=2.5, timeout=1800,
+              disallow=None):
     argv = ["claude", "-p", prompt, "--output-format", "json", "--model", model,
             "--max-budget-usd", str(budget), "--dangerously-skip-permissions"]
+    if disallow:
+        argv += ["--disallowedTools", *disallow]
     if resume:
         argv[1:1] = ["--resume", resume]
     try:
@@ -101,14 +116,12 @@ def run_session(arm, tasks, session_dir, cfg, rec):
     gw_log = None
     if arm == "T":
         gw_log = os.path.join(session_dir, "gw.jsonl")
-        env2 = dict(os.environ, CR_GATEWAY_CACHE_ALIGN="gated")
         os.environ["CR_GATEWAY_CACHE_ALIGN"] = "gated"        # start_proxy copies os.environ
         try:
             proxy, port = start_proxy(cfg["repo"], cfg["python"], gw_log)
         finally:
             os.environ.pop("CR_GATEWAY_CACHE_ALIGN", None)
         env["ANTHROPIC_BASE_URL"] = f"http://127.0.0.1:{port}"
-        del env2
     rec["gw_log"] = gw_log
     try:
         sid = rec.get("session_id")
@@ -116,13 +129,14 @@ def run_session(arm, tasks, session_dir, cfg, rec):
             key = f"chunk{i}"
             if rec.get(key, {}).get("done"):
                 continue
-            wt = worktree(cfg["mirror"], t["base_commit"],
-                          os.path.join(session_dir, f"wt-{t['instance_id']}"))
+            wt = worktree_retry(cfg["mirror"], t["base_commit"],
+                                os.path.join(session_dir, f"wt-{t['instance_id']}"))
             if i > 0 and not rec.get(f"gap{i}_done"):
                 time.sleep(cfg.get("gap_s", GAP_S_DEFAULT))    # the real TTL-expiry window
                 rec[f"gap{i}_done"] = True
             res = run_chunk(chunk_prompt(t, wt), session_dir, env, resume=sid,
-                            model=cfg.get("model", "sonnet"), budget=cfg.get("budget", 2.5))
+                            model=cfg.get("model", "sonnet"), budget=cfg.get("budget", 2.5),
+                            disallow=(cfg.get("disallow") if arm == "T" else None))
             sid = res.get("session_id") or sid
             rec["session_id"] = sid
             rec[key] = {"done": True, "cost_usd": res.get("total_cost_usd"),
@@ -192,7 +206,7 @@ def main(cfg_path):
         out = json.load(open(cfg["out"]))
     tasks = cfg["tasks"]
     for rep in range(cfg.get("reps", 2)):
-        for arm in ("N", "T"):
+        for arm in cfg.get("arms", ["N", "T"]):
             key = f"{arm}{rep}"
             rec = out["pairs"].setdefault(key, {})
             if rec.get("complete"):
@@ -223,8 +237,59 @@ def _transcript_for_dir(d):
     return max(files, key=os.path.getmtime) if files else None
 
 
+ADMISSION_SHIFT = 23_424     # measured: native-deferred first request 41,554 vs proxy+disallow 18,130
+
+
+def predict_v2():
+    """v2 preregistration: same chained timelines, NO idle gaps (60 s), and the T arm carries
+    admission (constant −ADMISSION_SHIFT per call, the measured proxy+disallow vs native-deferred
+    prefix delta) plus the gated schedule (cold-start + break-even only — no gaps to fire on).
+    N = native on the raw stream. Endpoint = bite_T / bite_N."""
+    from contextruntime.cachemodel import extract_calls, load_b6_sessions
+    from corpus.b7_cache_replay import mutation_streams, run_policy
+    picks = [("django__django-16485", "N0"), ("django__django-16527", "N0"),
+             ("django__django-16901", "N0")]
+    streams = []
+    for tid, key, tp in load_b6_sessions("corpus/analysis/b6-live-results.json", "N"):
+        for want_t, want_k in picks:
+            if tid == want_t and key == want_k:
+                calls = extract_calls(tp)
+                events, think = mutation_streams(tp, len(calls))
+                streams.append((calls, events, think))
+    chained, events_all, think_all = [], [], [0]
+    P_base, t_base, n_base = 0, 0.0, 0
+    for k, (calls, events, think) in enumerate(streams):
+        warm = calls[0].read
+        t_off = (t_base - calls[0].ts) + (60.0 if k else 0.0)
+        for c in calls:
+            chained.append(type(c)(P=P_base + (c.P - warm), read=0, creation=0,
+                                   input=c.input, out=c.out, ts=c.ts + t_off))
+        for e in events:
+            events_all.append({"eligible": e["eligible"] + n_base, "turn": e["turn"] + n_base,
+                               "tokens": e["tokens"]})
+        think_all.extend(think[1:len(calls) + 1])
+        P_base += calls[-1].P - warm
+        t_base = chained[-1].ts
+        n_base += len(calls)
+    events_all.sort(key=lambda e: e["eligible"])
+    warm_N = streams[0][0][0].read
+    shifted = [type(c)(P=max(c.P - ADMISSION_SHIFT, 1000), read=0, creation=0,
+                       input=c.input, out=c.out, ts=c.ts) for c in chained]
+    N = run_policy(chained, events_all, think_all, "native", warm=warm_N)
+    T = run_policy(shifted, events_all, think_all, "gated", warm=0)
+    out = {"native_bite": round(N["bite"]), "gated_admission_bite": round(T["bite"]),
+           "delta_pct": round(100 * (T["bite"] / N["bite"] - 1), 2),
+           "T_fires": T["fires"], "T_retired": T["retired_tokens"],
+           "T_stripped": T["stripped_tokens"],
+           "residency_delta_pct": round(100 * (T["sum_P"] / N["sum_P"] - 1), 2)}
+    print(json.dumps(out, indent=1))
+    return out
+
+
 if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == "predict":
         predict()
+    elif len(sys.argv) > 1 and sys.argv[1] == "predict_v2":
+        predict_v2()
     else:
         main(sys.argv[1])
