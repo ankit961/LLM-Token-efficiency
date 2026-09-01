@@ -118,9 +118,17 @@ class PrefixCacheSim:
         return not self.prefixes
 
 
-def bite(read: int, creation: int, uncached: int, out: int, *, write_mult: float = WRITE_MULT_1H) -> float:
-    """Base-input-token-equivalent price of one call."""
-    return READ_MULT * read + write_mult * creation + 1.0 * uncached + OUT_MULT * out
+def bite(read: int, creation: int, uncached: int, out: int, *, write_mult: float = WRITE_MULT_1H,
+         read_mult: float = READ_MULT, out_mult: float = OUT_MULT) -> float:
+    """Base-input-token-equivalent price of one call. The default constants are the live-validated
+    anthropic-1h profile; pass another `contextruntime.providers.ProviderProfile`'s constants to
+    price the same session under a different provider's cache economics."""
+    return read_mult * read + write_mult * creation + 1.0 * uncached + out_mult * out
+
+
+def bite_profile(read: int, creation: int, uncached: int, out: int, profile) -> float:
+    return bite(read, creation, uncached, out, write_mult=profile.write_mult,
+                read_mult=profile.read_mult, out_mult=profile.out_mult)
 
 
 def usd(bite_total: float) -> float:

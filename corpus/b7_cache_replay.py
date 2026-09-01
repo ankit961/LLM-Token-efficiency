@@ -64,11 +64,17 @@ def mutation_streams(transcript_path, n_calls):
     return sorted(events, key=lambda e: e["eligible"]), think
 
 
-def run_policy(calls, retire_events, think, policy, *, warm=None, e_remaining=E_REMAINING):
-    """Price one session under one policy. Returns totals + the residency stream."""
+def run_policy(calls, retire_events, think, policy, *, warm=None, e_remaining=E_REMAINING,
+               profile=None):
+    """Price one session under one policy. Returns totals + the residency stream.
+    `profile` (contextruntime.providers.ProviderProfile) sets the cache TTL, the break-even
+    constants, and the pricing — omitted = the live-validated anthropic-1h constants."""
+    read_mult = profile.read_mult if profile else READ_MULT
+    write_mult = profile.write_mult if profile else WRITE_MULT_1H
+    out_mult = profile.out_mult if profile else 5.0
     n = len(calls)
     warm = calls[0].read if warm is None else warm
-    sim = PrefixCacheSim()
+    sim = PrefixCacheSim(ttl_s=profile.ttl_s if profile else 3600.0)
     t0 = calls[0].ts or 0.0
     if warm:
         sim.prefixes.append([warm, t0 + sim.ttl_s])
@@ -108,7 +114,7 @@ def run_policy(calls, retire_events, think, policy, *, warm=None, e_remaining=E_
                             strip_frontier + 1 if pend_think else n + 1)
                 suffix = Phist[-1] - Phist[min(depth - 1, len(Phist) - 1)]
                 remaining = (n - t) if policy == "oracle" else e_remaining
-                free = READ_MULT * (pend_tok + pend_think) * remaining >= (WRITE_MULT_1H - READ_MULT) * suffix
+                free = read_mult * (pend_tok + pend_think) * remaining >= (write_mult - read_mult) * suffix
             fire = free and (bool(pending) or strip_frontier < t - 2)
 
         if fire:
@@ -143,7 +149,8 @@ def run_policy(calls, retire_events, think, policy, *, warm=None, e_remaining=E_
         tot["out"] += c.out
         tot["sum_P"] += P_prime
 
-    tot["bite"] = bite(tot["read"], tot["creation"], tot["input"], tot["out"])
+    tot["bite"] = bite(tot["read"], tot["creation"], tot["input"], tot["out"],
+                       write_mult=write_mult, read_mult=read_mult, out_mult=out_mult)
     tot["usd"] = usd(tot["bite"])
     return tot
 
@@ -289,6 +296,58 @@ def main(out_path=None, session_list=None):
     return res
 
 
+def provider_sensitivity(session_list=None):
+    """The generic-framework demonstration: the SAME sessions and the SAME mutation streams,
+    priced and scheduled under each provider profile. Only `anthropic-1h` is live-validated;
+    the others are modeling presets (see contextruntime/providers.py) — this table shows how the
+    break-even constant alone flips the scheduler's behavior and the verdict on mid-session
+    retirement."""
+    from contextruntime.providers import PROFILES
+    if session_list:
+        import os
+        paths = [r["path"] for r in json.load(open(session_list))]
+        sessions = [(os.path.basename(os.path.dirname(pp))[-28:], f"s{i}", pp) for i, pp in enumerate(paths)]
+        label = "interactive"
+    else:
+        sessions = load_b6_sessions("corpus/analysis/b6-live-results.json", "N")
+        label = "B6 headless"
+    streams = []
+    for tid, key, tp in sessions:
+        try:
+            calls = extract_calls(tp)
+        except Exception:      # noqa: BLE001
+            continue
+        if len(calls) < 3:
+            continue
+        streams.append((calls, *mutation_streams(tp, len(calls))))
+    print(f"== provider sensitivity — {label}, {len(streams)} sessions, same mutation streams ==")
+    print(f"{'profile':<16} {'break-even':>10} {'unaligned Δ$':>13} {'gated Δ$':>10} {'gated Δres':>11} {'gated fires':>11}")
+    out = {}
+    for name, prof in PROFILES.items():
+        nat = una = gat = 0.0
+        natP = gatP = 0
+        fires = 0
+        for calls, events, think in streams:
+            nat += run_policy(calls, events, think, "native", profile=prof)["bite"]
+            una += run_policy(calls, events, think, "unaligned", profile=prof)["bite"]
+            g = run_policy(calls, events, think, "gated", profile=prof)
+            gat += g["bite"]
+            fires += g["fires"]
+            natP += run_policy(calls, events, think, "native", profile=prof)["sum_P"]
+            gatP += g["sum_P"]
+        out[name] = {"unaligned_pct": round(100 * (una / nat - 1), 2),
+                     "gated_pct": round(100 * (gat / nat - 1), 2),
+                     "gated_res_pct": round(100 * (gatP / natP - 1), 2), "gated_fires": fires,
+                     "validated": prof.validated}
+        tag = "" if prof.validated else "  (modeling preset — unvalidated)"
+        print(f"{name:<16} {prof.break_even_reads:>10.1f} {out[name]['unaligned_pct']:>12.2f}% "
+              f"{out[name]['gated_pct']:>9.2f}% {out[name]['gated_res_pct']:>10.2f}% {fires:>11}{tag}")
+    return out
+
+
 if __name__ == "__main__":
-    main(sys.argv[1] if len(sys.argv) > 1 else None,
-         session_list=sys.argv[2] if len(sys.argv) > 2 else None)
+    if len(sys.argv) > 1 and sys.argv[1] == "providers":
+        provider_sensitivity(sys.argv[2] if len(sys.argv) > 2 else None)
+    else:
+        main(sys.argv[1] if len(sys.argv) > 1 else None,
+             session_list=sys.argv[2] if len(sys.argv) > 2 else None)

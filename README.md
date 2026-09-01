@@ -53,6 +53,13 @@ The package also ships the production-path runtime the B-series validated:
   new mutations fire only when the cache is cold or a break-even rule clears.
 - **`contextruntime/prefixdoctor.py`** — `cr doctor --prefix`: zero-quota capture + per-item
   audit of the fixed prefix (what to KEEP/DEFER/DISABLE, with feasibility tags).
+- **`contextruntime/providers.py`** — the framework is **provider-generic**: every algorithm
+  reduces to four constants (`read_mult`, `write_mult`, `ttl_s`, `out_mult`), selected by
+  `CR_GATEWAY_PROFILE`. One derived number — break-even reads per rewritten token — flips the
+  scheduler's verdict between providers (Anthropic-1h: 19, hold on short sessions; free-write
+  providers: 1, fire almost always). Cross-provider sensitivity on the same real sessions:
+  **[docs/provider-profiles.md](docs/provider-profiles.md)** (only `anthropic-1h` is
+  live-validated; the rest are calibration-pending presets).
 
 Earlier phases (**[STATUS.md](docs/STATUS.md)**): 0b residency graph · 1 ContextReduce ·
 2 SemanticFS/Graph-Lite — the graph-retrieval line was **closed by measurement** (G1/G2, B5):

@@ -192,13 +192,15 @@ class RetirementGateway:
     def __init__(self, *, mode: str = None, lag: int = DEFAULT_LAG, batch_turns: int = DEFAULT_BATCH_TURNS,
                  log_path: str = None, thinking_keep: int = None, align: str = None) -> None:
         from .cachealign import ALIGN_MODES, CacheAlignedScheduler, align_mode_from_env
+        from .providers import profile_from_env
         self.mode = mode if mode in MODES else gateway_mode_from_env()
         self.lag = lag
         self.batch_turns = batch_turns
         self.log_path = log_path
         self.thinking_keep = thinking_keep if thinking_keep is not None else thinking_keep_from_env()
         self.align = align if align in ALIGN_MODES else align_mode_from_env()
-        self.scheduler = CacheAlignedScheduler(mode=self.align)
+        self.profile = profile_from_env()          # CR_GATEWAY_PROFILE; default = validated anthropic-1h
+        self.scheduler = CacheAlignedScheduler.from_profile(self.align, self.profile)
 
     def _log(self, record: dict) -> None:
         if not self.log_path:
