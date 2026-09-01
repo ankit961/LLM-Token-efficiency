@@ -89,3 +89,11 @@ class CacheAlignedScheduler:
         """Record a fire: these mutations now re-apply to every subsequent request."""
         self.fired_keys.update(keys)
         self.strip_frontier = max(self.strip_frontier, n_turns - 1)
+
+    @classmethod
+    def from_profile(cls, mode: str, profile) -> "CacheAlignedScheduler":
+        """Build the scheduler from a `contextruntime.providers.ProviderProfile` — the ONLY
+        provider-specific inputs the break-even rule needs. anthropic-1h ⇒ break-even 19 reads
+        (hold on short sessions); free-write providers ⇒ break-even 1 (fire almost always)."""
+        return cls(mode=mode, ttl_s=profile.ttl_s, write_mult=profile.write_mult,
+                   read_mult=profile.read_mult)

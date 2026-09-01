@@ -159,3 +159,38 @@ def test_proxy_gateway_is_a_process_singleton(monkeypatch):
     monkeypatch.setenv("CR_GATEWAY_CACHE_ALIGN", "cold")     # mode switch starts fresh state
     c = gp.gateway_singleton()
     assert c.scheduler is not a.scheduler and not c.scheduler.fired_keys
+
+
+def test_provider_profiles_generic_framework(monkeypatch):
+    """The framework is generic: constants come from ProviderProfile; the same break-even
+    inequality flips behavior between providers."""
+    from contextruntime.providers import PROFILES, profile_from_env
+    a, o = PROFILES["anthropic-1h"], PROFILES["openai-auto"]
+    assert a.validated and not o.validated
+    assert abs(a.break_even_reads - 19.0) < 1e-9
+    assert abs(o.break_even_reads - 1.0) < 1e-9
+    monkeypatch.setenv("CR_GATEWAY_PROFILE", "openai-auto")
+    assert profile_from_env().name == "openai-auto"
+    monkeypatch.setenv("CR_GATEWAY_PROFILE", "no-such-provider")
+    assert profile_from_env().name == "anthropic-1h"             # safe fallback = strictest gate
+    s = CacheAlignedScheduler.from_profile("gated", o)
+    s.decide([], 0, now_ts=0.0)                                  # consume cold-start
+    d = s.decide([("a", 1, 5_000)], 30_000, now_ts=1.0)          # 0.5*5k*8=20k >= 0.5*30k=15k
+    assert d.fire and d.reason == "break-even"                   # fires under free-write economics
+    s2 = CacheAlignedScheduler.from_profile("gated", PROFILES["anthropic-1h"])
+    s2.decide([], 0, now_ts=0.0)
+    d2 = s2.decide([("a", 1, 5_000)], 30_000, now_ts=1.0)        # 0.1*5k*8=4k < 1.9*30k=57k
+    assert not d2.fire                                           # same inputs, opposite verdict
+
+
+def test_run_policy_profile_changes_fires():
+    from contextruntime.providers import PROFILES
+    from corpus.b7_cache_replay import run_policy
+    calls = [CallRecord(P=20_000 + 2_000 * t, read=0, creation=0, input=2, out=300, ts=10.0 * t)
+             for t in range(1, 25)]
+    events = [{"eligible": 6 + i, "turn": 2 + i, "tokens": 4_000} for i in range(6)]
+    think = [0] * 25
+    g_a = run_policy(calls, events, think, "gated", warm=0, profile=PROFILES["anthropic-1h"])
+    g_o = run_policy(calls, events, think, "gated", warm=0, profile=PROFILES["openai-auto"])
+    assert g_o["fires"] > g_a["fires"]                           # free writes ⇒ scheduler fires more
+    assert g_o["retired_tokens"] >= g_a["retired_tokens"]
