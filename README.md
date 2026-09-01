@@ -1,6 +1,14 @@
-# LLM Token Efficiency
+# LLM Token Efficiency (ContextRuntime)
 
 **Measuring — and then reducing — where AI coding agents actually spend tokens.**
+
+> **Program result (2026-08, frozen):** on live, graded coding sessions the surviving stack —
+> **admission control + context-lifetime management** — demonstrated a
+> **41.5% end-to-end input-token reduction with non-inferior task quality** (B6, 24 sessions),
+> and a **29.3% live dollar reduction** in the gateway configuration, landing **0.2pp from a
+> preregistered model prediction** (B8, CLI-billing-confirmed). A calibrated cache-cost model
+> puts the giant-long-context regime at **~−60% dollars (modeled, not yet live)**.
+> Details: [the results section below](#final-results--the-b-series-2026-08).
 
 Agentic coding is a loop: every model request re-sends the whole conversation as its
 prompt prefix, so a token you admit once is re-billed on *every* later turn. The unit
@@ -29,13 +37,26 @@ python3 -m contextruntime.cli doctor        # runtime capability profile (C11)
 python3 -m pytest -q                         # tests
 ```
 
-Phases so far (**[STATUS.md](docs/STATUS.md)** — implemented vs. gate-passed):
-**[0b — ContextScope + Residency Graph](docs/PHASE_0B.md)** ·
-**[1 — ContextReduce](docs/PHASE_1.md)** (~53% on reducible tool results, Grade C,
-*observe mode* — not a whole-task number) ·
-**[2 — SemanticFS + Graph-Lite](docs/PHASE_2.md)** *(in progress)* — CodeSymbol graph
-via stdlib `ast` (Python) + tree-sitter (JS/TS/…), every edge with confidence +
-resolution provenance. Phase 2's admission experiment is the first real product gate.
+The package also ships the production-path runtime the B-series validated:
+
+- **`contextruntime/retirement.py`** — `RetirementPlanner → HistoryMutationPlan → HistoryMutator`
+  (policy separated from mechanism; safe-by-construction retirement of superseded/cold tool
+  results).
+- **`contextruntime/gateway.py` + `gateway_proxy.py`** — a stdlib HTTP gateway
+  (`python -m contextruntime.gateway_proxy`, point `ANTHROPIC_BASE_URL` at it) with modes
+  `CR_GATEWAY_MODE=off|observe|enforce`, thinking-GC (`CR_GATEWAY_THINKING_KEEP`), and
+  response-level fail-open (any upstream 4xx to a mutated body resends the original bytes —
+  **0 rejected mutations in 17/17 live enforce sessions**).
+- **`contextruntime/cachemodel.py` + `cachealign.py`** — the prefix-cache cost model (calibrated
+  exact on live sessions) and the cache-aligned scheduler
+  (`CR_GATEWAY_CACHE_ALIGN=off|cold|gated`): fired mutations become persistent/byte-stable;
+  new mutations fire only when the cache is cold or a break-even rule clears.
+- **`contextruntime/prefixdoctor.py`** — `cr doctor --prefix`: zero-quota capture + per-item
+  audit of the fixed prefix (what to KEEP/DEFER/DISABLE, with feasibility tags).
+
+Earlier phases (**[STATUS.md](docs/STATUS.md)**): 0b residency graph · 1 ContextReduce ·
+2 SemanticFS/Graph-Lite — the graph-retrieval line was **closed by measurement** (G1/G2, B5):
+the wins live in admission + lifetime, not in out-searching the model.
 
 ### `contextscope/` — Phase 0 batch profilers (reference)
 
@@ -63,6 +84,40 @@ internal/design-partner evidence until independently replicated):
 - Strict hash-identical re-delivery only **2.4%**; model-switch churn only **2.7%**;
   rewrite amplification **1.3×** (edits are already patches).
 - Occupancy concentrates: the **top 20 sessions = 74%** of it.
+
+## Final results — the B-series (2026-08)
+
+Every number below is from **preregistered, live, graded experiments on real Claude Code
+sessions** (single environment, django/SWE-bench-Verified tasks; treat as design-partner
+evidence pending replication on other repos). Full write-ups in `docs/b*-findings.md`;
+frozen artifacts and per-session gateway logs in `corpus/analysis/`.
+
+| claim | number | status |
+|---|---|---|
+| End-to-end **context-workload** reduction (admission + retirement + thinking-GC), quality non-inferior (9 vs 10 of 12 graded successes) | **−41.5%** pooled (per-task −28…−59%) | **LIVE** — B6, 24 sessions |
+| **Live dollar** reduction, gateway configuration (admission through proxy + gated scheduler), quality 9/9 vs 9/9 | **−29.3%** (CLI billing agrees: −29.2%) | **LIVE** — B8v2, vs preregistered prediction −29.5% (0.2pp hit) |
+| Cache-cost model (1h-tier pricing, partial interior hits, extent semantics) | exact on 11/12 native sessions; 7% median on mutated; **0.2pp** on a frozen live prediction | **LIVE-VALIDATED** — B7/B8 |
+| Mutation safety: rejected mutated requests; retirement-caused re-reads | **0 of 17** live enforce sessions; re-reads unchanged (11 vs 12) | **LIVE** — B6+B8 |
+| Giant-long-context interactive regime (retirement + thinking dollars) | **~−60%** pooled (median session ≈ 0 — value is tail-concentrated) | **MODELED** — B7 replay over 54 real sessions; not yet live |
+
+**The thesis the data settled:** `token efficiency ≈ admission control + lifetime control` —
+control *what enters* the prefix and *how long it stays*. Retrieval sophistication (code graphs,
+discovery-packet substitution) was measured and closed: enforced live, eager discovery packets
+made sessions **+71.6% more expensive** (B5.3).
+
+**Platform facts discovered en route** (each independently useful):
+
+1. This client requests the **1-hour prompt-cache TTL — cache writes bill at 2.0×** base input,
+   which is why naive history mutation saves tokens but not dollars (B6's −41.5% tokens was only
+   −2.5% dollars until scheduling fixed it).
+2. **A custom `ANTHROPIC_BASE_URL` disables MCP tool-schema deferral** — any gateway deployment
+   silently starts ~43k tokens/request behind the native client. **Admission is not an optional
+   lever in a gateway product; it is the entry fee** (B8v1).
+3. The prompt cache serves **partial interior hits**, and the 1h TTL is **soft** (65-minute idle
+   gaps did not expire it live).
+4. Claude Code stores one API call as several transcript records sharing a `requestId` — usage
+   analysis must merge them (`corpus/transcript_util.merged_records`) or per-turn numbers
+   inflate ~1.9×.
 
 ## Run it
 
@@ -98,8 +153,13 @@ local file paths and is never committed.
 
 ## Status
 
-Foundation frozen; building **Phase 0b → 1 → the Phase-2 admission experiment**.
-Everything past Phase 2 stays evidence-gated — measured before built.
+**B-series complete and frozen** (B1–B8; research lines B1/B2/G1/G2/B5 closed by measurement).
+Live-demonstrated: 41.5% context workload (B6) · 29.3% gateway dollars (B8) · scheduler no-harm
+and mutation safety (17/17). Remaining modeled-only claim: the ~−60% giant-session regime (B7),
+whose validation requires a live run in that regime. The experiment log, in order:
+`docs/b3-findings.md` → `b3.1/b3.2` → `B3_DECISION.md` → `path-to-50.md` → `prefix-doctor-findings.md`
+→ `call-collapse-findings.md` → `joint-stack-findings.md` → `executor-ab-findings.md` →
+`b6-protocol.md`/`b6-findings.md` → `b7-findings.md` → `b8-protocol.md`/`b8-findings.md`.
 
 ---
 
