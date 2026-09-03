@@ -126,7 +126,30 @@ made sessions **+71.6% more expensive** (B5.3).
    analysis must merge them (`corpus/transcript_util.merged_records`) or per-turn numbers
    inflate ~1.9×.
 
-## Run it
+## Run it — quickstart
+
+**Step-by-step usage guide: [docs/USAGE.md](docs/USAGE.md)** (requirements, both paths, every
+env var, safety properties, how to confirm it's working, current limitations).
+
+Two ways to use it with Claude Code today:
+
+```bash
+# Path 1 — no gateway, any plan: audit the fixed prefix (zero tokens billed) and fix your config
+python3 -m contextruntime.cli doctor --prefix --cwd /path/to/project --sessions 30
+
+# Path 2 — the gateway: OBSERVE first (log-only), then ENFORCE
+CR_GATEWAY_MODE=observe CR_GATEWAY_LOG=$HOME/cr-gateway.jsonl python3 -m contextruntime.gateway_proxy
+ANTHROPIC_BASE_URL=http://127.0.0.1:8787 claude --disallowedTools <never-used tools from the doctor> ...
+CR_GATEWAY_MODE=enforce CR_GATEWAY_THINKING_KEEP=1 CR_GATEWAY_CACHE_ALIGN=gated python3 -m contextruntime.gateway_proxy
+```
+
+**Provider support (honest):** Claude Code → Anthropic API is supported and live-validated. Any
+client speaking the Anthropic Messages format should work but is unvalidated. **GPT/OpenAI, Gemini,
+and local vLLM/Ollama models are not supported at runtime yet** — the gateway parses Anthropic
+message shapes only; those providers exist as cost-model presets for offline replay
+(`docs/provider-profiles.md`) and need an OpenAI-format adapter plus a calibration pass.
+
+Legacy batch profilers (Phase 0, reference):
 
 ```bash
 python3 contextscope/contextscope.py            # full corpus  -> reports/report.md + .json
