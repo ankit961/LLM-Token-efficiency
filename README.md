@@ -22,6 +22,15 @@ resolution, and for how long.
 
 ## What's here
 
+### Research papers
+
+The repository now includes two full, reproducible papers and a source-linked map of prior work:
+
+- **[Tokens Are Multiplied by Turns](papers/dist/context-residency-measurement.pdf)** — measurement, opportunity ceilings, and the negative-result path that narrowed the design space.
+- **[ContextRuntime](papers/dist/contextruntime-systems.pdf)** — admission, safe lifetime control, cache-aware scheduling, and staged B6/B7/B8 evaluation.
+- **[Research landscape](papers/RESEARCH_LANDSCAPE.md)** — prompt compression, agent memory, code/tool retrieval, serving caches, cache economics, and the specific gap this project fills.
+- **[Paper sources and reproduction guide](papers/README.md)** — LaTeX, bibliography, generated figures/tables, evidence grades, and exact build commands.
+
 ### `contextruntime/` — Phase 0b package (ContextScope + the Context Residency Graph)
 
 The committed foundation: transcripts are ingested into a content-addressed
