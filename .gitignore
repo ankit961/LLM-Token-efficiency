@@ -6,6 +6,18 @@ reports_test/
 
 # Design-doc PDFs (business strategy) — held out of the public repo by default.
 *.pdf
+!papers/figures/*.pdf
+!papers/dist/*.pdf
+
+# LaTeX build intermediates (stable paper PDFs live in papers/dist/).
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.synctex.gz
 
 # Python
 __pycache__/

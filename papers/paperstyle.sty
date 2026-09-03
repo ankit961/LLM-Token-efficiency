@@ -1,0 +1,67 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{paperstyle}[ContextRuntime paper style]
+
+\RequirePackage[letterpaper,top=0.68in,bottom=0.72in,left=0.68in,right=0.68in,columnsep=0.24in]{geometry}
+\RequirePackage[T1]{fontenc}
+\RequirePackage{lmodern}
+\RequirePackage{microtype}
+\RequirePackage{graphicx}
+\RequirePackage{booktabs}
+\RequirePackage{tabularx}
+\RequirePackage{array}
+\RequirePackage{amsmath,amssymb}
+\RequirePackage{xcolor}
+\RequirePackage{enumitem}
+\RequirePackage{caption}
+\RequirePackage{fancyhdr}
+\RequirePackage{titlesec}
+\RequirePackage{url}
+\RequirePackage[hidelinks]{hyperref}
+
+\definecolor{CRBlue}{HTML}{176B87}
+\definecolor{CRTeal}{HTML}{2A9D8F}
+\definecolor{CRGold}{HTML}{B98216}
+\definecolor{CRRed}{HTML}{B94B45}
+\definecolor{CRInk}{HTML}{23313D}
+\definecolor{CRMuted}{HTML}{66727E}
+\definecolor{CRPale}{HTML}{EEF4F6}
+
+\hypersetup{colorlinks=true,linkcolor=CRBlue,citecolor=CRBlue,urlcolor=CRBlue,pdfborder={0 0 0}}
+\urlstyle{same}
+\setlength{\parindent}{0.9em}
+\setlength{\parskip}{0pt}
+\setlist{nosep,leftmargin=1.25em}
+\setlist[description]{style=nextline,leftmargin=1.25em,labelindent=0pt}
+\captionsetup{font=small,labelfont={bf,color=CRInk},skip=4pt}
+\titleformat{\section}{\large\bfseries\color{CRInk}}{\thesection}{0.45em}{}
+\titleformat{\subsection}{\normalsize\bfseries\color{CRInk}}{\thesubsection}{0.4em}{}
+\titlespacing*{\section}{0pt}{1.4ex plus .3ex}{0.6ex}
+\titlespacing*{\subsection}{0pt}{1.0ex plus .2ex}{0.35ex}
+\renewcommand{\topfraction}{0.92}
+\renewcommand{\bottomfraction}{0.85}
+\renewcommand{\textfraction}{0.06}
+\renewcommand{\floatpagefraction}{0.88}
+\setlength{\textfloatsep}{8pt plus 2pt minus 2pt}
+\setlength{\floatsep}{7pt plus 2pt minus 2pt}
+\setlength{\intextsep}{7pt plus 2pt minus 2pt}
+\setlength{\tabcolsep}{3.5pt}
+
+\newcommand{\tokensturn}{token--turn}
+\newcommand{\tokensturns}{token--turns}
+\newcommand{\live}{\textcolor{CRTeal}{\textsc{live}}}
+\newcommand{\modeled}{\textcolor{CRGold}{\textsc{modeled}}}
+\newcommand{\observed}{\textcolor{CRBlue}{\textsc{observed}}}
+\newcommand{\counterfactual}{\textcolor{CRRed}{\textsc{counterfactual}}}
+\newcommand{\claimbox}[1]{\par\smallskip\noindent\colorbox{CRPale}{\parbox{0.965\columnwidth}{\small #1}}\par\smallskip}
+\newcommand{\repo}{\url{https://github.com/ankit961/LLM-Token-efficiency}}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\footnotesize\color{CRMuted}\PaperShortTitle}
+\fancyhead[R]{\footnotesize\color{CRMuted}ContextRuntime}
+\fancyfoot[L]{\footnotesize\color{CRMuted}\repo}
+\fancyfoot[R]{\footnotesize\color{CRMuted}\thepage}
+\renewcommand{\headrulewidth}{0.25pt}
+\renewcommand{\footrulewidth}{0pt}
+
+\AtBeginDocument{\color{CRInk}}
