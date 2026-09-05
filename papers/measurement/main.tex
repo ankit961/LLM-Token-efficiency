@@ -1,10 +1,16 @@
 \documentclass[10pt,twocolumn]{article}
 \newcommand{\PaperShortTitle}{Measuring Coding-Agent Context Residency}
 \usepackage{../paperstyle}
+\hypersetup{
+  pdftitle={Tokens Are Multiplied by Turns: Measuring Context Residency, Reuse, and Reducibility in Coding Agents},
+  pdfauthor={Ankit Chauhan},
+  pdfsubject={Measurement of LLM coding-agent context residency and token efficiency},
+  pdfkeywords={LLM agents, token efficiency, context optimization, prompt caching, coding agents}
+}
 
 \title{\vspace{-1.2em}\textbf{Tokens Are Multiplied by Turns:}\\
 \Large Measuring Context Residency, Reuse, and Reducibility in Coding Agents}
-\author{Ankit\\\small\repo}
+\author{Ankit Chauhan\\\small InfyU Labs}
 \date{}
 
 \begin{document}
@@ -569,6 +575,7 @@ The companion paper evaluates that systems path.
 
 \section*{Artifact and Reproducibility Note}
 
+\noindent\textbf{Code and artifacts:} \repo\par\smallskip
 The repository contains the frozen task plan, observation protocols, aggregate artifacts, mechanism
 findings, analysis code, and the exact script that regenerates this paper's figure and bootstrap
 intervals.  Run \texttt{python3 papers/scripts/generate\_assets.py} from the repository root, then
