@@ -3,10 +3,16 @@
 \usepackage{../paperstyle}
 \usepackage{tikz}
 \usetikzlibrary{arrows.meta,positioning,fit}
+\hypersetup{
+  pdftitle={ContextRuntime: Cache-Aware Admission and Lifetime Control for Token-Efficient Coding Agents},
+  pdfauthor={Ankit Chauhan},
+  pdfsubject={A cache-aware runtime for LLM coding-agent context optimization},
+  pdfkeywords={LLM agents, token efficiency, context optimization, prompt caching, coding agents}
+}
 
 \title{\vspace{-1.2em}\textbf{ContextRuntime:}\\
 \Large Cache-Aware Admission and Lifetime Control for Token-Efficient Coding Agents}
-\author{Ankit\\\small\repo}
+\author{Ankit Chauhan\\\small InfyU Labs}
 \date{}
 
 \begin{document}
@@ -585,6 +591,7 @@ testable hypothesis rather than a marketed result.
 
 \section*{Artifact and Reproducibility Note}
 
+\noindent\textbf{Code and artifacts:} \repo\par\smallskip
 The repository contains the B6 and B8 protocols, task-level live artifacts, treatment decision logs,
 B7 cache simulator, provider profiles, scheduler and gateway code, regression tests, and a script that
 recomputes all tables and figures without model calls.  From the repository root, run
