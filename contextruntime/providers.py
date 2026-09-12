@@ -73,6 +73,15 @@ PROFILES = {
              "Gemini's EXPLICIT cache is storage-priced per token-hour — a different objective "
              "this prefix model does not represent (residency there has a direct $/hour meter, "
              "which favors retirement even more). Modeling preset; verify then calibrate."),
+    "local-serving": ProviderProfile(
+        "local-serving", read_mult=1.0, write_mult=1.0, ttl_s=0.0, out_mult=1.0,
+        validated=False,
+        note="Self-hosted vLLM/Ollama: there is NO cache-write premium and NO per-token dollar "
+             "price. Every prompt token costs the same prefill compute whether cached or not, so "
+             "the axes are TTFT / VRAM / throughput, not dollars. read=write=1.0 encodes that "
+             "there is nothing to lose by mutating: break_even_reads=0, mutation always reduces "
+             "prefill work. ttl_s=0 disables idle-gap firing (RadixAttention re-prefills the "
+             "suffix regardless). Residency (Σ input tokens) is the honest metric here, not $."),
 }
 
 
