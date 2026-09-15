@@ -49,8 +49,12 @@ def chat(endpoint, model, messages, tools, *, timeout=180):
     """One OpenAI /v1/chat/completions call. Returns (message_dict, usage_dict, ttft_s)."""
     body = json.dumps({"model": model, "messages": messages, "tools": tools,
                        "temperature": 0, "stream": False}).encode()
+    headers = {"Content-Type": "application/json"}
+    key = os.environ.get("LOCAL_API_KEY")           # e.g. LiteLLM master key; never hardcoded/logged
+    if key:
+        headers["Authorization"] = "Bearer " + key
     req = urllib.request.Request(endpoint.rstrip("/") + "/v1/chat/completions", data=body,
-                                 headers={"Content-Type": "application/json"})
+                                 headers=headers)
     t0 = time.time()
     with urllib.request.urlopen(req, timeout=timeout) as r:
         d = json.loads(r.read())
