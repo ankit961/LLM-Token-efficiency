@@ -1,0 +1,560 @@
+{
+  "source_commit_expected": "4656e8c10a6064b5c4a86b001b3dd8608ba32b3d",
+  "seed": 20260903,
+  "prefix_decomposition": {
+    "n": 60,
+    "share_of_sum_P": {
+      "fixed(system+tools+injected)": 73.03,
+      "result_bash": 4.88,
+      "tool_use_edit": 1.02,
+      "tool_use_bash": 1.19,
+      "result_read": 6.77,
+      "user_text": 0.68,
+      "result_other": 0.04,
+      "tool_use_other": 0.48,
+      "thinking": 0.0,
+      "assistant_text": 0.21,
+      "result_edit": 0.35,
+      "tool_use_write": 0.04,
+      "thinking(est,invisible)": 11.31,
+      "waste:polling_turns": 0.47
+    },
+    "mean_turns": 49.5,
+    "mean_first_P": 42451,
+    "mean_waste_tokens": {
+      "read_same_path_refresh": 2103,
+      "inline_script_input": 326,
+      "edit_old_string_dup_of_read": 0
+    },
+    "mean_polling_turns": 0.27,
+    "hard_lower_bound_fixed_pct": 66.9,
+    "code_commit": "5c3a5d547e5431eb03444c0962c2c3eef31151a8"
+  },
+  "opportunity": {
+    "n_runs": 50,
+    "measured_tokens": 246686,
+    "safe": {
+      "definition": "exploration_reducible / all_fully_measured_read_tokens",
+      "ratio": 0.213,
+      "tokens": 52535
+    },
+    "upper": {
+      "definition": "(exploration_reducible + search_listing_reducible) / all_fully_measured_read_tokens",
+      "ratio": 0.5103,
+      "tokens": 125895
+    },
+    "safe_run_bootstrap_95": [
+      0.15900447202864237,
+      0.2696984021201742
+    ],
+    "upper_run_bootstrap_95": [
+      0.4365170822874719,
+      0.5875043616485093
+    ],
+    "robustness": {
+      "c_safe": {
+        "macro_mean": 0.1732,
+        "macro_median": 0.096,
+        "n": 50,
+        "n_tasks_gt_10pct": 25,
+        "n_tasks_gt_20pct": 16,
+        "p25": 0.0,
+        "p75": 0.2561,
+        "stratum_standardized_mean": 0.2043
+      },
+      "c_upper": {
+        "macro_mean": 0.4739,
+        "macro_median": 0.4472,
+        "n": 50,
+        "n_tasks_gt_10pct": 47,
+        "n_tasks_gt_20pct": 42,
+        "p25": 0.2803,
+        "p75": 0.6777,
+        "stratum_standardized_mean": 0.513
+      },
+      "note": "macro/stratum-standardized are independent robustness checks on the micro (token-weighted) headline, not corrections to it -- all three are reported, none is asserted as more 'true' than the others."
+    }
+  },
+  "b6": {
+    "rows": [
+      {
+        "task": "django__django-16485",
+        "rep": 0,
+        "native_input": 772347,
+        "treatment_input": 555383,
+        "native_calls": 16,
+        "treatment_calls": 22,
+        "native_cache_read": 748460,
+        "treatment_cache_read": 501297,
+        "native_cache_creation": 23855,
+        "treatment_cache_creation": 54042,
+        "native_output": 5672,
+        "treatment_output": 6323,
+        "native_success": true,
+        "treatment_success": true,
+        "retired": 23,
+        "thinking_stripped": 91,
+        "fallback": 0
+      },
+      {
+        "task": "django__django-16485",
+        "rep": 1,
+        "native_input": 758327,
+        "treatment_input": 590632,
+        "native_calls": 16,
+        "treatment_calls": 23,
+        "native_cache_read": 736612,
+        "treatment_cache_read": 546613,
+        "native_cache_creation": 21683,
+        "treatment_cache_creation": 43973,
+        "native_output": 4675,
+        "treatment_output": 7069,
+        "native_success": true,
+        "treatment_success": true,
+        "retired": 22,
+        "thinking_stripped": 86,
+        "fallback": 0
+      },
+      {
+        "task": "django__django-16485",
+        "rep": 2,
+        "native_input": 1241551,
+        "treatment_input": 536326,
+        "native_calls": 25,
+        "treatment_calls": 22,
+        "native_cache_read": 1214151,
+        "treatment_cache_read": 494971,
+        "native_cache_creation": 27350,
+        "treatment_cache_creation": 41311,
+        "native_output": 7995,
+        "treatment_output": 6504,
+        "native_success": true,
+        "treatment_success": true,
+        "retired": 21,
+        "thinking_stripped": 83,
+        "fallback": 0
+      },
+      {
+        "task": "django__django-16502",
+        "rep": 0,
+        "native_input": 1257263,
+        "treatment_input": 772348,
+        "native_calls": 24,
+        "treatment_calls": 26,
+        "native_cache_read": 1228162,
+        "treatment_cache_read": 710582,
+        "native_cache_creation": 29053,
+        "treatment_cache_creation": 61714,
+        "native_output": 4026,
+        "treatment_output": 7002,
+        "native_success": true,
+        "treatment_success": false,
+        "retired": 21,
+        "thinking_stripped": 96,
+        "fallback": 0
+      },
+      {
+        "task": "django__django-16502",
+        "rep": 1,
+        "native_input": 842570,
+        "treatment_input": 1415981,
+        "native_calls": 17,
+        "treatment_calls": 43,
+        "native_cache_read": 817373,
+        "treatment_cache_read": 1297223,
+        "native_cache_creation": 25163,
+        "treatment_cache_creation": 118672,
+        "native_output": 5787,
+        "treatment_output": 15260,
+        "native_success": false,
+        "treatment_success": false,
+        "retired": 82,
+        "thinking_stripped": 464,
+        "fallback": 0
+      },
+      {
+        "task": "django__django-16502",
+        "rep": 2,
+        "native_input": 2653489,
+        "treatment_input": 1230238,
+        "native_calls": 41,
+        "treatment_calls": 36,
+        "native_cache_read": 2598342,
+        "treatment_cache_read": 1149590,
+        "native_cache_creation": 55065,
+        "treatment_cache_creation": 80576,
+        "native_output": 14482,
+        "treatment_output": 9259,
+        "native_success": true,
+        "treatment_success": false,
+        "retired": 46,
+        "thinking_stripped": 249,
+        "fallback": 0
+      },
+      {
+        "task": "django__django-16527",
+        "rep": 0,
+        "native_input": 1431772,
+        "treatment_input": 737793,
+        "native_calls": 26,
+        "treatment_calls": 26,
+        "native_cache_read": 1391531,
+        "treatment_cache_read": 675258,
+        "native_cache_creation": 40189,
+        "treatment_cache_creation": 62483,
+        "native_output": 8379,
+        "treatment_output": 5460,
+        "native_success": true,
+        "treatment_success": true,
+        "retired": 21,
+        "thinking_stripped": 96,
+        "fallback": 0
+      },
+      {
+        "task": "django__django-16527",
+        "rep": 1,
+        "native_input": 1271902,
+        "treatment_input": 823354,
+        "native_calls": 24,
+        "treatment_calls": 30,
+        "native_cache_read": 1235229,
+        "treatment_cache_read": 774481,
+        "native_cache_creation": 36625,
+        "treatment_cache_creation": 48813,
+        "native_output": 5129,
+        "treatment_output": 6614,
+        "native_success": true,
+        "treatment_success": true,
+        "retired": 21,
+        "thinking_stripped": 155,
+        "fallback": 0
+      },
+      {
+        "task": "django__django-16527",
+        "rep": 2,
+        "native_input": 902556,
+        "treatment_input": 493904,
+        "native_calls": 19,
+        "treatment_calls": 20,
+        "native_cache_read": 878006,
+        "treatment_cache_read": 464045,
+        "native_cache_creation": 24512,
+        "treatment_cache_creation": 29819,
+        "native_output": 3880,
+        "treatment_output": 4544,
+        "native_success": true,
+        "treatment_success": true,
+        "retired": 5,
+        "thinking_stripped": 30,
+        "fallback": 0
+      },
+      {
+        "task": "django__django-16901",
+        "rep": 0,
+        "native_input": 2013393,
+        "treatment_input": 406815,
+        "native_calls": 36,
+        "treatment_calls": 17,
+        "native_cache_read": 1972848,
+        "treatment_cache_read": 365932,
+        "native_cache_creation": 40473,
+        "treatment_cache_creation": 40849,
+        "native_output": 12999,
+        "treatment_output": 7129,
+        "native_success": true,
+        "treatment_success": true,
+        "retired": 5,
+        "thinking_stripped": 59,
+        "fallback": 0
+      },
+      {
+        "task": "django__django-16901",
+        "rep": 1,
+        "native_input": 1453204,
+        "treatment_input": 508446,
+        "native_calls": 28,
+        "treatment_calls": 21,
+        "native_cache_read": 1419385,
+        "treatment_cache_read": 463082,
+        "native_cache_creation": 33763,
+        "treatment_cache_creation": 45322,
+        "native_output": 9921,
+        "treatment_output": 7840,
+        "native_success": true,
+        "treatment_success": true,
+        "retired": 20,
+        "thinking_stripped": 102,
+        "fallback": 0
+      },
+      {
+        "task": "django__django-16901",
+        "rep": 2,
+        "native_input": 267739,
+        "treatment_input": 628566,
+        "native_calls": 7,
+        "treatment_calls": 25,
+        "native_cache_read": 237913,
+        "treatment_cache_read": 604536,
+        "native_cache_creation": 29814,
+        "treatment_cache_creation": 23980,
+        "native_output": 2329,
+        "treatment_output": 10673,
+        "native_success": false,
+        "treatment_success": true,
+        "retired": 66,
+        "thinking_stripped": 283,
+        "fallback": 0
+      }
+    ],
+    "per_task": [
+      {
+        "task": "django__django-16485",
+        "native_input": 2772225,
+        "treatment_input": 1682341,
+        "ratio": 0.6068558648738829,
+        "reduction": 0.3931441351261171,
+        "native_success": 3,
+        "treatment_success": 3
+      },
+      {
+        "task": "django__django-16502",
+        "native_input": 4753322,
+        "treatment_input": 3418567,
+        "ratio": 0.7191953332848059,
+        "reduction": 0.2808046667151941,
+        "native_success": 2,
+        "treatment_success": 0
+      },
+      {
+        "task": "django__django-16527",
+        "native_input": 3606230,
+        "treatment_input": 2055051,
+        "ratio": 0.5698613233210306,
+        "reduction": 0.43013867667896943,
+        "native_success": 3,
+        "treatment_success": 3
+      },
+      {
+        "task": "django__django-16901",
+        "native_input": 3734336,
+        "treatment_input": 1543827,
+        "ratio": 0.4134140580815438,
+        "reduction": 0.5865859419184563,
+        "native_success": 2,
+        "treatment_success": 3
+      }
+    ],
+    "native_input": 14866113,
+    "treatment_input": 8699786,
+    "ratio": 0.58520919355315,
+    "reduction": 0.41479080644684996,
+    "task_cluster_bootstrap_95": [
+      0.3109472212215739,
+      0.5482134716465907
+    ],
+    "pair_median_reduction": 0.41923144334462586,
+    "pairs_reduced": 10,
+    "native_success": 10,
+    "treatment_success": 9,
+    "native_calls": 279,
+    "treatment_calls": 311,
+    "native_cache_read": 14478012,
+    "treatment_cache_read": 8047610,
+    "native_cache_creation": 387545,
+    "treatment_cache_creation": 651554,
+    "native_output": 85274,
+    "treatment_output": 93677,
+    "retired": 353,
+    "thinking_stripped": 1794,
+    "fallback": 0
+  },
+  "b7": {
+    "label": "interactive sessions (/private/tmp/claude-501/-Users-pardeepsingh-Desktop-Token-Optimisation/5b8e6383-8f63-458d-8a43-9ab270dbbd1a/scratchpad/b7-interactive-sessions.json)",
+    "n_sessions": 54,
+    "policies": {
+      "native": {
+        "usd": 3237.3413,
+        "usd_delta_pct": 0.0,
+        "usd_delta_median_pct": 0.0,
+        "residency_delta_pct": 0.0,
+        "fires": 0,
+        "retired_tokens": 0,
+        "stripped_tokens": 0
+      },
+      "unaligned": {
+        "usd": 1569.3436,
+        "usd_delta_pct": -51.52,
+        "usd_delta_median_pct": -2.1,
+        "residency_delta_pct": -65.74,
+        "fires": 1655,
+        "retired_tokens": 4395635,
+        "stripped_tokens": 12494159
+      },
+      "cold_gap": {
+        "usd": 1676.9633,
+        "usd_delta_pct": -48.2,
+        "usd_delta_median_pct": 0.0,
+        "residency_delta_pct": -50.61,
+        "fires": 198,
+        "retired_tokens": 3399994,
+        "stripped_tokens": 10864614
+      },
+      "gated": {
+        "usd": 1627.6075,
+        "usd_delta_pct": -49.72,
+        "usd_delta_median_pct": 0.0,
+        "residency_delta_pct": -52.81,
+        "fires": 3243,
+        "retired_tokens": 3499756,
+        "stripped_tokens": 11365281
+      },
+      "oracle": {
+        "usd": 1522.9862,
+        "usd_delta_pct": -52.96,
+        "usd_delta_median_pct": -12.7,
+        "residency_delta_pct": -65.27,
+        "fires": 8225,
+        "retired_tokens": 3685168,
+        "stripped_tokens": 11941407
+      }
+    },
+    "n_well_calibrated": 36,
+    "policies_well_calibrated": {
+      "native": {
+        "usd": 1568.6628,
+        "usd_delta_pct": 0.0,
+        "usd_delta_median_pct": 0.0,
+        "residency_delta_pct": 0.0,
+        "fires": 0,
+        "retired_tokens": 0,
+        "stripped_tokens": 0
+      },
+      "unaligned": {
+        "usd": 597.9758,
+        "usd_delta_pct": -61.88,
+        "usd_delta_median_pct": 1.85,
+        "residency_delta_pct": -74.24,
+        "fires": 807,
+        "retired_tokens": 2488009,
+        "stripped_tokens": 5927749
+      },
+      "cold_gap": {
+        "usd": 621.4005,
+        "usd_delta_pct": -60.39,
+        "usd_delta_median_pct": 0.0,
+        "residency_delta_pct": -65.39,
+        "fires": 125,
+        "retired_tokens": 1782501,
+        "stripped_tokens": 5358417
+      },
+      "gated": {
+        "usd": 604.3479,
+        "usd_delta_pct": -61.47,
+        "usd_delta_median_pct": 0.0,
+        "residency_delta_pct": -66.96,
+        "fires": 2514,
+        "retired_tokens": 1799296,
+        "stripped_tokens": 5452581
+      },
+      "oracle": {
+        "usd": 595.2844,
+        "usd_delta_pct": -62.05,
+        "usd_delta_median_pct": 0.0,
+        "residency_delta_pct": -73.69,
+        "fires": 4287,
+        "retired_tokens": 1909751,
+        "stripped_tokens": 5614698
+      }
+    }
+  },
+  "b8": {
+    "pairs": [
+      {
+        "pair": 0,
+        "native_bite": 894925.5,
+        "treatment_bite": 617610.7,
+        "bite_reduction": 0.3098747325894726,
+        "native_input": 5944341,
+        "treatment_input": 3358745,
+        "residency_reduction": 0.43496764401638466,
+        "native_cli": 2.6855655,
+        "treatment_cli": 1.8560031000000001,
+        "gateway": {
+          "fires": 1,
+          "by_reason": {
+            "cold-start": 1
+          },
+          "persistent_applied": 0,
+          "retired": 0,
+          "thinking_stripped": 0,
+          "fallback_original": 0
+        },
+        "native_success": 3,
+        "treatment_success": 3
+      },
+      {
+        "pair": 1,
+        "native_bite": 551221.6,
+        "treatment_bite": 518780.80000000005,
+        "bite_reduction": 0.05885255585049631,
+        "native_input": 3336261,
+        "treatment_input": 2969533,
+        "residency_reduction": 0.10992185563419643,
+        "native_cli": 1.6544588,
+        "treatment_cli": 1.5595433999999997,
+        "gateway": {
+          "fires": 1,
+          "by_reason": {
+            "cold-start": 1
+          },
+          "persistent_applied": 0,
+          "retired": 0,
+          "thinking_stripped": 0,
+          "fallback_original": 0
+        },
+        "native_success": 3,
+        "treatment_success": 3
+      },
+      {
+        "pair": 2,
+        "native_bite": 737517.9,
+        "treatment_bite": 406481.3,
+        "bite_reduction": 0.44885229226300816,
+        "native_input": 4877580,
+        "treatment_input": 2152273,
+        "residency_reduction": 0.5587416300706498,
+        "native_cli": 2.2133477,
+        "treatment_cli": 1.2226449,
+        "gateway": {
+          "fires": 1,
+          "by_reason": {
+            "cold-start": 1
+          },
+          "persistent_applied": 0,
+          "retired": 0,
+          "thinking_stripped": 0,
+          "fallback_original": 0
+        },
+        "native_success": 3,
+        "treatment_success": 3
+      }
+    ],
+    "native_bite": 2183665.0,
+    "treatment_bite": 1542872.8,
+    "bite_reduction": 0.2934480334666718,
+    "predicted_bite_reduction": 0.295,
+    "prediction_error_percentage_points": -0.1551966533328175,
+    "native_input": 14158182,
+    "treatment_input": 8480551,
+    "residency_reduction": 0.4010141273787835,
+    "native_cli": 6.5533719999999995,
+    "treatment_cli": 4.6381914,
+    "cli_reduction": 0.2922435350839231,
+    "native_success": 9,
+    "treatment_success": 9,
+    "fires": 3,
+    "retired": 0,
+    "thinking_stripped": 0,
+    "fallback": 0
+  }
+}
