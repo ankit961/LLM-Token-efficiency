@@ -1,13 +1,15 @@
 {
-  "_README": "B9 local-SLM A/B. Set endpoint+model to your OpenAI-compatible local server (Ollama/vLLM/LiteLLM), mirror to a django git clone containing these base_commits, then: LOCAL_API_KEY=... python -m corpus.local_agent_ab ab corpus/analysis/b9-local-arm/config.example.json",
+  "_README": "B9 local-SLM A/B. Point endpoint+model at your OpenAI-compatible local server (Ollama/vLLM/LiteLLM); set mirror to a django git clone containing these base_commits; then run: LOCAL_API_KEY=... python -m corpus.local_agent_ab ab corpus/analysis/b9-local-arm/config.example.json",
+  "_recover_note": "recover=false keeps the measured A/B semantics (retirement via re-read hint). Set recover=true to add the recover(id) tool + per-run store: retired results become restorable by exact bytes (provably lossless at source). Treatment-arm only.",
   "endpoint": "http://127.0.0.1:11434",
   "model": "REPLACE_ME (e.g. qwen2.5-coder:7b)",
-  "mirror": "REPLACE_ME (path to a django .git worktree-capable clone with the base commits below)",
+  "mirror": "REPLACE_ME (path to a django clone with the base commits below; git worktree-capable)",
   "workdir": "/tmp/claude/b9-local-run",
   "out": "/tmp/claude/b9-local-run/results.json",
   "reps": 3,
   "max_steps": 30,
   "timeout": 180,
+  "recover": false,
   "tasks": [
     {
       "instance_id": "django__django-16485",

@@ -98,7 +98,8 @@ code. **No local-SLM residency number exists yet; do not cite one.**
 
 ## Why finish the local arm (design rationale, not a measurement)
 
-A session survey of the external context-retention literature places the local-SLM arm as a
+A session survey of the external context-retention literature
+([docs/context-retention-survey.md](context-retention-survey.md)) places the local-SLM arm as a
 strategic moat rather than a convenience:
 
 - **The highest-ratio, information-preserving methods are physically impossible over a closed text
@@ -114,6 +115,12 @@ strategic moat rather than a convenience:
   own retirement+recovery design, protecting the prompt cache via `clear_at_least`. It is prior-art
   validation of the thesis and a plug-and-play path for the Anthropic arm; the "retain without losing
   info" guarantee comes from pairing it with a memory/RAG store the recovery hint keys into.
+
+The harness now carries an opt-in prototype of exactly that pattern: `run_task(..., recover=True)`
+(or `"recover": true` in the ab config) adds a `recover(id)` tool and a per-run store that keeps the
+verbatim bytes of every retired result, so the recovery hint names an id the model can call to page
+the exact original back in — **provably lossless at source**, and off by default so the measured A/B
+is unchanged.
 
 Admission + lifetime control is the shared spine across both arms; the local arm simply has more
 organs. Finishing Arm 2's A/B is what turns "retirement should pay on a free-write provider"

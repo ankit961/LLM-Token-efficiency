@@ -43,6 +43,15 @@ TOOLS = [
 # ADMISSION: the treatment arm ships only the tools the task needs. Here the whole set is already
 # lean (3 tools); admission on a local model is the same lever, expressed as "no unused schemas".
 TREATMENT_TOOLS = TOOLS
+# RECOVERY: the recover tool pages the exact bytes of a retired result back in (its id is shown in
+# the [retired: ... recover(id='...')] stub). It is part of the TREATMENT package — an opt-in
+# affordance (run_task(..., recover=True)) that makes retirement provably lossless AT SOURCE:
+# nothing the model saw is destroyed, only moved out of the active prefix until asked back.
+RECOVER_TOOL = {"type": "function", "function": {
+    "name": "recover",
+    "description": "Restore the exact content of a tool result that was retired. Pass the id shown "
+                   "in its [retired: ... recover(id='...')] placeholder.",
+    "parameters": {"type": "object", "properties": {"id": {"type": "string"}}, "required": ["id"]}}}
 
 
 def chat(endpoint, model, messages, tools, *, timeout=180):
@@ -71,11 +80,16 @@ def _obj_key(name, args):
     return ""
 
 
-def retire(messages):
+def retire(messages, store=None):
     """Provable retirement on OpenAI format: for each supersession key, keep only the LAST tool
     result; stub the earlier ones with a recovery hint. Returns (new_messages, n_retired).
     tool_call args live on the assistant turn that requested them; the result is the next
-    role:'tool' message with the matching tool_call_id."""
+    role:'tool' message with the matching tool_call_id.
+
+    When `store` (a dict) is given, the verbatim content of each result being stubbed is saved under
+    its tool_call_id BEFORE stubbing and the stub names that id — so a recover(id=...) tool can page
+    the exact original back in (provably lossless at source). With store=None (default) the stub is
+    the plain re-read hint, byte-identical to the pre-recover behavior."""
     key_by_id = {}
     for m in messages:
         if m.get("role") == "assistant":
@@ -96,15 +110,27 @@ def retire(messages):
         if m.get("role") == "tool":
             k = key_by_id.get(m.get("tool_call_id"), "")
             if k and last_idx.get(k) != i and not str(m.get("content", "")).startswith("[retired"):
-                nm = dict(m); nm["content"] = "[retired: superseded by a later call; re-read/re-run if needed]"
+                tcid = m.get("tool_call_id")
+                if store is not None:
+                    store[tcid] = m.get("content", "")      # keep the exact bytes for recover(id)
+                    hint = (f"[retired: superseded by a later call; call recover(id='{tcid}') to "
+                            "restore this exact result, or re-read/re-run]")
+                else:
+                    hint = "[retired: superseded by a later call; re-read/re-run if needed]"
+                nm = dict(m); nm["content"] = hint
                 out.append(nm); n += 1
                 continue
         out.append(m)
     return out, n
 
 
-def _exec_tool(name, args, wt):
+def _exec_tool(name, args, wt, store=None):
     try:
+        if name == "recover":
+            if store is None:
+                return "error: recover is not enabled in this run"
+            rid = str(args.get("id", ""))
+            return store.get(rid, f"error: nothing retired under id {rid!r}")
         if name == "read_file":
             p = os.path.join(wt, args["path"]) if not os.path.isabs(args["path"]) else args["path"]
             return open(p, encoding="utf-8", errors="replace").read()[:20000]
@@ -121,9 +147,15 @@ def _exec_tool(name, args, wt):
     return "unknown tool"
 
 
-def run_task(endpoint, model, task_prompt, wt, *, arm, max_steps=30, timeout=180):
-    """Bounded agent loop. Returns metrics incl. Σ prompt_tokens (residency)."""
-    tools = TREATMENT_TOOLS if arm == "T" else TOOLS
+def run_task(endpoint, model, task_prompt, wt, *, arm, max_steps=30, timeout=180, recover=False):
+    """Bounded agent loop. Returns metrics incl. Σ prompt_tokens (residency). `recover=True` (only
+    meaningful on arm T) adds the recover tool and a per-run store so retired results are restorable
+    by id — provably lossless at source; it does not change the default A/B (recover defaults off)."""
+    use_recover = recover and arm == "T"
+    tools = list(TREATMENT_TOOLS if arm == "T" else TOOLS)
+    if use_recover:
+        tools = tools + [RECOVER_TOOL]           # recovery affordance is part of the treatment
+    store = {} if use_recover else None
     messages = [
         {"role": "system", "content": "You are a coding agent. Use the tools to inspect and edit "
          "the repository, then reply DONE. Keep changes minimal."},
@@ -138,7 +170,7 @@ def run_task(endpoint, model, task_prompt, wt, *, arm, max_steps=30, timeout=180
             # counts only the results newly retired THIS turn, making `retired` the true DISTINCT
             # count. (The earlier code retired a throwaway copy and left `messages` full, so every
             # standing stub was re-counted each turn and `retired` over-reported.)
-            messages, n = retire(messages)
+            messages, n = retire(messages, store=store)
             retired += n
         send = messages
         try:
@@ -155,7 +187,8 @@ def run_task(endpoint, model, task_prompt, wt, *, arm, max_steps=30, timeout=180
         if not tcs:
             if "DONE" in (msg.get("content") or "") or calls >= max_steps:
                 return {"calls": calls, "sum_prompt": sum_prompt, "sum_completion": sum_completion,
-                        "retired": retired, "ttft_median": sorted(ttfts)[len(ttfts) // 2] if ttfts else None,
+                        "retired": retired, "recoverable": len(store) if store is not None else 0,
+                        "ttft_median": sorted(ttfts)[len(ttfts) // 2] if ttfts else None,
                         "status": "done"}
             messages.append({"role": "user", "content": "Continue, or reply DONE if finished."})
             continue
@@ -164,10 +197,11 @@ def run_task(endpoint, model, task_prompt, wt, *, arm, max_steps=30, timeout=180
                 args = json.loads(tc["function"].get("arguments") or "{}")
             except Exception:      # noqa: BLE001
                 args = {}
-            result = _exec_tool(tc["function"]["name"], args, wt)
+            result = _exec_tool(tc["function"]["name"], args, wt, store=store)
             messages.append({"role": "tool", "tool_call_id": tc["id"], "content": result})
     return {"calls": calls, "sum_prompt": sum_prompt, "sum_completion": sum_completion,
-            "retired": retired, "status": "max_steps"}
+            "retired": retired, "recoverable": len(store) if store is not None else 0,
+            "status": "max_steps"}
 
 
 def preflight(endpoint, model):
@@ -198,7 +232,7 @@ def _summarize(tasks):
     """Pool residency (Σ prompt_tokens) and graded successes per arm; report the T-vs-N delta.
     Residency is the honest local-serving cost axis — no cache-$ split (see providers.local-serving)."""
     agg = {"N": {"sum_prompt": 0, "success": 0, "graded": 0, "reps": 0},
-           "T": {"sum_prompt": 0, "success": 0, "graded": 0, "reps": 0, "retired": 0}}
+           "T": {"sum_prompt": 0, "success": 0, "graded": 0, "reps": 0, "retired": 0, "recoverable": 0}}
     for reps in tasks.values():
         for key, rec in reps.items():
             arm = rec.get("arm") or key[:1]
@@ -214,6 +248,7 @@ def _summarize(tasks):
                 a["success"] += 1 if g.get("success") else 0
             if arm == "T":
                 a["retired"] += m.get("retired", 0) or 0
+                a["recoverable"] += m.get("recoverable", 0) or 0
     n, t = agg["N"]["sum_prompt"], agg["T"]["sum_prompt"]
     agg["pooled_residency_delta_pct"] = round((t - n) / n * 100, 1) if n else None
     return agg
@@ -255,7 +290,8 @@ def ab(cfg):
                 prompt = (task["problem"] + "\n\nWork in this repository at the current commit; "
                           "implement a fix for the issue above. Run relevant tests if useful. "
                           "Reply DONE when finished.")
-                m = run_task(endpoint, model, prompt, wt, arm=arm, max_steps=max_steps, timeout=timeout)
+                m = run_task(endpoint, model, prompt, wt, arm=arm, max_steps=max_steps,
+                             timeout=timeout, recover=cfg.get("recover", False))
                 rec = {"arm": arm, "rep": rep, "metrics": m}
                 # Real grading on the edited tree (SWE-bench convention): reset the official test
                 # files the agent may have touched, then apply the task's test_patch and run tests.

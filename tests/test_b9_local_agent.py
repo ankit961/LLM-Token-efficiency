@@ -177,3 +177,51 @@ def test_ab_end_to_end_plumbing(tmp_path):
         assert (tmp_path / "wd" / f"demo-1-{k}" / "fix.py").exists()   # agent edited the worktree
     assert out["summary"]["pooled_residency_delta_pct"] is not None
     assert json.load(open(tmp_path / "out.json"))["tasks"]["demo-1"]["N0"]["metrics"]["calls"] == 2
+
+
+def test_recover_restores_retired_result_lossless(tmp_path):
+    """With recover=True, a retired result's EXACT bytes are restorable via recover(id) — the
+    provably-lossless-at-source path. The stub names the id; recover(id) pages the original back in."""
+    (tmp_path / "a.py").write_text("ORIGINAL A CONTENT\n")
+
+    def _read(cid, path):
+        return {"role": "assistant", "content": "", "tool_calls": [
+            {"id": cid, "type": "function",
+             "function": {"name": "read_file", "arguments": json.dumps({"path": path})}}]}
+
+    _FakeOpenAI.script = [
+        _read("c1", "a.py"),                       # first read (will be superseded, then retired)
+        _read("c2", "a.py"),                       # supersedes c1
+        {"role": "assistant", "content": "", "tool_calls": [   # restore c1's exact bytes
+            {"id": "r1", "type": "function",
+             "function": {"name": "recover", "arguments": json.dumps({"id": "c1"})}}]},
+        {"role": "assistant", "content": "DONE"},
+    ]
+    _FakeOpenAI.i = 0
+    _FakeOpenAI.seen_prompt_tokens = []
+    _FakeOpenAI.requests = []
+    srv = ThreadingHTTPServer(("127.0.0.1", 0), _FakeOpenAI)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    try:
+        endpoint = f"http://127.0.0.1:{srv.server_address[1]}"
+        r = run_task(endpoint, "fake", "read a.py twice, recover the first, DONE", str(tmp_path),
+                     arm="T", max_steps=8, recover=True)
+    finally:
+        srv.shutdown()
+    assert r["status"] == "done"
+    assert r["retired"] == 1 and r["recoverable"] == 1
+    final = _FakeOpenAI.requests[-1]               # DONE-turn request carries the recover result
+    restored = [m for m in final if m.get("tool_call_id") == "r1"]
+    assert restored and restored[0]["content"] == "ORIGINAL A CONTENT\n"   # exact bytes back
+
+    # default (recover off) never stores and never offers a recover id
+    _FakeOpenAI.i = 0
+    _FakeOpenAI.requests = []
+    srv2 = ThreadingHTTPServer(("127.0.0.1", 0), _FakeOpenAI)
+    threading.Thread(target=srv2.serve_forever, daemon=True).start()
+    try:
+        ep2 = f"http://127.0.0.1:{srv2.server_address[1]}"
+        r2 = run_task(ep2, "fake", "same but no recover", str(tmp_path), arm="T", max_steps=8)
+    finally:
+        srv2.shutdown()
+    assert r2["recoverable"] == 0
