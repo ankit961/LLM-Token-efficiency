@@ -132,10 +132,15 @@ def run_task(endpoint, model, task_prompt, wt, *, arm, max_steps=30, timeout=180
     sum_prompt = sum_completion = calls = retired = 0
     ttfts = []
     for _ in range(max_steps):
-        send = messages
         if arm == "T":
-            send, n = retire(messages)
+            # Persist retirement into history: a stubbed result STAYS stubbed (byte-stable — the
+            # same invariant the gateway keeps for cache alignment). retire() is idempotent, so n
+            # counts only the results newly retired THIS turn, making `retired` the true DISTINCT
+            # count. (The earlier code retired a throwaway copy and left `messages` full, so every
+            # standing stub was re-counted each turn and `retired` over-reported.)
+            messages, n = retire(messages)
             retired += n
+        send = messages
         try:
             msg, usage, ttft = chat(endpoint, model, send, tools, timeout=timeout)
         except Exception as e:      # noqa: BLE001
@@ -179,6 +184,100 @@ def preflight(endpoint, model):
     return r
 
 
+def worktree(mirror, base, dest):
+    """Fresh detached git worktree at base_commit. Kept after the run (disk is cheap) so any rep
+    can be re-graded or inspected — the same convention as corpus/b6_live_ab.py."""
+    subprocess.run(["git", "-C", mirror, "worktree", "remove", "--force", dest], capture_output=True)
+    subprocess.run(["git", "-C", mirror, "worktree", "add", "--detach", dest, base], capture_output=True)
+    if not os.path.isdir(dest):
+        raise RuntimeError(f"worktree failed: {dest} (is 'mirror' a django git dir with that commit?)")
+    return dest
+
+
+def _summarize(tasks):
+    """Pool residency (Σ prompt_tokens) and graded successes per arm; report the T-vs-N delta.
+    Residency is the honest local-serving cost axis — no cache-$ split (see providers.local-serving)."""
+    agg = {"N": {"sum_prompt": 0, "success": 0, "graded": 0, "reps": 0},
+           "T": {"sum_prompt": 0, "success": 0, "graded": 0, "reps": 0, "retired": 0}}
+    for reps in tasks.values():
+        for key, rec in reps.items():
+            arm = rec.get("arm") or key[:1]
+            a = agg.get(arm)
+            if a is None:
+                continue
+            m = rec.get("metrics") or {}
+            g = rec.get("grade") or {}
+            a["sum_prompt"] += m.get("sum_prompt", 0) or 0
+            a["reps"] += 1
+            if "success" in g:
+                a["graded"] += 1
+                a["success"] += 1 if g.get("success") else 0
+            if arm == "T":
+                a["retired"] += m.get("retired", 0) or 0
+    n, t = agg["N"]["sum_prompt"], agg["T"]["sum_prompt"]
+    agg["pooled_residency_delta_pct"] = round((t - n) / n * 100, 1) if n else None
+    return agg
+
+
+def ab(cfg):
+    """Paired native-vs-treatment A/B over django SWE-bench tasks against ONE local model.
+
+    Same model on both arms, so the delta is the harness's admission + retirement levers, never a
+    model change (the cross-client caveat in the module docstring does not apply here). The cost
+    axis is residency = Σ prompt_tokens; grading is the real B6 native grader (reset the official
+    test files the agent may have touched, apply the task's test_patch, run FAIL_TO_PASS +
+    PASS_TO_PASS under python3.11). A rep is a SUCCESS only if F2P passes and P2P stays green.
+
+    cfg: endpoint, model, mirror (a django git dir with the base commits), workdir, out (results
+         json), tasks[] (each: instance_id, base_commit, problem, test_patch, FAIL_TO_PASS,
+         PASS_TO_PASS), and optional reps (3), max_steps (30), timeout (180).
+    Resumable: existing (task, rep, arm) records in `out` are kept and skipped.
+    """
+    from corpus.b6_grading import apply_patch, grade, reset_test_files   # local grader; lazy import
+
+    endpoint, model = cfg["endpoint"], cfg["model"]
+    reps, max_steps, timeout = cfg.get("reps", 3), cfg.get("max_steps", 30), cfg.get("timeout", 180)
+    os.makedirs(cfg["workdir"], exist_ok=True)
+    out = json.load(open(cfg["out"])) if os.path.exists(cfg["out"]) else {}
+    out.setdefault("model", model)
+    out.setdefault("endpoint", endpoint)
+    out.setdefault("tasks", {})
+    for task in cfg["tasks"]:
+        iid = task["instance_id"]
+        out["tasks"].setdefault(iid, {})
+        for rep in range(reps):
+            for arm in ("N", "T"):
+                key = f"{arm}{rep}"
+                if out["tasks"][iid].get(key):
+                    continue
+                wt = worktree(cfg["mirror"], task["base_commit"],
+                              os.path.join(cfg["workdir"], f"{iid}-{key}"))
+                prompt = (task["problem"] + "\n\nWork in this repository at the current commit; "
+                          "implement a fix for the issue above. Run relevant tests if useful. "
+                          "Reply DONE when finished.")
+                m = run_task(endpoint, model, prompt, wt, arm=arm, max_steps=max_steps, timeout=timeout)
+                rec = {"arm": arm, "rep": rep, "metrics": m}
+                # Real grading on the edited tree (SWE-bench convention): reset the official test
+                # files the agent may have touched, then apply the task's test_patch and run tests.
+                reset_test_files(wt, task["test_patch"])
+                if not apply_patch(wt, task["test_patch"]):
+                    rec["grade"] = {"test_patch_applied": False, "success": False}
+                else:
+                    g = grade(wt, task)
+                    g["test_patch_applied"] = True
+                    rec["grade"] = g
+                out["tasks"][iid][key] = rec
+                json.dump(out, open(cfg["out"], "w"), indent=2)
+                print(f"{iid} {key}: status={m.get('status')} calls={m.get('calls')} "
+                      f"sum_prompt={m.get('sum_prompt')} retired={m.get('retired')} "
+                      f"success={rec['grade'].get('success')}", flush=True)
+    out["summary"] = _summarize(out["tasks"])
+    json.dump(out, open(cfg["out"], "w"), indent=2)
+    print("SUMMARY", json.dumps(out["summary"]))
+    print("wrote", cfg["out"])
+    return out
+
+
 def main(argv):
     if argv and argv[0] == "preflight":
         endpoint = argv[1] if len(argv) > 1 else os.environ.get("LOCAL_ENDPOINT", "http://100.120.148.39:11434")
@@ -187,7 +286,21 @@ def main(argv):
             print("usage: preflight <endpoint> <model>  (or set LOCAL_MODEL)"); return 2
         r = preflight(endpoint, model)
         return 0 if r.get("preflight_pass") else 1
-    print("modes: preflight <endpoint> <model>   (ab mode wired after preflight passes)")
+    if argv and argv[0] == "ab":
+        if len(argv) < 2:
+            print("usage: ab <config.json>\n"
+                  "  config keys: endpoint, model, mirror, workdir, out, tasks[]  "
+                  "(reps/max_steps/timeout optional)")
+            return 2
+        cfg = json.load(open(argv[1]))
+        cfg.setdefault("endpoint", os.environ.get("LOCAL_ENDPOINT", "http://127.0.0.1:11434"))
+        cfg.setdefault("model", os.environ.get("LOCAL_MODEL", ""))
+        if not cfg.get("model"):
+            print("config needs 'model' (or set LOCAL_MODEL)"); return 2
+        ab(cfg)
+        return 0
+    print("modes:\n  preflight <endpoint> <model>   smoke: tool-call, edit a file, stop\n"
+          "  ab <config.json>               paired A/B over django tasks, real B6 grading")
     return 0
 
 
