@@ -43,8 +43,9 @@ TOOLS = [
 # ADMISSION: the treatment arm ships only the tools the task needs. Here the whole set is already
 # lean (3 tools); admission on a local model is the same lever, expressed as "no unused schemas".
 TREATMENT_TOOLS = TOOLS
-# RECOVERY: the recover tool pages the exact bytes of a retired result back in (its id is shown in
-# the [retired: ... recover(id='...')] stub). It is part of the TREATMENT package — an opt-in
+# RECOVERY: the retired store keeps every stubbed result verbatim. Two tools page it back — recover
+# (exact bytes by id) and search (regex/substring find across retired results, returning ids). This
+# is the LCM lcm_expand / lcm_grep pattern. Both are part of the TREATMENT package — an opt-in
 # affordance (run_task(..., recover=True)) that makes retirement provably lossless AT SOURCE:
 # nothing the model saw is destroyed, only moved out of the active prefix until asked back.
 RECOVER_TOOL = {"type": "function", "function": {
@@ -52,6 +53,14 @@ RECOVER_TOOL = {"type": "function", "function": {
     "description": "Restore the exact content of a tool result that was retired. Pass the id shown "
                    "in its [retired: ... recover(id='...')] placeholder.",
     "parameters": {"type": "object", "properties": {"id": {"type": "string"}}, "required": ["id"]}}}
+SEARCH_TOOL = {"type": "function", "function": {
+    "name": "search",
+    "description": "Regex/substring search across RETIRED tool results (those replaced by a "
+                   "[retired ...] stub). Returns matching ids + snippets; call recover(id) to "
+                   "restore a full result. Case-insensitive; invalid regex is matched literally.",
+    "parameters": {"type": "object", "properties": {
+        "query": {"type": "string"},
+        "max_results": {"type": "integer", "description": "default 5"}}, "required": ["query"]}}}
 
 
 def chat(endpoint, model, messages, tools, *, timeout=180):
@@ -112,7 +121,8 @@ def retire(messages, store=None):
             if k and last_idx.get(k) != i and not str(m.get("content", "")).startswith("[retired"):
                 tcid = m.get("tool_call_id")
                 if store is not None:
-                    store[tcid] = m.get("content", "")      # keep the exact bytes for recover(id)
+                    # keep the exact bytes + supersession key for recover(id) / search(query)
+                    store[tcid] = {"content": m.get("content", ""), "key": k}
                     hint = (f"[retired: superseded by a later call; call recover(id='{tcid}') to "
                             "restore this exact result, or re-read/re-run]")
                 else:
@@ -129,8 +139,30 @@ def _exec_tool(name, args, wt, store=None):
         if name == "recover":
             if store is None:
                 return "error: recover is not enabled in this run"
-            rid = str(args.get("id", ""))
-            return store.get(rid, f"error: nothing retired under id {rid!r}")
+            entry = store.get(str(args.get("id", "")))
+            return entry["content"] if entry else f"error: nothing retired under id {args.get('id')!r}"
+        if name == "search":
+            if store is None:
+                return "error: search is not enabled in this run"
+            q = str(args.get("query", ""))
+            try:
+                rx = re.compile(q, re.IGNORECASE)
+            except re.error:
+                rx = re.compile(re.escape(q), re.IGNORECASE)      # invalid regex → literal match
+            limit = int(args.get("max_results") or 5)
+            hits = []
+            for tcid, e in store.items():
+                mt = rx.search(e.get("content", ""))
+                if mt:
+                    a = max(0, mt.start() - 60)
+                    snip = e["content"][a:mt.end() + 60].replace("\n", " ")
+                    hits.append({"id": tcid, "key": e.get("key", ""),
+                                 "snippet": ("…" if a else "") + snip + "…"})
+                    if len(hits) >= limit:
+                        break
+            if not hits:
+                return f"no retired result matches {q!r}"
+            return json.dumps({"matches": hits, "hint": "call recover(id=...) to restore full content"})
         if name == "read_file":
             p = os.path.join(wt, args["path"]) if not os.path.isabs(args["path"]) else args["path"]
             return open(p, encoding="utf-8", errors="replace").read()[:20000]
@@ -149,12 +181,14 @@ def _exec_tool(name, args, wt, store=None):
 
 def run_task(endpoint, model, task_prompt, wt, *, arm, max_steps=30, timeout=180, recover=False):
     """Bounded agent loop. Returns metrics incl. Σ prompt_tokens (residency). `recover=True` (only
-    meaningful on arm T) adds the recover tool and a per-run store so retired results are restorable
-    by id — provably lossless at source; it does not change the default A/B (recover defaults off)."""
+    meaningful on arm T) adds the recover(id) + search(query) tools and a per-run store so retired
+    results are restorable by id or findable by content — provably lossless at source; it does not
+    change the default A/B (recover defaults off)."""
     use_recover = recover and arm == "T"
     tools = list(TREATMENT_TOOLS if arm == "T" else TOOLS)
     if use_recover:
-        tools = tools + [RECOVER_TOOL]           # recovery affordance is part of the treatment
+        # the retired-store retrieval affordance (recover + search) is part of the treatment
+        tools = tools + [RECOVER_TOOL, SEARCH_TOOL]
     store = {} if use_recover else None
     messages = [
         {"role": "system", "content": "You are a coding agent. Use the tools to inspect and edit "

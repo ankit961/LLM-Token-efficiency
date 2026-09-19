@@ -225,3 +225,42 @@ def test_recover_restores_retired_result_lossless(tmp_path):
     finally:
         srv2.shutdown()
     assert r2["recoverable"] == 0
+
+
+def test_search_finds_retired_result_by_content(tmp_path):
+    """search(query) greps the retired store (LCM lcm_grep) and returns the id + snippet, so the
+    model can recover a retired result it doesn't have the id for."""
+    (tmp_path / "a.py").write_text("line one\nUNIQUE_TOKEN_XYZ = 42\nline three\n")
+
+    def _read(cid, path):
+        return {"role": "assistant", "content": "", "tool_calls": [
+            {"id": cid, "type": "function",
+             "function": {"name": "read_file", "arguments": json.dumps({"path": path})}}]}
+
+    _FakeOpenAI.script = [
+        _read("c1", "a.py"),                       # first read (retired once superseded)
+        _read("c2", "a.py"),                       # supersedes c1 → c1 goes to the store
+        {"role": "assistant", "content": "", "tool_calls": [   # find it by content
+            {"id": "s1", "type": "function",
+             "function": {"name": "search", "arguments": json.dumps({"query": "UNIQUE_TOKEN"})}}]},
+        {"role": "assistant", "content": "DONE"},
+    ]
+    _FakeOpenAI.i = 0
+    _FakeOpenAI.seen_prompt_tokens = []
+    _FakeOpenAI.requests = []
+    srv = ThreadingHTTPServer(("127.0.0.1", 0), _FakeOpenAI)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    try:
+        endpoint = f"http://127.0.0.1:{srv.server_address[1]}"
+        r = run_task(endpoint, "fake", "read a.py twice, search UNIQUE_TOKEN, DONE", str(tmp_path),
+                     arm="T", max_steps=8, recover=True)
+    finally:
+        srv.shutdown()
+    assert r["status"] == "done"
+    final = _FakeOpenAI.requests[-1]               # DONE-turn request carries the search result
+    result = [m for m in final if m.get("tool_call_id") == "s1"]
+    assert result
+    payload = json.loads(result[0]["content"])     # matches only c1 (c2 is the kept latest, not retired)
+    assert [h["id"] for h in payload["matches"]] == ["c1"]
+    assert "UNIQUE_TOKEN" in payload["matches"][0]["snippet"]
+    assert payload["matches"][0]["key"] == "path:a.py"

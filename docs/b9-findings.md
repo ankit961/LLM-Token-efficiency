@@ -117,10 +117,12 @@ strategic moat rather than a convenience:
   info" guarantee comes from pairing it with a memory/RAG store the recovery hint keys into.
 
 The harness now carries an opt-in prototype of exactly that pattern: `run_task(..., recover=True)`
-(or `"recover": true` in the ab config) adds a `recover(id)` tool and a per-run store that keeps the
-verbatim bytes of every retired result, so the recovery hint names an id the model can call to page
-the exact original back in — **provably lossless at source**, and off by default so the measured A/B
-is unchanged.
+(or `"recover": true` in the ab config) adds `recover(id)` + `search(query)` tools and a per-run
+store that keeps the verbatim bytes of every retired result — `recover(id)` pages the exact original
+back in (the retirement hint names the id), and `search(query)` greps the store by content to find a
+result whose id the model doesn't have. This is the LCM `lcm_expand` / `lcm_grep` pair
+([docs/context-retention-survey-addendum.md](context-retention-survey-addendum.md)): **provably
+lossless at source**, and off by default so the measured A/B is unchanged.
 
 Admission + lifetime control is the shared spine across both arms; the local arm simply has more
 organs. Finishing Arm 2's A/B is what turns "retirement should pay on a free-write provider"
