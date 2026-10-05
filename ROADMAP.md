@@ -90,8 +90,8 @@ B6's −41.5% input-token reduction is about what admission alone predicts (−4
 the lifetime levers' live share is unidentified; B7's giant-session savings are modeled
 (−49.7% over all 54 sessions, median 0%). The next gate is the comparison no arm has run:
 
-- **Arms:** stock Claude Code using its own tool deferral / tool search · the same client
-  with disallow-only (no proxy) · the full gateway.
+- **Arms:** stock Claude Code with tool search enabled (the B-series native arm used only its
+  default MCP-schema deferral) · the same client with disallow-only (no proxy) · the full gateway.
 - **Tasks:** more tasks and repos, including django-16502 (the one B6 task where
   treatment failed, which B8 dropped).
 - **Grading:** the official SWE-bench harness.
