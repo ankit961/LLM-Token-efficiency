@@ -51,7 +51,7 @@
     "completed": true,
     "native_rereads": 5,
     "result_expansions": 0,
-    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-10554-A-native-rep0-worktree/e66c5a33-7111-4a52-8781-cb618e402ca0.jsonl"
+    "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-10554-A-native-rep0-worktree/e66c5a33-7111-4a52-8781-cb618e402ca0.jsonl"
   },
   "django__django-10554|D1_b256_f125|rep0": {
     "effective_read_tokens": 6417,
@@ -105,7 +105,7 @@
     "completed": true,
     "native_rereads": 5,
     "result_expansions": 0,
-    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-10554-D1-b256-f125-rep0-worktree/99b1aa76-d438-458b-913c-012ed0aa2223.jsonl"
+    "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-10554-D1-b256-f125-rep0-worktree/99b1aa76-d438-458b-913c-012ed0aa2223.jsonl"
   },
   "django__django-10554|D2_b128_f125|rep0": {
     "effective_read_tokens": 5599,
@@ -159,7 +159,7 @@
     "completed": true,
     "native_rereads": 4,
     "result_expansions": 0,
-    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-10554-D2-b128-f125-rep0-worktree/9a9612b9-2a32-42d7-b1ca-b86edb5a1aeb.jsonl"
+    "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-10554-D2-b128-f125-rep0-worktree/9a9612b9-2a32-42d7-b1ca-b86edb5a1aeb.jsonl"
   },
   "django__django-11138|A_native|rep0": {
     "effective_read_tokens": 16312,
@@ -213,7 +213,7 @@
     "completed": true,
     "native_rereads": 9,
     "result_expansions": 0,
-    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-11138-A-native-rep0-worktree/da5e16af-8802-4ca6-9d14-d27df2ffc96f.jsonl"
+    "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-11138-A-native-rep0-worktree/da5e16af-8802-4ca6-9d14-d27df2ffc96f.jsonl"
   },
   "django__django-11138|D1_b256_f125|rep0": {
     "effective_read_tokens": 25580,
@@ -267,7 +267,7 @@
     "completed": true,
     "native_rereads": 8,
     "result_expansions": 0,
-    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-11138-D1-b256-f125-rep0-worktree/5d38daa4-142b-49d6-b34b-eb2170c18ce3.jsonl"
+    "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-11138-D1-b256-f125-rep0-worktree/5d38daa4-142b-49d6-b34b-eb2170c18ce3.jsonl"
   },
   "django__django-11138|D2_b128_f125|rep0": {
     "effective_read_tokens": 18978,
@@ -321,7 +321,7 @@
     "completed": true,
     "native_rereads": 9,
     "result_expansions": 0,
-    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-11138-D2-b128-f125-rep0-worktree/9af46e45-aea1-41de-b8c3-382de76e54bf.jsonl"
+    "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-11138-D2-b128-f125-rep0-worktree/9af46e45-aea1-41de-b8c3-382de76e54bf.jsonl"
   },
   "django__django-12419|A_native|rep0": {
     "effective_read_tokens": 1720,
@@ -375,7 +375,7 @@
     "completed": true,
     "native_rereads": 0,
     "result_expansions": 0,
-    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-12419-A-native-rep0-worktree/de5544ab-9a4c-45a5-b4f3-226ee8d4489a.jsonl"
+    "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-12419-A-native-rep0-worktree/de5544ab-9a4c-45a5-b4f3-226ee8d4489a.jsonl"
   },
   "django__django-12419|D1_b256_f125|rep0": {
     "effective_read_tokens": 3810,
@@ -429,7 +429,7 @@
     "completed": true,
     "native_rereads": 3,
     "result_expansions": 0,
-    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-12419-D1-b256-f125-rep0-worktree/e6779acc-8421-4ca4-b980-c8db7df0ba28.jsonl"
+    "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-12419-D1-b256-f125-rep0-worktree/e6779acc-8421-4ca4-b980-c8db7df0ba28.jsonl"
   },
   "django__django-12419|D2_b128_f125|rep0": {
     "effective_read_tokens": 2982,
@@ -483,7 +483,7 @@
     "completed": true,
     "native_rereads": 4,
     "result_expansions": 0,
-    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-12419-D2-b128-f125-rep0-worktree/8821140e-81a8-417c-8223-d5a9f9bf2789.jsonl"
+    "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-12419-D2-b128-f125-rep0-worktree/8821140e-81a8-417c-8223-d5a9f9bf2789.jsonl"
   },
   "django__django-14608|A_native|rep0": {
     "effective_read_tokens": 3017,
@@ -537,7 +537,7 @@
     "completed": true,
     "native_rereads": 1,
     "result_expansions": 0,
-    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-14608-A-native-rep0-worktree/37fbdfe9-9872-47d8-b9e1-aa4aab4303c9.jsonl"
+    "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-14608-A-native-rep0-worktree/37fbdfe9-9872-47d8-b9e1-aa4aab4303c9.jsonl"
   },
   "django__django-14608|D1_b256_f125|rep0": {
     "effective_read_tokens": 3846,
@@ -591,7 +591,7 @@
     "completed": true,
     "native_rereads": 1,
     "result_expansions": 0,
-    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-14608-D1-b256-f125-rep0-worktree/6b5fa5c3-2127-4c23-a01e-944ac4aa8104.jsonl"
+    "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-14608-D1-b256-f125-rep0-worktree/6b5fa5c3-2127-4c23-a01e-944ac4aa8104.jsonl"
   },
   "django__django-14608|D2_b128_f125|rep0": {
     "effective_read_tokens": 9366,
@@ -645,7 +645,7 @@
     "completed": true,
     "native_rereads": 4,
     "result_expansions": 0,
-    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-14608-D2-b128-f125-rep0-worktree/6e26bdfd-8d0f-4056-841b-97dbdfa094b6.jsonl"
+    "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-14608-D2-b128-f125-rep0-worktree/6e26bdfd-8d0f-4056-841b-97dbdfa094b6.jsonl"
   },
   "django__django-10554|A_native|rep1": {
     "effective_read_tokens": 10115,
@@ -699,7 +699,7 @@
     "completed": true,
     "native_rereads": 6,
     "result_expansions": 0,
-    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-10554-A-native-rep1-worktree/c98f6b8a-504f-42b8-9a27-596bbec50f21.jsonl"
+    "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-10554-A-native-rep1-worktree/c98f6b8a-504f-42b8-9a27-596bbec50f21.jsonl"
   },
   "django__django-10554|D1_b256_f125|rep1": {
     "effective_read_tokens": 10799,
@@ -753,7 +753,7 @@
     "completed": true,
     "native_rereads": 5,
     "result_expansions": 0,
-    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-10554-D1-b256-f125-rep1-worktree/92113311-9605-462d-87bc-ca37f7e185b8.jsonl"
+    "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-10554-D1-b256-f125-rep1-worktree/92113311-9605-462d-87bc-ca37f7e185b8.jsonl"
   },
   "django__django-10554|D2_b128_f125|rep1": {
     "effective_read_tokens": 13920,
@@ -807,7 +807,7 @@
     "completed": true,
     "native_rereads": 14,
     "result_expansions": 0,
-    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-10554-D2-b128-f125-rep1-worktree/56baef51-245f-4f92-b62e-32f216310ee9.jsonl"
+    "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-10554-D2-b128-f125-rep1-worktree/56baef51-245f-4f92-b62e-32f216310ee9.jsonl"
   },
   "django__django-11138|A_native|rep1": {
     "effective_read_tokens": 17677,
@@ -861,7 +861,7 @@
     "completed": true,
     "native_rereads": 11,
     "result_expansions": 0,
-    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-11138-A-native-rep1-worktree/4b623f52-ade2-4b86-ab48-15ac20f6f2cb.jsonl"
+    "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-11138-A-native-rep1-worktree/4b623f52-ade2-4b86-ab48-15ac20f6f2cb.jsonl"
   },
   "django__django-11138|D1_b256_f125|rep1": {
     "effective_read_tokens": 16643,
@@ -915,7 +915,7 @@
     "completed": true,
     "native_rereads": 10,
     "result_expansions": 0,
-    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-11138-D1-b256-f125-rep1-worktree/ab9c8975-7f6e-4a40-a8dc-ae1bb269146a.jsonl"
+    "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-11138-D1-b256-f125-rep1-worktree/ab9c8975-7f6e-4a40-a8dc-ae1bb269146a.jsonl"
   },
   "django__django-11138|D2_b128_f125|rep1": {
     "effective_read_tokens": 15259,
@@ -969,7 +969,7 @@
     "completed": true,
     "native_rereads": 4,
     "result_expansions": 0,
-    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-11138-D2-b128-f125-rep1-worktree/3207842c-0025-411d-95e8-0ef4c00792a3.jsonl"
+    "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-11138-D2-b128-f125-rep1-worktree/3207842c-0025-411d-95e8-0ef4c00792a3.jsonl"
   },
   "django__django-12419|A_native|rep1": {
     "effective_read_tokens": 3380,
@@ -1023,7 +1023,7 @@
     "completed": true,
     "native_rereads": 2,
     "result_expansions": 0,
-    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-12419-A-native-rep1-worktree/838f646a-df67-41b6-a89a-2553d6f52e52.jsonl"
+    "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-12419-A-native-rep1-worktree/838f646a-df67-41b6-a89a-2553d6f52e52.jsonl"
   },
   "django__django-12419|D1_b256_f125|rep1": {
     "effective_read_tokens": 6920,
@@ -1077,7 +1077,7 @@
     "completed": true,
     "native_rereads": 1,
     "result_expansions": 0,
-    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-12419-D1-b256-f125-rep1-worktree/e18f3044-747b-43ba-af5b-9a2b22587c9e.jsonl"
+    "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-12419-D1-b256-f125-rep1-worktree/e18f3044-747b-43ba-af5b-9a2b22587c9e.jsonl"
   },
   "django__django-12419|D2_b128_f125|rep1": {
     "effective_read_tokens": 6981,
@@ -1131,7 +1131,7 @@
     "completed": true,
     "native_rereads": 2,
     "result_expansions": 0,
-    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-12419-D2-b128-f125-rep1-worktree/f21dd4f6-99b3-4563-a145-4d6227df2e8e.jsonl"
+    "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-12419-D2-b128-f125-rep1-worktree/f21dd4f6-99b3-4563-a145-4d6227df2e8e.jsonl"
   },
   "django__django-14608|A_native|rep1": {
     "effective_read_tokens": 3716,
@@ -1185,7 +1185,7 @@
     "completed": true,
     "native_rereads": 1,
     "result_expansions": 0,
-    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-14608-A-native-rep1-worktree/fba2b988-fdab-433c-9dc6-15a2326ee256.jsonl"
+    "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-14608-A-native-rep1-worktree/fba2b988-fdab-433c-9dc6-15a2326ee256.jsonl"
   },
   "django__django-14608|D1_b256_f125|rep1": {
     "effective_read_tokens": 2995,
@@ -1239,7 +1239,7 @@
     "completed": true,
     "native_rereads": 0,
     "result_expansions": 0,
-    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-14608-D1-b256-f125-rep1-worktree/a5881b90-d3e8-4847-8945-c80a26879262.jsonl"
+    "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-14608-D1-b256-f125-rep1-worktree/a5881b90-d3e8-4847-8945-c80a26879262.jsonl"
   },
   "django__django-14608|D2_b128_f125|rep1": {
     "effective_read_tokens": 10017,
@@ -1293,7 +1293,7 @@
     "completed": true,
     "native_rereads": 3,
     "result_expansions": 0,
-    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-14608-D2-b128-f125-rep1-worktree/75fd73ea-2c71-48ae-aa56-1cdb04152c2f.jsonl"
+    "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-14608-D2-b128-f125-rep1-worktree/75fd73ea-2c71-48ae-aa56-1cdb04152c2f.jsonl"
   },
   "django__django-10554|A_native|rep2": {
     "effective_read_tokens": 6978,
@@ -1347,7 +1347,7 @@
     "completed": true,
     "native_rereads": 1,
     "result_expansions": 0,
-    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-10554-A-native-rep2-worktree/81118660-69b2-4539-82d3-bfa9a46c8a11.jsonl"
+    "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-10554-A-native-rep2-worktree/81118660-69b2-4539-82d3-bfa9a46c8a11.jsonl"
   },
   "django__django-10554|D1_b256_f125|rep2": {
     "effective_read_tokens": 7787,
@@ -1401,7 +1401,7 @@
     "completed": true,
     "native_rereads": 3,
     "result_expansions": 0,
-    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-10554-D1-b256-f125-rep2-worktree/6da7fcb1-cf72-4690-be96-75c19205d1f2.jsonl"
+    "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-10554-D1-b256-f125-rep2-worktree/6da7fcb1-cf72-4690-be96-75c19205d1f2.jsonl"
   },
   "django__django-10554|D2_b128_f125|rep2": {
     "effective_read_tokens": 10647,
@@ -1455,7 +1455,7 @@
     "completed": true,
     "native_rereads": 7,
     "result_expansions": 0,
-    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-10554-D2-b128-f125-rep2-worktree/78057506-ffba-437b-b9c9-f3abb8999b28.jsonl"
+    "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-10554-D2-b128-f125-rep2-worktree/78057506-ffba-437b-b9c9-f3abb8999b28.jsonl"
   },
   "django__django-11138|A_native|rep2": {
     "effective_read_tokens": 15661,
@@ -1509,7 +1509,7 @@
     "completed": true,
     "native_rereads": 13,
     "result_expansions": 0,
-    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-11138-A-native-rep2-worktree/58d74b9e-659e-4350-aef4-626991f798ba.jsonl"
+    "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-11138-A-native-rep2-worktree/58d74b9e-659e-4350-aef4-626991f798ba.jsonl"
   },
   "django__django-11138|D1_b256_f125|rep2": {
     "effective_read_tokens": 15190,
@@ -1531,7 +1531,7 @@
     "completed": false,
     "native_rereads": 8,
     "result_expansions": 0,
-    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-11138-D1-b256-f125-rep2-worktree/1d95a860-cae5-4fbc-b99a-1b37c152c8f5.jsonl"
+    "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-11138-D1-b256-f125-rep2-worktree/1d95a860-cae5-4fbc-b99a-1b37c152c8f5.jsonl"
   },
   "django__django-11138|D2_b128_f125|rep2": {
     "effective_read_tokens": 14815,
@@ -1585,7 +1585,7 @@
     "completed": true,
     "native_rereads": 6,
     "result_expansions": 0,
-    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-11138-D2-b128-f125-rep2-worktree/c2a781b2-b410-49a8-9f38-7d0f1db104ea.jsonl"
+    "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-11138-D2-b128-f125-rep2-worktree/c2a781b2-b410-49a8-9f38-7d0f1db104ea.jsonl"
   },
   "django__django-12419|A_native|rep2": {
     "effective_read_tokens": 5534,
@@ -1639,7 +1639,7 @@
     "completed": true,
     "native_rereads": 2,
     "result_expansions": 0,
-    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-12419-A-native-rep2-worktree/f66ac593-121c-41ec-ac74-c8f928bbd770.jsonl"
+    "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-12419-A-native-rep2-worktree/f66ac593-121c-41ec-ac74-c8f928bbd770.jsonl"
   },
   "django__django-12419|D1_b256_f125|rep2": {
     "effective_read_tokens": 3650,
@@ -1693,7 +1693,7 @@
     "completed": true,
     "native_rereads": 1,
     "result_expansions": 0,
-    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-12419-D1-b256-f125-rep2-worktree/6b731ade-5757-4773-9a8b-943deceabfe3.jsonl"
+    "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-12419-D1-b256-f125-rep2-worktree/6b731ade-5757-4773-9a8b-943deceabfe3.jsonl"
   },
   "django__django-12419|D2_b128_f125|rep2": {
     "effective_read_tokens": 5306,
@@ -1747,7 +1747,7 @@
     "completed": true,
     "native_rereads": 3,
     "result_expansions": 0,
-    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-12419-D2-b128-f125-rep2-worktree/854cd9cf-55c4-4916-98a0-6ea5f33ae7c1.jsonl"
+    "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-12419-D2-b128-f125-rep2-worktree/854cd9cf-55c4-4916-98a0-6ea5f33ae7c1.jsonl"
   },
   "django__django-14608|A_native|rep2": {
     "effective_read_tokens": 4919,
@@ -1801,7 +1801,7 @@
     "completed": true,
     "native_rereads": 2,
     "result_expansions": 0,
-    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-14608-A-native-rep2-worktree/00b47ae8-238b-4896-a16f-454d09fc5685.jsonl"
+    "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-14608-A-native-rep2-worktree/00b47ae8-238b-4896-a16f-454d09fc5685.jsonl"
   },
   "django__django-14608|D1_b256_f125|rep2": {
     "effective_read_tokens": 7655,
@@ -1855,7 +1855,7 @@
     "completed": true,
     "native_rereads": 0,
     "result_expansions": 0,
-    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-14608-D1-b256-f125-rep2-worktree/98d9df04-fb97-41ea-b320-4e819d12db67.jsonl"
+    "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-14608-D1-b256-f125-rep2-worktree/98d9df04-fb97-41ea-b320-4e819d12db67.jsonl"
   },
   "django__django-14608|D2_b128_f125|rep2": {
     "effective_read_tokens": 9932,
@@ -1909,7 +1909,7 @@
     "completed": true,
     "native_rereads": 2,
     "result_expansions": 0,
-    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-14608-D2-b128-f125-rep2-worktree/fafb5311-7a93-46b5-b0b1-c22df7833978.jsonl"
+    "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-14608-D2-b128-f125-rep2-worktree/fafb5311-7a93-46b5-b0b1-c22df7833978.jsonl"
   },
   "django__django-10554|A_native|rep3": {
     "effective_read_tokens": 8685,
@@ -1963,7 +1963,7 @@
     "completed": true,
     "native_rereads": 4,
     "result_expansions": 0,
-    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-10554-A-native-rep3-worktree/063596c6-f020-41f9-be7a-3b77b55bb8ef.jsonl"
+    "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-10554-A-native-rep3-worktree/063596c6-f020-41f9-be7a-3b77b55bb8ef.jsonl"
   },
   "django__django-10554|D1_b256_f125|rep3": {
     "effective_read_tokens": 11611,
@@ -2017,7 +2017,7 @@
     "completed": true,
     "native_rereads": 7,
     "result_expansions": 0,
-    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-10554-D1-b256-f125-rep3-worktree/e4ebb923-6fd9-42a2-b072-8a1f7f083616.jsonl"
+    "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-10554-D1-b256-f125-rep3-worktree/e4ebb923-6fd9-42a2-b072-8a1f7f083616.jsonl"
   },
   "django__django-10554|D2_b128_f125|rep3": {
     "effective_read_tokens": 6816,
@@ -2071,7 +2071,7 @@
     "completed": true,
     "native_rereads": 5,
     "result_expansions": 0,
-    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-10554-D2-b128-f125-rep3-worktree/8281395b-7956-4e39-b1b4-f00152b59cd8.jsonl"
+    "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-10554-D2-b128-f125-rep3-worktree/8281395b-7956-4e39-b1b4-f00152b59cd8.jsonl"
   },
   "django__django-11138|A_native|rep3": {
     "effective_read_tokens": 14650,
@@ -2125,7 +2125,7 @@
     "completed": true,
     "native_rereads": 7,
     "result_expansions": 0,
-    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-11138-A-native-rep3-worktree/d7d03dd3-b8e1-46a4-bc90-d65d92fdba39.jsonl"
+    "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-11138-A-native-rep3-worktree/d7d03dd3-b8e1-46a4-bc90-d65d92fdba39.jsonl"
   },
   "django__django-11138|D1_b256_f125|rep3": {
     "effective_read_tokens": 15461,
@@ -2179,7 +2179,7 @@
     "completed": true,
     "native_rereads": 7,
     "result_expansions": 0,
-    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-11138-D1-b256-f125-rep3-worktree/21824764-4e65-46d1-a248-0d6c4fab9623.jsonl"
+    "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-11138-D1-b256-f125-rep3-worktree/21824764-4e65-46d1-a248-0d6c4fab9623.jsonl"
   },
   "django__django-11138|D2_b128_f125|rep3": {
     "effective_read_tokens": 18064,
@@ -2233,7 +2233,7 @@
     "completed": true,
     "native_rereads": 7,
     "result_expansions": 0,
-    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-11138-D2-b128-f125-rep3-worktree/f083ea5a-9609-4cd5-9a0f-8d53fcf29d47.jsonl"
+    "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-11138-D2-b128-f125-rep3-worktree/f083ea5a-9609-4cd5-9a0f-8d53fcf29d47.jsonl"
   },
   "django__django-12419|A_native|rep3": {
     "effective_read_tokens": 2752,
@@ -2287,7 +2287,7 @@
     "completed": true,
     "native_rereads": 1,
     "result_expansions": 0,
-    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-12419-A-native-rep3-worktree/8281ca77-e559-44f1-a795-49df75ccddcd.jsonl"
+    "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-12419-A-native-rep3-worktree/8281ca77-e559-44f1-a795-49df75ccddcd.jsonl"
   },
   "django__django-12419|D1_b256_f125|rep3": {
     "effective_read_tokens": 4260,
@@ -2341,7 +2341,7 @@
     "completed": true,
     "native_rereads": 2,
     "result_expansions": 0,
-    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-12419-D1-b256-f125-rep3-worktree/61cb8b49-66ca-49be-96ae-655914478c3a.jsonl"
+    "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-12419-D1-b256-f125-rep3-worktree/61cb8b49-66ca-49be-96ae-655914478c3a.jsonl"
   },
   "django__django-12419|D2_b128_f125|rep3": {
     "effective_read_tokens": 6525,
@@ -2395,7 +2395,7 @@
     "completed": true,
     "native_rereads": 1,
     "result_expansions": 0,
-    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-12419-D2-b128-f125-rep3-worktree/cb1d01a8-d0d0-49c4-9a39-7e0565aa50e3.jsonl"
+    "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-12419-D2-b128-f125-rep3-worktree/cb1d01a8-d0d0-49c4-9a39-7e0565aa50e3.jsonl"
   },
   "django__django-14608|A_native|rep3": {
     "effective_read_tokens": 3796,
@@ -2449,7 +2449,7 @@
     "completed": true,
     "native_rereads": 2,
     "result_expansions": 0,
-    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-14608-A-native-rep3-worktree/92035fec-e21d-49be-a869-c82a36308ea0.jsonl"
+    "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-14608-A-native-rep3-worktree/92035fec-e21d-49be-a869-c82a36308ea0.jsonl"
   },
   "django__django-14608|D1_b256_f125|rep3": {
     "effective_read_tokens": 3293,
@@ -2503,7 +2503,7 @@
     "completed": true,
     "native_rereads": 0,
     "result_expansions": 0,
-    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-14608-D1-b256-f125-rep3-worktree/a55fd330-69a9-4dd6-a70a-52bd0096fff3.jsonl"
+    "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-14608-D1-b256-f125-rep3-worktree/a55fd330-69a9-4dd6-a70a-52bd0096fff3.jsonl"
   },
   "django__django-14608|D2_b128_f125|rep3": {
     "effective_read_tokens": 4831,
@@ -2557,7 +2557,7 @@
     "completed": true,
     "native_rereads": 4,
     "result_expansions": 0,
-    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-14608-D2-b128-f125-rep3-worktree/be4ef5c0-349e-402c-bc39-20ea3fe84ca9.jsonl"
+    "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-14608-D2-b128-f125-rep3-worktree/be4ef5c0-349e-402c-bc39-20ea3fe84ca9.jsonl"
   },
   "django__django-10554|A_native|rep4": {
     "effective_read_tokens": 6837,
@@ -2611,7 +2611,7 @@
     "completed": true,
     "native_rereads": 6,
     "result_expansions": 0,
-    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-10554-A-native-rep4-worktree/459fa559-5f5a-401e-a6a7-1ce41dc4dc0e.jsonl"
+    "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-10554-A-native-rep4-worktree/459fa559-5f5a-401e-a6a7-1ce41dc4dc0e.jsonl"
   },
   "django__django-10554|D1_b256_f125|rep4": {
     "effective_read_tokens": 7130,
@@ -2665,7 +2665,7 @@
     "completed": true,
     "native_rereads": 5,
     "result_expansions": 0,
-    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-10554-D1-b256-f125-rep4-worktree/ba110ea1-75f3-463f-8aa1-81726dd9fcbe.jsonl"
+    "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-10554-D1-b256-f125-rep4-worktree/ba110ea1-75f3-463f-8aa1-81726dd9fcbe.jsonl"
   },
   "django__django-10554|D2_b128_f125|rep4": {
     "effective_read_tokens": 8609,
@@ -2719,7 +2719,7 @@
     "completed": true,
     "native_rereads": 8,
     "result_expansions": 0,
-    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-10554-D2-b128-f125-rep4-worktree/35989a95-cc02-4802-8574-e7390e3c48d3.jsonl"
+    "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-10554-D2-b128-f125-rep4-worktree/35989a95-cc02-4802-8574-e7390e3c48d3.jsonl"
   },
   "django__django-11138|A_native|rep4": {
     "effective_read_tokens": 13682,
@@ -2741,7 +2741,7 @@
     "completed": false,
     "native_rereads": 11,
     "result_expansions": 0,
-    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-11138-A-native-rep4-worktree/205c5ed0-5b37-4bc6-8857-3f41084818f8.jsonl"
+    "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-11138-A-native-rep4-worktree/205c5ed0-5b37-4bc6-8857-3f41084818f8.jsonl"
   },
   "django__django-11138|D1_b256_f125|rep4": {
     "effective_read_tokens": 16317,
@@ -2795,7 +2795,7 @@
     "completed": true,
     "native_rereads": 5,
     "result_expansions": 0,
-    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-11138-D1-b256-f125-rep4-worktree/d38674a2-f676-421b-a221-3918e81c35f0.jsonl"
+    "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-11138-D1-b256-f125-rep4-worktree/d38674a2-f676-421b-a221-3918e81c35f0.jsonl"
   },
   "django__django-11138|D2_b128_f125|rep4": {
     "effective_read_tokens": 11219,
@@ -2849,7 +2849,7 @@
     "completed": true,
     "native_rereads": 5,
     "result_expansions": 0,
-    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-11138-D2-b128-f125-rep4-worktree/70ee7272-82e5-4bbc-9e5f-b256960cfdcc.jsonl"
+    "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-11138-D2-b128-f125-rep4-worktree/70ee7272-82e5-4bbc-9e5f-b256960cfdcc.jsonl"
   },
   "django__django-12419|A_native|rep4": {
     "effective_read_tokens": 3750,
@@ -2903,7 +2903,7 @@
     "completed": true,
     "native_rereads": 1,
     "result_expansions": 0,
-    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-12419-A-native-rep4-worktree/fa55e3bc-8d6f-4f48-9e97-1f125a7ca349.jsonl"
+    "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-12419-A-native-rep4-worktree/fa55e3bc-8d6f-4f48-9e97-1f125a7ca349.jsonl"
   },
   "django__django-12419|D1_b256_f125|rep4": {
     "effective_read_tokens": 7955,
@@ -2957,7 +2957,7 @@
     "completed": true,
     "native_rereads": 2,
     "result_expansions": 0,
-    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-12419-D1-b256-f125-rep4-worktree/0ee07a0f-1926-40f8-8f5e-37105d7a08e4.jsonl"
+    "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-12419-D1-b256-f125-rep4-worktree/0ee07a0f-1926-40f8-8f5e-37105d7a08e4.jsonl"
   },
   "django__django-12419|D2_b128_f125|rep4": {
     "effective_read_tokens": 3501,
@@ -3011,7 +3011,7 @@
     "completed": true,
     "native_rereads": 2,
     "result_expansions": 0,
-    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-12419-D2-b128-f125-rep4-worktree/8c4b741e-23cf-4d3d-8669-4167dcc74a50.jsonl"
+    "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-12419-D2-b128-f125-rep4-worktree/8c4b741e-23cf-4d3d-8669-4167dcc74a50.jsonl"
   },
   "django__django-14608|A_native|rep4": {
     "effective_read_tokens": 5676,
@@ -3065,7 +3065,7 @@
     "completed": true,
     "native_rereads": 2,
     "result_expansions": 0,
-    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-14608-A-native-rep4-worktree/c2976fc7-e278-46f6-b286-1a847da6aaec.jsonl"
+    "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-14608-A-native-rep4-worktree/c2976fc7-e278-46f6-b286-1a847da6aaec.jsonl"
   },
   "django__django-14608|D1_b256_f125|rep4": {
     "effective_read_tokens": 5212,
@@ -3119,7 +3119,7 @@
     "completed": true,
     "native_rereads": 1,
     "result_expansions": 0,
-    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-14608-D1-b256-f125-rep4-worktree/9d156ae8-b4e2-4fae-8630-937c0b2dd59d.jsonl"
+    "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-14608-D1-b256-f125-rep4-worktree/9d156ae8-b4e2-4fae-8630-937c0b2dd59d.jsonl"
   },
   "django__django-14608|D2_b128_f125|rep4": {
     "effective_read_tokens": 12263,
@@ -3173,6 +3173,6 @@
     "completed": false,
     "native_rereads": 2,
     "result_expansions": 0,
-    "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-14608-D2-b128-f125-rep4-worktree/f7547708-01dd-41e4-8377-9386579ce3f4.jsonl"
+    "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-step7-run-django--django-14608-D2-b128-f125-rep4-worktree/f7547708-01dd-41e4-8377-9386579ce3f4.jsonl"
   }
 }

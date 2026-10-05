@@ -369,7 +369,7 @@
     "fallback": 0
   },
   "b7": {
-    "label": "interactive sessions (/private/tmp/claude-501/-Users-pardeepsingh-Desktop-Token-Optimisation/5b8e6383-8f63-458d-8a43-9ab270dbbd1a/scratchpad/b7-interactive-sessions.json)",
+    "label": "interactive sessions (/private/tmp/claude-501/-Users-<user>-Desktop-Token-Optimisation/5b8e6383-8f63-458d-8a43-9ab270dbbd1a/scratchpad/b7-interactive-sessions.json)",
     "n_sessions": 54,
     "policies": {
       "native": {

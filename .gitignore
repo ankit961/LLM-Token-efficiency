@@ -44,3 +44,6 @@ venv/
 # Local backup of raw experiment journals (moved off /tmp for durability; large binary sqlite +
 # potentially contains local file paths in patches/logs — never commit). See docs/HANDOVER-*.md.
 .local-data/
+
+# local-only list of sensitive names for scripts/privacy_sweep.py (never commit it)
+.privacy-patterns

@@ -7,7 +7,7 @@
         "done": true,
         "cost_usd": 0.4094319,
         "status": "success",
-        "wt": "/private/tmp/claude-501/-Users-pardeepsingh-Desktop-Token-Optimisation/5b8e6383-8f63-458d-8a43-9ab270dbbd1a/scratchpad/b8v2-run/session-N0/wt-django__django-16485",
+        "wt": "/private/tmp/claude-501/-Users-<user>-Desktop-Token-Optimisation/5b8e6383-8f63-458d-8a43-9ab270dbbd1a/scratchpad/b8v2-run/session-N0/wt-django__django-16485",
         "grade": {
           "patch_applied": true,
           "f2p_pass": true,
@@ -26,7 +26,7 @@
         "done": true,
         "cost_usd": 1.4753418,
         "status": "success",
-        "wt": "/private/tmp/claude-501/-Users-pardeepsingh-Desktop-Token-Optimisation/5b8e6383-8f63-458d-8a43-9ab270dbbd1a/scratchpad/b8v2-run/session-N0/wt-django__django-16527",
+        "wt": "/private/tmp/claude-501/-Users-<user>-Desktop-Token-Optimisation/5b8e6383-8f63-458d-8a43-9ab270dbbd1a/scratchpad/b8v2-run/session-N0/wt-django__django-16527",
         "grade": {
           "patch_applied": true,
           "f2p_pass": true,
@@ -45,7 +45,7 @@
         "done": true,
         "cost_usd": 0.8007917999999998,
         "status": "success",
-        "wt": "/private/tmp/claude-501/-Users-pardeepsingh-Desktop-Token-Optimisation/5b8e6383-8f63-458d-8a43-9ab270dbbd1a/scratchpad/b8v2-run/session-N0/wt-django__django-16901",
+        "wt": "/private/tmp/claude-501/-Users-<user>-Desktop-Token-Optimisation/5b8e6383-8f63-458d-8a43-9ab270dbbd1a/scratchpad/b8v2-run/session-N0/wt-django__django-16901",
         "grade": {
           "patch_applied": true,
           "f2p_pass": true,
@@ -59,7 +59,7 @@
           "test_patch_applied": true
         }
       },
-      "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-b8v2-run-session-N0/73cf63fd-79ba-4bdd-8b5a-0b7edc38761d.jsonl",
+      "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-b8v2-run-session-N0/73cf63fd-79ba-4bdd-8b5a-0b7edc38761d.jsonl",
       "metrics": {
         "calls": 76,
         "sum_input": 5944341,
@@ -86,7 +86,7 @@
         "done": true,
         "cost_usd": 0.46356319999999995,
         "status": "success",
-        "wt": "/private/tmp/claude-501/-Users-pardeepsingh-Desktop-Token-Optimisation/5b8e6383-8f63-458d-8a43-9ab270dbbd1a/scratchpad/b8v2-run/session-N1/wt-django__django-16485",
+        "wt": "/private/tmp/claude-501/-Users-<user>-Desktop-Token-Optimisation/5b8e6383-8f63-458d-8a43-9ab270dbbd1a/scratchpad/b8v2-run/session-N1/wt-django__django-16485",
         "grade": {
           "patch_applied": true,
           "f2p_pass": true,
@@ -105,7 +105,7 @@
         "done": true,
         "cost_usd": 0.5719893,
         "status": "success",
-        "wt": "/private/tmp/claude-501/-Users-pardeepsingh-Desktop-Token-Optimisation/5b8e6383-8f63-458d-8a43-9ab270dbbd1a/scratchpad/b8v2-run/session-N1/wt-django__django-16527",
+        "wt": "/private/tmp/claude-501/-Users-<user>-Desktop-Token-Optimisation/5b8e6383-8f63-458d-8a43-9ab270dbbd1a/scratchpad/b8v2-run/session-N1/wt-django__django-16527",
         "grade": {
           "patch_applied": true,
           "f2p_pass": true,
@@ -124,7 +124,7 @@
         "done": true,
         "cost_usd": 0.6189062999999999,
         "status": "success",
-        "wt": "/private/tmp/claude-501/-Users-pardeepsingh-Desktop-Token-Optimisation/5b8e6383-8f63-458d-8a43-9ab270dbbd1a/scratchpad/b8v2-run/session-N1/wt-django__django-16901",
+        "wt": "/private/tmp/claude-501/-Users-<user>-Desktop-Token-Optimisation/5b8e6383-8f63-458d-8a43-9ab270dbbd1a/scratchpad/b8v2-run/session-N1/wt-django__django-16901",
         "grade": {
           "patch_applied": true,
           "f2p_pass": true,
@@ -138,7 +138,7 @@
           "test_patch_applied": true
         }
       },
-      "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-b8v2-run-session-N1/2eb09fcc-7dde-4b5c-8476-ec83ed8e4a78.jsonl",
+      "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-b8v2-run-session-N1/2eb09fcc-7dde-4b5c-8476-ec83ed8e4a78.jsonl",
       "metrics": {
         "calls": 49,
         "sum_input": 3336261,
@@ -165,7 +165,7 @@
         "done": true,
         "cost_usd": 0.4725547999999999,
         "status": "success",
-        "wt": "/private/tmp/claude-501/-Users-pardeepsingh-Desktop-Token-Optimisation/5b8e6383-8f63-458d-8a43-9ab270dbbd1a/scratchpad/b8v2-run/session-N2/wt-django__django-16485",
+        "wt": "/private/tmp/claude-501/-Users-<user>-Desktop-Token-Optimisation/5b8e6383-8f63-458d-8a43-9ab270dbbd1a/scratchpad/b8v2-run/session-N2/wt-django__django-16485",
         "grade": {
           "patch_applied": true,
           "f2p_pass": true,
@@ -184,7 +184,7 @@
         "done": true,
         "cost_usd": 0.8372355000000002,
         "status": "success",
-        "wt": "/private/tmp/claude-501/-Users-pardeepsingh-Desktop-Token-Optimisation/5b8e6383-8f63-458d-8a43-9ab270dbbd1a/scratchpad/b8v2-run/session-N2/wt-django__django-16527",
+        "wt": "/private/tmp/claude-501/-Users-<user>-Desktop-Token-Optimisation/5b8e6383-8f63-458d-8a43-9ab270dbbd1a/scratchpad/b8v2-run/session-N2/wt-django__django-16527",
         "grade": {
           "patch_applied": true,
           "f2p_pass": true,
@@ -203,7 +203,7 @@
         "done": true,
         "cost_usd": 0.9035574,
         "status": "success",
-        "wt": "/private/tmp/claude-501/-Users-pardeepsingh-Desktop-Token-Optimisation/5b8e6383-8f63-458d-8a43-9ab270dbbd1a/scratchpad/b8v2-run/session-N2/wt-django__django-16901",
+        "wt": "/private/tmp/claude-501/-Users-<user>-Desktop-Token-Optimisation/5b8e6383-8f63-458d-8a43-9ab270dbbd1a/scratchpad/b8v2-run/session-N2/wt-django__django-16901",
         "grade": {
           "patch_applied": true,
           "f2p_pass": true,
@@ -217,7 +217,7 @@
           "test_patch_applied": true
         }
       },
-      "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-b8v2-run-session-N2/3be30fd8-9339-4ed8-a0ca-097af8e452c8.jsonl",
+      "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-b8v2-run-session-N2/3be30fd8-9339-4ed8-a0ca-097af8e452c8.jsonl",
       "metrics": {
         "calls": 67,
         "sum_input": 4877580,

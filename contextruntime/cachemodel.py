@@ -31,6 +31,7 @@ Prices are expressed in base-input-token equivalents (BITE): read 0.1, 1h-write 
 from __future__ import annotations
 
 import json
+import os
 from dataclasses import dataclass, field
 from typing import List, Optional
 
@@ -172,6 +173,17 @@ def calibrate_append_only(calls: List[CallRecord], *, warm_prefix: Optional[int]
     }
 
 
+HOME_PLACEHOLDER = "/Users/<user>"
+
+
+def resolve_home(path: str) -> str:
+    """Committed artifacts record the recording machine's home dir as /Users/<user> (privacy
+    scrub); map it onto this machine's home so the same layout resolves locally."""
+    if path and path.startswith(HOME_PLACEHOLDER + "/"):
+        return os.path.expanduser("~") + path[len(HOME_PLACEHOLDER):]
+    return path
+
+
 def load_b6_sessions(results_path: str, arm: str):
     """(instance_id, rep_key, transcript_path) triples for one arm of the frozen B6 artifact."""
     res = json.load(open(results_path))
@@ -179,5 +191,5 @@ def load_b6_sessions(results_path: str, arm: str):
     for tid, arms in sorted(res["tasks"].items()):
         for key, rec in sorted(arms.items()):
             if key.startswith(arm) and rec.get("transcript"):
-                out.append((tid, key, rec["transcript"]))
+                out.append((tid, key, resolve_home(rec["transcript"])))
     return out

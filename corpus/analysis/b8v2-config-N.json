@@ -55,10 +55,10 @@
    ]
   }
  ],
- "mirror": "/private/tmp/claude-501/-Users-pardeepsingh-Desktop-Token-Optimisation/5b8e6383-8f63-458d-8a43-9ab270dbbd1a/scratchpad/django-mirror",
- "repo": "/Users/pardeepsingh/Desktop/Token-Optimisation/LLM-Token-efficiency",
- "python": "/Users/pardeepsingh/Desktop/Token-Optimisation/LLM-Token-efficiency/.venv/bin/python",
- "workdir": "/private/tmp/claude-501/-Users-pardeepsingh-Desktop-Token-Optimisation/5b8e6383-8f63-458d-8a43-9ab270dbbd1a/scratchpad/b8v2-run",
+ "mirror": "/private/tmp/claude-501/-Users-<user>-Desktop-Token-Optimisation/5b8e6383-8f63-458d-8a43-9ab270dbbd1a/scratchpad/django-mirror",
+ "repo": "/Users/<user>/Desktop/Token-Optimisation/LLM-Token-efficiency",
+ "python": "/Users/<user>/Desktop/Token-Optimisation/LLM-Token-efficiency/.venv/bin/python",
+ "workdir": "/private/tmp/claude-501/-Users-<user>-Desktop-Token-Optimisation/5b8e6383-8f63-458d-8a43-9ab270dbbd1a/scratchpad/b8v2-run",
  "reps": 3,
  "gap_s": 60,
  "budget": 2.5,
@@ -91,10 +91,10 @@
   "WebSearch",
   "mcp__claude_ai_Gmail__*",
   "mcp__mobile__*",
-  "mcp__skidos-product__*"
+  "mcp__<company-mcp>__*"
  ],
  "arms": [
   "N"
  ],
- "out": "/private/tmp/claude-501/-Users-pardeepsingh-Desktop-Token-Optimisation/5b8e6383-8f63-458d-8a43-9ab270dbbd1a/scratchpad/b8v2-run/results-N.json"
+ "out": "/private/tmp/claude-501/-Users-<user>-Desktop-Token-Optimisation/5b8e6383-8f63-458d-8a43-9ab270dbbd1a/scratchpad/b8v2-run/results-N.json"
 }

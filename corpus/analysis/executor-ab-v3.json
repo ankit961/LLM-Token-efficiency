@@ -13,7 +13,7 @@
           "django/db/models/sql/query.py",
           "tests/queries/test_qs_combinators.py"
         ],
-        "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-b52-ab-django--django-10554-A/c7390162-e1bc-4793-b939-fd0cb9abd50f.jsonl",
+        "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-b52-ab-django--django-10554-A/c7390162-e1bc-4793-b939-fd0cb9abd50f.jsonl",
         "trace": {
           "api_calls": 52,
           "discover_calls": 0,
@@ -36,7 +36,7 @@
           "django/db/models/sql/query.py",
           "tests/queries/test_qs_combinators.py"
         ],
-        "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-b52-ab-django--django-10554-C/1a318374-714e-4e2c-83cd-d2b5e04381b1.jsonl",
+        "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-b52-ab-django--django-10554-C/1a318374-714e-4e2c-83cd-d2b5e04381b1.jsonl",
         "trace": {
           "api_calls": 42,
           "discover_calls": 15,
@@ -58,7 +58,7 @@
           "django/db/backends/sqlite3/operations.py",
           "tests/timezones/tests.py"
         ],
-        "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-b52-ab-django--django-11138-A/587b9583-5409-41c7-823c-15dde450439b.jsonl",
+        "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-b52-ab-django--django-11138-A/587b9583-5409-41c7-823c-15dde450439b.jsonl",
         "trace": {
           "api_calls": 49,
           "discover_calls": 0,
@@ -81,7 +81,7 @@
           "django/db/backends/oracle/operations.py",
           "django/db/backends/sqlite3/base.py"
         ],
-        "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-b52-ab-django--django-11138-C/7bbbe246-d463-45b9-a938-29eaa26ff932.jsonl",
+        "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-b52-ab-django--django-11138-C/7bbbe246-d463-45b9-a938-29eaa26ff932.jsonl",
         "trace": {
           "api_calls": 42,
           "discover_calls": 16,
@@ -107,7 +107,7 @@
           "tests/admin_views/tests.py",
           "tests/forms_tests/tests/test_formsets.py"
         ],
-        "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-b52-ab-django--django-14608-A/b91a8e75-67fa-46d4-a990-75d35abccf27.jsonl",
+        "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-b52-ab-django--django-14608-A/b91a8e75-67fa-46d4-a990-75d35abccf27.jsonl",
         "trace": {
           "api_calls": 37,
           "discover_calls": 0,
@@ -131,7 +131,7 @@
           "docs/topics/forms/formsets.txt",
           "tests/forms_tests/tests/test_formsets.py"
         ],
-        "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-b52-ab-django--django-14608-C/a6c27a97-e9a7-44eb-ad06-fc19888b37ce.jsonl",
+        "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-b52-ab-django--django-14608-C/a6c27a97-e9a7-44eb-ad06-fc19888b37ce.jsonl",
         "trace": {
           "api_calls": 50,
           "discover_calls": 16,

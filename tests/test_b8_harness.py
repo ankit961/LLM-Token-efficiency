@@ -47,8 +47,9 @@ def test_gw_fires_aggregates_by_reason(tmp_path):
 def test_predict_band_matches_preregistration():
     """The frozen band in docs/b8-protocol.md derives from this call; drift means the protocol
     and the code disagree."""
+    from contextruntime.cachemodel import resolve_home
     res = json.load(open("corpus/analysis/b6-live-results.json"))
-    tp = res["tasks"]["django__django-16485"]["N0"].get("transcript")
+    tp = resolve_home(res["tasks"]["django__django-16485"]["N0"].get("transcript") or "")
     if not tp or not os.path.exists(tp):
         pytest.skip("B6 transcripts not on this machine")
     from corpus.b8_live_gated_ab import predict

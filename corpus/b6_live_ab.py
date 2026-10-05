@@ -36,13 +36,15 @@ from corpus.b6_grading import apply_patch, grade, reset_test_files
 
 # Admission: never used in ANY headless arm of this program (doctor lean audit + B5 A-arms).
 # ScheduleWakeup and TodoWrite are deliberately KEPT (used in headless sessions).
+# The original T arm also disallowed one company MCP server; its name is not kept in the public
+# repo. Reproduce that arm with CR_DISALLOW_EXTRA="mcp__<name>__*" (comma-separated patterns).
 DISALLOW_ADMISSION = [
     "Workflow", "Artifact", "Agent", "DesignSync", "Monitor", "ReportFindings", "Skill",
     "EnterWorktree", "ExitWorktree", "RemoteTrigger", "PushNotification", "ListAgents",
     "CronCreate", "CronDelete", "CronList", "TaskCreate", "TaskGet", "TaskList", "TaskOutput",
     "TaskStop", "TaskUpdate", "SendMessage", "WaitForMcpServers", "NotebookEdit", "WebSearch",
-    "mcp__claude_ai_Gmail__*", "mcp__mobile__*", "mcp__skidos-product__*",
-]
+    "mcp__claude_ai_Gmail__*", "mcp__mobile__*",
+] + [p.strip() for p in os.environ.get("CR_DISALLOW_EXTRA", "").split(",") if p.strip()]
 
 
 def _free_port():
