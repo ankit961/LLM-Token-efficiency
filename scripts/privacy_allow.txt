@@ -1,0 +1,3 @@
+# Known-public strings the privacy sweep should not flag. One regex per line, matched against "path:line".
+# Public SWE-bench problem statements: Django issue reporters' tracebacks quote their own home paths.
+^corpus/specs/run-\d+\.md:

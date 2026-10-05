@@ -34,7 +34,7 @@
  "grades": "12/12 completed task-instances succeeded (both arms, all chunks)",
  "sessions": {
   "N0": {
-   "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-b8-run-session-N0/91127882-3eb2-46b6-8b5f-b54e29219dfc.jsonl",
+   "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-b8-run-session-N0/91127882-3eb2-46b6-8b5f-b54e29219dfc.jsonl",
    "calls": 60,
    "bite": 787256.0,
    "sum_P": 4086761,
@@ -45,7 +45,7 @@
    "full_misses_gt20k": []
   },
   "N1": {
-   "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-b8-run-session-N1/8a748b1f-be0e-4825-ab11-b6a0f04d8a5e.jsonl",
+   "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-b8-run-session-N1/8a748b1f-be0e-4825-ab11-b6a0f04d8a5e.jsonl",
    "calls": 81,
    "bite": 1219392.9,
    "sum_P": 6835933,
@@ -56,7 +56,7 @@
    "full_misses_gt20k": []
   },
   "N2": {
-   "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-b8-run-session-N2/dc74b3cc-4f7c-4a03-81a6-eca7cb750c6e.jsonl",
+   "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-b8-run-session-N2/dc74b3cc-4f7c-4a03-81a6-eca7cb750c6e.jsonl",
    "calls": 8,
    "bite": 84406.8,
    "sum_P": 358841,
@@ -67,7 +67,7 @@
    "full_misses_gt20k": []
   },
   "T0": {
-   "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-b8-run-session-T0/a3d31420-fcd2-45f3-b591-c984ff224e93.jsonl",
+   "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-b8-run-session-T0/a3d31420-fcd2-45f3-b591-c984ff224e93.jsonl",
    "calls": 62,
    "bite": 1888704.0,
    "sum_P": 6276810,
@@ -103,7 +103,7 @@
    ]
   },
   "T1": {
-   "transcript": "/Users/pardeepsingh/.claude/projects/-private-tmp-claude-501--Users-pardeepsingh-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-b8-run-session-T1/b49625b8-9634-4a1e-a59d-a385e8aebb6b.jsonl",
+   "transcript": "/Users/<user>/.claude/projects/-private-tmp-claude-501--Users-<user>-Desktop-Token-Optimisation-5b8e6383-8f63-458d-8a43-9ab270dbbd1a-scratchpad-b8-run-session-T1/b49625b8-9634-4a1e-a59d-a385e8aebb6b.jsonl",
    "calls": 61,
    "bite": 1652034.1,
    "sum_P": 6192763,

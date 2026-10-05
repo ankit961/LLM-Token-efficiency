@@ -1,6 +1,6 @@
 {
  "aggregate": {
-  "label": "interactive sessions (/private/tmp/claude-501/-Users-pardeepsingh-Desktop-Token-Optimisation/5b8e6383-8f63-458d-8a43-9ab270dbbd1a/scratchpad/b7-interactive-sessions.json)",
+  "label": "interactive sessions (/private/tmp/claude-501/-Users-<user>-Desktop-Token-Optimisation/5b8e6383-8f63-458d-8a43-9ab270dbbd1a/scratchpad/b7-interactive-sessions.json)",
   "n_sessions": 54,
   "policies": {
    "native": {
@@ -100,7 +100,7 @@
  },
  "sessions": [
   {
-   "task": "ngh-Downloads-skidos-sandbox",
+   "task": "interactive-01",
    "rep": "s0",
    "calls": 2315,
    "calib_err_pct": -14.302396835046743,
@@ -166,7 +166,7 @@
    }
   },
   {
-   "task": "h-Desktop-Token-Optimisation",
+   "task": "interactive-02",
    "rep": "s1",
    "calls": 1595,
    "calib_err_pct": -13.568717180894112,
@@ -232,7 +232,7 @@
    }
   },
   {
-   "task": "ers-pardeepsingh-product-mcp",
+   "task": "interactive-03",
    "rep": "s2",
    "calls": 842,
    "calib_err_pct": -40.02000367446638,
@@ -298,7 +298,7 @@
    }
   },
   {
-   "task": "ngh-Downloads-skidos-sandbox",
+   "task": "interactive-01",
    "rep": "s3",
    "calls": 844,
    "calib_err_pct": -73.29148256243933,
@@ -364,7 +364,7 @@
    }
   },
   {
-   "task": "h-Desktop-PlayGroundS-Toca-2",
+   "task": "interactive-04",
    "rep": "s4",
    "calls": 993,
    "calib_err_pct": -78.27457045320564,
@@ -430,7 +430,7 @@
    }
   },
   {
-   "task": "ers-pardeepsingh-product-mcp",
+   "task": "interactive-03",
    "rep": "s5",
    "calls": 714,
    "calib_err_pct": -53.4472501480112,
@@ -496,7 +496,7 @@
    }
   },
   {
-   "task": "deepsingh-Documents-SkiTrack",
+   "task": "interactive-05",
    "rep": "s6",
    "calls": 739,
    "calib_err_pct": -13.83768147940497,
@@ -562,7 +562,7 @@
    }
   },
   {
-   "task": "ngh-Downloads-skidos-sandbox",
+   "task": "interactive-01",
    "rep": "s7",
    "calls": 551,
    "calib_err_pct": -9.192436784672743,
@@ -628,7 +628,7 @@
    }
   },
   {
-   "task": "rs-pardeepsingh-SanityNewApp",
+   "task": "interactive-06",
    "rep": "s8",
    "calls": 572,
    "calib_err_pct": -90.98610361803247,
@@ -694,7 +694,7 @@
    }
   },
   {
-   "task": "rs-pardeepsingh-SanityNewApp",
+   "task": "interactive-06",
    "rep": "s9",
    "calls": 553,
    "calib_err_pct": -90.83999409548005,
@@ -760,7 +760,7 @@
    }
   },
   {
-   "task": "Users-pardeepsingh-GIRGINLLM",
+   "task": "interactive-07",
    "rep": "s10",
    "calls": 524,
    "calib_err_pct": -21.008998213872605,
@@ -826,7 +826,7 @@
    }
   },
   {
-   "task": "Users-pardeepsingh-GIRGINLLM",
+   "task": "interactive-07",
    "rep": "s11",
    "calls": 471,
    "calib_err_pct": -9.693649008173404,
@@ -892,7 +892,7 @@
    }
   },
   {
-   "task": "rdeepsingh-Documents-Utility",
+   "task": "interactive-08",
    "rep": "s12",
    "calls": 580,
    "calib_err_pct": -59.551476934215614,
@@ -958,7 +958,7 @@
    }
   },
   {
-   "task": "ers-pardeepsingh-product-mcp",
+   "task": "interactive-03",
    "rep": "s13",
    "calls": 514,
    "calib_err_pct": -47.32523576467322,
@@ -1024,7 +1024,7 @@
    }
   },
   {
-   "task": "pardeepsingh-Forecast-Tomcat",
+   "task": "interactive-09",
    "rep": "s14",
    "calls": 453,
    "calib_err_pct": -23.85755501615787,
@@ -1090,7 +1090,7 @@
    }
   },
   {
-   "task": "Users-pardeepsingh-GIRGINLLM",
+   "task": "interactive-07",
    "rep": "s15",
    "calls": 484,
    "calib_err_pct": -52.296588453240076,
@@ -1156,7 +1156,7 @@
    }
   },
   {
-   "task": "epositories-Backend-monorepo",
+   "task": "interactive-10",
    "rep": "s16",
    "calls": 438,
    "calib_err_pct": -64.10448656091305,
@@ -1222,7 +1222,7 @@
    }
   },
   {
-   "task": "ingh-Downloads-LLMInNetworks",
+   "task": "interactive-11",
    "rep": "s17",
    "calls": 405,
    "calib_err_pct": 9.011776174831475,
@@ -1288,7 +1288,7 @@
    }
   },
   {
-   "task": "Users-pardeepsingh-GIRGINLLM",
+   "task": "interactive-07",
    "rep": "s18",
    "calls": 270,
    "calib_err_pct": -0.4559533004782501,
@@ -1354,7 +1354,7 @@
    }
   },
   {
-   "task": "Users-pardeepsingh-GIRGINLLM",
+   "task": "interactive-07",
    "rep": "s19",
    "calls": 289,
    "calib_err_pct": -6.251197557084395,
@@ -1420,7 +1420,7 @@
    }
   },
   {
-   "task": "pardeepsingh-Forecast-Tomcat",
+   "task": "interactive-09",
    "rep": "s20",
    "calls": 287,
    "calib_err_pct": -28.543431416944113,
@@ -1486,7 +1486,7 @@
    }
   },
   {
-   "task": "deepsingh-Documents-Monorepo",
+   "task": "interactive-12",
    "rep": "s21",
    "calls": 249,
    "calib_err_pct": -27.70625224444693,
@@ -1552,7 +1552,7 @@
    }
   },
   {
-   "task": "pardeepsingh-Forecast-Tomcat",
+   "task": "interactive-09",
    "rep": "s22",
    "calls": 249,
    "calib_err_pct": -58.77712243423237,
@@ -1618,7 +1618,7 @@
    }
   },
   {
-   "task": "ments-Repositories-SDKOneApp",
+   "task": "interactive-13",
    "rep": "s23",
    "calls": 84,
    "calib_err_pct": -20.08283419614191,
@@ -1816,7 +1816,7 @@
    }
   },
   {
-   "task": "p-PlayGroundS-Video-Rotation",
+   "task": "interactive-14",
    "rep": "s26",
    "calls": 61,
    "calib_err_pct": -60.434608943049554,
@@ -2014,7 +2014,7 @@
    }
   },
   {
-   "task": "rs-pardeepsingh-SanityNewApp",
+   "task": "interactive-06",
    "rep": "s29",
    "calls": 64,
    "calib_err_pct": -68.01205909605405,
