@@ -18,8 +18,9 @@ OpenAI-style free cache writes: 1 (mutation almost always pays).
 The SAME scheduler inequality produces opposite live behavior from these constants alone —
 which is the point: the framework is generic; the constants are not.
 
-VALIDATION STATUS MATTERS. Only `anthropic-1h` is live-validated (calibrated exact on native
-sessions; 0.2pp on a preregistered live prediction — B7/B8). Every other profile is a modeling
+VALIDATION STATUS MATTERS. Only `anthropic-1h` has been checked against live sessions (append-only
+branch exact on 11/12 B6 native sessions; B8 v2 agreed to 0.16 pp in a post-hoc check, not a
+preregistered one; the edit branch and live break-even fires are unvalidated). Every other profile is a modeling
 preset built from public pricing structure: verify ratios against current provider pricing
 before quoting, and treat cache SEMANTICS (interior hits, TTL softness, breakpoints) as unknown
 until a per-provider calibration is run — Anthropic's own semantics had to be discovered
@@ -51,14 +52,17 @@ PROFILES = {
     "anthropic-1h": ProviderProfile(
         "anthropic-1h", read_mult=0.1, write_mult=2.0, ttl_s=3600.0, out_mult=5.0,
         validated=True,
-        note="The live-validated profile: captured cache_control ttl='1h'; writes 2.0x; "
-             "sonnet output ratio $15/$3. Calibration: exact on 11/12 native sessions, "
-             "0.2pp on the preregistered B8 live prediction."),
+        note="The profile checked against live sessions: captured cache_control ttl='1h'; "
+             "writes 2.0x; sonnet output ratio $15/$3. Calibration: append-only branch exact on "
+             "11/12 B6 native sessions; B8 v2 post-hoc check -0.16 pp (not preregistered). Edit "
+             "branch and live break-even fires unvalidated; as shipped, break-even cannot fire "
+             "here (E=8 < 19 reads, and the suffix estimate includes the pending tokens)."),
     "anthropic-5m": ProviderProfile(
         "anthropic-5m", read_mult=0.1, write_mult=1.25, ttl_s=300.0, out_mult=5.0,
         validated=False,
-        note="Anthropic's default 5-minute tier (writes 1.25x). Same semantics as the "
-             "validated profile, different constants; break-even 11.5 instead of 19."),
+        note="Anthropic's default 5-minute tier (writes 1.25x). Same semantics as "
+             "anthropic-1h, different constants; break-even 11.5 instead of 19 (still > E=8, so "
+             "the shipped break-even branch cannot fire here either)."),
     "openai-auto": ProviderProfile(
         "openai-auto", read_mult=0.5, write_mult=1.0, ttl_s=600.0, out_mult=4.0,
         validated=False,
