@@ -4,15 +4,19 @@
 
 | your setup | status | what you get |
 |---|---|---|
-| **Claude Code** (any plan) → **Anthropic API** | **Supported & live-validated** | doctor audit + the gateway (admission + retirement + thinking-GC + cache-aware scheduler) |
+| **Claude Code** (any plan) → **Anthropic API** | **Supported & live-tested** (see [limitations](#current-limitations)) | doctor audit + client-side admission (`--disallowedTools`) + the gateway (retirement + thinking-GC + cache-aware scheduler) |
 | Your own agent loop → Anthropic Messages API | Should work (same request format); **not validated** | gateway; the doctor's capture step assumes the `claude` CLI |
 | **GPT / OpenAI API**, Gemini | **NOT supported at runtime** — the gateway parses Anthropic message shapes only | cost-model presets for offline replay only (`docs/provider-profiles.md`); an OpenAI-format adapter is not built |
 | Local models via vLLM / Ollama / SGLang | **NOT supported** (OpenAI-compatible format + no local pricing profile yet) | — |
 
 Everything below is for the supported row. Numbers you should expect are in the README's results
-table; the short version: **admission is the big, safe, always-on win (~−29% live dollars in the
-gateway configuration); retirement/thinking-GC add residency savings and are dollar-neutral or
-better only where the scheduler decides to fire** (long sessions, cold starts).
+table; the short version: **admission is the big, always-on win — and it is a client flag
+(`--disallowedTools`), not something the proxy does** (−29.3% live list-price dollars in B8 v2,
+3 pairs of chained 3-task sessions, with the gateway applying no mutations). It removes
+capabilities, so disallow only tools you never use. **Retirement/thinking-GC cut residency in B6,
+but their live dollar effect is unmeasured** (B6: −41.5% tokens, −2.5% dollars), and on the
+default `anthropic-1h` profile the `gated` scheduler only fires at a cold start or after an idle
+gap longer than the TTL (see [Current limitations](#current-limitations)).
 
 ## Requirements
 
@@ -23,7 +27,11 @@ better only where the scheduler decides to fire** (long sessions, cold starts).
 ## Path 1 — no gateway: audit your prefix and fix your config (any Claude Code plan)
 
 The fixed prefix (tool schemas + system content) is re-billed on *every* call. In the environments
-we measured, **~47% of it was schemas of tools that were never invoked.**
+we measured, **~47% of it was schemas of tools that were never invoked.** (Caveat: the capture
+goes through a custom `ANTHROPIC_BASE_URL`, which turns off the client's native MCP-schema
+deferral, so in an MCP-heavy setup the captured prefix overstates what the native client sends —
+in ours, 82,359 tokens captured vs a 41,899-token native median; the ~47% was measured on the
+captured prefix.)
 
 ```bash
 # from the repo root, in the project directory you want audited
@@ -35,7 +43,8 @@ a non-retryable 400 — **zero tokens billed**), joins it with your recent local
 and prints per item: tokens, first-use turn, wasted residency, and an action —
 `KEEP / DEFER / DISABLE? / COMPRESS / UNKNOWN` — tagged by who can act on it
 (`SUBSCRIPTION_CONFIG` = you, via settings; `GATEWAY_CONTROLLABLE`; `ANTHROPIC_CLIENT_REQUIRED`).
-Add `--json` for machine-readable output; `--no-capture` to use transcripts only.
+Add `--json` for machine-readable output; `--no-capture` to use transcripts only (currently
+crashes — a known bug, see [Current limitations](#current-limitations)).
 
 Act on the `SUBSCRIPTION_CONFIG` rows: disable MCP servers you never use, and/or pass the
 never-used tools as `--disallowedTools` to `claude` (or deny them in `.claude/settings.json`).
@@ -62,7 +71,8 @@ ANTHROPIC_BASE_URL=http://127.0.0.1:8787 \
 **Do not skip `--disallowedTools`.** Measured fact: when `ANTHROPIC_BASE_URL` is a custom endpoint,
 Claude Code disables its MCP tool-schema deferral and sends every schema on every request
 (+43k tokens/request in our environment). Through a gateway, admission is not an optimization —
-it is what gets you back to native parity before any saving begins.
+it is what gets you back to native parity before any saving begins. The proxy itself does no
+admission (it never touches the `tools` list); this client flag is the whole admission lever.
 
 ### 3. Read the log, then switch to ENFORCE
 
@@ -83,39 +93,64 @@ CR_GATEWAY_LOG=$HOME/cr-gateway.jsonl python3 -m contextruntime.gateway_proxy
 |---|---|---|
 | `CR_GATEWAY_MODE` | `off` (default) · `observe` · `enforce` | kill-switch · log-only · mutate outbound history |
 | `CR_GATEWAY_THINKING_KEEP` | integer ≥ 1 | thinking-GC: keep thinking only in the last N assistant messages (unset = off) |
-| `CR_GATEWAY_CACHE_ALIGN` | `off` (default) · `cold` · `gated` | `off` = mutate at fixed batch boundaries (the B6 behavior); `cold` = new mutations only when the cache is cold (start / idle gap > TTL); `gated` = cold + break-even rule. Fired mutations persist (byte-stable) in both aligned modes |
-| `CR_GATEWAY_PROFILE` | `anthropic-1h` (default, validated) · `anthropic-5m` · `openai-auto` · `gemini-implicit` | provider constants for the break-even rule; unknown names fall back to the default (strictest) |
+| `CR_GATEWAY_CACHE_ALIGN` | `off` (default) · `cold` · `gated` | `off` = mutate at fixed batch boundaries (the B6 behavior); `cold` = new mutations only when the cache is cold (start / idle gap > TTL); `gated` = cold + break-even rule (as shipped, the break-even branch cannot fire on `anthropic-1h`/`anthropic-5m`, so there `gated` behaves like `cold`). Fired mutations persist (byte-stable) in both aligned modes — but see the forwarding bug under [Current limitations](#current-limitations) |
+| `CR_GATEWAY_PROFILE` | `anthropic-1h` (default; the only profile checked against live sessions) · `anthropic-5m` · `openai-auto` · `gemini-implicit` | provider constants for the break-even rule; unknown names fall back to the default (strictest) |
 | `CR_GATEWAY_LOG` | path | decision log (JSONL); unset = no log |
 | `CR_GATEWAY_PORT` | integer (default 8787) | listen port on 127.0.0.1 |
 | `CR_GATEWAY_UPSTREAM` | URL (default `https://api.anthropic.com`) | where requests are relayed |
 
-### Safety properties (all live-tested)
+### Safety properties (what the live runs do and do not show)
 
 - **Fail-open everywhere**: a parse error passes the request through untouched; an upstream 4xx to a
-  *mutated* body resends the **original bytes verbatim** (logged as `fallback_original`). Across all
-  live enforce sessions to date: 0 such events in 17/17.
+  *mutated* body resends the **original bytes verbatim** (logged as `fallback_original`). Live
+  evidence: 0 such events in the 12 B6 enforce sessions whose logs can be audited (all with cache
+  alignment off). The 3 B8 v2 sessions applied no mutations, so they test nothing here, and the 2
+  B8 v1 sessions survive only as aggregates. The proxy records a fallback only for a 4xx to a
+  mutated body; a 5xx, a dropped connection or a client abort leaves no outcome row at all (in one
+  B6 session, 40 of 71 requests have no recorded outcome).
 - Retirement touches only provably-dead tool results (superseded by a later identical call, or
-  untouched ≥ 5 turns) and replaces them with a stub carrying a recovery instruction. Measured
-  re-read rate after retirement: unchanged vs native.
-- Task quality was non-inferior in every graded live experiment (see `docs/b6-findings.md`,
-  `docs/b8-findings.md`).
+  untouched ≥ 5 turns) and replaces them with a stub carrying a recovery instruction. Re-reads
+  after retirement were never measured as preregistered: the B6 figure (11/36 vs 12/39, held in no
+  committed artifact) counts all same-path repeat reads, and B6 retirement lasted one request per
+  batch boundary.
+- Task quality passed B6's non-inferiority rule exactly at its bound (9 vs 10 of 12; django-16502
+  T 0/3 vs N 2/3) and was 9/9 vs 9/9 in B8 v2 on three tasks chosen after B6 that exclude 16502.
+  Grading used a local macOS runner, not the official SWE-bench harness (see
+  `docs/b6-findings.md`, `docs/b8-findings.md`).
 
 ### How to confirm it is working
 
 1. First request of a session: `cache_creation_input_tokens` should be roughly your *lean* prefix
    (ours: ~18k with admission vs ~85k without). If it's huge, admission isn't applied.
-2. `fallback_original` lines should be absent.
-3. Over a session, `persistent_applied` should be monotone non-decreasing once something fires,
-   and `fire_reason` should be `hold` on most requests of a short, cache-hot session — that's the
-   scheduler correctly *not* paying cache-write penalties.
+2. `fallback_original` lines should be absent (a missing `response_usage` line after a decision
+   means the outcome went unrecorded, not that it succeeded).
+3. On the default `anthropic-1h` profile, `fire_reason` will be `hold` on every request except a
+   cold start or an idle gap longer than the TTL, because the break-even branch cannot fire there
+   (see limitations) — a `hold` is not evidence of a correct cost decision.
+   **Do not use `persistent_applied` as proof that anything was removed:** because of a known bug
+   (`gateway_proxy.py:47`), it is logged even when the stub is not forwarded upstream — the proxy
+   re-serializes the body only when the same request also applied a new retirement or stripped
+   thinking, so with `CR_GATEWAY_THINKING_KEEP` unset, persisted retirements are counted but not sent.
 
 ### Current limitations
 
 - **One proxy process per agent session.** Scheduler state (fired set, thinking frontier, last
   request time) is process-wide; running several concurrent conversations through one proxy mixes
-  their gap detection and frontier. Start one proxy per session (different ports).
-- The "1h" cache TTL is soft in practice (we observed no expiry at 65-minute gaps); `cold` mode's
-  idle-gap trigger may fire on a still-warm cache. `gated` mode's break-even rule does not depend on it.
+  their gap detection and frontier — and even a later, shorter conversation through the same
+  proxy can have thinking stripped up to the old frontier, including its latest assistant
+  message. Start one proxy per session (different ports).
+- The "1h" cache TTL is soft in practice (we observed no expiry at 65-minute gaps), and both
+  `cold` and `gated` fire on an idle gap longer than the TTL (`cachealign.py:79-80`), so either
+  may mutate a still-warm cache. On `anthropic-1h`/`anthropic-5m` the break-even branch cannot fire
+  as shipped: it needs `0.1·P·8 ≥ (w−0.1)·S`, but the suffix S is counted from the earliest
+  pending tool result, so S ≥ P — in practice `gated` = `cold` on these profiles. (The modeled B7
+  "gated" savings come from a different replay rule; see `docs/b7-findings.md`.)
+- **Known bugs (unfixed):** persistent retirements are not forwarded unless the same request also
+  applied a new retirement or stripped thinking (`gateway_proxy.py:47`), while `persistent_applied`
+  is still logged; a fired mutation that the API rejects is never rolled back, so it is re-sent
+  (and falls back) on every later request that re-serializes the body;
+  `doctor --prefix --no-capture` crashes; the doctor's same-project session filter misses project
+  paths that contain `_` (e.g. in the username), so its transcript join comes back empty.
 - Anthropic-ecosystem-specific levers (thinking-GC, the schema-deferral interaction) have no
   equivalent on other providers; **GPT/OpenAI and local models need an OpenAI-format adapter and a
   calibration pass before any of this applies** — see the porting ladder in `docs/provider-profiles.md`.
@@ -124,5 +159,5 @@ CR_GATEWAY_LOG=$HOME/cr-gateway.jsonl python3 -m contextruntime.gateway_proxy
 
 `python3 -m contextruntime.cli install claude [--project DIR|--global] [--dry-run]` wires an
 advisory, fail-open hook journal into Claude Code (uninstall with `uninstall`). It predates the
-validated stack; its transparent-reduction path (`--enable-reduction`) measured ~0.03% live and was
+B-series stack; its transparent-reduction path (`--enable-reduction`) measured ~0.03% live and was
 closed — keep it off unless you are reproducing the early experiments.

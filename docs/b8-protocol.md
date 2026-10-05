@@ -1,8 +1,26 @@
 # B8 — Live validation of cache-aligned retirement: preregistered protocol
 
+> **Correction (2026-10-05, post-hoc audit):** The v2 section below is dated "2026-08-28,
+> preregistered before its first paid session". Git does not support that. This protocol's first
+> commit (623b612, 2026-08-31 14:08 IST, "NO SPEND YET") has no v2 section. The v2 prediction
+> (−29.5%, band [−36%, −22%]) and the code that produced it (`predict_v2`, `ADMISSION_SHIFT` in
+> `corpus/b8_live_gated_ab.py`) first appear in commit af822b7 (2026-09-01 12:47 IST), the same
+> commit as the v2 results; the v2 sessions ran 11:33–12:41 IST that day (gateway-log
+> timestamps). The 2026-08-28 date predates even the v1 protocol, so it is wrong. **Report B8 v2
+> as a post-hoc check of the calibrated model, not a preregistered test.** If a pre-run timestamp
+> exists outside git (e.g. the session transcript on the machine that ran it), it can be added
+> later. Likewise, scoring v1 "invalid as a test" rather than by its preregistered rule (live > 0%
+> ⇒ "gated scheduling REFUTED live") was decided after the v1 results; the confound is real, but
+> the reclassification is post hoc. The status line below is stale: v1 and v2 both ran (see
+> `docs/b8-findings.md`). Further corrections inline: task roster (Design), scheduler fires
+> (secondary endpoints and the v2 prediction).
+
 **Status: PREREGISTERED, NOT RUN. Zero quota spent so far; no spend until the budget line below
-is explicitly approved.** B7's interactive dollar result (~−60% pooled, modeled) cannot be tested
-on B6-style sessions — the gated scheduler correctly never fires there. B8 manufactures the
+is explicitly approved.** B7's interactive dollar result (~−60% pooled, modeled [corrected
+2026-10-05: −61.5% on a calibration-filtered subset; −49.7% over all 54 sessions, median 0% — see
+`docs/b7-findings.md`]) cannot be tested
+on B6-style sessions — the gated scheduler correctly never fires there [corrected 2026-10-05: as
+shipped, its break-even branch cannot fire on `anthropic-1h` in any session]. B8 manufactures the
 long/interactive regime under experimental control and judges the live result against a
 **model-predicted band frozen here before any spend**. If live lands inside the band, the
 calibrated model — and with it the ~60% tail claim — inherits live credibility.
@@ -14,6 +32,12 @@ One conversation = **three sequential graded django tasks** (frozen B6 roster: 1
 `claude -p --resume`, with a **real 65-minute idle gap** between tasks (strictly beyond the 1-hour
 cache TTL, creating genuine expiry windows). Context accumulates across the whole session
 (~85k tokens by task 3).
+
+> **Correction (2026-10-05, post-hoc audit):** this three-task roster was fixed after B6's results
+> (B6 results commit 9f7522f, 2026-08-28; this protocol, 2026-08-31) and drops django-16502, the
+> only B6 task where treatment failed (T 0/3 vs N 2/3). No reason for the exclusion is recorded
+> here or in the harness. B8's quality results therefore cover only tasks where B6 treatment had
+> already gone 3/3.
 
 Arms per pair (same tasks, same order, same gaps; N and T run concurrently):
 
@@ -35,12 +59,15 @@ gated −17.1% (cold_gap −16.6%, oracle −16.9%, unaligned −9.0%).**
 
     VALIDATION GATE: live pooled R$ lands in [−22%, −12%]  → model VALIDATED in-regime
     (band = prediction ± the model's demonstrated ~7% creation-error margin + estimator noise)
+    [corrected 2026-10-05: the ~7% (7.3%) edit-branch error has no committed artifact]
     live in [−12%, 0%]   → direction confirmed, magnitude over-predicted; recalibrate before
                            quoting any interactive dollar number
     live > 0% (T costs more) → gated scheduling REFUTED live; align default stays off
 
 Secondary: CLI-reported cost; Σ P residency (predicted −21%); gateway fires **by reason**
-(prediction exercises all three: cold-start, 2 ttl-gaps, break-even), persistent_applied,
+(prediction exercises all three: cold-start, 2 ttl-gaps, break-even [corrected 2026-10-05: as
+shipped, the gateway's break-even branch cannot fire on `anthropic-1h` — see the correction under
+the v2 prediction]), persistent_applied,
 fallback_original (>2/session halts the run); per-task F2P+P2P grading, treatment non-inferior
 (successes_T ≥ successes_N − 1 over all graded task-instances; B6 conventions incl. official
 test-file reset).
@@ -67,6 +94,10 @@ test-file reset).
 
 ## v2 (2026-08-28, preregistered before its first paid session; v1 above ran and is CONFOUNDED)
 
+> **Correction (2026-10-05, post-hoc audit):** the date and the "preregistered" label in this
+> heading are not supported by git — this section first appears in commit af822b7 (2026-09-01
+> 12:47 IST) together with the v2 results. See the note at the top of this file.
+
 **v1 outcome, kept honest:** 2 pairs completed ($16.65-equiv; 12/12 graded task-instances
 succeeded in both arms) but the primary endpoint read +139.9%/+35.5% — **outside the band, and
 invalid as a test**: a previously unknown client behavior (custom `ANTHROPIC_BASE_URL` ⇒ MCP
@@ -91,7 +122,8 @@ fires at ~65 min mutate a still-warm cache and are not free.
 - Everything else unchanged: same 3 chained tasks, same grading, same endpoint definition.
 
 **v2 preregistered prediction (frozen now, from the same calibrated machinery; T stream =
-native timeline − measured 23,424/call admission delta, gated schedule):**
+native timeline − measured 23,424/call admission delta, gated schedule):** [corrected 2026-10-05:
+not preregistered — first committed with the results; see the notes at the top and below]
 
     T (admission + gated) vs N (native): BITE delta −29.5%, residency −46.3%, ~9 fires
     (cold-start + break-even), retirement/thinking contribution modest — decomposed via gw log.
@@ -100,6 +132,19 @@ native timeline − measured 23,424/call admission delta, gated schedule):**
     live ∈ (−22%, −10%]  → direction confirmed, magnitude over-predicted; recalibrate
     live > −10%          → the admission+gated stack under-delivers live; investigate before
                             any product claim. (> 0% refutes outright.)
+
+> **Correction (2026-10-05, post-hoc audit):** (1) Not preregistered — see the note at the top.
+> (2) The "~9 fires (cold-start + break-even)" came from the replay rule in
+> `corpus/b7_cache_replay.py`, which adds pending thinking tokens to the gain and measures the
+> suffix from prefix deltas. The shipped gateway cannot fire break-even on `anthropic-1h`: it
+> needs 0.1·P·8 ≥ 1.9·S, and the suffix S is counted from the earliest pending tool result
+> (`gateway._suffix_tokens_est`), so S ≥ P. Live, each v2 T session's only fire was a cold start
+> at its first request (a side call, nothing pending); no retirements, persistent stubs or
+> thinking strips were applied. (3) The prediction is the native timeline minus 23,424
+> tokens/call (admission arithmetic) with the replay's gated schedule on top, so the live
+> agreement (−29.34% vs −29.5%, 0.16 pp apart) checks admission arithmetic, not the lifetime model;
+> and with pair-level reductions of 5.9%, 31.0% and 44.9% it is not a measure of model
+> precision. Live residency was −40.1% vs the predicted −46.3%.
 
 - **Budget: ≈$15–18 additional (B8 total ≈ $33; new hard cap $45, user-approved). 3 pairs,
   ~1 h/session, arms concurrent ⇒ ~3.5 h total.**

@@ -68,7 +68,8 @@ def run_policy(calls, retire_events, think, policy, *, warm=None, e_remaining=E_
                profile=None):
     """Price one session under one policy. Returns totals + the residency stream.
     `profile` (contextruntime.providers.ProviderProfile) sets the cache TTL, the break-even
-    constants, and the pricing — omitted = the live-validated anthropic-1h constants."""
+    constants, and the pricing — omitted = the anthropic-1h constants (the profile checked
+    against live sessions; append-only branch only)."""
     read_mult = profile.read_mult if profile else READ_MULT
     write_mult = profile.write_mult if profile else WRITE_MULT_1H
     out_mult = profile.out_mult if profile else 5.0
@@ -298,7 +299,8 @@ def main(out_path=None, session_list=None):
 
 def provider_sensitivity(session_list=None):
     """The generic-framework demonstration: the SAME sessions and the SAME mutation streams,
-    priced and scheduled under each provider profile. Only `anthropic-1h` is live-validated;
+    priced and scheduled under each provider profile. Only `anthropic-1h` has been checked against
+    live sessions (append-only branch);
     the others are modeling presets (see contextruntime/providers.py) — this table shows how the
     break-even constant alone flips the scheduler's behavior and the verdict on mid-session
     retirement."""

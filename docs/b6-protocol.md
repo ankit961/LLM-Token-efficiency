@@ -24,7 +24,11 @@ closed by B5.
 - **T (treatment)**:
   - *Admission*: `--disallowedTools` with the never-used-in-headless schema list
     (`corpus/b6_live_ab.DISALLOW_ADMISSION`; validated: definitions are stripped from the request —
-    the zero-quota chain dry-run measured **6 tools / 5.6k cl100k vs 82 tools / 46.1k baseline**).
+    the zero-quota chain dry-run measured **6 tools / 5.6k cl100k vs 82 tools / 46.1k baseline**
+    [corrected 2026-10-05: that baseline was captured through the proxy, where a custom
+    `ANTHROPIC_BASE_URL` turns the client's native MCP-schema deferral off, so it is not the N
+    arm's prefix; natively the admission saving was 23,424 tokens per request — 41,554 native
+    (measured in B8 v1) vs 18,130 admitted (B6 T)]).
   - *Lifetime*: the request path runs through the gateway proxy in **ENFORCE** —
     B3 safe retirement (superseded + cold-tail lag 5, batched every 10 calls) and thinking-GC keep-1 —
     with the response-level fail-open (any 4xx to a mutated body resends the original bytes).
@@ -60,6 +64,15 @@ Secondary: cache-read, cache-creation, output tokens, dollar cost (CLI-reported)
 peak per-call context, compaction events (expected 0 — single-window), gateway actions
 (tool-results retired, thinking blocks stripped, fallback_original count), and **GC-caused re-reads**
 (Reads of a path after the gateway retired that path's object).
+
+> **Correction (2026-10-05, post-hoc audit):** two of these secondary endpoints were never
+> reported. "GC-caused re-reads" was never computed (the analysis calls `gc_rereads` with an
+> empty read list); `docs/b6-findings.md` reports unconditional same-path repeat reads instead
+> (11/36 vs 12/39), which are held in no committed artifact. "Compaction events" appears in no
+> artifact. Also, "fallback_original count" can only see a 4xx to a mutated body: the proxy logs
+> no outcome for 5xx responses or dropped connections (40 of 71 requests in 16901-T2 have none).
+> The endpoints, gates and thresholds were otherwise not changed after the first paid run (git:
+> 7e4c7b1 precedes 9f7522f; only the status header changed).
 
 Success/quality: graded task success per rep; **treatment success must be non-inferior** (successes_T
 ≥ successes_N − 1 across the 12 treatment reps, and no task where T fails all reps while N passes all).

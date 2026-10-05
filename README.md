@@ -2,12 +2,17 @@
 
 **Measuring — and then reducing — where AI coding agents actually spend tokens.**
 
-> **Program result (2026-08, frozen):** on live, graded coding sessions the surviving stack —
-> **admission control + context-lifetime management** — demonstrated a
-> **41.5% end-to-end input-token reduction with non-inferior task quality** (B6, 24 sessions),
-> and a **29.3% live dollar reduction** in the gateway configuration, landing **0.2pp from a
-> preregistered model prediction** (B8, CLI-billing-confirmed). A calibrated cache-cost model
-> puts the giant-long-context regime at **~−60% dollars (modeled, not yet live)**.
+> **Program result (2026-08; corrected 2026-10-05 after an independent audit):** on live, graded
+> coding sessions (one repo, one model, one client version, one machine), Claude Code run with
+> **admission control** (`--disallowedTools`) plus the gateway's **context-lifetime management**
+> cut cumulative input tokens **41.5%**, with task quality passing the preregistered
+> non-inferiority rule exactly at its bound (B6, 24 sessions, preregistered) — but dollars fell
+> only 2.5%, and admission alone predicts about as much token reduction (−44.0%), so the lifetime
+> mechanisms' live share is unidentified. Admission alone (a client flag; the proxy applied no
+> mutations) cut list-price dollars **29.3%** (B8 v2, 3 pairs, per pair −5.9% to −44.9%); its
+> −29.5% prediction was first committed together with the results, so B8 v2 is a **post-hoc
+> check, not a preregistered test**. A cache-cost replay puts the giant-long-context regime at
+> **−49.7% dollars pooled over 54 sessions, median 0% (modeled, not live)**.
 > Details: [the results section below](#final-results--the-b-series-2026-08).
 
 Agentic coding is a loop: every model request re-sends the whole conversation as its
@@ -46,7 +51,7 @@ python3 -m contextruntime.cli doctor        # runtime capability profile (C11)
 python3 -m pytest -q                         # tests
 ```
 
-The package also ships the production-path runtime the B-series validated:
+The package also ships the production-path runtime the B-series tested live:
 
 - **`contextruntime/retirement.py`** — `RetirementPlanner → HistoryMutationPlan → HistoryMutator`
   (policy separated from mechanism; safe-by-construction retirement of superseded/cold tool
@@ -55,24 +60,32 @@ The package also ships the production-path runtime the B-series validated:
   (`python -m contextruntime.gateway_proxy`, point `ANTHROPIC_BASE_URL` at it) with modes
   `CR_GATEWAY_MODE=off|observe|enforce`, thinking-GC (`CR_GATEWAY_THINKING_KEEP`), and
   response-level fail-open (any upstream 4xx to a mutated body resends the original bytes —
-  **0 rejected mutations in 17/17 live enforce sessions**).
-- **`contextruntime/cachemodel.py` + `cachealign.py`** — the prefix-cache cost model (calibrated
-  exact on live sessions) and the cache-aligned scheduler
+  **0 `fallback_original` events in the 12 auditable B6 enforce sessions**, all with cache
+  alignment off; the logger records only 4xx-on-mutated outcomes). The proxy does **no
+  admission**: admission is the client's own `--disallowedTools` flag.
+- **`contextruntime/cachemodel.py` + `cachealign.py`** — the prefix-cache cost model (validated
+  only on its append-only branch: exact on 11/12 live B6 native sessions) and the
+  cache-aligned scheduler
   (`CR_GATEWAY_CACHE_ALIGN=off|cold|gated`): fired mutations become persistent/byte-stable;
-  new mutations fire only when the cache is cold or a break-even rule clears.
+  new mutations fire only when the cache is cold or a break-even rule clears (as shipped, that
+  break-even branch cannot fire on the default `anthropic-1h` profile — see
+  [Known limitations](#known-limitations--open-questions-audit-2026-10-05)).
 - **`contextruntime/prefixdoctor.py`** — `cr doctor --prefix`: zero-quota capture + per-item
   audit of the fixed prefix (what to KEEP/DEFER/DISABLE, with feasibility tags).
 - **`contextruntime/providers.py`** — the framework is **provider-generic**: every algorithm
   reduces to four constants (`read_mult`, `write_mult`, `ttl_s`, `out_mult`), selected by
   `CR_GATEWAY_PROFILE`. One derived number — break-even reads per rewritten token — flips the
   scheduler's verdict between providers (Anthropic-1h: 19, hold on short sessions; free-write
-  providers: 1, fire almost always). Cross-provider sensitivity on the same real sessions:
-  **[docs/provider-profiles.md](docs/provider-profiles.md)** (only `anthropic-1h` is
-  live-validated; the rest are calibration-pending presets).
+  providers: 1, fire almost always). Cross-provider sensitivity on the same real sessions (offline
+  replay rule, not the shipped scheduler):
+  **[docs/provider-profiles.md](docs/provider-profiles.md)** (only `anthropic-1h` has been checked
+  against live sessions — append-only branch exact on 11/12 B6 sessions, plus the B8 v2 post-hoc
+  check; the rest are calibration-pending presets).
 
 Earlier phases (**[STATUS.md](docs/STATUS.md)**): 0b residency graph · 1 ContextReduce ·
 2 SemanticFS/Graph-Lite — the graph-retrieval line was **closed by measurement** (G1/G2, B5):
-the wins live in admission + lifetime, not in out-searching the model.
+the measured live win is admission, not out-searching the model (lifetime control's live
+contribution is not yet identified).
 
 ### `contextscope/` — Phase 0 batch profilers (reference)
 
@@ -103,32 +116,38 @@ internal/design-partner evidence until independently replicated):
 
 ## Final results — the B-series (2026-08)
 
-Every number below is from **preregistered, live, graded experiments on real Claude Code
-sessions** (single environment, django/SWE-bench-Verified tasks; treat as design-partner
-evidence pending replication on other repos). Full write-ups in `docs/b*-findings.md`;
-frozen artifacts and per-session gateway logs in `corpus/analysis/`.
+Each row below carries its own evidence grade (live or modeled; preregistered or post-hoc;
+graded or not). The live rows come from real Claude Code sessions in a single environment — one
+repo (django, SWE-bench-Verified tasks), one model (Sonnet), one client version (2.1.229), one
+machine; 4 tasks in B6, 3 in B8 — graded with a local macOS runner, not the official SWE-bench
+harness. Treat them as design-partner evidence pending replication. Full write-ups in
+`docs/b*-findings.md` (B6–B8 carry dated audit corrections); frozen artifacts and per-session
+gateway logs in `corpus/analysis/`.
 
-| claim | number | status |
+| claim | number | evidence grade |
 |---|---|---|
-| End-to-end **context-workload** reduction (admission + retirement + thinking-GC), quality non-inferior (9 vs 10 of 12 graded successes) | **−41.5%** pooled (per-task −28…−59%) | **LIVE** — B6, 24 sessions |
-| **Live dollar** reduction, gateway configuration (admission through proxy + gated scheduler), quality 9/9 vs 9/9 | **−29.3%** (CLI billing agrees: −29.2%) | **LIVE** — B8v2, vs preregistered prediction −29.5% (0.2pp hit) |
-| Cache-cost model (1h-tier pricing, partial interior hits, extent semantics) | exact on 11/12 native sessions; 7% median on mutated; **0.2pp** on a frozen live prediction | **LIVE-VALIDATED** — B7/B8 |
-| Mutation safety: rejected mutated requests; retirement-caused re-reads | **0 of 17** live enforce sessions; re-reads unchanged (11 vs 12) | **LIVE** — B6+B8 |
-| Giant-long-context interactive regime (retirement + thinking dollars) | **~−60%** pooled (median session ≈ 0 — value is tail-concentrated) | **MODELED** — B7 replay over 54 real sessions; not yet live |
+| End-to-end **context-workload** reduction: admission (`--disallowedTools`) + gateway retirement + thinking-GC; quality passed the non-inferiority rule at its bound (9 vs 10 of 12 graded successes; django-16502 T 0/3 vs N 2/3) | **−41.5%** pooled input tokens (per-task −28…−59%); dollars −2.5% (CLI) / −2.75% (list price, 1h writes). Admission-only arithmetic predicts −44.0%, so retirement/thinking-GC's live share is unidentified | **Live, preregistered, graded** — B6, 24 sessions |
+| **Live dollar** reduction from client-side admission (25 built-in tools + 3 MCP servers disallowed); the gateway ran in the T arm but applied no mutations; quality 9/9 vs 9/9 on 3 tasks chosen after B6 (excluding django-16502) | **−29.3%** list price (pairs −5.9 / −31.0 / −44.9%); the CLI's own estimate from the same usage counts: −29.2% | **Live, graded, not preregistered** — B8 v2, 3 pairs; the −29.5% prediction first appears in git with the results (post-hoc check) |
+| Cache-cost model (1h-tier pricing, partial interior hits, extent semantics) | append-only branch exact on 11/12 B6 native sessions (12th +103.7%); the edit branch's 7.3% median error has no committed artifact; B8 v2 agreement −0.16 pp (post-hoc) | **Append-only branch only** — never validated on the edit branch or a live break-even fire |
+| Mutation safety: rejected mutated requests; retirement-caused re-reads | 0 `fallback_original` in the 12 auditable B6 sessions (alignment off); the 3 B8 v2 sessions applied no mutations; the 2 B8 v1 sessions have aggregates only. The logger sees only 4xx-on-mutated (40 of 71 requests in one B6 session have no recorded outcome). The preregistered re-read endpoint was never computed (11 vs 12 are unconditional same-path repeat reads) | **Live, partial** — B6 (+B8) |
+| Giant-long-context regime (retirement + thinking dollars) | **−49.7%** pooled over all 54 replayed sessions (median 0%); −61.5% on the 36 passing the calibration filter, which are 28 headless runs from this project (0.0% change) + 8 interactive sessions, 3 of which carry 76.5% of the saving; −24.0% at a ≤5% filter. Replay gating rule, not the shipped scheduler | **Modeled** — B7 replay; not live |
 
-**The thesis the data settled:** `token efficiency ≈ admission control + lifetime control` —
-control *what enters* the prefix and *how long it stays*. Retrieval sophistication (code graphs,
-discovery-packet substitution) was measured and closed: enforced live, eager discovery packets
-made sessions **+71.6% more expensive** (B5.3).
+**Working thesis:** `token efficiency ≈ admission control + lifetime control` — control *what
+enters* the prefix and *how long it stays*. Live, only admission has a measured dollar effect;
+lifetime control's live contribution is not yet identified. Retrieval sophistication (code
+graphs, discovery-packet substitution) was measured and closed: enforced live, eager discovery
+packets made sessions use **+71.6% more input tokens** (mean; dollars +79.7% mean / +66.9%
+pooled, censored by the $2.50 per-session cap) (B5.3).
 
 **Platform facts discovered en route** (each independently useful):
 
 1. This client requests the **1-hour prompt-cache TTL — cache writes bill at 2.0×** base input,
    which is why naive history mutation saves tokens but not dollars (B6's −41.5% tokens was only
-   −2.5% dollars until scheduling fixed it).
+   −2.5% dollars; scheduling has not been shown to recover those dollars live — B8 v2's dollar
+   saving came from admission, with no mutations applied).
 2. **A custom `ANTHROPIC_BASE_URL` disables MCP tool-schema deferral** — any gateway deployment
-   silently starts ~43k tokens/request behind the native client. **Admission is not an optional
-   lever in a gateway product; it is the entry fee** (B8v1).
+   silently starts ~43k tokens/request behind the native client (first request 84,676 vs 41,554
+   tokens). **Admission is not an optional lever in a gateway product; it is the entry fee** (B8v1).
 3. The prompt cache serves **partial interior hits**, and the 1h TTL is **soft** (65-minute idle
    gaps did not expire it live).
 4. Claude Code stores one API call as several transcript records sharing a `requestId` — usage
@@ -152,7 +171,8 @@ ANTHROPIC_BASE_URL=http://127.0.0.1:8787 claude --disallowedTools <never-used to
 CR_GATEWAY_MODE=enforce CR_GATEWAY_THINKING_KEEP=1 CR_GATEWAY_CACHE_ALIGN=gated python3 -m contextruntime.gateway_proxy
 ```
 
-**Provider support (honest):** Claude Code → Anthropic API is supported and live-validated. Any
+**Provider support (honest):** Claude Code → Anthropic API is supported and live-tested (see
+[Known limitations](#known-limitations--open-questions-audit-2026-10-05)). Any
 client speaking the Anthropic Messages format should work but is unvalidated. **GPT/OpenAI, Gemini,
 and local vLLM/Ollama models are not supported at runtime yet** — the gateway parses Anthropic
 message shapes only; those providers exist as cost-model presets for offline replay
@@ -192,13 +212,39 @@ local file paths and is never committed.
 
 ## Status
 
-**B-series complete and frozen** (B1–B8; research lines B1/B2/G1/G2/B5 closed by measurement).
-Live-demonstrated: 41.5% context workload (B6) · 29.3% gateway dollars (B8) · scheduler no-harm
-and mutation safety (17/17). Remaining modeled-only claim: the ~−60% giant-session regime (B7),
-whose validation requires a live run in that regime. The experiment log, in order:
+**B-series complete and frozen** (B1–B8; research lines B1/B2/G1/G2/B5 closed by measurement;
+the B6–B8 write-ups carry dated audit corrections). Live: 41.5% context workload with −2.5%
+dollars (B6, preregistered) · 29.3% dollars from client-side admission (B8 v2, post-hoc check).
+Not demonstrated live: any dollar contribution from retirement, thinking-GC or the scheduler
+("scheduler no-harm" is vacuous: its break-even branch cannot fire on `anthropic-1h`, and B8 v2
+applied no mutations); mutation safety rests on the 12 auditable B6 sessions. Modeled only: the
+giant-session regime (B7: −49.7% over all 54 sessions, median 0%). Next: the open experiment
+below. The experiment log, in order:
 `docs/b3-findings.md` → `b3.1/b3.2` → `B3_DECISION.md` → `path-to-50.md` → `prefix-doctor-findings.md`
 → `call-collapse-findings.md` → `joint-stack-findings.md` → `executor-ab-findings.md` →
 `b6-protocol.md`/`b6-findings.md` → `b7-findings.md` → `b8-protocol.md`/`b8-findings.md`.
+
+### Known limitations / open questions (audit, 2026-10-05)
+
+- **Scheduler.** On `anthropic-1h` (and `anthropic-5m`) the shipped break-even branch cannot
+  fire: it needs `0.1·P·E ≥ (w−0.1)·S` with E = 8, but the suffix S is counted from the earliest
+  pending tool result (`gateway._suffix_tokens_est`), so S ≥ P. Only cold-start and ttl-gap fires
+  happen. B7's modeled "gated" savings come from the replay rule in `corpus/b7_cache_replay.py`,
+  not the shipped scheduler. Documented, not yet fixed.
+- **Task selection.** B8's tasks (16485, 16527, 16901) were fixed after B6's results and exclude
+  django-16502, the only task where B6 treatment failed (T 0/3 vs N 2/3).
+- **Known gateway bugs (unfixed).** Persistent retirements are forwarded upstream only when the
+  same request also fired a new retirement or stripped thinking (`gateway_proxy.py:47`), yet
+  `persistent_applied` is still logged; a fired mutation the API rejects is retried on every later
+  request (no rollback); `doctor --prefix --no-capture` crashes; the doctor's same-project session
+  filter misses project paths that contain `_` (e.g. in the username).
+- **Generalization.** One repo (django), one model (Sonnet), one client version (2.1.229), one
+  machine; 4 tasks in B6, 3 in B8.
+- **Missing comparator.** No arm compares against stock Claude Code using its own tool deferral /
+  tool search, and none runs disallow-only without the proxy.
+- **Open experiment.** Stock client (native deferral / tool search) vs disallow-only (no proxy) vs
+  the full gateway, on more tasks and repos including django-16502, graded with the official
+  SWE-bench harness.
 
 ---
 

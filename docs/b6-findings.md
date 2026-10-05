@@ -1,12 +1,45 @@
 # B6 — Integrated Admission + Lifetime live A/B: **41.5% live end-to-end input reduction**
 
+> **Correction (2026-10-05, post-hoc audit).** The primary numbers (R = 0.585, −41.5%; per-task
+> R; 10 vs 9 of 12 successes) recompute exactly from the frozen artifacts, and the preregistration
+> holds: protocol commit 7e4c7b1 (2026-08-27) precedes run commit 9f7522f (2026-08-28), and the
+> only post-run protocol change is the status header. What changes:
+>
+> - **Attribution.** Admission alone predicts at least the observed reduction: 23,424 tokens/call
+>   (native vs admitted first request: 41,554 measured natively in B8 v1, since B6 recorded no N
+>   first-request size, vs 18,130 in B6 T) × 279 native calls gives R = 0.560 (per task
+>   0.518 / 0.596 / 0.552 / 0.555) against the observed 0.585. No admission-only arm was run, so
+>   the live contribution of retirement and thinking-GC is unidentified. Retirement was also
+>   "flash" — applied only on batch-boundary requests
+>   (`docs/b7-findings.md`, correction 3). The "82→6 tool schemas" was counted through the proxy,
+>   where a custom `ANTHROPIC_BASE_URL` turns the client's native MCP-schema deferral off; against
+>   the native client the admission saving is 23,424 tokens per request.
+> - **Mechanism health.** fallback_original = 0 holds, but the proxy records a fallback only for a
+>   4xx to a mutated body; a 5xx or a dropped connection leaves no outcome row. In 16901-T2, 40 of
+>   71 requests have no recorded outcome — at least 24 of them with mutated bodies (55 of the 71
+>   were mutated; the audit's sequential match puts it at 32). "353 retired / 1,794 stripped" are
+>   cumulative per-request counts; distinct objects are about 193 retired and at most 112 thinking
+>   blocks.
+> - **Grading.** A local macOS runner (`python3.11 tests/runtests.py`), not the official SWE-bench
+>   harness; 6 of 25 PASS_TO_PASS tests were skipped as unresolvable; the 16485-N0/T0 grades were
+>   repaired post hoc by replaying Edit ops; the grader itself was repaired mid-run.
+> - **Secondary endpoints.** The preregistered "GC-caused re-reads" was never computed
+>   (`gc_rereads` is called with an empty read list); 11/36 vs 12/39 are unconditional same-path
+>   repeat reads and appear in no committed artifact. "Compaction events" was never reported, so
+>   "headroom before compaction roughly doubles" is unsupported.
+> - **Variance.** The per-pair spread is not "exactly the 1.9×": N reps span 7.52× on 16901 and
+>   3.15× on 16502.
+> - **Dollars.** CLI −2.5% (−2.53%); list price with 1h writes −2.75% (the B7 note's −2.8%).
+
 **2026-08-27/28. Live, on the subscription (no API key on the machine; the CLI's own OAuth is
 relayed by the proxy and never stored). 24/24 sessions completed — no timeouts, no budget caps.
 Spend: $15.76-equivalent of plan usage ($7.98 N + $7.78 T) against the $60 ceiling.**
 Protocol preregistered in `docs/b6-protocol.md` before the first paid run; frozen artifacts:
 `corpus/analysis/b6-live-results.json` + `corpus/analysis/b6-gw-logs/*.gw.jsonl` (per-session
 gateway decision logs). Arms: **N** = stock `claude -p` (sonnet); **T** = admission
-(`--disallowedTools`, 82→6 tool schemas in the request) + gateway ENFORCE (B3 safe retirement +
+(`--disallowedTools`, 82→6 tool schemas in the request [corrected 2026-10-05: 82 counted through
+the proxy, where native MCP deferral is off; natively the saving is 23,424 tokens/request]) +
+gateway ENFORCE (B3 safe retirement +
 thinking-GC keep-1) — no discover, no graph, no search replacement.
 
 ## Primary endpoint (preregistered): R = Σ input_T / Σ input_N
@@ -25,6 +58,7 @@ sidechains excluded). No rep excluded (exclusion criteria — timeout/budget-cap
 Per-pair reductions (interleaved N,T reps): 28.1, 22.1, 56.8 | 38.6, −68.1†, 53.6 | 48.5, 35.3,
 45.3 | 79.8, 65.0, −134.8†% (†pairs where the N rep was unusually short/failed; the task-level Σ
 absorbs them — per-pair spread is exactly the 1.9× same-task variance Step 7 measured).
+[corrected 2026-10-05: N reps span 7.52× on 16901 and 3.15× on 16502, well beyond 1.9×]
 
 **Against the preregistered thresholds: 41.5% falls in the 35–45% band — "very strong result."**
 It does not reach the 45–55% ("original ~50% goal essentially achieved") band.
@@ -49,9 +83,15 @@ with a non-fix (an import line and a self-written test, no logic change) while T
 
 - **fallback_original = 0 in 12/12 sessions** — every mutated request body was accepted by the
   API. 353 tool results retired, 1,794 thinking blocks stripped (gateway decision logs frozen).
+  [corrected 2026-10-05: "every" is unverified — 40 of 71 requests in 16901-T2 have no recorded
+  outcome; the counts are cumulative per request (distinct ≈193 retired, ≤112 thinking blocks)]
 - **No retirement-caused re-reading**: repeat-Reads of the same path are N 11/36 vs T 12/39 —
-  indistinguishable. B3.3's "no re-read tax" now holds at 12-session scale.
+  indistinguishable. B3.3's "no re-read tax" now holds at 12-session scale. [corrected
+  2026-10-05: these are unconditional same-path repeats, not the preregistered GC-caused re-read
+  endpoint (never computed), and they are in no committed artifact]
 - Real grading (F2P + P2P run natively per rep) — process-completion was never used as success.
+  [corrected 2026-10-05: local macOS runner, not the official harness; 6 of 25 P2P tests skipped;
+  two grades salvaged post hoc]
 
 ## Secondary endpoints — including the one that cuts against us
 
@@ -81,7 +121,8 @@ What the 41.5% is therefore worth depends on what is scarce:
 
 - **Context-window residency / capacity** (the program's Σ P_t target from B1 onward): −41.5%,
   live and graded. Peak per-call context fell in every task (e.g. 16485: 57k→34k peak P_t) —
-  headroom before compaction roughly doubles, per B3.2's deferral finding.
+  headroom before compaction roughly doubles, per B3.2's deferral finding. [corrected 2026-10-05:
+  not measured — the preregistered compaction-events endpoint was never reported]
 - **Provider-side compute / weighted throughput** (what rate limits and plan quotas track):
   between the two, closer to the residency number than the dollar number.
 - **API dollars at today's cache pricing**: ≈0% for the lifetime levers. Admission alone (no
@@ -122,7 +163,11 @@ prompt intact.
 > The mechanisms that survived every ablation — admission hygiene + B3 retirement + thinking-GC —
 > were run **together, live, end-to-end, with real task grading**, for the first time.
 > **Live pooled input reduction: 41.5% (R = 0.585), with task success non-inferior (9 vs 10 of
-> 12) and zero mechanism failures.** The program's "credible ~50% engineering target" is now a
+> 12) and zero mechanism failures.** [corrected 2026-10-05: zero *recorded* 4xx fallbacks;
+> admission alone predicts R = 0.560, so the lifetime levers' share of the 41.5% is unidentified
+> — see top] The program's "credible ~50% engineering target" is now a
 > **demonstrated ~40% live saving** on context workload — with the honest caveat that current API
 > cache pricing converts almost none of the lifetime-lever saving into dollars; admission is the
 > dollar lever, and cache-aligned retirement is the identified path to close that gap.
+> [corrected 2026-10-05: not yet shown live — in B8 v2 the cache-aligned scheduler applied no
+> mutations, and its break-even branch cannot fire on `anthropic-1h` as shipped]

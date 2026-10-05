@@ -70,6 +70,10 @@ transcript altogether.
   — fixes injection + hypothesis-as-fact in the CURRENT single-agent product.
 - **6 — Gateway mode.** Admission + lifecycle (eviction, history rewrite,
   compaction control). Unlocks the pools subscription mode can't reach.
+  *Status (2026-10-05):* the shipped proxy does lifecycle only — it performs no
+  admission (admission today is the client's `--disallowedTools`) — and the B-series
+  has not yet identified a live dollar contribution from its lifecycle levers (see
+  below).
 - **7 — Cross-model / cross-provider capsule.** Codex (patchable OSS CLI), Cursor
   (Mode-1, coarse evidence). Report cohorts separately with evidence grades.
 - **8 — Enterprise control plane.** Cross-agent policy normalizer, shared
@@ -77,6 +81,22 @@ transcript altogether.
   failover. The business.
 - **ContextGraph** — deferred to where retrieval-QUALITY is measurably the
   bottleneck (likely enterprise cross-repo). One subsystem, not the headline.
+
+## After the B-series: the open experiment (2026-10-05)
+
+Live so far (one repo, Sonnet, one client version, one machine): admission is the only
+lever with a measured live dollar effect (B8 v2: −29.3%, a post-hoc check on 3 tasks);
+B6's −41.5% input-token reduction is about what admission alone predicts (−44.0%), so
+the lifetime levers' live share is unidentified; B7's giant-session savings are modeled
+(−49.7% over all 54 sessions, median 0%). The next gate is the comparison no arm has run:
+
+- **Arms:** stock Claude Code using its own tool deferral / tool search · the same client
+  with disallow-only (no proxy) · the full gateway.
+- **Tasks:** more tasks and repos, including django-16502 (the one B6 task where
+  treatment failed, which B8 dropped).
+- **Grading:** the official SWE-bench harness.
+
+Details and the known gateway issues: README → "Known limitations / open questions".
 
 ## Cross-cutting gates & metrics
 
