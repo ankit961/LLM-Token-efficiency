@@ -1,5 +1,16 @@
 # Step 6.1 — line-level evidence-retention replay (findings)
 
+> **Correction (2026-10-05, post-hoc audit):** (1) This replay uses the same 16 pilot transcripts as
+> Step 6, so it inherits Step 6's open contamination caveat: client 2.1.229 transcripts store the
+> reduced output, so the replayed raw sizes may be understated (see the correction at the top of
+> `docs/step6-paired-replay-findings.md`). `R_paired(256,400) = 12.1%` is a share of search-output
+> tokens only, not the same quantity as Step-4's 12.1% `R_direct`; Step-4's search-only estimate is
+> 40.8%. (2) §4's "dominates the shipped (256,400) on BOTH axes" is not a paired comparison: the
+> line-recall 0.40 is 2/5 needed paths at (256,400) and 0.563 is 9/16 at (256,125), i.e. different
+> needed-path sets, and lowering the floor cannot raise recall on the events that already fired at
+> 400. (3) No replay output or frontier JSON was committed and the transcripts are not on this
+> machine, so the table values cannot be re-derived from the repo.
+
 **Run 2026-08-18, ZERO Claude quota.** A reviewer correctly flagged that Step 6's headline —
 "100% path-recall ⇒ no room for graph ranking to improve" — does **not** follow from the metric.
 `path_recall` asks only whether a subsequently-touched file's path *string* still appears in the
@@ -97,7 +108,7 @@ lives. Three non-dominated settings:
 
 | setting | R_paired (capture) | line-recall | note |
 |---|---:|---:|---|
-| **(256,125)** | 0.183 | **0.563** | **dominates the shipped (256,400) on BOTH axes** (more capture *and* more inline evidence) — a free improvement |
+| **(256,125)** | 0.183 | **0.563** | **dominates the shipped (256,400) on BOTH axes** (more capture *and* more inline evidence) — a free improvement [corrected 2026-10-05: not paired — 9/16 vs 2/5 needed paths; see top] |
 | **(128,125)** | 0.427 | **0.484** | the **knee**: 256→128 nearly doubles capture at almost no line-recall cost |
 | **(64,125)** | 0.539 | 0.097 | max capture, but 128→64 collapses line-recall 0.48→0.10 for only +0.11 capture |
 
@@ -109,7 +120,8 @@ expansions turn out to be nearly free live. **Recommended live arms:** `A` (nati
 
 ## Revised verdict (supersedes Step 6 §2–§3)
 
-- **Token compression is real and measured:** `R_paired(256,400)=12.1%`, `(64,125)=53.9%` (Step 6).
+- **Token compression is real and measured:** `R_paired(256,400)=12.1%`, `(64,125)=53.9%` (Step 6)
+  [2026-10-05: search-only shares, possibly biased low; see top].
 - **Not "lossless".** Aggressive settings keep the file *names* but drop ~90% of subsequently-needed
   match *lines* to the `result://` handle. The floor/budget choice trades token-capture against
   inline-evidence, and the right operating point depends on the **live cost of `result://`

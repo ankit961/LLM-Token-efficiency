@@ -4,6 +4,13 @@ This is an evidence ledger, not a pitch: what has actually been measured, on wha
 what evidence grade — and what remains open. Each section links to the primary artifact/doc it
 summarizes; none of the numbers here are re-derived, only consolidated.
 
+*Corrected in place on 2026-10-05 after a post-hoc audit:* §1 (bash coverage is clean on 3 runs,
+not 0; ambiguous reads carry no tokens), §2 (what evidence for Arm A is actually committed) and §4
+(the headline now follows the label report's `token_share_eligible` rule; event denominators
+separated; 22 of 50 tasks, not "a quarter", have zero exploration-reducible tokens). The
+eligible-subset ceilings in §4 were recomputed by the audit from the committed per-run ceiling data
+and the runs' label reports.
+
 ## 1. What ContextRuntime observes reliably (Observation Corpus v2.1)
 
 50 controlled task runs (django/django, SWE-bench-style, 5 fix-shape strata × 10), collected under
@@ -14,8 +21,10 @@ the frozen observation runtime `obs-runtime-3a-v2.1` (hook_schema 0.4.1). Full m
   agent no-op on a hard task, see §3).
 - **Token attribution is strong and honest**: 91.3% of classified reads (538/589) are
   `fully_attributed_text` — real, mechanically-measured token weights, not estimates. The
-  remaining 8.7% is ordinary composite/multipath ambiguity (still counted, just not attributable
-  to one path); **zero** reads fell into an unmeasured/multimodal bucket.
+  remaining 8.7% (29 `ambiguous_composite` + 22 `ambiguous_multipath` reads) is ordinary
+  composite/multipath ambiguity, not attributable to one path. These reads are counted as events
+  (in the role mix below) but contribute **0 tokens** to the 246,686-token denominator of §4
+  (`excluded_tokens` = 0); **zero** reads fell into an unmeasured/multimodal bucket.
 - **Causal attribution is genuine, not proximity-guessed**: `seq_fallback = 0` in every single run
   — every edit-precondition link was resolved by real read→edit linkage. 76.6% of those links are
   at causal distance 1 (the read immediately precedes its edit).
@@ -27,10 +36,12 @@ the frozen observation runtime `obs-runtime-3a-v2.1` (hook_schema 0.4.1). Full m
   exceptions fail exactly one check (`pre_equals_batch`) — adjudicated (7-agent workflow + direct
   verification of the deliveries ledger) as expected Claude Code behavior for non-materializing
   tool calls, not a capture defect. They are retained and counted, not dropped.
-- **Two honest scope gaps, stated plainly**: `bash_coverage_clean = FALSE` on all 50 runs (shell-
-  statement recognition is real but not validated as complete); `config_required` is entirely
-  unexercised. The corpus is fit for what it measured — file-read classification and text token
-  attribution — and does not vouch for bash coverage.
+- **Two honest scope gaps, stated plainly**: `bash_coverage_clean` is TRUE on only 3 of 50 runs
+  (run-01, run-02, run-05 — small runs; e.g. run-01's single bash call is only partially
+  recognized and still marked clean) and FALSE on the other 47, so shell-statement recognition is
+  real but not validated as complete; `config_required` is entirely unexercised. The corpus is fit
+  for what it measured — file-read classification and text token attribution — and does not vouch
+  for bash coverage.
 
 **Evidence grade**: A (mechanically measured, hook-level, reproducible from raw journals + hashes).
 
@@ -55,7 +66,13 @@ no-op on a task whose literal ask was already satisfied at base, per the issue t
 mislabeled a grading infrastructure error; fixed to score correctly as unresolved, so `S_A` is not
 inflated by excluding a real failure. Full detail: `corpus/arm-a/grading-summary-v1.json`.
 
-**Evidence grade**: A (official harness, FAIL_TO_PASS/PASS_TO_PASS, reproducible run ID).
+What is committed is that summary JSON plus `corpus/arm-a/predictions.jsonl` and
+`corpus/arm-a/run_index.json`, whose 50 patch hashes match each other (0 mismatches). No raw harness
+report or log is committed: the graded patches can be tied to the summary by hash, but the per-task
+resolved/unresolved results can only be checked against the GitHub run, not offline from the repo.
+
+**Evidence grade**: A for the grading method (official harness, FAIL_TO_PASS/PASS_TO_PASS); the
+committed evidence is the summary JSON and patch hashes above, not raw harness output.
 
 ## 3. The semantic mechanism — validated sound, but doesn't self-activate
 
@@ -101,9 +118,17 @@ only a bucketing of the existing labels/reasons by reduction candidacy, delibera
 conservative as the classifier itself — an `UNKNOWN` read is never optimistically counted as
 reducible just to raise the number.
 
-Of **246,686 fully-measured read tokens** across all 50 runs (cross-checked exactly against §1's
-91.3%/589-read figures — 538 fully-attributed + 29 `ambiguous_composite` + 22 `ambiguous_multipath`
-= 589):
+**Headline (label-report admission rule).** Each run's label report says `token_share_eligible`
+separately gates the token-share headline (it requires 100% fully-measured text reads); 30 of the 50
+runs qualify. On those 30 runs (100,547 fully-measured read tokens) the ceilings are **20.9%
+exploration-only / 48.5% broad** — the primary figures. The all-50 view below (21.3% / 51.0%) is
+secondary: it also counts the 20 ineligible runs (about 60% of the tokens) and the 3 non-admissible
+runs (run-23/26/48), and sits 0.4 and 2.5 points higher. The bucket table and robustness checks below
+are for all 50 runs.
+
+All 50 runs (secondary view): **246,686 fully-measured read tokens**. These are the tokens of the 538
+fully-attributed reads; the 29 `ambiguous_composite` + 22 `ambiguous_multipath` reads (538 + 51 = 589,
+§1) are counted as events but contribute 0 tokens:
 
 | bucket | tokens | share | meaning |
 |---|---:|---:|---|
@@ -114,20 +139,28 @@ Of **246,686 fully-measured read tokens** across all 50 runs (cross-checked exac
 | `verification` | 5,455 | 2.2% | post-edit re-check, reported separately |
 
 ```
+all 50 (secondary):
 21.3% = exploration_reducible / all                              = 52,535 / 246,686
 51.0% = (exploration_reducible + search_listing_reducible) / all = 125,895 / 246,686
+30 token_share_eligible runs (primary):  20.9% exploration-only, 48.5% broad, of 100,547 tokens
 ```
+
+Event counts here use a different denominator from §1's role mix: the buckets cover the 538
+fully-measured reads, so `exploration_reducible` is 57 events, while §1's 12.2% `exploration` share
+is 72 of all 589 classified reads. Do not mix the two.
 
 **Precise interpretation — read as candidate mass, not guaranteed savings.** "No future mutation of
 this path" is not the same claim as "removing or compressing this read would have preserved the
 agent's reasoning." A read of `parser.py` that's never itself edited can still be causally necessary
 for correctly editing `validator.py` later — the classifier's retrospective label is honest about
 what it observed (no later write to *this* path), not about causal necessity for task success. So
-**21.3% and 51.0% are reduction-*candidate* mass, an upper bound on opportunity, not a proven-safe
-saving** — this distinction matters enough to protect in any external write-up.
+**both ceilings (20.9% / 48.5% on eligible runs; 21.3% / 51.0% on all 50) are reduction-*candidate*
+mass, an upper bound on opportunity, not a proven-safe saving** — this distinction matters enough to
+protect in any external write-up.
 
 **A more useful distinction than "safe vs broad" turns out to be retrospective vs. prospective.**
-The two components of the 51.0% are not equally capturable *today*:
+The two components of the broad ceiling are not equally capturable *today* (shares below are the
+all-50 view):
 
 - `exploration_reducible` (21.3%) is retrospective — at the moment the agent executes `Read foo.py`,
   the runtime cannot yet know whether `foo.py` will later be edited; the classifier only knows after
@@ -143,10 +176,10 @@ This reorders the natural next engineering step: **search/listing output compact
 immediately actionable than exploration-read substitution**, even though exploration is the
 smaller number.
 
-**Robustness — three independent reweightings of the same data**, since the headline is
-token-weighted (micro) and a few heavy runs could in principle dominate it:
+**Robustness — three independent reweightings of the same data** (all 50 runs), since the headline
+is token-weighted (micro) and a few heavy runs could in principle dominate it:
 
-| | micro (headline) | macro (task-weighted mean) | macro median | stratum-standardized |
+| | micro (all-50) | macro (task-weighted mean) | macro median | stratum-standardized |
 |---|---:|---:|---:|---:|
 | exploration_reducible | 21.3% | 17.3% | 9.6% | 20.4% |
 | broad (+ search/listing) | 51.0% | 47.4% | 44.7% | 51.3% |
@@ -155,8 +188,8 @@ Stratum-standardized (equal weight per fix-shape stratum, removing the fact that
 e.g. fs5 at 68,846 tokens vs. fs1 at 33,418 — otherwise get more say in the micro number even though
 task *count* is balanced 10-per-stratum) lands within ~1 point of the micro headline for both
 ceilings — **the headline is not an artifact of the sampling design.** The exploration bucket is
-notably right-skewed, though: macro median (9.6%) sits well below macro mean (17.3%), and a full
-quarter of the 50 tasks (p25 = 0.0) have **zero** confidently-exploration-reducible tokens at all —
+notably right-skewed, though: macro median (9.6%) sits well below macro mean (17.3%), and 22 of the
+50 tasks (44%, hence p25 = 0.0) have **zero** confidently-exploration-reducible tokens at all —
 only half the tasks (25/50) clear 10% exploration-reducible share. The broad ceiling is far more
 evenly present: 47/50 tasks (94%) clear 10%, median 44.7%. Per fix-shape stratum, neither ceiling
 collapses anywhere (exploration-only stays in a 15–26% band, broad in a 39–62% band across all 5
@@ -165,8 +198,9 @@ strata) — full detail in `corpus/analysis/opportunity-ceiling-v1.json`'s `robu
 **Evidence grade**: A (pure arithmetic over already-classified, already-verified data; the
 bucketing logic is unit-tested — including a regression test for a latent `_tok_cat` parity bug
 found during review, fixed before this became "reusable infrastructure," zero effect on the
-reported numbers since this corpus has no multimodal reads — and the sanity totals reconcile
-exactly with §1's independently reported figures).
+reported numbers since this corpus has no multimodal reads — and the event counts reconcile
+exactly with §1's independently reported figures). The grade covers the arithmetic; the ceilings
+remain candidate-mass upper bounds, as stated above.
 
 ## 5. What remains open
 

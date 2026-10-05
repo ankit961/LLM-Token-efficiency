@@ -8,6 +8,17 @@
 > Findings + the hard decision gate: `docs/prefix-doctor-findings.md`; frozen artifact:
 > `corpus/analysis/prefix-doctor-v1.json`. The v0 report below stands as the first diagnosis.
 
+> **Correction (2026-10-05, post-hoc audit):** (1) "−17k real tokens/call" (Workflow + Artifact) and
+> "−34% of the prefix" (`--strict-mcp-config`) are not measured deltas. They reproduce exactly from
+> this v0 report's calibrated estimate rows (×1.81) in `corpus/analysis/prefix-doctor-report.json`:
+> 9,675 + 7,554 = 17,229, and the two MCP-server rows (22,200 + 5,885) / 82,365 = 34.1%. No capture
+> of a stripped request is committed. (2) The 82,365-token startup prefix comes from the proxy
+> capture, which runs with a custom `ANTHROPIC_BASE_URL` and therefore without MCP schema deferral
+> (`docs/b8-findings.md`); the same report's measured median startup prefix is 41,894. (3) v1
+> classifies `system[2]` as Claude Code's core prompt (KEEP, "not ours") in
+> `corpus/analysis/prefix-doctor-v1.json`, so the "trim system[2]:claude_md" item (−4,718/call)
+> inside the −36,253 / 44.0% total was a misclassification.
+
 **2026-08-23. Built, tested, run on a real machine. Zero model quota.** `contextruntime/prefixdoctor.py`,
 `contextruntime doctor --prefix [--cwd DIR] [--sessions N] [--json]`; this machine's report in
 `corpus/analysis/prefix-doctor-report.json`.
@@ -40,9 +51,11 @@ evidence and exact fixes.
    call and token-turns per session.
 
 Validated (zero quota) that the recommendations are *real*: `--disallowedTools` strips the named
-definitions from the request (Workflow + Artifact alone: −9.6k heuristic ≈ **−17k real tokens/call**);
+definitions from the request (Workflow + Artifact alone: −9.6k heuristic ≈ **−17k real tokens/call**
+[corrected 2026-10-05: a calibrated estimate (×1.81), not a measured delta]);
 `--disallowedTools "mcp__<server>__*"` removes a whole server's tools; `--strict-mcp-config` removes all
-MCP servers (here −34% of the prefix).
+MCP servers (here −34% of the prefix [corrected 2026-10-05: computed from the estimate rows, not
+measured]).
 
 ## This machine's report (the 82k-startup environment from the OBSERVE run)
 

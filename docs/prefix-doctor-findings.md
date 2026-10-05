@@ -1,5 +1,24 @@
 # B5.0 — `cr doctor --prefix` v1: findings and the hard decision gate
 
+> **Correction (2026-10-05, post-hoc audit):** the original text is kept; the following correct it.
+>
+> - **The HEAVY column is the proxy-captured, de-deferred prefix.** The doctor captures by pointing
+>   `ANTHROPIC_BASE_URL` at a local proxy (`contextruntime/prefixdoctor.py`), and B8 later found that
+>   a custom `ANTHROPIC_BASE_URL` makes the client disable MCP tool-schema deferral
+>   (`docs/b8-findings.md`; `corpus/analysis/b8v1-live-results.json`: first request 84,676 tokens
+>   through the proxy vs 41,554 native-deferred). The heavy figures — 82,359 startup, 38,466 unused
+>   (46.7%), 36,750 controllable (45%), and the heavy P1–P4 and subscription / gateway fractions that
+>   also feed the joint stack — therefore describe the de-deferred proxied client. The same
+>   artifact's heavy native median startup prefix is **41,899** (`corpus/analysis/prefix-doctor-v1.json`,
+>   `observation.median_startup_prefix_real`).
+> - **"Today's environment defers none (all 82 loaded)"** (Method) is outdated after B8: it describes
+>   the proxied capture. The native client defers MCP schemas.
+> - **Accounting factor.** The 1.74× ("455 clean call-deltas, IQR 1.61–1.89") is a hard-coded constant
+>   (`CLAUDE_PER_CL100K` in `contextruntime/prefixdoctor.py`); no derivation script or per-delta data
+>   is committed.
+> - **Call-collapse bound.** The "unvalidated bound 37.5%" is 35.92% in
+>   `corpus/analysis/call-collapse-oracle-v1.json`.
+
 **2026-08-23. Zero model quota** (captures answered locally; nothing forwarded). Frozen artifact:
 `corpus/analysis/prefix-doctor-v1.json` (both environments, per-item tables, counterfactuals).
 Module: `contextruntime/prefixdoctor.py`; `contextruntime doctor --prefix [--capture-model M]`.
@@ -20,7 +39,9 @@ Diagnostic only — the doctor never disables or rewrites anything.
   tokenizer spread.
 - **Deferral-aware**: whether a schema is *resident* is observed, not assumed — from the capture
   (loaded `tools` array) and from transcripts (`deferred_tools_delta` = names only, NOT resident). The
-  Aug-18 lean sessions deferred **74** tools; today's environment defers **none** (all 82 loaded).
+  Aug-18 lean sessions deferred **74** tools; today's environment defers **none** (all 82 loaded)
+  [corrected 2026-10-05: outdated after B8 — the proxy's custom `ANTHROPIC_BASE_URL` turned deferral
+  off; the native client defers MCP schemas].
   Deferral state is environment/version-dependent and must be measured per environment.
 - **Model-dependent prefix**: sonnet's core prompt is 6,079 cl100k vs opus's 2,324, with larger
   Bash/Agent descriptions — capture with the model your sessions use (`--capture-model`).
@@ -29,7 +50,7 @@ Diagnostic only — the doctor never disables or rewrites anything.
 
 | | HEAVY (this machine, desktop + connectors) | LEAN (django Step-7 headless) |
 |---|---|---|
-| real startup prefix | **82,359** | **42,995** |
+| real startup prefix | **82,359** [corrected 2026-10-05: proxy capture, deferral off; native median 41,899] | **42,995** |
 | median calls/session | 49 | 46 |
 | fixed prefix share of Σ P_t | 71.9% | 67.8% |
 | tool schemas | 72,482 (88%) | 28,324 (66%) |
@@ -79,7 +100,7 @@ in the program, ahead of B3 (8.3%), thinking-GC (≤11.3%) and everything else m
 ## Multiplicative stack (correction adopted from review)
 
 Levers overlap multiplicatively, not additively. With measured values — prefix −30%, call-collapse
-−15% (unvalidated bound 37.5%), B3 −8%, thinking-GC −7%:
+−15% (unvalidated bound 37.5% [corrected 2026-10-05: 35.92%]), B3 −8%, thinking-GC −7%:
 
     0.70 × 0.85 × 0.92 × 0.93 ≈ 0.509  →  ~49% total reduction
 

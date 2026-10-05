@@ -1,5 +1,13 @@
 # Step 7 — replicated live A/D experiment (design)
 
+> **Correction (2026-10-05, post-hoc audit):** (1) This design says a 600 s cap, but the harness
+> committed with it (e199ee4, `corpus/step7_live_experiment.py`, `walltime_s: int = 900`) and the
+> findings used 900 s; the change was never noted here. (2) The metric table below lists only the
+> exact-repeat `re_searches`; the broader `repeated_scope_delta` that `docs/step5-abc-experiment.md`
+> designated was computed into `corpus/analysis/step7-live-results.json` as `repeated_scope_count`
+> (55 / 95 / 110 summed for A / D1 / D2) but never reported. (3) The deferred grading never happened:
+> `task_resolved` is null for all 60 runs.
+
 **Purpose.** Everything through Step 6.1 is *mechanical*: how much the reducer compresses (R_paired)
 and how much inline evidence it drops (line-recall). None of it prices the **end-to-end** question:
 once the agent can react — expand a `result://` handle, re-Read, re-search, or take a different
@@ -21,7 +29,7 @@ capture over the knee; it can be added later as a downside bound if the knee loo
 ## Design
 
 3 arms × the 4 search-heavy django tasks (`10554, 11138, 12419, 14608`) × **5 reps** = **60
-sessions**, headless `claude -p` (sonnet, 600 s cap), each in a fresh worktree at the task's
+sessions**, headless `claude -p` (sonnet, 600 s cap [corrected 2026-10-05: the run used 900 s]), each in a fresh worktree at the task's
 `base_commit` with a per-run journal, decision log, and `result://` recovery MCP. Reps exist to
 average the whole-session trajectory variance that made the single-run Step-5 pilot inconclusive.
 The outer loop is rep→task→arm, so partial results cover all arms early and the sweep is resumable

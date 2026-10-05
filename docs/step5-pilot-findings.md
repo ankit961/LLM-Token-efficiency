@@ -1,12 +1,21 @@
 # Step-5 pilot — findings (4 tasks × A/B/C, 16 live sonnet sessions)
 
+> **Correction (2026-10-05, post-hoc audit):** the table column labelled `Δtok(B_shipped−A)` actually
+> shows **A − B**. From the table's own values, B_shipped − A is **+84 (+1.0%)** on 10554,
+> **−4,108 (−27.8%)** on 11138, **−10,530 (−70.2%)** on 12419 and **−874 (−11.3%)** on 14608: B_shipped
+> was lower than A on 3 of 4 tasks, and §3's range is −70% … +1%, not −1% … +70%. The n=1
+> "inconclusive" verdict stands. Also: the "~80%" in §2 pools B_shipped (budget 256) with B_tuned
+> (budget 64), so it is not a single-config compression figure; and "Step-4's 12.1%" (Verdict) is
+> `R_direct`, a share of all read tokens (Step-4's search-only estimate is 40.8%). The pilot numbers
+> are prose only: no decision log, manifest or transcript from this run is committed.
+
 **Run 2026-08-17** over the 4 highest search-token django tasks from Step-4 (`10554, 11138, 12419,
 14608`), each × `A_native / B_shipped(256/400) / B_tuned(64/400) / C_graph(256/400)`, real headless
 `claude -p` (sonnet, 600s cap) via `Step5Runner`. All 16 completed; no crashes.
 
 ## Per-task effective read tokens + reductions
 
-| task | A_native | B_shipped | B_tuned | C_graph | reductions (A/Bs/Bt/C) | Δtok(B_shipped−A) | wall ratio | C valid? |
+| task | A_native | B_shipped | B_tuned | C_graph | reductions (A/Bs/Bt/C) | Δtok(B_shipped−A) [corrected 2026-10-05: values shown are A−B] | wall ratio | C valid? |
 |---|---|---|---|---|---|---|---|---|
 | 10554 | 8,581 | 8,665 | 10,563 | 9,979 | 0/1/2/0 | **−84 (−1%)** | 1.66 | ❌ |
 | 11138 | 14,785 | 10,677 | 15,437 | 19,959 | 0/4/4/0 | **+4,108 (+28%)** | 1.00 | ❌ |
@@ -24,7 +33,8 @@
    Summed over the 14 fired reductions (from the decision logs, so unconfounded by which reads the
    agent happened to issue): **raw 14,364 → reduced 2,861 tokens, i.e. 11,503 tokens removed
    (80%)**; mean per reduction 1,026 → 204.
-3. **Whole-session Δtokens(B−A) is NOT measurable at n=1.** It spans −1% … +70% and tracks
+3. **Whole-session Δtokens(B−A) is NOT measurable at n=1.** It spans −1% … +70% [corrected
+   2026-10-05: B−A spans −70% … +1%; the table's sign is inverted] and tracks
    **session length** (wall ratio 0.58 … 1.66), not reduction count — `B_tuned` with the *same* 4
    reductions as `B_shipped` on 11138 went the *opposite* direction (+col). Trajectory variance
    (±thousands of tokens across independent sessions) dwarfs the per-session reduction savings.
@@ -43,7 +53,8 @@
 - **Whole-task token win**: ❓ **inconclusive** — the single-run-per-arm design is too noisy.
 - **Graph value (C−B)**: ❓ **untested** — graph never engaged.
 
-This does **not** overturn Step-4's 12.1% estimate; it confirms the per-fired-read reduction is
+This does **not** overturn Step-4's 12.1% estimate [2026-10-05: that is `R_direct`, a share of all
+read tokens; the search-only analog is 40.8%]; it confirms the per-fired-read reduction is
 large (~80%) and adds that realized whole-task savings depend on how often the agent produces big
 greps — which this pilot could not pin down at n=1.
 

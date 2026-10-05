@@ -1,5 +1,28 @@
 # B4 — Production Context GC: feasibility spike
 
+> **Correction (2026-10-05, post-hoc audit):** the original text is kept; the following qualify it.
+>
+> - **Thinking share.** The 11.3% (`corpus/analysis/prefix-decomposition-v2.json`, 11.31) was
+>   *estimated*, not measured, on the 60 headless Sonnet django Step-7 runs: per call,
+>   `max(output_tokens − cl100k(visible output), 0)` with no accounting factor (implicitly 1.0, an
+>   upper-side estimate). The joint replays instead use factors 1.74 (v1) and 1.51 (v2/v3), which are
+>   hard-coded constants with no committed derivation. "Measured on reasoning-heavy sessions" below is
+>   wrong on both counts.
+> - **"Cache-cheap" evidence.** The enforce run's usage log (`corpus/analysis/b4-thinking-gc-live.json`)
+>   also contains a call that created 14,260 cache tokens (cache_read falling from 82,358 to 69,420);
+>   the doc cites only 122 / 834 / 142, and the artifact does not map usage rows to decisions. "All
+>   200" is inferred: no status codes are recorded.
+> - **OBSERVE run.** `corpus/analysis/b4-gateway-observe.json` predates the requestId merge: its 37–47
+>   "turns"/requests are transcript records, while the same five sessions have 23–31 real API calls in
+>   `corpus/analysis/call-collapse-oracle-v1.json`. The per-request retirable figures are averaged over
+>   that inflated request axis. The non-mutation check is not recorded in the artifact (it is
+>   supported by construction and by unit tests).
+> - **"Nothing is dropped irrecoverably".** The shipped gateway's `recovery_ref` is `reread:<path>`
+>   (the current file, not the retired bytes) or `rerun:<command[:80]>`
+>   (`contextruntime/gateway.py`), not an exact content handle.
+> - **"8–11%"** inherits the B3 correction (`B3_DECISION.md`): the corrected pooled lag-5 safe NET is
+>   8.30%.
+
 **Status: first spike merged.** This is a *production feasibility* step, not another oracle experiment.
 It turns the frozen B3 policy (`B3_DECISION.md`) into a shippable abstraction and pins down the one
 question the research made binding: **where can context history actually be mutated?**
@@ -30,7 +53,8 @@ never looks ahead (a real runtime has no future). It carries the frozen B3 polic
   of the benefit at a fraction of the rewrites). `force=True` flushes.
 - **Recoverable** — every `Retirement` carries the object's `recovery_ref` (a `result://<hash>` handle
   from B1's `livecas`, or a re-run/re-read instruction) and a stub that names it. Nothing is dropped
-  irrecoverably — the same invariant B1 shipped.
+  irrecoverably — the same invariant B1 shipped. [corrected 2026-10-05: the gateway's `reread:` /
+  `rerun:` refs do not restore the retired bytes; see top]
 
 `simulate(objects, total_turns)` runs the planner forward over a session so the product policy can be
 checked against the B3 research numbers offline.
@@ -63,7 +87,8 @@ It is **fail-open** (any parse error returns the request untouched) and OBSERVE 
 construction** (the mutator is only invoked under `enforce`). Run over 5 real Step-7 sessions in OBSERVE
 mode (`corpus/analysis/b4-gateway-observe.json`), the non-mutation invariant held on every request, and
 it surfaced ~1.8–4.0k retirable tokens per request (up to ~8.2k), ~3–4 batch boundaries per ~40-turn
-session — the expected shape, and consistent with the B3 residency numbers. `summarize_log()` turns an
+session [corrected 2026-10-05: 37–47 transcript records; these sessions have 23–31 real API calls]
+— the expected shape, and consistent with the B3 residency numbers. `summarize_log()` turns an
 OBSERVE log into that measurable opportunity.
 
 This is the B1 shipping pattern exactly: default off, OBSERVE before ENFORCE, fail-open, decision log.
@@ -86,7 +111,8 @@ This is the B1 shipping pattern exactly: default off, OBSERVE before ENFORCE, fa
 
 ## Thinking-GC — built, OBSERVE-counted, ENFORCE-validated live (`gateway.py`, 2026-08-23)
 
-`docs/path-to-50.md` found that **retained thinking is ~11.3% of resident token-turns** on the django
+`docs/path-to-50.md` found that **retained thinking is ~11.3% of resident token-turns** [corrected
+2026-10-05: an estimate with no accounting factor applied, not a measurement] on the django
 sessions and is *invisible* in transcripts: on display-omitted models the client holds only the
 `signature`, but the server decrypts it back into context and — on keep-all models (Opus 4.5+, Sonnet
 4.6+, Fable/Mythos 5) — *"previous thinking blocks remain in context, count toward the window, and are
@@ -112,9 +138,11 @@ So thinking-GC is B3's policy applied to thinking, with one important economic d
 through the proxy with `CR_GATEWAY_MODE=enforce CR_GATEWAY_THINKING_KEEP=1` on Sonnet 5 (a keep-all
 model): **7 API calls, all 200, 0 fallbacks** — the API accepted every request with prior-turn thinking
 stripped mid tool-use loop — and the task completed correctly (tests pass on disk). The stripped turns
-re-created only **122 / 834 / 142** cache tokens, confirming the tail-edit cheapness. Magnitude is
+re-created only **122 / 834 / 142** cache tokens, confirming the tail-edit cheapness [corrected
+2026-10-05: the same run also logged a 14,260-token cache creation; see top]. Magnitude is
 workload-dependent: this trivial headless task produced ~400-byte signatures (~100 thinking tokens per
-block), so the saving here is negligible; the 11.3% share was measured on reasoning-heavy sessions, and
+block), so the saving here is negligible; the 11.3% share was measured on reasoning-heavy sessions
+[corrected 2026-10-05: estimated, with no accounting factor, on headless Sonnet django runs], and
 interactive Opus sessions are heavier still. The mechanism, its legality, and its cache economics are
 what this validates — not a percentage.
 

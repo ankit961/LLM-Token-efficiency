@@ -1,5 +1,28 @@
 # Where the tokens actually go — and what a 50% reduction would take
 
+> **Correction (2026-10-05, post-hoc audit):** the original text is kept; the following correct it.
+>
+> - **Call profile (§2, §3, §5).** This doc predates the committed oracle
+>   (`corpus/analysis/call-collapse-oracle-v1.json`). Over its 2,968 calls: discovery **50.44%** (not
+>   51%), other-bash **20.25%** (not 19%), test/exec **14.49%** (not 16%), edit 11.93%, no-tool 1.95%.
+>   Collapsing every discovery run removes at most **35.92%** of calls (not 37.5%), or 31.27% of Σ P_t.
+> - **§0 "the B3 headline survives".** True for pooled mech / +tail, not for the batched NET (pooled
+>   K=10 raw / cost 9.13 / 6.62 → 8.40 / 6.07). "Real sessions are 20–180 API calls": 180 was a record
+>   count, and CLI `num_turns` spans 23–91. The restated "≥60 calls: ~14% tail / ~5.6% provably-safe"
+>   values are unfiltered B3.0 ceilings, not safety-filtered, and the superseded ("provably-safe") part
+>   was never tested (see `B3_DECISION.md`).
+> - **Thinking (§1, §5).** The 11.3% is an estimate with no accounting factor applied (implicitly
+>   1.0), on headless Sonnet django runs. The 1.74 factor ("455 call-deltas") is a hard-coded constant
+>   with no committed derivation script or per-delta data.
+> - **Heavy-environment prefix (§1, §3, §5).** The 82k startup prefix came from a proxy session, and
+>   a custom `ANTHROPIC_BASE_URL` makes the client disable MCP tool-schema deferral
+>   (`docs/b8-findings.md`, `corpus/analysis/b8v1-live-results.json`). The same environment's native
+>   median startup prefix is 41,899 (`corpus/analysis/prefix-doctor-v1.json`). So the 82k-vs-42k gap
+>   is not "entirely MCP servers / plugins / skills" that the native client loads, and the 98.9%
+>   (7-call session) and "halving 82k ≈ −40" figures describe the de-deferred proxied client.
+> - **Same-task variance (§2).** 1.9× max/min is the turns ratio (1.97×); T_total varies up to 2.51×
+>   within a task-arm cell (`corpus/analysis/step7-live-results.json`).
+
 **2026-08-23. Zero new model quota** (one OBSERVE proxy session, ~$1.20, already run). Measurements:
 `corpus/prefix_decomposition_v2.py` → `corpus/analysis/prefix-decomposition-v2.json`; corrected
 B3 artifacts; external sources at the end. This answers "what else can be done — target 50%?" with
@@ -19,10 +42,12 @@ exactly (71 / 5,690,119 — match).
 |---|---|---|
 | B3.0 pooled mech / +tail | 4.3% / 10.3% | **4.33% / 10.32%** |
 | B3.1 lag-5 safe_fraction / safeNET | 0.974 / 8.70% | **0.979 / 8.30%** |
-| length buckets | 0–60 / 60–100 / 100–150 / 150+ "turns" | real sessions are **20–180 API calls**: 0–60 (n=44): 3.9 / 9.0 · **60+ (n=16): 5.6 / 13.9** (mech / +tail) |
+| length buckets | 0–60 / 60–100 / 100–150 / 150+ "turns" | real sessions are **20–180 API calls** [corrected 2026-10-05: 23–91 by CLI num_turns]: 0–60 (n=44): 3.9 / 9.0 · **60+ (n=16): 5.6 / 13.9** (mech / +tail) |
 
 So restate the frozen headline's length clause as "≥60 real API calls: ~14% tail / ~5.6% provably-safe
-/ 9.3% cost-NET" rather than "≥100 turns: 11.1%". The growth-with-length trend holds.
+/ 9.3% cost-NET" rather than "≥100 turns: 11.1%". The growth-with-length trend holds. [corrected
+2026-10-05: these are unfiltered B3.0 ceilings, and the 60+ sessions are all django-10554/11138, so
+the length trend is confounded with task; see top]
 
 ## 1. The full decomposition — where Σ P_t goes (60 django sessions, mean 49.5 real calls, 42k startup)
 
@@ -32,7 +57,7 @@ residual `P_t − visible_t`; its **hard lower bound** (startup prefix × calls 
 
 | component | share of Σ P_t | notes |
 |---|---:|---|
-| **fixed: system prompt + tool defs + injected (CLAUDE.md, skills, memory, reminders)** | **73.0%** | lower bound 66.9%; in this machine's heavy-MCP env a 7-call session was **98.9%** (82k startup) |
+| **fixed: system prompt + tool defs + injected (CLAUDE.md, skills, memory, reminders)** | **73.0%** | lower bound 66.9%; in this machine's heavy-MCP env a 7-call session was **98.9%** (82k startup) [corrected 2026-10-05: a proxied session with schema deferral off; see top] |
 | **retained thinking** (stored empty, but resident on Opus 4.5+/Sonnet 4.6+) | **11.3%** | estimated as `output_tokens − visible output` per call |
 | tool results: Read 6.8 · Bash 4.9 · Edit 0.35 · other 0.04 | **12.0%** | the slice B1/B2/B3 worked on |
 | tool_use inputs: Bash 1.2 · Edit 1.0 · other 0.5 · Write 0.04 | 2.7% | |
@@ -57,10 +82,13 @@ on short sessions (the 7-call proxy run) cache *writes* dominate cost (83%). A "
 ## 2. The turn profile — the multiplier
 
 Over 2,968 real API calls: **discovery (read/grep/ls) = 51% of calls**, other-bash 19%, test/exec 16%,
-edit 12%, final answer 2%. Discovery comes in **runs of 3.5 consecutive calls** (max 32). If every
-consecutive-discovery run were collapsed into ONE local call, **37.5% of all API calls disappear** — an
+edit 12%, final answer 2% [corrected 2026-10-05: discovery 50.44%, other-bash 20.25%, test/exec
+14.49% in `call-collapse-oracle-v1.json`]. Discovery comes in **runs of 3.5 consecutive calls** (max 32). If every
+consecutive-discovery run were collapsed into ONE local call, **37.5% of all API calls disappear**
+[corrected 2026-10-05: 35.92%] — an
 upper bound, but each avoided call skips a full re-read of the ~73% fixed prefix, so call reduction
-maps almost 1:1 onto Σ P_t reduction. Run-to-run variance (same task, 5 reps) is 1.9× max/min; tokens
+maps almost 1:1 onto Σ P_t reduction. Run-to-run variance (same task, 5 reps) is 1.9× max/min
+[2026-10-05: turns; T_total reaches 2.51×]; tokens
 beyond 1.5× the task median are only 4.6% — a runaway-governor is a small lever here.
 
 ## 3. What the outside evidence adds (and what it doesn't)
@@ -69,7 +97,8 @@ beyond 1.5× the task median are only 4.6% — a runaway-governor is a small lev
   ~77k tokens on tool definitions before work begins; Tool Search (`defer_loading`) cuts it to ~8.7k
   (−85%) *and* raises accuracy (Opus 4: 49→74%). Third-party measurements put real setups at 55–134k.
   Our proxy run saw **82k of startup prefix** on this machine vs 42k in the lean django env — the 40k
-  difference is entirely MCP servers / plugins / skills. Claude Code already defers some tools; the
+  difference is entirely MCP servers / plugins / skills [corrected 2026-10-05: the proxy disabled MCP
+  schema deferral; this environment's native median startup prefix is 41,899; see top]. Claude Code already defers some tools; the
   subscription client does not yet expose Tool Search (issue #12836).
 - **Context editing is native now**: `clear_tool_uses_20250919` (trigger default 100k input tokens,
   `keep` 3, `clear_at_least`, `exclude_tools`, **`clear_tool_inputs`**), `clear_thinking_20251015`, and
@@ -78,7 +107,7 @@ beyond 1.5× the task median are only 4.6% — a runaway-governor is a small lev
   subscription-client one. Note `clear_tool_inputs`: Anthropic also retires tool *inputs* (our
   `tool_use_edit/bash` 2.2%).
 - **Programmatic tool calling**: −37% tokens (43.6k→27.3k) on research tasks; explicitly *not* helpful
-  for sequential single calls. Our 37.5% collapsible-call bound is the coding-workload analogue — the
+  for sequential single calls. Our 37.5% [corrected 2026-10-05: 35.92%] collapsible-call bound is the coding-workload analogue — the
   number to validate.
 - **Token-consumption studies** agree with our shape: input dominates (1000× chat), read-type ops are
   ~76% of tokens (SWE-Pruner), redundancy grows with trajectory length, and accuracy *peaks at
@@ -116,8 +145,8 @@ subscription client, "gateway" = our proxy / API path where we own the request.
 
 | # | lever | est. Σ P_t | where | confidence | status |
 |---|---|---:|---|---|---|
-| 1 | **Fixed-prefix hygiene**: measure startup prefix, itemize MCP/plugins/skills/CLAUDE.md/memory, defer or drop unused (Tool Search pattern) | **−10 to −40** (lean env 42k → mostly Claude Code's own prompt, limited; heavy env 82k → halving it alone ≈ −40) | subscription (config) + gateway | high — it's arithmetic on the 73% | **not built** — `cr doctor --prefix` |
-| 2 | **Collapse discovery runs** into one local call (evidence packet / PTC-style executor) | **−10 to −25** (bound −37.5% of calls) | gateway / custom loop; changes the tool surface | medium — biggest upside, adoption risk (cf. 0/11 SemanticFS) | **not built** — measure first |
+| 1 | **Fixed-prefix hygiene**: measure startup prefix, itemize MCP/plugins/skills/CLAUDE.md/memory, defer or drop unused (Tool Search pattern) | **−10 to −40** (lean env 42k → mostly Claude Code's own prompt, limited; heavy env 82k → halving it alone ≈ −40 [corrected 2026-10-05: 82k is the de-deferred proxy capture; see top]) | subscription (config) + gateway | high — it's arithmetic on the 73% | **not built** — `cr doctor --prefix` |
+| 2 | **Collapse discovery runs** into one local call (evidence packet / PTC-style executor) | **−10 to −25** (bound −37.5% of calls [corrected 2026-10-05: 35.92%]) | gateway / custom loop; changes the tool surface | medium — biggest upside, adoption risk (cf. 0/11 SemanticFS) | **not built** — measure first |
 | 3 | **B3 context retirement** | **−8** (safe NET) | gateway (done, OBSERVE) | high, live-sanity-checked | **built** |
 | 4 | **Thinking GC** (keep last N thinking turns — B3 for thinking; `clear_thinking` natively) | **−5 to −10** (11.3% slice; more in interactive Opus) | gateway / API | high — Anthropic ships it; old models did it by default | **not built** — small |
 | 5 | Cache geometry (stable prefix ordering, no churn in tool lists, volatile data last) | 0 tokens, **cost** only (protects the 0.1× read) | gateway | high | partly inherent |
@@ -139,7 +168,8 @@ compose to 0.80×0.85×0.92×0.93 ≈ 0.582, i.e. **−41.8%**, not −50%. Reac
 `docs/prefix-doctor-findings.md`: subscription-achievable −27.6% (heavy) / −31.9% (lean) of Σ P_t.
 
 **Accounting correction (measured while reconciling the doctor):** the **Claude request-accounting
-factor is ~1.74× the cl100k estimate** on coding-agent content (455 clean call-deltas, IQR 1.61–1.89).
+factor is ~1.74× the cl100k estimate** on coding-agent content (455 clean call-deltas, IQR 1.61–1.89)
+[2026-10-05: no derivation script or per-delta data is committed; 1.74 is a hard-coded constant].
 This is an accounting ratio, not a tokenizer-vocabulary claim — it may include serialization/protocol/
 invisible content; only the official count-tokens endpoint on identical bytes would separate those.
 Either way, heuristic/tiktoken estimates understate Claude-billed usage by ~40% absolute;
