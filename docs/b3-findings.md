@@ -2,6 +2,37 @@
 
 > **Correction (2026-08-23):** the harness originally counted transcript *records* as turns, but Claude Code stores one API call as several assistant records sharing a `requestId`, so the turn axis was inflated ~1.9× (134 records = 71 real calls) and Σ usage ~1.9×. Fixed in `corpus/transcript_util.merged_records`; the harness now reproduces the CLI-reported usage exactly. **The percentages survive** (pooled mech/+tail 4.33/10.32 vs documented 4.3/10.3; lag-5 safe 0.979/8.30% vs 0.974/8.70%); only the length buckets change — real sessions are 20–180 API calls, so read "≥100 turns" as "≥60 real calls" (13.9% tail / 5.6% mech / 9.3% cost-NET, n=16). See `docs/path-to-50.md` §0.
 
+> **Correction (2026-10-05, post-hoc audit):** the 2026-08-23 note above is only partly right, and
+> several statements below are overstated. The original text is kept.
+>
+> - **What survives and what does not.** Pooled mech / +tail (4.33 / 10.32) do survive. The batched
+>   NET columns do not: at K=10 the pooled raw / cost NET moved from 9.13 / 6.62 (this doc's tables)
+>   to **8.40 / 6.07** (the corrected `corpus/analysis/b3-results.json`, n-weighted over its two
+>   strata), so the JSON's own note "Percentages match the original run" is false for these columns.
+>   Every table below (the 17/24/15/4 strata, the giant row, the K sweep) is pre-correction. The
+>   corrected JSON has two strata — 0–60 calls (n=44): mech 3.88 / +tail 9.00 / rawNet 6.99 /
+>   costNet 4.89; 60+ calls (n=16): 5.57 / 13.94 / 12.28 / 9.31 — and no K sweep. "Real sessions are
+>   20–180 API calls" in the note above is also off: 180 was a record count, and CLI `num_turns` spans
+>   23–91 (`corpus/analysis/step7-live-results.json`).
+> - **"+tail" is not a selective abandoned tail.** `assign_obsolescence` gives every object that is
+>   not superseded `tail_turn` = its own turn, so "+tail" retires ALL non-superseded tool results
+>   (hence `peak_occupancy_relief_pct` = 100.0 in every stratum), starting with the next request — the
+>   first one in which the model would have seen them.
+> - **"Provably dead" supersession was never tested.** `_obj_key` keys Read/Edit/Write on the path
+>   only, so a full-file Read counts as superseded by a later Edit snippet or by a Read at another
+>   offset.
+> - **Cost model.** Cost NET prices cache writes at the 5-minute 1.25×, but the Step-7 sessions used
+>   only 1-hour writes (3,308,366 `ephemeral_1h` vs 0 `ephemeral_5m` cache-creation tokens in
+>   `corpus/analysis/step7-live-results.json`). The 1-hour sensitivity quoted below (5.63% at K=10)
+>   exists only in the pre-correction JSON (d83288d) and was not recomputed.
+> - **The gate was not preregistered.** The harness docstring (`corpus/b3_context_retirement.py`)
+>   says the gate "is set in `docs/b3-findings.md` after the numbers are in". After the turn
+>   correction no session reaches 100 calls, and the gate was remapped to 60+.
+> - **Length trend is confounded with task:** every session with ≥60 calls comes from django-10554 or
+>   django-11138.
+> - **Provenance.** The corrected JSON's `code_commit` (5c3a5d5) predates `corpus/transcript_util.py`
+>   (added in 8a27160), so the corrected numbers came from an uncommitted working tree.
+
 
 **Run 2026-08-22, ZERO Claude quota. No live history transformer built.** Offline replay over the 60
 Step-7 django sessions (single-window, 37–180 turns) plus one very long real session (this
@@ -21,9 +52,12 @@ Each tool result enters the prefix at its turn and is cache-READ every later tur
 
 - **SUPERSEDED (mechanical, provably dead):** a later object touches the same file path, or repeats
   the identical grep/glob/bash invocation. The earlier view is stale from the later turn — the file
-  was re-read or edited, the command re-run. Safe to drop with zero reasoning loss.
+  was re-read or edited, the command re-run. Safe to drop with zero reasoning loss. [corrected
+  2026-10-05: never tested; path-only keys make a full Read "superseded" by an Edit snippet or a Read
+  at another offset]
 - **ABANDONED TAIL (speculative):** the last object touching a path/key, never revisited. Assumed dead
-  after its turn. **Not** provable — the agent may still reason from it — so it is reported as a
+  after its turn. [corrected 2026-10-05: in the code this is every non-superseded object, retired at
+  its own turn; see top] **Not** provable — the agent may still reason from it — so it is reported as a
   separate, optimistic layer, not folded into the safe number.
 
 ## Two currencies (the modelling crux)
@@ -40,7 +74,8 @@ Each tool result enters the prefix at its turn and is cache-READ every later tur
 
 ## Results — the ceiling GROWS with session length (every column, monotonic)
 
-Mean over 60 single-window django sessions, bucketed by turn count. `mech%` = provably-safe
+[2026-10-05: this table is pre-correction (record-turn strata); the corrected strata are in the note
+at top.] Mean over 60 single-window django sessions, bucketed by turn count. `mech%` = provably-safe
 supersession ceiling; `+tail%` = adding the speculative abandoned tail; `rawNet%`/`costNet%` =
 realized under batched compaction (every-10-turns, +tail), as % of T_total and of the $-weighted cache
 baseline.
@@ -58,7 +93,8 @@ The giant row is **italic because it is a multi-window session** — its T_total
 **overstates** it (it counts residency of objects native compaction already evicted). It bounds the
 trend from above, it does not measure a real single-window ceiling.
 
-**Batching trade-off** (mean over the 60; +tail; 5-min write=1.25×):
+**Batching trade-off** (mean over the 60; +tail; 5-min write=1.25×) [2026-10-05: pre-correction; the
+corrected K=10 pooled values are 8.40 raw / 6.07 cost]:
 
 | every-K turns | µevents | rawNet% | costNet% |
 |---|---:|---:|---:|
@@ -70,9 +106,13 @@ trend from above, it does not measure a real single-window ceiling.
 
 The knee is **K≈5–10**: ~8 compaction events keep ~90% of the benefit. Compacting once (K=50) collapses
 to 4.5%/3.5% — you must retire *during* the session, not at the end. Under the 1-hour cache's steeper
-write premium (2.0×), cost NET at K=10 is 5.63% (vs 6.62%) — robust to cache TTL.
+write premium (2.0×), cost NET at K=10 is 5.63% (vs 6.62%) — robust to cache TTL. [2026-10-05:
+pre-correction value, not recomputed; the corpus used 1-hour writes throughout, so this is the
+relevant pricing, not a sensitivity case]
 
 ## Verdict against a preregistered gate
+
+[corrected 2026-10-05: the gate was set after the numbers were in (harness docstring); see top]
 
 > **Gate (proceed to a scoped B3.1 build only if):** on realistic long sessions (100+ turns), the
 > provably-safe `mech` NET ≥ 5% **or** the `+tail` NET ≥ 12%, **and** cost NET stays positive under

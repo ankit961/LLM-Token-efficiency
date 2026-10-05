@@ -1,5 +1,27 @@
 # Step 6 — paired counterfactual replay (findings)
 
+> **Correction (2026-10-05, post-hoc audit):** two problems with §1's headline. The original text is
+> kept.
+>
+> 1. **Units.** `R_paired` is a share of search-output tokens only (`corpus/paired_replay.py` divides
+>    by the raw tokens of the search events). Step-4's 12.1% is `R_direct`, a share of ALL read tokens;
+>    Step-4's own search-only estimate at `(256,400)` is `R_search_micro = 0.408`
+>    (`corpus/analysis/reduction-replay-v1.2.json`), and the two steps use different data (50 corpus
+>    runs vs 16 pilot transcripts). So the cap model over-predicted the measured value by ~3.4×.
+>    "Lands exactly on Step-4's 12.1% … the cap model was right" is a coincidence of mismatched units,
+>    not a validation.
+> 2. **Possible contamination (open caveat, unverified).** The pilot ran on Claude Code 2.1.229, whose
+>    transcripts store the post-replacement (reduced) tool output, and `paired_replay` reads
+>    tool_result text from the transcripts with no `result://` filter. The 14 pilot reductions fired
+>    live at floor 400, so each had ≥400 raw tokens, yet this replay sees only 9/184 events ≥400. If
+>    those events entered the replay at their reduced size, the raw total is understated
+>    (≈ 27,308 − 2,861 + 14,364 ≈ 38,811 tok) and `R_paired(256,400)` is biased low; the audit's
+>    modeled value is ~36–38%, which would put it close to Step-4's like-for-like 40.8% and mostly
+>    close the ~3.4× gap in item 1. This cannot be re-run here: no replay output was committed and the
+>    pilot transcripts are not on this machine. The "small-read-dominated" framing and the floor
+>    conclusions inherit the same caveat (Step-4's corpus, by contrast, has 60.5% of search-bucket
+>    mass in reads ≥400 tok).
+
 **Run 2026-08-17, ZERO Claude quota.** The Step-5 pilot's whole-session Δtokens was swamped by
 independent-trajectory variance and its graph arm never fired. Step 6 removes both problems by
 holding the trajectory **fixed**: it replays the EXACT tool outputs the agent received (from the 16
@@ -13,6 +35,7 @@ non-beneficial + exact-recovery gates), so it mirrors the live hook exactly.
 16 transcripts → **184 reducible search events** with real raw output; **27,308** raw search-output
 tokens. Output sizes: **p50 = 93 tok**, max 1,489; only **9/184 (5%) ≥ 400**, 84/184 (46%) ≥ 125.
 The bucket is small-read-dominated — exactly Step-4's warning, now confirmed on live outputs.
+[2026-10-05: possibly an artifact of pre-reduced transcripts; see the correction at top.]
 
 ## 1. R_paired — reduction along the ACTUAL trajectory (measured, not estimated)
 
@@ -28,7 +51,8 @@ The bucket is small-read-dominated — exactly Step-4's warning, now confirmed o
 | **64** | **125** | 78 | **0.539** |
 
 - **The shipped `(256,400)` gives `R_paired = 12.1%` — a MEASURED number that lands exactly on
-  Step-4's 12.1% metadata estimate.** The cap model was right.
+  Step-4's 12.1% metadata estimate.** The cap model was right. [corrected 2026-10-05: units mismatch —
+  Step-4's comparable search-only estimate is 40.8%, ~3.4× this value; see the correction at top]
 - **The floor is the dominant lever, not the budget.** At floor 400 only 7/184 events clear it;
   lowering the floor to 125 fires 78 and takes `R_paired` to **53.9%**. Because outputs are small
   (p50 = 93), the shipped floor is far too high.
@@ -92,7 +116,8 @@ subsequently-needed match *lines* behind the `result://` handle.
 
 ## Verdict
 
-- **Reduction is real and measured, not estimated:** shipped `R_paired = 12.1%` on live outputs.
+- **Reduction is real and measured, not estimated:** shipped `R_paired = 12.1%` on live outputs
+  [2026-10-05: possibly biased low; see the correction at top].
 - **Two levers, not one.** The **floor** sets how *often* reduction fires (floor 400 → 7/184 events,
   floor 125 → 78/184, `R_paired` 12% → 54%). The **budget** sets how much real evidence survives
   *inside* each reduced result (Step 6.1: budget 256 keeps ~74 match lines / line-recall 0.56;

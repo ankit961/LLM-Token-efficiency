@@ -1,7 +1,27 @@
 # B2 — prefix reduction (scope)
 
+> **Correction (2026-10-05, post-hoc audit):**
+>
+> - **Fixed prefix.** The "~13k tokens (first-turn cache-creation)" system + tool-definition floor
+>   was superseded by later measurements: `corpus/analysis/prefix-decomposition-v2.json` gives a mean
+>   first-call prefix of 42,451 tokens and a fixed share of 73.0% of Σ P_t (hard lower bound 66.9%) on
+>   the 60 Step-7 sessions, and `corpus/analysis/prefix-doctor-v1.json` gives a 42,995-token lean
+>   startup prefix, of which 24,222 tokens (56%) are rated controllable. The fixed prefix is ~3×
+>   larger than stated here, and it is not all "a floor we do not own": prefix hygiene later became
+>   the program's lever #1 (`docs/path-to-50.md` §5, `docs/prefix-doctor-findings.md`).
+> - **Premise statistics.** "98.8% turns × cached-prefix size" restates Step 7's r = 0.988
+>   (r² = 0.976), and "~71k tok/turn" is ΣT_total/Σturns (the OLS slope is ~110k/turn).
+> - **Turn axis.** The B2.0 / B2.3 harnesses (`corpus/prefix_decomposition.py`,
+>   `corpus/edit_recall_replay.py`) count transcript records as turns; the requestId merge
+>   (`corpus/transcript_util.merged_records`, 2026-08-23) was never back-ported to them. In the B2.0
+>   ceilings the remaining-turns multiplier is counted in records (1.50–1.89 records per real API call
+>   across the four tasks) while the denominator is the CLI-reported T_total, so the 2.0% / 4.0% /
+>   12.5% / 7.5% ceilings are biased upward. They were not re-measured (the transcripts are not on this
+>   machine). B2.3's edit-recall uses turns only for ordering, so its result is unaffected.
+
 **Premise (from `B1_DECISION.md` / `docs/step7-live-findings.md`).** Whole-session `T_total` is
-98.8% turns × cached-prefix size (~71k tok/turn). Search-output reduction (B1) touches a rounding
+98.8% turns × cached-prefix size (~71k tok/turn) [corrected 2026-10-05: r = 0.988, r² = 0.976;
+71k is ΣT/Σturns]. Search-output reduction (B1) touches a rounding
 error of that prefix, so it is safe+transparent but not a cost lever. **The lever is the re-read
 prefix.** B2 targets the largest reducible, re-read component of that prefix.
 
@@ -21,7 +41,8 @@ components a single long, test-heavy session (11138) exposes, that are NOT in th
 - **Bash/execution output** (test runs) — can be the single largest tool-output category (~60% of one
   session's tool outputs). High-value but **high-risk** (test *failures* are decision-critical).
   Secondary target, later, with a "keep failures/errors verbatim, summarize the passing tail" model.
-- **System prompt + tool definitions** — ~13k tokens (first-turn cache-creation). A **fixed floor we
+- **System prompt + tool definitions** — ~13k tokens (first-turn cache-creation) [corrected
+  2026-10-05: superseded — 42,451-token mean first-call prefix, 66.9–73.0% fixed share; see top]. A **fixed floor we
   do not own** (Claude Code's own prompt); it bounds the achievable prefix reduction and must be
   subtracted before claiming a percentage.
 
@@ -110,7 +131,8 @@ compounding-aware (a read at turn *t* is cache-read every later turn; reducing i
 - **72% of file reads are EDIT TARGETS.** Mean 8.3 file reads/session, of which only **2.3 are
   reducible** (reference-only) and **6.0 must be spared** (the agent edits them). On coding tasks the
   agent reads mostly what it is about to change.
-- Three ceilings (compounding-aware, whole-session `T_total`), by how edited files are handled:
+- Three ceilings (compounding-aware, whole-session `T_total`), by how edited files are handled
+  [2026-10-05: computed with a record-turn multiplier, so biased upward; see top]:
   - **B2.0 spare** (keep any edited file full all session): **mean 2.0%**.
   - **RESIDENCY / compact-until-edit** (compact a file from read until the edit materializes exact
     content, then it re-enters — the model B2 actually implements): **mean 4.0%, max 12.5%**, highly
@@ -125,7 +147,8 @@ thesis. The headline **25–40%** the product targets lives in **long (100s-of-t
 a file admitted early is carried for far more turns — an *extrapolation* our short-task corpus cannot
 prove, so the B2.4 live A/B should ultimately run a long-session workload to demonstrate it while
 these tasks validate **safety + direction**. Two hard limits remain regardless: the ~13k system+tools
-floor is fixed (not ours), and edit targets (72% of reads) plus test *failures* must be preserved.
+floor is fixed (not ours) [corrected 2026-10-05: ~42k, of which the prefix doctor rates 24,222 (56%)
+controllable in the lean environment; see top], and edit targets (72% of reads) plus test *failures* must be preserved.
 Proceeding to build B2.1–B2.4 (residency control for file reads) on this basis; **bash/test-output**
 reduction (keep-failures/summarize-passes) is a separate later lever.
 

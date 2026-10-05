@@ -21,6 +21,22 @@
 > there); the repairs matter exactly where predicted: the **gateway** columns, whose advantage is
 > deferral-at-first-use. All numbers remain counterfactual opportunities, not live savings.
 
+> **Correction (2026-10-05, post-hoc audit):** the original text is kept; the following qualify it.
+>
+> - **Accounting factors.** Neither factor used here has a committed derivation. 1.74 (`FACTOR` in
+>   `corpus/joint_stack_replay.py`, `CLAUDE_PER_CL100K` in `contextruntime/prefixdoctor.py`, "455
+>   call-deltas") and 1.51 (`FACTOR_OUT`, "219 visible-heavy calls") are hard-coded constants; no
+>   script or per-call data behind them is committed. The 11.3% thinking share they are compared with
+>   (`corpus/analysis/prefix-decomposition-v2.json`, 11.31) applies no factor at all (implicitly 1.0)
+>   and is an estimate on headless Sonnet django runs, not a measurement.
+> - **"Each repair moved numbers 1–4pp"** does not hold for heavy-gateway: in the committed v1–v3
+>   JSONs it moved +5.1pp from v1 to v2 (53.91 → 58.99) and −4.3pp from v2 to v3 (58.99 → 54.74).
+> - **The 4.0–6.3pp gap** between the multiplicative approximation and the exact replay is the v1
+>   figure; in v3 it is 2.9–5.4pp.
+> - **L4 includes call-collapse,** the lever the executor experiments (B5.2/B5.3) later closed as
+>   negative. Without collapse, `corpus/analysis/executor-ab-v3.json` gives 49.2 / 52.3 / 39.4 / 54.9%
+>   (lean-sub / lean-gw / heavy-sub / heavy-gw). All values remain modeled counterfactuals.
+
 
 **2026-08-23. Zero model quota.** Harness `corpus/joint_stack_replay.py`; frozen artifact
 `corpus/analysis/joint-stack-replay-v1.json`. Replaces the multiplicative approximation with an exact
@@ -40,7 +56,8 @@ sidechains excluded), cumulatively:
 | L4 | + thinking-GC | `− Σ think_s, s ≤ t−2` (keep-1), think **measured from this session** |
 
 Per-call thinking is observed, not assumed: `think_t = max(output_t − 1.74 × cl100k(visible_t), 0)`
-with the Claude request-accounting factor applied. (The earlier 11.3% thinking share **survives** the
+with the Claude request-accounting factor applied [2026-10-05: 1.74 has no committed derivation; see
+top]. (The earlier 11.3% thinking share **survives** the
 factor correction — visible output is small; lean sessions carry ~130 thinking tokens/call.) The three
 removed slices (schemas, retired outputs, retained thinking) are disjoint components of the prefix, so
 per-call subtraction is exact; clamps at zero are counted (8 of 2,968 lean calls, 0 heavy).
@@ -124,7 +141,8 @@ Four review findings repaired (`corpus/analysis/joint-stack-replay-v3.json`):
 | heavy, subscription | 40.3 | 40.2 | **39.7%** | — | — |
 | heavy, gateway | 53.9 | 59.0 | **54.7%** | 54.0–55.5 | 55.3 |
 
-**Status: 39.7–56.0% PROVISIONAL COUNTERFACTUAL opportunity** — each repair moved numbers 1–4pp and
+**Status: 39.7–56.0% PROVISIONAL COUNTERFACTUAL opportunity** — each repair moved numbers 1–4pp
+[corrected 2026-10-05: heavy-gw moved +5.1pp (v1→v2) and −4.3pp (v2→v3)] and
 they now vary <1pp under the remaining known uncertainties (factor band, packet addressability). Still
 not "exact": tool sizes come from a reference capture, the output factor is an envelope, and packet
 residency assumes zero dedup bonus. Live end-to-end realization remains undemonstrated.

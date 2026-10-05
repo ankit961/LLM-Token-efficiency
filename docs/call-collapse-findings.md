@@ -1,5 +1,13 @@
 # B5.1 — Discovery Call-Collapse Oracle: findings and the gate
 
+> **Correction (2026-10-05, post-hoc audit):** three figures in the prose do not match the committed
+> artifact `corpus/analysis/call-collapse-oracle-v1.json`. It covers **2,968** real API calls (not
+> 2,873); packet dedup is **0.119**, i.e. 11.9% of raw output tokens (not 10.1%); and avoided
+> assistant output is **120,583** tokens (not ≈111k). The other aggregates match the JSON. Also, the
+> gate called "preregistered" (≥15–20% ⇒ 50% credible; bands <10 / 10–15 / 15–20 / >20) first
+> appears in the same commit as the result (9858597), so its preregistration cannot be verified from
+> the repo.
+
 **2026-08-23. Zero model quota. No executor built, no new tool surface, no live run.** Harness
 `corpus/call_collapse_oracle.py`; frozen per-run artifact `corpus/analysis/call-collapse-oracle-v1.json`
 (431 runs across 60 sessions, per-run records included). This is the measurement that decides whether
@@ -28,7 +36,7 @@ the ~50% stack is honest: the preregistered boundary was **≥15–20% safe call
   and avoids calls 2..n; saving = Σ P_t over exactly those calls. The packet adds no residency (it is
   the same outputs, deduplicated — dedup is a bonus, reported separately).
 
-## Results (60 django sessions, 2,873 real API calls)
+## Results (60 django sessions, 2,873 real API calls) [corrected 2026-10-05: 2,968]
 
 **Structure.** Discovery = 50.4% of calls; 431 runs, 238 multi-call; run length p50 = 2, p90 = 8,
 p95 = 13, max = 32. Transitions: D1 733, D0 193, D2 140. Multi-call run classes: D0+D1 127, D2 95,
@@ -48,10 +56,13 @@ evidence from the run — the rest drew on prior context, which collapse preserv
 
 **Executor feasibility signals**: choice breadth is small — median **2** candidate paths per
 transition, and where the model picked from a listed candidate set it chose within the **top 3 in
-94%** of cases; packet dedup saves 10.1% of raw output tokens; avoided assistant output ≈ 111k tokens
-across the corpus.
+94%** of cases; packet dedup saves 10.1% [corrected 2026-10-05: 11.9%] of raw output tokens; avoided
+assistant output ≈ 111k [corrected 2026-10-05: 120,583] tokens across the corpus.
 
 ## Against the preregistered gate
+
+[corrected 2026-10-05: the gate text first appears in the result commit; preregistration is not
+verifiable from the repo]
 
 > <10% insufficient · 10–15% useful but likely just short · 15–20% credible-50 · >20% second primary lever
 

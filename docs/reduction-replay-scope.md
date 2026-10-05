@@ -1,5 +1,13 @@
 # Step 4 — Offline Reduction Replay: scope & method
 
+> **Correction (2026-10-05, post-hoc audit):** the 12.1% below is `R_direct` — saved tokens as a share
+> of ALL fully-measured read tokens — and is correctly labelled here. Step 6 later reported
+> `R_paired(256,400) = 12.1%` over search-output tokens only and called it a confirmation of this
+> number (repeated in `B1_DECISION.md`); that compares different units. The like-for-like figure from
+> this replay is `R_search_micro(256,400) = 0.408`, about 3.4× Step 6's measured value (which carries
+> its own open caveat; see `docs/step6-paired-replay-findings.md`). The go/no-go verdict below used
+> `R_direct` as defined here.
+
 **Status: RUN COMPLETE (2026-08-17) over the 50-run Observation Corpus v2.1 →
 `corpus/analysis/reduction-replay-v1.2.json`.** Zero LLM cost. This is the deterministic gate
 before any live experiment (step 5): estimate how much the B1 transparent reducer captures.
