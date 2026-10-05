@@ -240,9 +240,10 @@ below. The experiment log, in order:
   filter misses project paths that contain `_` (e.g. in the username).
 - **Generalization.** One repo (django), one model (Sonnet), one client version (2.1.229), one
   machine; 4 tasks in B6, 3 in B8.
-- **Missing comparator.** No arm compares against stock Claude Code using its own tool deferral /
-  tool search, and none runs disallow-only without the proxy.
-- **Open experiment.** Stock client (native deferral / tool search) vs disallow-only (no proxy) vs
+- **Missing comparator.** The native arm is stock Claude Code with its default MCP-schema deferral,
+  so admission was measured against that; but no arm runs disallow-only without the proxy, and none
+  compares admission with the client's own tool search / deferred loading beyond its defaults.
+- **Open experiment.** Stock client with tool search enabled vs disallow-only (no proxy) vs
   the full gateway, on more tasks and repos including django-16502, graded with the official
   SWE-bench harness.
 

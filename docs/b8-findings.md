@@ -14,9 +14,9 @@
 > - **Attribution.** The dollar saving is admission: the T client was launched with
 >   `--disallowedTools` for 25 built-in tools plus 3 MCP servers; the proxy performs no admission.
 >   Each T session's only scheduler fire was a cold start at its first request with nothing
->   pending; no retirements, persistent stubs or thinking strips were applied. No arm runs
->   disallow-only without the proxy, and none compares against the client's own tool deferral or
->   tool search.
+>   pending; no retirements, persistent stubs or thinking strips were applied. The native arm is
+>   stock Claude Code with its default MCP-schema deferral; no arm runs disallow-only without the
+>   proxy, and none compares admission with the client's own tool search / deferred loading.
 > - **The scheduler could not have fired.** As shipped, the break-even branch cannot fire on
 >   `anthropic-1h`: it needs 0.1·P·8 ≥ 1.9·S, and the suffix S is counted from the earliest
 >   pending tool result (`gateway._suffix_tokens_est`), so S ≥ P. The 0 break-even fires are
