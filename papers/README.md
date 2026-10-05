@@ -4,12 +4,12 @@ This directory turns the repository's frozen measurement and B-series evidence i
 
 | Paper | Central question | Strongest supported claim | PDF | Source |
 |---|---|---|---|---|
-| **Tokens Are Multiplied by Turns** | Where does coding-agent context accumulate, and which parts are prospectively reducible? | Fixed context dominates the measured prefix; conservative and broad read-reduction opportunity ceilings are 21.3% and 51.0%, but several intuitive retrieval/compression interventions fail end-to-end. | [`dist/context-residency-measurement.pdf`](dist/context-residency-measurement.pdf) | [`measurement/main.tex`](measurement/main.tex) |
-| **ContextRuntime** | Can a runtime reduce token residency and API cost without sacrificing coding outcomes? | The integrated stack reduces pooled live input 41.5%; a cache-aligned gateway reduces live cost 29.34%, within 0.16 percentage points of its preregistered prediction, with 9/9 success in both arms. | [`dist/contextruntime-systems.pdf`](dist/contextruntime-systems.pdf) | [`runtime/main.tex`](runtime/main.tex) |
+| **Tokens Are Multiplied by Turns** | Where does coding-agent context accumulate, and which parts are prospectively reducible? | Fixed context dominates the measured prefix; conservative and broad read-reduction opportunity ceilings are 20.9% and 48.5% of raw read tokens on the 30 token-share-eligible runs (21.3% and 51.0% on all 50), but several intuitive retrieval/compression interventions fail end-to-end. | [`dist/context-residency-measurement.pdf`](dist/context-residency-measurement.pdf) | [`measurement/main.tex`](measurement/main.tex) |
+| **ContextRuntime** | Can a runtime reduce token residency and API cost without sacrificing coding outcomes? | The treatment arm (admission plus gateway) reduces pooled live input 41.5% but client-reported cost only 2.5%, and admission alone is predicted to account for the input reduction. In B8 v2, admission (a client launch flag; the gateway applied no mutation) cuts live list-price cost 29.34% with 9/9 success in both arms; a 29.5% model figure agrees, but it was committed with the results, so it is a post-hoc check. | [`dist/contextruntime-systems.pdf`](dist/contextruntime-systems.pdf) | [`runtime/main.tex`](runtime/main.tex) |
 
 The papers deliberately separate four evidence grades:
 
-- **Live:** observed in API-backed, objectively graded runs.
+- **Live:** observed in API-backed runs graded by executing tests (a local test runner for B6 and B8, not the official SWE-bench harness).
 - **Modeled:** replayed through a calibrated cache-cost model, not claimed as a live result.
 - **Retrospective:** an opportunity ceiling labeled after a trace completed, not a deployable policy.
 - **Negative:** an attempted mechanism that failed its gate or increased end-to-end cost.
@@ -23,7 +23,7 @@ The companion files are:
 
 ## Narrative across the two papers
 
-The measurement paper establishes the denominator: an admitted token is charged repeatedly over its remaining turns, so locally impressive compression can be irrelevant—or harmful—at session scale. It then uses failed interventions to narrow the design space. The systems paper begins where that evidence ends: prevent large fixed objects from entering, retire safe history objects only prospectively, and schedule mutation around cache economics. The cleanest systems result is also the most instructive one: in the B8 live cost experiment, the scheduler correctly chose not to mutate warm history, so essentially all savings came from admission control.
+The measurement paper establishes the denominator: an admitted token is charged repeatedly over its remaining turns, so locally impressive compression can be irrelevant—or harmful—at session scale. It then uses failed interventions to narrow the design space. The systems paper begins where that evidence ends: prevent large fixed objects from entering, retire safe history objects only prospectively, and schedule mutation around cache economics. The cleanest systems result is also the most instructive one: in the B8 live cost experiment the gateway applied no mutation—as shipped, its break-even branch cannot fire on the Anthropic cache profiles—so all savings came from admission control, a client launch flag that has not yet been compared with the client's own tool search.
 
 ## Build
 
@@ -37,4 +37,4 @@ This regenerates all numbers and figures before compiling both PDFs. See [`REPRO
 
 ## Scope
 
-The live evidence is from one client/provider path and Django/SWE-bench-style tasks. The B6 quality check is a frozen operational gate, not a powered statistical proof of non-inferiority. The approximately 60% giant-session result is modeled and tail-concentrated. These limitations are part of the claims, not footnotes to them.
+The live evidence is from one client/provider path, one model, one client version, one machine, and Django/SWE-bench-style tasks (four in B6, three in B8). The B6 quality check is a frozen operational gate, not a powered statistical proof of non-inferiority, and B8's tasks exclude the one task where B6 treatment failed. The giant-session result (61.5% on a calibration-filtered subset; 49.7% over all 54 replayed sessions) is modeled, comes from 8 interactive sessions, and uses a replay rule that the shipped scheduler does not execute. These limitations are part of the claims, not footnotes to them.

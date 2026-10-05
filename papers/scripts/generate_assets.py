@@ -2,8 +2,8 @@
 """Generate publication figures, tables, and a machine-readable result summary.
 
 All headline values are recomputed from frozen artifacts already committed under
-``corpus/analysis``.  The only hard-coded numbers are labels and the frozen B8
-prediction recorded in ``docs/b8-protocol.md``.
+``corpus/analysis``.  The only hard-coded numbers are labels and the B8 v2 model
+figure recorded in ``docs/b8-protocol.md`` (committed with the results: a post-hoc check).
 """
 
 from __future__ import annotations
@@ -436,7 +436,7 @@ def runtime_figure(b6: dict, b7: dict, b8: dict):
     bars = ax.barh(np.arange(4), pair_vals, color=[TEAL, TEAL, TEAL, BLUE], height=0.62)
     ax.invert_yaxis()
     ax.set_yticks(np.arange(4), labels)
-    ax.axvline(29.5, color=RED, linestyle="--", linewidth=1, label="frozen prediction")
+    ax.axvline(29.5, color=RED, linestyle="--", linewidth=1, label="model figure (post hoc)")
     ax.set_xlim(0, 55)
     ax.set_xlabel("List-price dollar reduction (%)")
     ax.set_title("(b) B8 live, chained tasks", loc="left", fontweight="bold")
