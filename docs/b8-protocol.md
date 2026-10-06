@@ -17,7 +17,8 @@
 >
 > *Follow-up (2026-10-06):* the gateway issues noted below — the break-even rule that could not
 > fire on Anthropic prices, persistent stubs not forwarded, rejected mutations re-sent, process-wide
-> scheduler state — were fixed in commit 61cbc0a (regression tests; not yet run live). B8 ran the
+> scheduler state — were fixed on 2026-10-06 (regression tests in
+> `tests/test_gateway_doctor_fixes.py`; not yet run live). B8 ran the
 > earlier version, so the notes about what B6–B8 could and could not show still stand.
 
 **Status: PREREGISTERED, NOT RUN. Zero quota spent so far; no spend until the budget line below
