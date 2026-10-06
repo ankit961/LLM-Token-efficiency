@@ -31,6 +31,11 @@
 >   confirms the arithmetic, not the billing. Its gap to BITE is 0.12 pp.
 > - **"17/17" mutation safety.** Only the 12 B6 sessions are auditable (all with cache alignment
 >   off); the 3 v2 sessions applied no mutations and the 2 v1 sessions survive as aggregates only.
+>
+> *Follow-up (2026-10-06):* the gateway issues noted below — the break-even rule that could not
+> fire on Anthropic prices, persistent stubs not forwarded, rejected mutations re-sent, process-wide
+> scheduler state — were fixed in commit 61cbc0a (regression tests; not yet run live). B8 ran the
+> earlier version, so the notes about what B6–B8 could and could not show still stand.
 
 **2026-08-28/29 [corrected 2026-10-05: v1 ran after its 2026-08-31 protocol commit; v2 ran
 2026-09-01]. Live, on the subscription. Two runs: v1 (confounded, $16.65) and v2 (clean,

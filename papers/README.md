@@ -23,7 +23,7 @@ The companion files are:
 
 ## Narrative across the two papers
 
-The measurement paper establishes the denominator: an admitted token is charged repeatedly over its remaining turns, so locally impressive compression can be irrelevant—or harmful—at session scale. It then uses failed interventions to narrow the design space. The systems paper begins where that evidence ends: prevent large fixed objects from entering, retire safe history objects only prospectively, and schedule mutation around cache economics. The cleanest systems result is also the most instructive one: in the B8 live cost experiment the gateway applied no mutation—as shipped, its break-even branch cannot fire on the Anthropic cache profiles—so all savings came from admission control, a client launch flag that has not yet been compared with the client's own tool search.
+The measurement paper establishes the denominator: an admitted token is charged repeatedly over its remaining turns, so locally impressive compression can be irrelevant—or harmful—at session scale. It then uses failed interventions to narrow the design space. The systems paper begins where that evidence ends: prevent large fixed objects from entering, retire safe history objects only prospectively, and schedule mutation around cache economics. The cleanest systems result is also the most instructive one: in the B8 live cost experiment the gateway applied no mutation—in that version its break-even branch could not fire on the Anthropic cache profiles (corrected afterwards, not yet run live)—so all savings came from admission control, a client launch flag that has not yet been compared with the client's own tool search.
 
 ## Build
 
