@@ -30,6 +30,11 @@
 > - **Variance.** The per-pair spread is not "exactly the 1.9×": N reps span 7.52× on 16901 and
 >   3.15× on 16502.
 > - **Dollars.** CLI −2.5% (−2.53%); list price with 1h writes −2.75% (the B7 note's −2.8%).
+>
+> *Follow-up (2026-10-06):* the gateway issues noted below — the break-even rule that could not
+> fire on Anthropic prices, persistent stubs not forwarded, rejected mutations re-sent, process-wide
+> scheduler state — were fixed in commit 61cbc0a (regression tests; not yet run live). B8 ran the
+> earlier version, so the notes about what B6–B8 could and could not show still stand.
 
 **2026-08-27/28. Live, on the subscription (no API key on the machine; the CLI's own OAuth is
 relayed by the proxy and never stored). 24/24 sessions completed — no timeouts, no budget caps.

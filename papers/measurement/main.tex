@@ -233,7 +233,7 @@ harness-design study spans 176 matched settings, crossing five context-managemen
 window budgets on SWE-bench Verified and Terminal-Bench, and finds rule-based elision followed by
 summarization the most efficient; its costs use OpenRouter rates without prompt-cache pricing
 \cite{fan2026harness}.  TRACE shows that recurrent compression increases execution instability
-\cite{min2026trace}.  The broader memory literature spans storage, retrieval, reflection, and update
+\cite{min2026trace}, and CompactionRL trains compaction into open models \cite{li2026compactionrl}.  The broader memory literature spans storage, retrieval, reflection, and update
 operations \cite{zhang2025memorysurvey}.  These works establish rule-based elision and learned timing;
 what they leave open is the cache-priced denominator that this paper measures.
 
@@ -249,7 +249,10 @@ problem \cite{jimenez2024swebench}.  SWE-agent showed that the agent-computer in
 changes performance \cite{yang2024sweagent}, while Agentless demonstrated the strength and low cost of
 a simple localization--repair--validation pipeline \cite{xia2025agentless}.  RepoCoder iterates
 similarity retrieval and generation; GraphCoder and LocAgent use structural graphs for completion or
-localization \cite{zhang2023repocoder,liu2024graphcoder,chen2025locagent}.
+localization \cite{zhang2023repocoder,liu2024graphcoder,chen2025locagent}.  Decision-aware memory
+cards rank evidence by its expected effect on the agent's next decision and improve retrieval ranking
+on SWE-bench Verified \cite{guan2026memorycards}; like the graph results below, such gains are measured
+in retrieval metrics, not in whole-session tokens.
 
 Those results motivate our own graph experiments but do not guarantee a token win.  A graph may find
 useful code yet require an anchor the issue text does not provide, or may spend more tokens to achieve

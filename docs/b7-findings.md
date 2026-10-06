@@ -26,6 +26,11 @@
 >   fire on `anthropic-1h`; only cold-start and ttl-gap fires occur, in `gated` as in `cold`. The
 >   gated fire counts (2,514 on n = 36; 3,243 on all 54) and savings describe a rule users do not
 >   run. Fixing the code is a separate step.
+>
+> *Follow-up (2026-10-06):* the gateway issues noted below — the break-even rule that could not
+> fire on Anthropic prices, persistent stubs not forwarded, rejected mutations re-sent, process-wide
+> scheduler state — were fixed in commit 61cbc0a (regression tests; not yet run live). B8 ran the
+> earlier version, so the notes about what B6–B8 could and could not show still stand.
 
 **2026-08-28. Zero quota.** B6 left one identified gap: the lifetime levers cut live context
 workload 41.5% but dollars only 2.5%, because history mutation invalidates the prompt cache. B7

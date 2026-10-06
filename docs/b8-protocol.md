@@ -14,6 +14,11 @@
 > the reclassification is post hoc. The status line below is stale: v1 and v2 both ran (see
 > `docs/b8-findings.md`). Further corrections inline: task roster (Design), scheduler fires
 > (secondary endpoints and the v2 prediction).
+>
+> *Follow-up (2026-10-06):* the gateway issues noted below — the break-even rule that could not
+> fire on Anthropic prices, persistent stubs not forwarded, rejected mutations re-sent, process-wide
+> scheduler state — were fixed in commit 61cbc0a (regression tests; not yet run live). B8 ran the
+> earlier version, so the notes about what B6–B8 could and could not show still stand.
 
 **Status: PREREGISTERED, NOT RUN. Zero quota spent so far; no spend until the budget line below
 is explicitly approved.** B7's interactive dollar result (~−60% pooled, modeled [corrected
