@@ -27,8 +27,8 @@ ContextRuntime, which pairs pre-request admission control for unused tool schema
 configuration, a client launch flag rather than a gateway function) with a gateway that performs
 forward-only retirement of superseded or cold tool results, bounded retention of prior thinking
 blocks, persistent mutation, and cache-aligned scheduling that fires at a cold boundary or when
-expected future cache-read savings exceed the suffix rewrite cost.  As shipped, the break-even branch
-cannot fire on the Anthropic cache profiles.  The gateway is off by default, supports
+expected future cache-read savings exceed the suffix rewrite cost.  In the evaluated version, the break-even branch
+could not fire on the Anthropic cache profiles; the corrected rule has not yet been run live.  The gateway is off by default, supports
 observe-before-enforce deployment, and fails open to the original request.  All live evidence comes from
 one repository (Django), one model, and one client version.  B6 is a preregistered live A/B with 24
 locally graded sessions: the treatment arm reduces pooled cumulative input by 41.5\% (14.87M to 8.70M
@@ -87,8 +87,9 @@ This paper contributes:
   behavior.
   \item A cache-aligned scheduling rule that compares future read savings with the cost of rewriting
   the divergent suffix, rather than mutating at a fixed token or turn threshold---a priced, dynamic
-  generalization of static clearing thresholds.  We also report that the shipped suffix estimate
-  prevents its break-even branch from firing on the Anthropic cache profiles.
+  generalization of static clearing thresholds.  We also report that the evaluated version's suffix
+  estimate kept its break-even branch from firing on the Anthropic cache profiles, and give the
+  corrected rule.
   \item A message-extent cache simulator calibrated against live partial-prefix hits and an explicit
   price profile; its append-only branch matches 11 of 12 live native sessions exactly, its edit branch
   has no committed calibration, and it is used only for modeled claims.
@@ -310,11 +311,16 @@ rGE \ge (w-r)S. \label{eq:breakeven}
 The default evaluated profile uses $r=0.1$, $w=2.0$, and $E=8$.  If each retired token requires one
 suffix token to be rewritten, a write requires 19 future reads to break even.  In principle Equation
 \ref{eq:breakeven} can still fire with $E<19$ when one early divergence retires substantially more
-pending content than the suffix it rewrites.  The shipped gateway, however, counts $S$ from the
-message holding the earliest pending tool result, so the suffix contains the pending content itself
-and $S\ge G$.  With $E=8$ the gate then requires $0.8G\ge1.9S$ on the one-hour profile ($0.8G\ge1.15S$
-on the five-minute profile), which cannot hold: on both Anthropic profiles the break-even branch cannot
-fire, and only cold-start and TTL-gap fires are possible.  The B7 replay's gated policy uses a
+pending content than the suffix it rewrites.  The evaluated gateway, however, counted $S$ from the
+message holding the earliest pending tool result, so the suffix contained the pending content itself
+and $S\ge G$.  With $E=8$ the gate then required $0.8G\ge1.9S$ on the one-hour profile ($0.8G\ge1.15S$
+on the five-minute profile), which cannot hold: on both Anthropic profiles only cold-start and TTL-gap
+fires were possible.  The corrected rule prices what a fire actually removes.  With $R$ the pending
+content minus its stubs, firing re-creates $S-R$ at the write price instead of reading it and saves
+reading $R$ on this call and on $E$ later calls, so it fires when $rR(E+1)\ge(w-r)(S-R)$; on the
+one-hour profile this needs $R\ge0.68S$, a large stale output that dominates its suffix.  A test
+checks against the cache simulator that the corrected rule never fires at a loss; it has not been run
+live.  The B7 replay's gated policy uses a
 different rule---it adds pending thinking tokens to the gain and measures the suffix from observed
 prefix deltas---so B7's modeled gated savings describe that replay rule, not the shipped scheduler.
 
@@ -595,7 +601,8 @@ not test non-inferiority on 16502, where B6 treatment failed.
 Each treatment session's only scheduler fire was a cold start at its first request, with nothing
 pending; no tool result was retired, no persistent stub was applied, and no thinking block was stripped.
 The absence of fallbacks is therefore vacuous here.  The predicted break-even fires could not occur:
-as shipped, the break-even branch cannot fire on this profile (Section~\ref{sec:scheduler}), so the
+in the evaluated version the break-even branch could not fire on this profile
+(Section~\ref{sec:scheduler}), so the
 holding was structural rather than a priced decision.  The live cost saving comes from admission---the
 \texttt{--disallowedTools} launch configuration---and the proxy performs no admission.  The model's
 aggregate agreement reflects its admission arithmetic, a 23,424-token per-call shift applied to B6
@@ -641,8 +648,8 @@ The experiments support three different statements.
   stock Claude Code rather than its tool search.
   \item \textbf{Modeled lifetime dollars:} the replay's gated rule reduces pooled cost about 61.5\% in
   a calibrated replay whose saving comes from 8 interactive sessions, but the median is zero, the
-  shipped scheduler does not execute that rule's break-even branch, and no live firing-regime A/B
-  exists.
+  shipped scheduler uses a different break-even rule (corrected after the evaluation, not yet run
+  live), and no live firing-regime A/B exists.
 \end{enumerate}
 
 Combining the largest percentages would be invalid.  They refer to different workloads, policies, and
@@ -667,8 +674,10 @@ overhead or benefit in B8 is unmeasured.
 
 The runtime parameterizes TTL, read, write, and output multipliers.  Under free or cheap cache writes,
 Equation~\ref{eq:breakeven} fires much more often; under expensive long-TTL writes it holds.  With the
-shipped suffix estimate ($S\ge G$) and $E=8$, a break-even fire requires $rE\ge w-r$, which holds only
-for the unvalidated offline presets without a write premium, not for either Anthropic profile.  The same
+evaluated version's suffix estimate ($S\ge G$) and $E=8$, a break-even fire required $rE\ge w-r$, which
+held only for the unvalidated offline presets without a write premium, not for either Anthropic
+profile; under the corrected rule the threshold is a share of the suffix ($R\ge0.68S$ at one-hour
+Anthropic prices).  The same
 session artifacts can be repriced, but provider profiles other than Anthropic one-hour are currently
 offline presets, not live validations.  Cache-key construction, minimum cacheable length, eviction,
 and partial-hit semantics may differ, so portability requires a small calibration suite before
@@ -704,8 +713,8 @@ company MCP connectors.
 
 \textbf{The tail is not live.}  B7's 61.5\% pooled payoff (49.7\% over all 54 sessions) appears in 8 interactive sessions,
 three of which carry 76.5\% of it, and is zero for the median.  It is also computed with the replay's
-gated rule, which differs from the shipped scheduler.  A decisive next experiment must first make the
-shipped break-even branch able to fire, then enter that firing regime under controlled cost,
+gated rule, which differs from the shipped scheduler.  A decisive next experiment must run the corrected
+break-even branch, enter that firing regime under controlled cost,
 preregister both pooled and distributional endpoints before any spend, and inspect recovery behavior.
 
 \textbf{Cache observability.}  The scheduler infers state from timing and a calibrated extent model.
@@ -716,8 +725,8 @@ margins or be disabled.
 \textbf{Token estimation off the critical path.}  Observed API usage prices sessions exactly, but
 pending retirement size and suffix depth use calibrated character/token estimators.  Estimation error
 can change a knife-edge fire.  B8's predicted nine marginal fires versus zero observed is not such a
-case: because the shipped suffix estimate includes the pending content itself, the break-even branch
-could not fire.  A safety margin or online calibration should accompany provider transfer.
+case: because the evaluated suffix estimate included the pending content itself, the break-even branch
+could not fire (since corrected).  A safety margin or online calibration should accompany provider transfer.
 
 \textbf{Mutation semantics.}  Supersession is mechanically strong; cold-tail retirement is a policy
 assumption with a recovery path.  The mutation-safety evidence is thinner than a count of 17 live
@@ -740,8 +749,8 @@ results, hidden reasoning, future turns, and provider cache state interact.  Con
 admission, safety, mutation, and timing so that each can be measured independently.  Live B6 results
 show a 41.5\% cumulative-input reduction, which admission alone is predicted to explain, and reveal
 that unaligned edits turn cache reads into writes and nearly erase dollar savings.  The calibrated B7
-model turns this contradiction into a break-even rule, but the shipped scheduler's suffix estimate
-keeps that rule from firing on the Anthropic profiles.  Live B8 then measures a 29.34\% cost reduction
+model turns this contradiction into a break-even rule, but the evaluated scheduler's suffix estimate
+kept that rule from firing on the Anthropic profiles (corrected afterwards; not yet run live).  Live B8 then measures a 29.34\% cost reduction
 that agrees in aggregate with a post-hoc 29.5\% model figure; the gateway applied no mutation, so the
 saving is admission, a client launch configuration whose size depends on the unused tools an
 environment exposes and which has not been compared with the client's own tool search.  Today,

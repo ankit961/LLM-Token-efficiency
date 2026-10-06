@@ -15,7 +15,10 @@
 >   fires occur. The sensitivity tables below come from the replay rule in
 >   `corpus/b7_cache_replay.py` (pending thinking added to the gain; suffix from prefix deltas),
 >   not from the shipped scheduler, and "the live-demonstrated no-harm result" is vacuous for the
->   same reason.
+>   same reason. *Follow-up (2026-10-06):* the shipped rule is corrected to
+>   `read·R·(E+1) ≥ (write − read)·(S − R)`, R = what a fire removes; it can now fire on
+>   `anthropic-1h` when R ≥ ~68% of the suffix (`anthropic-5m`: ~56%). Not yet run live, and still
+>   not the replay rule these tables use.
 > - **The tables are not reproducible from committed data.** `providers` mode only prints; no JSON
 >   is committed. The `anthropic-1h` headless row (+9.0% / 0.0% / 1 fire) matches the committed
 >   B6 replay (all 12 sessions). The `anthropic-1h` interactive row (−49.6%, 3,398 fires,

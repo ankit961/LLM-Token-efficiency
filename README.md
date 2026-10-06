@@ -67,9 +67,11 @@ The package also ships the production-path runtime the B-series tested live:
   only on its append-only branch: exact on 11/12 live B6 native sessions) and the
   cache-aligned scheduler
   (`CR_GATEWAY_CACHE_ALIGN=off|cold|gated`): fired mutations become persistent/byte-stable;
-  new mutations fire only when the cache is cold or a break-even rule clears (as shipped, that
-  break-even branch cannot fire on the default `anthropic-1h` profile — see
-  [Known limitations](#known-limitations--open-questions-audit-2026-10-05)).
+  new mutations fire only when the cache is cold or a break-even rule clears (in the version B8
+  ran, that break-even branch could not fire on `anthropic-1h`; fixed 2026-10-06, not yet run
+  live — see [Known limitations](#known-limitations--open-questions-audit-2026-10-05)).
+  Scheduler state is per conversation, and a conversation whose mutated request the API rejects
+  is tripped back to pass-through.
 - **`contextruntime/prefixdoctor.py`** — `cr doctor --prefix`: zero-quota capture + per-item
   audit of the fixed prefix (what to KEEP/DEFER/DISABLE, with feasibility tags).
 - **`contextruntime/providers.py`** — the framework is **provider-generic**: every algorithm
@@ -216,8 +218,8 @@ local file paths and is never committed.
 the B6–B8 write-ups carry dated audit corrections). Live: 41.5% context workload with −2.5%
 dollars (B6, preregistered) · 29.3% dollars from client-side admission (B8 v2, post-hoc check).
 Not demonstrated live: any dollar contribution from retirement, thinking-GC or the scheduler
-("scheduler no-harm" is vacuous: its break-even branch cannot fire on `anthropic-1h`, and B8 v2
-applied no mutations); mutation safety rests on the 12 auditable B6 sessions. Modeled only: the
+("scheduler no-harm" is vacuous for B8: in that version the break-even branch could not fire on
+`anthropic-1h`, and B8 v2 applied no mutations); mutation safety rests on the 12 auditable B6 sessions. Modeled only: the
 giant-session regime (B7: −49.7% over all 54 sessions, median 0%). Next: the open experiment
 below. The experiment log, in order:
 `docs/b3-findings.md` → `b3.1/b3.2` → `B3_DECISION.md` → `path-to-50.md` → `prefix-doctor-findings.md`
@@ -226,18 +228,23 @@ below. The experiment log, in order:
 
 ### Known limitations / open questions (audit, 2026-10-05)
 
-- **Scheduler.** On `anthropic-1h` (and `anthropic-5m`) the shipped break-even branch cannot
-  fire: it needs `0.1·P·E ≥ (w−0.1)·S` with E = 8, but the suffix S is counted from the earliest
-  pending tool result (`gateway._suffix_tokens_est`), so S ≥ P. Only cold-start and ttl-gap fires
-  happen. B7's modeled "gated" savings come from the replay rule in `corpus/b7_cache_replay.py`,
-  not the shipped scheduler. Documented, not yet fixed.
+- **Scheduler (fixed 2026-10-06, not yet run live).** In the version B8 ran, the break-even
+  branch could not fire on `anthropic-1h`/`anthropic-5m`: it compared `0.1·P·8` with
+  `(w−0.1)·S`, and the suffix S contains the pending tokens P. It now compares
+  `read·R·(E+1)` with `(write−read)·(S−R)`, where R is what the fire actually removes, and a test
+  checks it never fires at a loss against the cache simulator. On `anthropic-1h` (E = 8) it fires
+  when R is at least ~68% of the suffix, e.g. a large read superseded soon after. B7's modeled
+  "gated" savings still come from the replay rule in `corpus/b7_cache_replay.py`, not this one.
 - **Task selection.** B8's tasks (16485, 16527, 16901) were fixed after B6's results and exclude
   django-16502, the only task where B6 treatment failed (T 0/3 vs N 2/3).
-- **Known gateway bugs (unfixed).** Persistent retirements are forwarded upstream only when the
-  same request also fired a new retirement or stripped thinking (`gateway_proxy.py:47`), yet
-  `persistent_applied` is still logged; a fired mutation the API rejects is retried on every later
-  request (no rollback); `doctor --prefix --no-capture` crashes; the doctor's same-project session
-  filter misses project paths that contain `_` (e.g. in the username).
+- **Gateway and doctor bugs (fixed 2026-10-06, not yet exercised live).** Persistent
+  retirements were forwarded only when the same request also fired or stripped thinking — now any
+  changed body is forwarded. A mutation the API rejected was re-sent every request — now that
+  conversation trips to pass-through. Scheduler state (fired set, thinking frontier, request
+  clock) was process-wide, so a shorter conversation through the same proxy could lose its latest
+  thinking — now it is per conversation, and the frontier never reaches the last kept assistant
+  messages. `doctor --prefix --no-capture` crashed, and its same-project filter missed paths with
+  `_` — both fixed. Each fix has a regression test (`tests/test_gateway_doctor_fixes.py`).
 - **Generalization.** One repo (django), one model (Sonnet), one client version (2.1.229), one
   machine; 4 tasks in B6, 3 in B8.
 - **Missing comparator.** The native arm is stock Claude Code with its default MCP-schema deferral,

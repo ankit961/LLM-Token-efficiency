@@ -43,8 +43,8 @@ a non-retryable 400 — **zero tokens billed**), joins it with your recent local
 and prints per item: tokens, first-use turn, wasted residency, and an action —
 `KEEP / DEFER / DISABLE? / COMPRESS / UNKNOWN` — tagged by who can act on it
 (`SUBSCRIPTION_CONFIG` = you, via settings; `GATEWAY_CONTROLLABLE`; `ANTHROPIC_CLIENT_REQUIRED`).
-Add `--json` for machine-readable output; `--no-capture` to use transcripts only (currently
-crashes — a known bug, see [Current limitations](#current-limitations)).
+Add `--json` for machine-readable output; `--no-capture` to use transcripts only (without a
+capture, tool-schema and core-prompt sizes are not itemized).
 
 Act on the `SUBSCRIPTION_CONFIG` rows: disable MCP servers you never use, and/or pass the
 never-used tools as `--disallowedTools` to `claude` (or deny them in `.claude/settings.json`).
@@ -93,7 +93,7 @@ CR_GATEWAY_LOG=$HOME/cr-gateway.jsonl python3 -m contextruntime.gateway_proxy
 |---|---|---|
 | `CR_GATEWAY_MODE` | `off` (default) · `observe` · `enforce` | kill-switch · log-only · mutate outbound history |
 | `CR_GATEWAY_THINKING_KEEP` | integer ≥ 1 | thinking-GC: keep thinking only in the last N assistant messages (unset = off) |
-| `CR_GATEWAY_CACHE_ALIGN` | `off` (default) · `cold` · `gated` | `off` = mutate at fixed batch boundaries (the B6 behavior); `cold` = new mutations only when the cache is cold (start / idle gap > TTL); `gated` = cold + break-even rule (as shipped, the break-even branch cannot fire on `anthropic-1h`/`anthropic-5m`, so there `gated` behaves like `cold`). Fired mutations persist (byte-stable) in both aligned modes — but see the forwarding bug under [Current limitations](#current-limitations) |
+| `CR_GATEWAY_CACHE_ALIGN` | `off` (default) · `cold` · `gated` | `off` = mutate at fixed batch boundaries (the B6 behavior); `cold` = new mutations only when the cache is cold (start / idle gap > TTL); `gated` = cold + break-even rule (fires when `read·R·(E+1) ≥ (write−read)·(S−R)`; on `anthropic-1h` that needs the removed tokens R to be ≥ ~68% of the suffix S). Fired mutations persist (byte-stable) in both aligned modes |
 | `CR_GATEWAY_PROFILE` | `anthropic-1h` (default; the only profile checked against live sessions) · `anthropic-5m` · `openai-auto` · `gemini-implicit` | provider constants for the break-even rule; unknown names fall back to the default (strictest) |
 | `CR_GATEWAY_LOG` | path | decision log (JSONL); unset = no log |
 | `CR_GATEWAY_PORT` | integer (default 8787) | listen port on 127.0.0.1 |
@@ -124,33 +124,29 @@ CR_GATEWAY_LOG=$HOME/cr-gateway.jsonl python3 -m contextruntime.gateway_proxy
    (ours: ~18k with admission vs ~85k without). If it's huge, admission isn't applied.
 2. `fallback_original` lines should be absent (a missing `response_usage` line after a decision
    means the outcome went unrecorded, not that it succeeded).
-3. On the default `anthropic-1h` profile, `fire_reason` will be `hold` on every request except a
-   cold start or an idle gap longer than the TTL, because the break-even branch cannot fire there
-   (see limitations) — a `hold` is not evidence of a correct cost decision.
-   **Do not use `persistent_applied` as proof that anything was removed:** because of a known bug
-   (`gateway_proxy.py:47`), it is logged even when the stub is not forwarded upstream — the proxy
-   re-serializes the body only when the same request also applied a new retirement or stripped
-   thinking, so with `CR_GATEWAY_THINKING_KEEP` unset, persisted retirements are counted but not sent.
+3. On the default `anthropic-1h` profile, expect `fire_reason` = `hold` on most requests of a
+   short, cache-hot session; `break-even` appears when a large stale output dominates the suffix
+   (`removable_tokens` vs `suffix_tokens_est` in the log). `persistent_applied` counts stubs that
+   were re-applied and forwarded. A `breaker` reason means the API rejected a mutated request in
+   that conversation, which now passes through unchanged — investigate the logged error.
 
 ### Current limitations
 
-- **One proxy process per agent session.** Scheduler state (fired set, thinking frontier, last
-  request time) is process-wide; running several concurrent conversations through one proxy mixes
-  their gap detection and frontier — and even a later, shorter conversation through the same
-  proxy can have thinking stripped up to the old frontier, including its latest assistant
-  message. Start one proxy per session (different ports).
+- **Scheduler state is per conversation** (fired set, thinking frontier, last request time, breaker),
+  keyed by the model and the conversation's first message, so side calls, subagents and parallel
+  sessions through one proxy no longer share a clock or a frontier. Two different conversations
+  that start with byte-identical first messages would still share state; the thinking frontier is
+  clamped per request so the last kept assistant messages are never stripped regardless.
 - The "1h" cache TTL is soft in practice (we observed no expiry at 65-minute gaps), and both
   `cold` and `gated` fire on an idle gap longer than the TTL (`cachealign.py:79-80`), so either
-  may mutate a still-warm cache. On `anthropic-1h`/`anthropic-5m` the break-even branch cannot fire
-  as shipped: it needs `0.1·P·8 ≥ (w−0.1)·S`, but the suffix S is counted from the earliest
-  pending tool result, so S ≥ P — in practice `gated` = `cold` on these profiles. (The modeled B7
-  "gated" savings come from a different replay rule; see `docs/b7-findings.md`.)
-- **Known bugs (unfixed):** persistent retirements are not forwarded unless the same request also
-  applied a new retirement or stripped thinking (`gateway_proxy.py:47`), while `persistent_applied`
-  is still logged; a fired mutation that the API rejects is never rolled back, so it is re-sent
-  (and falls back) on every later request that re-serializes the body;
-  `doctor --prefix --no-capture` crashes; the doctor's same-project session filter misses project
-  paths that contain `_` (e.g. in the username), so its transcript join comes back empty.
+  may mutate a still-warm cache. The corrected break-even rule (2026-10-06) has unit and
+  simulator tests but has not been run live yet. (The modeled B7 "gated" savings come from a
+  different replay rule; see `docs/b7-findings.md`.)
+- **Fixed 2026-10-06** (regression tests in `tests/test_gateway_doctor_fixes.py`; none exercised
+  live yet): persistent retirements were not forwarded unless the same request also fired or
+  stripped thinking; a mutation the API rejected was re-sent every request (now the conversation
+  trips to pass-through); scheduler state was process-wide; `doctor --prefix --no-capture`
+  crashed; the doctor's same-project filter missed paths containing `_`.
 - Anthropic-ecosystem-specific levers (thinking-GC, the schema-deferral interaction) have no
   equivalent on other providers; **GPT/OpenAI and local models need an OpenAI-format adapter and a
   calibration pass before any of this applies** — see the porting ladder in `docs/provider-profiles.md`.

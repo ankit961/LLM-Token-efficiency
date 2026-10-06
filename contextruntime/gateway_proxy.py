@@ -35,8 +35,11 @@ _HOP = {"connection", "keep-alive", "proxy-authenticate", "proxy-authorization",
 
 def prepare_upstream_body(raw: bytes, path: str, gateway: RetirementGateway):
     """Pure decision: what bytes go upstream, and the gateway decision. OBSERVE (and enforce-no-op)
-    return the ORIGINAL bytes so the request is byte-transparent; only an enforce that actually applied
-    re-serializes. Non-messages paths and malformed bodies pass through untouched (fail-open)."""
+    return the ORIGINAL bytes so the request is byte-transparent; an enforce that changed the
+    messages in ANY way — a new retirement, a re-applied persistent one, or stripped thinking —
+    re-serializes. (Before 2026-10-06 persistent re-applications were dropped here unless the same
+    request also fired or stripped thinking, so the stubs silently reverted.) Non-messages paths
+    and malformed bodies pass through untouched (fail-open)."""
     if not path.split("?", 1)[0].endswith(MESSAGES_PATH) or gateway.mode == "off":
         return raw, None
     try:
@@ -44,7 +47,7 @@ def prepare_upstream_body(raw: bytes, path: str, gateway: RetirementGateway):
     except Exception:      # noqa: BLE001 — not JSON we understand ⇒ pass through
         return raw, None
     body_out, dec = gateway.process(body)
-    if gateway.mode == "enforce" and dec is not None and (dec.applied or dec.thinking_stripped):
+    if gateway.mode == "enforce" and dec is not None and dec.mutated:
         try:
             return json.dumps(body_out).encode("utf-8"), dec
         except Exception:      # noqa: BLE001
@@ -99,22 +102,23 @@ def _connect(upstream: str):
     return cls(u.hostname, port, timeout=600), u.hostname
 
 
-_SCHED = None
+_REGISTRY = None
 _GW_LOCK = threading.Lock()
 
 
 def gateway_singleton() -> RetirementGateway:
-    """Gateway per request (env re-read each time, as pre-B7), but the cache-aligned SCHEDULER —
-    fired set, thinking frontier, last-request timestamp — is process-lived state and must be
-    shared across requests, or alignment silently resets every call. The shared scheduler carries
-    over while the align mode is unchanged; switching modes starts fresh state."""
-    global _SCHED
+    """Gateway per request (env re-read each time, as pre-B7), but the cache-aligned scheduler
+    states — one per conversation: fired set, thinking frontier, last-request timestamp, breaker —
+    are process-lived and must be shared across requests, or alignment silently resets every call.
+    The shared registry carries over while the align mode is unchanged; switching modes starts
+    fresh state."""
+    global _REGISTRY
     gw = RetirementGateway(log_path=os.environ.get("CR_GATEWAY_LOG"))
     with _GW_LOCK:
-        if _SCHED is not None and _SCHED.mode == gw.align:
-            gw.scheduler = _SCHED
+        if _REGISTRY is not None and _REGISTRY.mode == gw.align:
+            gw.schedulers = _REGISTRY
         else:
-            _SCHED = gw.scheduler
+            _REGISTRY = gw.schedulers
     return gw
 
 
@@ -167,9 +171,10 @@ class RetirementProxyHandler(BaseHTTPRequestHandler):
             conn.close()
         return b"".join(acc)
 
-    def _relay(self, method: str, body: bytes, *, original: bytes = None, log=None):
+    def _relay(self, method: str, body: bytes, *, original: bytes = None, log=None, on_reject=None):
         """Relay to upstream. If `original` is given (the body was MUTATED by the gateway) and upstream
-        answers 4xx, resend the ORIGINAL bytes — fail-open at the response level — and log it."""
+        answers 4xx, resend the ORIGINAL bytes — fail-open at the response level — log it, and call
+        `on_reject` so the gateway stops re-applying the rejected mutation on later requests."""
         try:
             conn, resp = self._open(method, body)
         except Exception as e:      # noqa: BLE001
@@ -180,6 +185,11 @@ class RetirementProxyHandler(BaseHTTPRequestHandler):
             conn.close()
             if log:
                 log({"fallback_original": True, "upstream_status": resp.status, "error": err[:300].decode("utf-8", "replace")})
+            if on_reject:
+                try:
+                    on_reject()
+                except Exception:      # noqa: BLE001 — the breaker must never break the request path
+                    pass
             try:
                 conn, resp = self._open(method, original)
             except Exception as e:      # noqa: BLE001
@@ -194,12 +204,19 @@ class RetirementProxyHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         raw = self._read_body()
         gw = self._gateway()
+        dec = None
         try:
             with _GW_LOCK:      # scheduler state mutates in process(); requests serialize here
-                body_out, _dec = prepare_upstream_body(raw, self.path, gw)
+                body_out, dec = prepare_upstream_body(raw, self.path, gw)
         except Exception:      # noqa: BLE001 — the gateway must never break the request path
             body_out = raw
-        self._relay("POST", body_out, original=(raw if body_out is not raw else None), log=gw._log)
+
+        def on_reject():
+            with _GW_LOCK:
+                gw.reject(dec)
+
+        self._relay("POST", body_out, original=(raw if body_out is not raw else None), log=gw._log,
+                    on_reject=on_reject)
 
     def do_GET(self):
         self._relay("GET", b"")

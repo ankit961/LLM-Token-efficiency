@@ -245,11 +245,30 @@ def session_stats(path: str):
     return SessionStats(path, calls, startup or 0, sP, first, uses) if calls else None
 
 
+def project_slug(path: str) -> str:
+    """Claude Code names a project's transcript directory after its absolute path with every
+    non-alphanumeric character turned into '-' (so '/work/first_last/repo' becomes
+    '-work-first-last-repo'). Some clients kept '_'; comparing both sides through this
+    normalization matches either spelling."""
+    return re.sub(r"[^A-Za-z0-9]", "-", path)
+
+
+def project_files(projects_dir: str, project_path: str) -> list:
+    """Transcript files whose project directory IS `project_path` (exact match after slug
+    normalization — not a substring, so '/repo' does not also pick up '/repo-old')."""
+    want = project_slug(os.path.abspath(project_path))
+    return [f for f in glob.glob(os.path.join(projects_dir, "*", "*.jsonl"))
+            if project_slug(os.path.basename(os.path.dirname(f))) == want]
+
+
 def collect_sessions(projects_dir: str = None, *, max_sessions: int = 40, project_filter: str = None,
-                     transcripts: list = None) -> list:
+                     transcripts: list = None, project_path: str = None) -> list:
     if transcripts is None:
         projects_dir = projects_dir or os.path.expanduser("~/.claude/projects")
-        files = glob.glob(os.path.join(projects_dir, "*", "*.jsonl"))
+        if project_path:
+            files = project_files(projects_dir, project_path)
+        else:
+            files = glob.glob(os.path.join(projects_dir, "*", "*.jsonl"))
         if project_filter:
             files = [f for f in files if project_filter in f]
         transcripts = sorted(files, key=os.path.getmtime, reverse=True)[:max_sessions]
@@ -298,7 +317,7 @@ def lean_items(transcripts: list, reference_body: dict) -> tuple:
     names this environment DEFERRED (from its transcripts), sized from the reference capture (same
     Claude Code version/model); listings measured from the transcripts; core prompt from the reference.
     Returns (items, notes)."""
-    ref = {it.name: it for it in itemize(reference_body)}
+    ref = {it.name: it for it in itemize(reference_body)} if reference_body else {}
     lst = [transcript_listings(tp) for tp in transcripts[:20]]
     deferred = set.intersection(*[x["deferred_names"] for x in lst if x["deferred_names"]]) if any(x["deferred_names"] for x in lst) else set()
     items, notes = [], []
@@ -316,7 +335,10 @@ def lean_items(transcripts: list, reference_body: dict) -> tuple:
             if pick[key]:
                 items.append(Item(cat, "transcript attachment (measured)", cat, tok(pick[key]), "", pick[key]))
         notes.append(f"deferred (not resident) in this environment: {len(deferred)} tools; per-turn reminders: {dict(pick['reminders'])}")
-    notes.append("tool schema + core prompt sizes from the reference capture (same Claude Code version/model); listings measured from transcripts; CLAUDE.md/memory unattributed")
+    if ref:
+        notes.append("tool schema + core prompt sizes from the reference capture (same Claude Code version/model); listings measured from transcripts; CLAUDE.md/memory unattributed")
+    else:
+        notes.append("no reference capture available, so tool-schema and core-prompt sizes are NOT itemized (only transcript listings are); run without --no-capture to measure them")
     return items, notes
 
 
@@ -546,11 +568,11 @@ def format_report(rep: dict) -> str:
 
 
 def run(cwd: str = None, *, capture: bool = True, sessions: int = 40, project_filter: str = None,
-        body: dict = None, env_label: str = "this machine") -> dict:
+        body: dict = None, env_label: str = "this machine", projects_dir: str = None) -> dict:
     cwd = cwd or os.getcwd()
     if body is None and capture:
         body = capture_first_request(cwd)
-    sess = collect_sessions(max_sessions=sessions, project_filter=project_filter)
-    same = collect_sessions(max_sessions=sessions, project_filter=os.path.abspath(cwd).replace("/", "-"))
+    sess = collect_sessions(projects_dir, max_sessions=sessions, project_filter=project_filter)
+    same = collect_sessions(projects_dir, max_sessions=sessions, project_path=cwd)
     real_first = _median([s.startup_P for s in same]) if same else None
     return build_report(body, sess, env_label=env_label, real_startup=real_first)

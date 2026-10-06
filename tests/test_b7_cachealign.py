@@ -145,20 +145,20 @@ def test_replay_cold_gap_fires_free_at_idle_gap():
 
 
 def test_proxy_gateway_is_a_process_singleton(monkeypatch):
-    """B7 regression: the scheduler's fired set lives on the gateway, so the proxy must reuse ONE
-    instance across requests (a fresh instance per POST silently resets alignment state)."""
+    """B7 regression: scheduler state is process-lived, so the per-request gateways the proxy builds
+    must share ONE registry (a fresh one per POST silently resets alignment state)."""
     import contextruntime.gateway_proxy as gp
-    monkeypatch.setattr(gp, "_SCHED", None)
+    monkeypatch.setattr(gp, "_REGISTRY", None)
     monkeypatch.setenv("CR_GATEWAY_MODE", "enforce")
     monkeypatch.setenv("CR_GATEWAY_CACHE_ALIGN", "gated")
     a = gp.gateway_singleton()
     b = gp.gateway_singleton()
-    assert a is not b and a.scheduler is b.scheduler and b.align == "gated"
-    a.scheduler.fired_keys.add("t-x")
-    assert "t-x" in gp.gateway_singleton().scheduler.fired_keys
+    assert a is not b and a.schedulers is b.schedulers and b.align == "gated"
+    a.schedulers.get("conv-1").fired_keys.add("t-x")
+    assert "t-x" in gp.gateway_singleton().schedulers.get("conv-1").fired_keys
     monkeypatch.setenv("CR_GATEWAY_CACHE_ALIGN", "cold")     # mode switch starts fresh state
     c = gp.gateway_singleton()
-    assert c.scheduler is not a.scheduler and not c.scheduler.fired_keys
+    assert c.schedulers is not a.schedulers and not c.schedulers.get("conv-1").fired_keys
 
 
 def test_provider_profiles_generic_framework(monkeypatch):
