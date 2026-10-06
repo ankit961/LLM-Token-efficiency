@@ -37,6 +37,10 @@ from . import livecas
 from .. import doctor
 
 # A gated call this small isn't worth a handle+summary envelope — pass it through.
+# Shipped default (256, 400). B1_DECISION froze a 125-token floor, but that rested on a Step-6
+# replay now flagged as possibly contaminated, and the live (256, 125) arm saved ~0.03% while
+# repeated-scope searches rose — so the conservative floor stays until new evidence (B1_DECISION,
+# amendment 2026-10-06). CR_REDUCE_FLOOR=125 reproduces the frozen config.
 MIN_REDUCE_TOKENS = 400
 
 

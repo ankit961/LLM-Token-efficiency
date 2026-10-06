@@ -166,10 +166,13 @@ def default_reducer_cmd(scope: Scope, *, enforce: bool = False,
         "PYTHONPATH": _pkg_root(),
         "CR_DB": scope.live_cas_db,
         "CR_DECISION_LOG": scope.decisions_log,
-        # B1.2: read-only inputs for graph-informed ranking (fail-open if absent/stale).
+        # B1.2: read-only inputs for graph-informed ranking (fail-open if absent/stale). Graph
+        # ranking stays OFF by default, as B1_DECISION froze it (the graph-retrieval line was closed
+        # by measurement); set CR_GRAPH_MODE to anything else in this command to opt in.
         "CR_GRAPH_DB": scope.codegraph_db,
         "CR_REPO_ID": scope.repo_id,
         "CR_JOURNAL_DB": scope.journal_db,
+        "CR_GRAPH_MODE": "off",
     }
     if enforce and client_version:
         env["CR_REDUCE_MODE"] = "enforce"

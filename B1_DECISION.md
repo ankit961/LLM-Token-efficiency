@@ -38,6 +38,14 @@
 > Sources: `corpus/analysis/step7-live-results.json`, `corpus/analysis/reduction-replay-v1.2.json`,
 > and the code paths named above.
 
+> **Amendment (2026-10-06, code vs decision resolved):** graph ranking is now OFF by default — the
+> installer's reducer command sets `CR_GRAPH_MODE=off` (change it to opt in). The floor stays at 400
+> in code rather than the frozen 125: the 125 choice rested on the Step-6 replay now flagged as
+> possibly contaminated, and the live `(256,125)` arm (Step 7 D1) saved ~0.03% per session while
+> repeated-scope searches rose 55 → 95. `CR_REDUCE_FLOOR=125` reproduces the frozen policy. A test
+> pins both defaults (`tests/test_gateway_doctor_fixes.py::test_shipped_reducer_defaults_are_pinned`),
+> so this document and the code cannot drift apart silently again.
+
 **Status: research phase complete. This freezes the B1 policy and ends experiment-methodology
 changes.** ContextRuntime B1 is now a product-engineering project. Evidence: `docs/step4..step7`,
 `docs/step6.1-evidence-retention-findings.md`, `docs/step7-live-findings.md`.

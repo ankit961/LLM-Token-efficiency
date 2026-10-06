@@ -15,6 +15,7 @@ that maps Anthropic message shapes to `ObservedObject`s and decides mode.
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import time
@@ -102,6 +103,49 @@ def thinking_gc_upto(messages, frontier_turn):
     return n_blocks, sig_bytes
 
 
+def _strip_cache_control(o):
+    if isinstance(o, dict):
+        return {k: _strip_cache_control(v) for k, v in o.items() if k != "cache_control"}
+    if isinstance(o, list):
+        return [_strip_cache_control(v) for v in o]
+    return o
+
+
+def conversation_key(body: dict) -> str:
+    """Stable id for one conversation: the model plus its first message, with cache_control
+    markers removed (the client moves its breakpoints between requests). One proxy usually carries
+    several conversations — side calls, subagents, parallel sessions — and each gets its own
+    scheduler state under this key."""
+    msgs = body.get("messages") or []
+    first = _strip_cache_control(msgs[0]) if msgs else None
+    raw = json.dumps([body.get("model"), first], sort_keys=True, default=str)
+    return hashlib.sha256(raw.encode("utf-8")).hexdigest()[:16]
+
+
+def _json_tokens(x) -> int:
+    """The suffix estimator's unit (serialized chars / 4), shared by every quantity the
+    break-even rule compares so the two sides are measured the same way."""
+    return len(json.dumps(x, default=str)) // 4
+
+
+def _first_thinking_turn(messages, after: int, upto: int):
+    """1-based index of the first assistant message in (after, upto] that carries thinking
+    blocks — the earliest edit a thinking-frontier advance would make. None if there is none."""
+    a_turn = 0
+    for m in messages:
+        if m.get("role") != "assistant":
+            continue
+        a_turn += 1
+        if a_turn <= after:
+            continue
+        if a_turn > upto:
+            break
+        c = m.get("content")
+        if isinstance(c, list) and any(isinstance(b, dict) and b.get("type") in _THINKING for b in c):
+            return a_turn
+    return None
+
+
 def gateway_mode_from_env() -> str:
     """CR_GATEWAY_MODE ∈ {off, observe, enforce}; anything else (incl. unset) ⇒ off (safe default)."""
     m = (os.environ.get("CR_GATEWAY_MODE") or "off").strip().lower()
@@ -183,6 +227,14 @@ class GatewayDecision:
     pending_tokens: int = 0                # retirable tokens held back by the scheduler
     suffix_tokens_est: int = 0             # estimated tokens after the earliest pending edit point
     persistent_applied: int = 0            # previously fired retirements re-applied (byte-stable)
+    removable_tokens: int = 0              # what a fire would remove (pending outputs minus stubs)
+    conv_key: str = ""                     # conversation the scheduler state belongs to
+
+    @property
+    def mutated(self) -> bool:
+        """True when this request's messages differ from what the client sent — the proxy must then
+        forward the re-serialized body, or the stubs (and the byte-stable prefix) are lost."""
+        return bool(self.applied or self.thinking_stripped or self.persistent_applied)
 
 
 class RetirementGateway:
@@ -191,7 +243,7 @@ class RetirementGateway:
 
     def __init__(self, *, mode: str = None, lag: int = DEFAULT_LAG, batch_turns: int = DEFAULT_BATCH_TURNS,
                  log_path: str = None, thinking_keep: int = None, align: str = None) -> None:
-        from .cachealign import ALIGN_MODES, CacheAlignedScheduler, align_mode_from_env
+        from .cachealign import ALIGN_MODES, CacheAlignedScheduler, SchedulerRegistry, align_mode_from_env
         from .providers import profile_from_env
         self.mode = mode if mode in MODES else gateway_mode_from_env()
         self.lag = lag
@@ -199,8 +251,11 @@ class RetirementGateway:
         self.log_path = log_path
         self.thinking_keep = thinking_keep if thinking_keep is not None else thinking_keep_from_env()
         self.align = align if align in ALIGN_MODES else align_mode_from_env()
-        self.profile = profile_from_env()          # CR_GATEWAY_PROFILE; default = validated anthropic-1h
-        self.scheduler = CacheAlignedScheduler.from_profile(self.align, self.profile)
+        self.profile = profile_from_env()          # CR_GATEWAY_PROFILE; default = anthropic-1h
+        align_mode, profile = self.align, self.profile
+        self.schedulers = SchedulerRegistry(
+            align_mode, lambda: CacheAlignedScheduler.from_profile(align_mode, profile))
+        self.scheduler = None                      # the conversation state used by the last request
 
     def _log(self, record: dict) -> None:
         if not self.log_path:
@@ -220,20 +275,43 @@ class RetirementGateway:
 
     @staticmethod
     def _suffix_tokens_est(messages, after_turn: int) -> int:
-        """Rough token count of everything AFTER assistant turn `after_turn` — the suffix a fire at
-        that depth would re-create (the retired tool_result sits in the next user message, so the
-        count starts there). Serialization chars / 4; gates WHEN to fire, never correctness."""
-        a_turn = 0
-        chars = 0
-        counting = False
-        for m in messages:
-            if counting:
-                chars += len(json.dumps(m.get("content"), default=str))
-            if m.get("role") == "assistant":
-                a_turn += 1
-                if a_turn >= after_turn:
-                    counting = True
-        return chars // 4
+        """Rough token count of everything AFTER assistant turn `after_turn` (the whole request when
+        after_turn <= 0) — the suffix a fire at that depth would re-create (a retired tool_result
+        sits in the next user message, so the count starts there). Serialization chars / 4; gates
+        WHEN to fire, never correctness."""
+        start = 0
+        if after_turn > 0:
+            start, a_turn = len(messages), 0
+            for i, m in enumerate(messages):
+                if m.get("role") == "assistant":
+                    a_turn += 1
+                    if a_turn >= after_turn:
+                        start = i + 1
+                        break
+        return sum(len(json.dumps(m.get("content"), default=str)) for m in messages[start:]) // 4
+
+    @staticmethod
+    def _removable_tokens(messages, pending) -> int:
+        """Tokens a fire would actually remove: each pending tool_result's content minus the stub
+        that replaces it, in the suffix estimator's unit."""
+        stub_of = {r.obj_id: r.replacement for r in pending}
+        removable = 0
+        for msg in messages:
+            content = msg.get("content")
+            if not isinstance(content, list):
+                continue
+            for b in content:
+                if isinstance(b, dict) and b.get("type") == "tool_result" and b.get("tool_use_id") in stub_of:
+                    removable += _json_tokens(b.get("content")) - _json_tokens(stub_of[b["tool_use_id"]])
+        return max(removable, 0)
+
+    def reject(self, dec) -> None:
+        """The API rejected a request this gateway mutated. Trip the breaker for that conversation:
+        its later requests pass through unchanged instead of failing and falling back every turn."""
+        if dec is None or not getattr(dec, "conv_key", ""):
+            return
+        self.schedulers.get(dec.conv_key).tripped = True
+        self._log({"breaker_tripped": True, "conv_key": dec.conv_key, "at_turn": dec.turn})
 
     def process(self, body: dict):
         if self.mode == "off":
@@ -244,35 +322,54 @@ class RetirementGateway:
             boundary = self.batch_turns > 0 and n_turns > 0 and n_turns % self.batch_turns == 0
             dec = GatewayDecision(turn=n_turns, mode=self.mode, n_objects=len(objs),
                                   n_retirable=len(plan.retirements), tokens_retirable=plan.tokens_freed,
-                                  is_batch_boundary=boundary, ts=time.time(), align=self.align)
+                                  is_batch_boundary=boundary, ts=time.time(), align=self.align,
+                                  conv_key=conversation_key(body))
+            sched = self.schedulers.get(dec.conv_key)
+            self.scheduler = sched
+            if self.mode == "enforce" and sched.tripped:
+                dec.fire_reason = "breaker"        # the API rejected a mutation here: pass through
+                self._log(asdict(dec))
+                return body, dec
             if self.align != "off" and self.mode == "enforce":
                 # B7 cache-aligned path: fired mutations re-apply every request (byte-stable);
                 # NEW mutations only at cold-start / TTL-gap / break-even moments.
-                fired_ids = self.scheduler.fired_keys
+                fired_ids = sched.fired_keys
                 persistent = [r for r in plan.retirements if r.obj_id in fired_ids]
                 pending = [r for r in plan.retirements if r.obj_id not in fired_ids]
                 if persistent:
                     sub = HistoryMutationPlan(plan.at_turn, tuple(persistent),
                                               sum(r.tokens_freed for r in persistent))
                     dec.persistent_applied = InProcessMessageMutator().apply(sub, messages).applied
+                keep = self.thinking_keep or 0
                 turn_of = {o.obj_id: o.turn for o in objs}
-                earliest = min((turn_of.get(r.obj_id, n_turns) for r in pending), default=n_turns)
-                suffix_est = self._suffix_tokens_est(messages, earliest) if pending else 0
-                fd = self.scheduler.decide(
+                edit_after = min((turn_of.get(r.obj_id, n_turns) for r in pending), default=None)
+                if keep and edit_after is not None:
+                    # a fire also advances the thinking frontier; if that edits an earlier message,
+                    # the rewrite starts there
+                    t_think = _first_thinking_turn(messages, sched.strip_frontier, n_turns - keep)
+                    if t_think is not None:
+                        edit_after = min(edit_after, t_think - 1)
+                suffix_est = self._suffix_tokens_est(messages, edit_after) if edit_after is not None else 0
+                removable = self._removable_tokens(messages, pending) if pending else 0
+                fd = sched.decide(
                     [(r.obj_id, turn_of.get(r.obj_id, n_turns), r.tokens_freed) for r in pending],
-                    suffix_est, now_ts=dec.ts)
+                    suffix_est, removable_tokens=removable, now_ts=dec.ts)
                 dec.fire_reason, dec.gap_s = fd.reason, (fd.gap_s if fd.gap_s is not None else -1.0)
                 dec.pending_tokens, dec.suffix_tokens_est = fd.pending_tokens, suffix_est
+                dec.removable_tokens = fd.removable_tokens
                 if fd.fire:
                     dec.fired = True
                     if pending:
                         sub = HistoryMutationPlan(plan.at_turn, tuple(pending),
                                                   sum(r.tokens_freed for r in pending))
                         dec.applied = InProcessMessageMutator().apply(sub, messages).applied
-                    self.scheduler.commit([r.obj_id for r in pending], n_turns)
-                if self.thinking_keep:
-                    dec.thinking_strippable, dec.thinking_sig_bytes = thinking_opportunity(messages, self.thinking_keep)
-                    dec.thinking_stripped, _ = thinking_gc_upto(messages, self.scheduler.strip_frontier)
+                    sched.commit([r.obj_id for r in pending], n_turns, keep=keep or 1)
+                if keep:
+                    dec.thinking_strippable, dec.thinking_sig_bytes = thinking_opportunity(messages, keep)
+                    # never strip the last `keep` assistant messages of THIS request, whatever the
+                    # conversation's frontier says
+                    frontier = min(sched.strip_frontier, n_turns - keep)
+                    dec.thinking_stripped, _ = thinking_gc_upto(messages, frontier)
             else:
                 if self.mode == "enforce" and boundary and plan.retirements:
                     dec.applied = InProcessMessageMutator().apply(plan, messages).applied

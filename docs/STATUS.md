@@ -10,7 +10,8 @@ gets to claim a gate once a measured trial clears it.
 > with a measured live dollar effect (B8 v2: −29.3%, a post-hoc check on 3 tasks, not
 > preregistered). B6's −41.5% input-token reduction (preregistered; −2.5% dollars) is about what
 > admission alone predicts (−44.0%), so the lifetime levers' live contribution is unidentified;
-> the shipped scheduler's break-even branch cannot fire on `anthropic-1h`; and B7's −49.7%
+> in the version B8 ran, the scheduler's break-even branch could not fire on `anthropic-1h` (fixed
+> 2026-10-06, not yet run live); and B7's −49.7%
 > (all 54 sessions, median 0%) is modeled. **Open experiment:** stock Claude Code with tool search
 > enabled (the native arm used only its default MCP-schema deferral) vs the same client with
 > disallow-only (no proxy) vs the full gateway, on more tasks and repos (including django-16502), graded with the official SWE-bench

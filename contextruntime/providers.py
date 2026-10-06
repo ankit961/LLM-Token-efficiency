@@ -55,14 +55,14 @@ PROFILES = {
         note="The profile checked against live sessions: captured cache_control ttl='1h'; "
              "writes 2.0x; sonnet output ratio $15/$3. Calibration: append-only branch exact on "
              "11/12 B6 native sessions; B8 v2 post-hoc check -0.16 pp (not preregistered). Edit "
-             "branch and live break-even fires unvalidated; as shipped, break-even cannot fire "
-             "here (E=8 < 19 reads, and the suffix estimate includes the pending tokens)."),
+             "branch and live break-even fires unvalidated; break-even fires here when the "
+             "removed tokens are >= ~68% of the suffix (E=8; rule fixed 2026-10-06)."),
     "anthropic-5m": ProviderProfile(
         "anthropic-5m", read_mult=0.1, write_mult=1.25, ttl_s=300.0, out_mult=5.0,
         validated=False,
         note="Anthropic's default 5-minute tier (writes 1.25x). Same semantics as "
-             "anthropic-1h, different constants; break-even 11.5 instead of 19 (still > E=8, so "
-             "the shipped break-even branch cannot fire here either)."),
+             "anthropic-1h, different constants; break-even 11.5 instead of 19 (fires when the "
+             "removed tokens are >= ~56% of the suffix at E=8)."),
     "openai-auto": ProviderProfile(
         "openai-auto", read_mult=0.5, write_mult=1.0, ttl_s=600.0, out_mult=4.0,
         validated=False,
